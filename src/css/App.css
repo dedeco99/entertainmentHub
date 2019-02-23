@@ -1,0 +1,39 @@
+body {
+  background-color: #444444;
+  color: white;
+}
+
+.nav-item > a {
+  color: #999999;
+  text-decoration: none;
+  padding:10px;
+}
+
+.nav-item > a:hover {
+  color: white;
+  padding:10px;
+}
+
+.nav-item > .active {
+  color: white;
+}
+
+.sliding-middle-out{
+	display:inline-block;
+	position:relative;
+}
+
+.sliding-middle-out:after{
+	content:"";
+	display:block;
+	margin:auto;
+	height:3px;
+	width:0px;
+	background:transparent;
+	transition:width .5s ease, background-color .5s ease;
+}
+
+.sliding-middle-out:hover:after{
+	width:100%;
+	background:#00bc8c;
+}
