@@ -2,19 +2,19 @@ import React, { Component } from "react";
 
 class AddPost extends Component {
 	state = {
-		content:""
+		body:""
 	}
 
 	handleChange = (e) => {
 		this.setState({
-			content:e.target.value
+			body:e.target.value
 		});
 	}
 
 	handleSubmit = (e) => {
 		e.preventDefault();
 		this.props.addPost(this.state);
-		this.setState({ content: "" });
+		this.setState({ body: "" });
 	}
 
 	render(){
@@ -22,7 +22,7 @@ class AddPost extends Component {
 			<div>
 				<form onSubmit={this.handleSubmit}>
 					<label>Add</label>
-					<input type="text" onChange={this.handleChange} value={this.state.content} />
+					<input type="text" onChange={this.handleChange} value={this.state.body} />
 				</form>
 			</div>
 		)
