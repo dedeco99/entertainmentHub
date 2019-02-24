@@ -1,29 +1,43 @@
 import React, { Component } from 'react';
 import { Link, NavLink } from 'react-router-dom';
+import '../css/Header.css';
 import logo from '../img/logo.png';
 import settings from '../img/settingsButton.png';
 
 class Header extends Component {
+  state = {
+    apps:[
+      { id:1, name: "Reddit", endpoint:"/reddit" },
+      { id:2, name: "Youtube", endpoint:"/youtube" },
+      { id:3, name: "Twitch", endpoint:"/twitch" },
+      { id:4, name: "TV Series", endpoint:"/tvseries" }
+    ]
+  }
+
   render() {
+    const { apps } = this.state;
+		const appList = apps.map(app => {
+			return (
+        <li className="nav-item sliding-middle-out" key={app.id}><NavLink to={ app.endpoint }>{ app.name }</NavLink></li>
+			)
+		})
+
     return (
       <div className="Header">
-				<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
-					<Link class="navbar-brand" to="/">
+        <nav className="navbar navbar-expand-sm fixed-top dark">
+					<Link className="navbar-brand" to="/">
             <img src={logo} width="50px" alt="Logo" />
           </Link>
-					<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#appNavbar" aria-expanded="false">
-						<span class="navbar-toggler-icon"></span>
+					<button className="navbar-toggler" type="button" data-toggle="collapse" data-target="#appNavbar" aria-expanded="false">
+						<span className="navbar-toggler-icon"></span>
 					</button>
-					<div class="navbar-collapse collapse" id="appNavbar">
-						<ul class="navbar-nav mr-auto" id="apps">
-							<li class="nav-item sliding-middle-out"><NavLink to="/reddit">Reddit</NavLink></li>
-							<li class="nav-item sliding-middle-out"><NavLink to="/youtube">Youtube</NavLink></li>
-							<li class="nav-item sliding-middle-out"><NavLink to="/twitch">Twitch</NavLink></li>
-							<li class="nav-item sliding-middle-out"><NavLink to="/tvseries">TV Series</NavLink></li>
+					<div className="navbar-collapse collapse" id="appNavbar">
+						<ul className="navbar-nav mr-auto" id="apps">
+							{ appList }
 						</ul>
-						<ul class="navbar-nav navbar-right">
-							<li class="nav-item"><a class="nav-link" href="/settings"><img src={settings} width="25px" alt="Settings"/></a></li>
-							<li class="nav-item sliding-middle-out"><a class="logout nav-link" href="/logout">Logout</a></li>
+						<ul className="navbar-nav navbar-right">
+							<li className="nav-item"><NavLink to="/settings"><img src={settings} width="25px" alt="Settings"/></NavLink></li>
+							<li className="nav-item sliding-middle-out"><NavLink to="/logout">Logout</NavLink></li>
 						</ul>
 					</div>
 				</nav>

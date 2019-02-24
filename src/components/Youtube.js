@@ -4,7 +4,7 @@ class Youtube extends Component {
   render() {
     return (
       <div className="Youtube">
-        <div class="container">
+        <div className="container">
           my name youtube
         </div>
       </div>
