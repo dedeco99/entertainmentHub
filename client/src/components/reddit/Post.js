@@ -12,7 +12,7 @@ import IconButton from '@material-ui/core/IconButton';
 import Collapse from '@material-ui/core/Collapse';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import logo from '../../img/logo.png';
-import PostContent from "./PostContent"
+import PostContent from "./PostContent";
 
 const styles = theme => ({
   card: {
@@ -61,10 +61,10 @@ class Post extends Component {
               <img src={logo} width="40px" alt="Logo" />
             </Avatar>
           }
-          title=<a className={classes.text} href={post.url}>{post.title}</a>
-          subheader=<div className={classes.text}>{post.upvotes} | {post.downvotes}</div>
+          title=<a className={classes.text} href={post.permalink} target="_blank" rel="noopener noreferrer">{post.title}</a>
+          subheader=<div className={classes.text}>{post.upvotes} | {post.downvotes} | {post.comments} | {post.crossposts}</div>
         />
-        <PostContent post={post} classes={classes}/>
+        <PostContent post={post} classes={classes} />
         <CardActions className={classes.actions} disableActionSpacing>
           <IconButton
             className={classnames(classes.expand, {

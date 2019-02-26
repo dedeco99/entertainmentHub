@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import { connect } from "react-redux";
+import { addPost } from "../../store/actions/redditActions";
 
 class AddPost extends Component {
 	state = {
@@ -29,4 +31,10 @@ class AddPost extends Component {
 	}
 }
 
-export default AddPost;
+const mapDispatchToProps = (dispatch) => {
+	return {
+		addPost: (post) => dispatch(addPost(post))
+	}
+}
+
+export default connect(null, mapDispatchToProps)(AddPost);
