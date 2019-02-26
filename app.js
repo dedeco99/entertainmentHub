@@ -15,13 +15,13 @@ exports.server=app.listen(app.get("port"),function(){
   console.log("Node app is running on port",app.get("port"));
 });
 
-app.use(express.static(path.join(__dirname, 'client/public')))
+app.use(express.static(path.join(__dirname, 'client/build')))
 app.use(cookieParser());
-
-app.get('*', function (req, res) {
-  res.sendFile(path.join(__dirname + '/client/public/index.html'))
-});
 
 app.get("/api/reddit/subreddits",reddit.getSubreddits);
 
 app.get("/api/reddit/subreddits/:subreddit/:category/",reddit.getPosts);
+
+app.get('*/', function (req, res) {
+  res.sendFile(path.join(__dirname + '/client/build/index.html'))
+});
