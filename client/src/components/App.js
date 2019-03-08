@@ -21,12 +21,12 @@ const App = () => {
         <Switch>
           <Route exact path="/" component={ Index } />
           <Route exact path="/login" component={ Login } />
-          <PrivateRoute exact path="/reddit/:sub?/:category?" component={ Reddit } />
-          <PrivateRoute exact path="/youtube" component={ Youtube } />
-          <PrivateRoute exact path="/twitch" component={ Youtube } />
+          <Route exact path="/reddit/:sub?/:category?" component={ Reddit } />
+          <Route exact path="/youtube" component={ Youtube } />
+          <Route exact path="/twitch" component={ Youtube } />
           <Route exact path="/tvseries" component={ TVSeries } />
-          <Route exact path='/series/:id' component={ Seasons } />
-          <PrivateRoute exact path="/settings" component={ Settings } />
+          <Route exact path='/tvseries/:id' component={ Seasons } />
+          <Route exact path="/settings" component={ Settings } />
         </Switch>
       </div>
     </BrowserRouter>

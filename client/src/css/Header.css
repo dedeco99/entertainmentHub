@@ -2,6 +2,14 @@
   background-color: #222;
 }
 
-.logged-in, .logged-out {
-  display: block;
+#logo {
+  padding-top: 8px;
+}
+
+.leftLinks {
+  margin-left: 70px;
+}
+
+.leftLinks > li{
+  margin-right: 0px;
 }

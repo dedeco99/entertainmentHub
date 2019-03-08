@@ -1,29 +1,61 @@
-import React, { Component } from 'react';
-import { Redirect } from 'react-router-dom';
-import auth from "./auth";
+import React, { Component } from "react";
+import { connect } from "react-redux";
+import { login } from "../../store/actions/authActions";
 
 class Login extends Component {
-  state = { redirectToReferrer: false };
+  state = {
+    email: "",
+    password: ""
+  }
 
-  login = () => {
-    auth.login(() => {
-      this.setState({ redirectToReferrer: true });
-    });
-  };
+  handleChange = (e) => {
+    this.setState({
+      [e.target.id]: e.target.value
+    })
+  }
+
+  handleSubmit = (e) => {
+    e.preventDefault();
+    this.props.login(this.state);
+  }
 
   render() {
-    let { from } = this.props.location.state || { from: { pathname: "/" } };
-    let { redirectToReferrer } = this.state;
-
-    if (redirectToReferrer) return <Redirect to={from} />;
-
-    return (
-      <div>
-        <p>You must log in to view the page at {from.pathname}</p>
-        <button onClick={this.login}>Log in</button>
+    const { authError } = this.props;
+    console.log("authError",authError);
+    return(
+      <div className="container">
+        <form className="white" onSubmit={this.handleSubmit}>
+          <h5 className="grey-text text-darken-3">Sign In</h5>
+          <div className="input-field">
+            <label htmlFor="email">Email</label>
+            <input type="email" id="email" onChange={this.handleChange} />
+          </div>
+          <div className="input-field">
+            <label htmlFor="password">Password</label>
+            <input type="password" id="password" onChange={this.handleChange} />
+          </div>
+          <div className="input-field">
+            <button className="btn pink lighten-1 z-depth-0">Login</button>
+            <div className="red-text center">
+              { authError ? <p>{authError}</p> : null }
+            </div>
+          </div>
+        </form>
       </div>
-    );
+    )
   }
 }
 
-export default Login;
+const mapStateToProps = (state) => {
+  return {
+    authError: state.auth.authError
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    login: (credentials) => dispatch(login(credentials))
+  }
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

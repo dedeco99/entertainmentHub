@@ -1,4 +1,5 @@
-import React from 'react';
+import React from "react";
+import { Link } from "react-router-dom";
 
 import TVSeriesSummary from "./TVSeriesSummary";
 
@@ -8,7 +9,9 @@ const TVSeriesList = ({tvSeries}) => {
       <div className="row">
         { tvSeries && tvSeries.map(tvSeries => {
           return (
-            <TVSeriesSummary tvSeries={tvSeries} key={tvSeries.id}/>
+            <Link to={"/tvseries/"+tvSeries.id} key={tvSeries.id}>
+              <TVSeriesSummary tvSeries={tvSeries}/>
+            </Link>
           )
         })}
       </div>

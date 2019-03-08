@@ -5,8 +5,8 @@ const LoggedOutLinks = () => {
   return (
     <div>
       <ul className="right">
-        <li><NavLink to='/signup'>Signup</NavLink></li>
-        <li><NavLink to='/signin'>Login</NavLink></li>
+        <li className="sliding-middle-out"><NavLink to='/register'>Register</NavLink></li>
+        <li className="sliding-middle-out"><NavLink to='/login'>Login</NavLink></li>
       </ul>
     </div>
   )
