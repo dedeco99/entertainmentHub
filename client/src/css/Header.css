@@ -1,3 +1,7 @@
-.dark{
+.dark {
   background-color: #222;
+}
+
+.logged-in, .logged-out {
+  display: block;
 }

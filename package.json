@@ -4,10 +4,10 @@
   "main": "app.js",
   "scripts": {
     "client-install": "npm install --prefix client",
-    "start": "node app.js",
-    "server": "nodemon app.js",
+    "start": "node app.js --prefix server",
+    "server": "nodemon app.js --prefix server",
     "client": "npm start --prefix client",
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "dev": "concurrently \"npm run server\" \"npm run client\" --prefix server",
     "heroku-postbuild": "cd client && npm install && npm run build"
   },
   "author": "Brad Traversy",
@@ -17,9 +17,7 @@
   },
   "dependencies": {
     "concurrently": "^3.5.1",
-    "cookie-parser": "^1.4.4",
     "express": "^4.16.2",
-    "mongoose": "^5.4.15",
     "request": "^2.88.0"
   }
 }

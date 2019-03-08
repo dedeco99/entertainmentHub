@@ -18,7 +18,7 @@ const PostContent = ({classes, post}) => {
 			return <video src={post.redditVideo} controls width="100%" height="100%" />
 		}else if(post.text){
 			src = htmlEscape(post.text);
-			return <div class="container" dangerouslySetInnerHTML={{__html: src}}/>
+			return <div className="container" dangerouslySetInnerHTML={{__html: src}}/>
 		}else{
 			return <Typography component="p">
 				<a href={post.url} target="_blank" rel="noopener noreferrer">{post.url}</a>

@@ -1,9 +1,16 @@
 import React from 'react';
 import { BrowserRouter, Switch, Route } from 'react-router-dom';
-import '../css/App.css';
-import Header from './Header';
+import PrivateRoute from './auth/PrivateRoute';
+
+import Header from './header/Header';
+import Index from './Index';
+import Login from './auth/Login';
 import Reddit from './reddit/Reddit';
 import Youtube from './youtube/Youtube';
+import TVSeries from './tvseries/TVSeries';
+import Settings from './settings/Settings';
+
+import '../css/App.css';
 
 const App = () => {
   return (
@@ -11,8 +18,13 @@ const App = () => {
       <div className="App">
         <Header/>
         <Switch>
-          <Route path="/reddit/:sub?/:category?" component={ Reddit } />
-          <Route path="/youtube" component={ Youtube } />
+          <Route exact path="/" component={ Index } />
+          <Route exact path="/login" component={ Login } />
+          <PrivateRoute exact path="/reddit/:sub?/:category?" component={ Reddit } />
+          <PrivateRoute exact path="/youtube" component={ Youtube } />
+          <PrivateRoute exact path="/twitch" component={ Youtube } />
+          <Route exact path="/tvseries" component={ TVSeries } />
+          <PrivateRoute exact path="/settings" component={ Settings } />
         </Switch>
       </div>
     </BrowserRouter>

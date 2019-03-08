@@ -19,14 +19,14 @@ const styles = theme => ({
 
 class Categories extends Component {
   state = {
-    tab:0,
-    subreddit:"all",
-    category:"hot"
+    tab:0
   }
 
-  handleChange = (event, tab) => {
+  handleChange = (e, tab) => {
     this.setState({ tab },() => {
-      (this.props.getPosts(this.state.subreddit,this.state.category));
+      var categories = ["hot", "new", "rising", "controversial", "top", "gilded"];
+      this.props.getPosts(this.props.subreddit,categories[tab]);
+      this.props.updateCategory(categories[tab]);
     });
   };
 

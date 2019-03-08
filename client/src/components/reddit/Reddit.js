@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import Sidebar from "../Sidebar";
+import Sidebar from "./Sidebar";
 import Posts from "./Posts";
 
 class Reddit extends Component {
@@ -19,6 +19,7 @@ class Reddit extends Component {
       <div className="Reddit">
         <div className="container-fluid">
           <Sidebar options={subreddits} />
+          <br/>
           <Posts />
         </div>
       </div>

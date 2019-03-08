@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import { connect } from "react-redux";
 import Grid from '@material-ui/core/Grid';
-import Categories from "./Categories";
 import Post from "./Post";
-import AddPost from "./AddPost";
 
 class Posts extends Component {
 	render(){
 		const { posts } = this.props;
     console.log(posts);
+
 		const postList = posts.length>0 ? (
 			posts.map(post => {
 				return (
@@ -25,13 +24,9 @@ class Posts extends Component {
 
 	  return (
 	    <div className="Posts">
-        <Categories />
-        <br/>
 				<Grid container spacing={24}>
 	      	{ postList }
 				</Grid>
-				<br/>
-        <AddPost addPost={this.addPost} />
 	    </div>
 	  );
 	}
@@ -43,10 +38,4 @@ const mapStateToProps = (state) => {
   }
 }
 
-const mapDispatchToProps = (dispatch) => {
-  return {
-    deletePost: (id) => { dispatch({ type: "DELETE_POST", id: id }) }
-  }
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(Posts);
+export default connect(mapStateToProps, null)(Posts);

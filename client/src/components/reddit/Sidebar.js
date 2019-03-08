@@ -2,15 +2,15 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { withStyles } from '@material-ui/core/styles';
+import { connect } from "react-redux";
+import { getPosts } from "../../store/actions/redditActions";
 import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
 import Divider from '@material-ui/core/Divider';
 import IconButton from '@material-ui/core/IconButton';
-import MenuIcon from '@material-ui/icons/Menu';
-import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import ChevronRightIcon from '@material-ui/icons/ChevronRight';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemText from '@material-ui/core/ListItemText';
+import Categories from "./Categories";
 
 const drawerWidth = 240;
 
@@ -75,6 +75,8 @@ const styles = theme => ({
 class Sidebar extends React.Component {
   state = {
     open: false,
+    subreddit: "all",
+    category: "hot"
   };
 
   handleDrawerOpen = () => {
@@ -85,6 +87,16 @@ class Sidebar extends React.Component {
     this.setState({ open: false });
   };
 
+  updateCategory = (category) => {
+    this.setState({ category });
+  }
+
+  getPosts = (subreddit) => {
+    this.setState({ subreddit },() => {
+      this.props.getPosts(this.state.subreddit, this.state.category);
+    });
+  };
+
   render() {
     const { classes, theme, options } = this.props;
     const { open } = this.state;
@@ -92,7 +104,7 @@ class Sidebar extends React.Component {
 		const optionsList = options.length>0 ? (
 			options.map(option => {
 				return (
-					<ListItem button key={option.id}>
+					<ListItem button key={option.id} onClick={() => {this.getPosts(option.id)}}>
 						<ListItemText primary={option.displayName} />
 					</ListItem>
 				)
@@ -111,8 +123,9 @@ class Sidebar extends React.Component {
 					onClick={this.handleDrawerOpen}
 					className={classNames(classes.menuButton)}
 				>
-					<MenuIcon />
+					Menu
 				</IconButton>
+        <Categories subreddit={this.state.subreddit} updateCategory={this.updateCategory} />
         <Drawer
           className={classes.drawer}
           variant="persistent"
@@ -124,7 +137,7 @@ class Sidebar extends React.Component {
         >
           <div className={classes.drawerHeader}>
             <IconButton onClick={this.handleDrawerClose}>
-              {theme.direction === 'ltr' ? <ChevronLeftIcon /> : <ChevronRightIcon />}
+              {theme.direction === 'ltr' ? "Left" : "Right"}
             </IconButton>
           </div>
           <Divider />
@@ -142,4 +155,10 @@ Sidebar.propTypes = {
   theme: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles, { withTheme: true })(Sidebar);
+const mapDispatchToProps = (dispatch) => {
+	return {
+		getPosts: (subreddit, category) => dispatch(getPosts(subreddit, category))
+	}
+}
+
+export default connect(null, mapDispatchToProps)(withStyles(styles, { withTheme: true })(Sidebar));

@@ -1,11 +1,7 @@
 const path = require('path');
 const express = require('express');
-const cookieParser = require('cookie-parser');
-if(!process.env.PORT) var secrets=require("./secrets");
-const database = require('./database');
-const reddit = require('./reddit');
-
-database.setup();
+//const cookieParser = require('cookie-parser');
+//const reddit = require('./server/reddit');
 
 const app = express();
 
@@ -16,11 +12,11 @@ exports.server=app.listen(app.get("port"),function(){
 });
 
 app.use(express.static(path.join(__dirname, 'client/build')))
-app.use(cookieParser());
+//app.use(cookieParser());
 
-app.get("/api/reddit/subreddits",reddit.getSubreddits);
+//app.get("/api/reddit/subreddits",reddit.getSubreddits);
 
-app.get("/api/reddit/subreddits/:subreddit/:category/",reddit.getPosts);
+//app.get("/api/reddit/subreddits/:subreddit/:category/",reddit.getPosts);
 
 app.get('*/', function (req, res) {
   res.sendFile(path.join(__dirname + '/client/build/index.html'))

@@ -181,8 +181,7 @@ var getPosts=function(data,accessToken,callback){
   });
 }
 
-exports.getSubreddits=function(req,res){
-  console.log("gotem");
+exports.getSubreddits=function(req, res){
   var data={username:req.cookies.username};
   getAccessToken(data,getSubreddits,function(response){
     res.json(response.sort(
@@ -197,7 +196,7 @@ exports.getSubreddits=function(req,res){
   });
 }
 
-exports.getPosts=function(req,res){
+exports.getPosts=function(req, res){
   var data=req.params;
   req.params.username=req.cookies.username;
 
