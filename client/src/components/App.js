@@ -8,6 +8,7 @@ import Login from './auth/Login';
 import Reddit from './reddit/Reddit';
 import Youtube from './youtube/Youtube';
 import TVSeries from './tvseries/TVSeries';
+import Seasons from './tvseries/Seasons';
 import Settings from './settings/Settings';
 
 import '../css/App.css';
@@ -24,6 +25,7 @@ const App = () => {
           <PrivateRoute exact path="/youtube" component={ Youtube } />
           <PrivateRoute exact path="/twitch" component={ Youtube } />
           <Route exact path="/tvseries" component={ TVSeries } />
+          <Route exact path='/series/:id' component={ Seasons } />
           <PrivateRoute exact path="/settings" component={ Settings } />
         </Switch>
       </div>

@@ -11,7 +11,7 @@ class TVSeries extends Component {
     const { tvSeries } = this.props;
 
     return (
-      <div className="TVSeries container">
+      <div className="tvseries container">
         <TVSeriesList tvSeries={tvSeries} />
         <AddTVSeries/>
       </div>

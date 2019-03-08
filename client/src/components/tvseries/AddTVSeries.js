@@ -20,7 +20,7 @@ class AddTVSeries extends Component {
   }
   render() {
     return (
-      <div className="container">
+      <div className="add-tvseries container">
         <form className="white" onSubmit={this.handleSubmit}>
           <h5 className="grey-text text-darken-3">Add TV Series</h5>
           <div className="input-field">

@@ -4,7 +4,7 @@ import TVSeriesSummary from "./TVSeriesSummary";
 
 const TVSeriesList = ({tvSeries}) => {
   return (
-    <div className="tvSeries-list">
+    <div className="tvseries-list">
       <div className="row">
         { tvSeries && tvSeries.map(tvSeries => {
           return (
