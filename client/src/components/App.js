@@ -4,6 +4,7 @@ import PrivateRoute from "./auth/PrivateRoute";
 
 import Header from "./header/Header";
 import Index from "./Index";
+import Register from "./auth/Register";
 import Login from "./auth/Login";
 import Reddit from "./reddit/Reddit";
 import Youtube from "./youtube/Youtube";
@@ -20,6 +21,7 @@ const App = () => {
         <Header/>
         <Switch>
           <Route exact path="/" component={ Index } />
+          <Route exact path="/register" component={ Register } />
           <Route exact path="/login" component={ Login } />
           <PrivateRoute exact path="/reddit/:sub?/:category?" component={ Reddit } />
           <PrivateRoute exact path="/youtube" component={ Youtube } />
