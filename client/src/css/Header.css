@@ -1,15 +1,39 @@
+.header {
+  margin-bottom: 80px;
+}
+
 .dark {
   background-color: #222;
 }
 
-#logo {
-  padding-top: 8px;
+.navbar {
+  min-height: 50px;
 }
 
-.leftLinks {
-  margin-left: 70px;
+.navbar-brand {
+  left: 0px;
+  bottom: -5px;
+  position: absolute;
 }
 
-.leftLinks > li{
-  margin-right: 0px;
+.navbar-brand-text {
+  margin-left: 10px;
+}
+
+.appMenu {
+  background-color: #222;
+  width: 50px;
+  height: 100%;
+  top: 0px;
+  padding-top: 75px;
+  position: fixed;
+}
+
+.appMenu > ul > li {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.appMenu > ul > li.active {
+  background-color: black;
 }

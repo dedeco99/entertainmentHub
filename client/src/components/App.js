@@ -18,18 +18,20 @@ const App = () => {
   return (
     <BrowserRouter>
       <div className="App">
-        <Header/>
-        <Switch>
-          <Route exact path="/" component={ Index } />
-          <Route exact path="/register" component={ Register } />
-          <Route exact path="/login" component={ Login } />
-          <PrivateRoute exact path="/reddit/:sub?/:category?" component={ Reddit } />
-          <PrivateRoute exact path="/youtube" component={ Youtube } />
-          <PrivateRoute exact path="/twitch" component={ Youtube } />
-          <PrivateRoute exact path="/tvseries" component={ TVSeries } />
-          <PrivateRoute exact path="/tvseries/:id" component={ Seasons } />
-          <PrivateRoute exact path="/settings" component={ Settings } />
-        </Switch>
+        <Header />
+        <div className="main container-fluid">
+          <Switch>
+            <Route exact path="/" component={ Index } />
+            <Route exact path="/register" component={ Register } />
+            <Route exact path="/login" component={ Login } />
+            <PrivateRoute exact path="/reddit/:sub?/:category?" component={ Reddit } />
+            <PrivateRoute exact path="/youtube" component={ Youtube } />
+            <PrivateRoute exact path="/twitch" component={ Youtube } />
+            <PrivateRoute exact path="/tvseries" component={ TVSeries } />
+            <PrivateRoute exact path="/tvseries/:id" component={ Seasons } />
+            <PrivateRoute exact path="/settings" component={ Settings } />
+          </Switch>
+        </div>
       </div>
     </BrowserRouter>
   );

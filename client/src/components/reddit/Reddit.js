@@ -17,11 +17,9 @@ class Reddit extends Component {
     const {subreddits} = this.state;
     return (
       <div className="Reddit">
-        <div className="container-fluid">
-          <Sidebar options={subreddits} />
-          <br/>
-          <Posts />
-        </div>
+        <Sidebar options={subreddits} />
+        <br/>
+        <Posts />
       </div>
     )
   }
