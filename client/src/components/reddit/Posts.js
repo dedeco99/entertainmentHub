@@ -11,7 +11,7 @@ class Posts extends Component {
 		const postList = posts.length>0 ? (
 			posts.map(post => {
 				return (
-					<Grid item xs={12} sm={6} md={6} lg={4} xl={3} key={post.created}>
+					<Grid item xs={12} sm={6} md={6} lg={4} xl={3} key={post.id}>
 							<Post post={ post }/>
 					</Grid>
 				)

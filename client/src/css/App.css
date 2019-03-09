@@ -3,8 +3,13 @@ body {
   color: white;
 }
 
+li {
+  cursor: pointer;
+}
+
 .main {
-  margin-left: 50px;
+  padding-left: 60px;
+  padding-right: 10px;
 }
 
 .nav-item > a {
