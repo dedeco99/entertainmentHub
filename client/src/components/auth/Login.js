@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 import { login } from "../../store/actions/authActions";
 
@@ -20,24 +21,27 @@ class Login extends Component {
   }
 
   render() {
-    const { authError } = this.props;
-    console.log("authError",authError);
+    const { auth, authError } = this.props;
+    const { from } = this.props.location.state || { from: { pathname: "/" } };
+
+    if (auth.uid) return <Redirect to={ from } />;
+    
     return(
       <div className="container">
-        <form className="white" onSubmit={this.handleSubmit}>
+        <form className="white" onSubmit={ this.handleSubmit }>
           <h5 className="grey-text text-darken-3">Sign In</h5>
           <div className="input-field">
             <label htmlFor="email">Email</label>
-            <input type="email" id="email" onChange={this.handleChange} />
+            <input type="email" id="email" onChange={ this.handleChange } />
           </div>
           <div className="input-field">
             <label htmlFor="password">Password</label>
-            <input type="password" id="password" onChange={this.handleChange} />
+            <input type="password" id="password" onChange={ this.handleChange } />
           </div>
           <div className="input-field">
             <button className="btn pink lighten-1 z-depth-0">Login</button>
             <div className="red-text center">
-              { authError ? <p>{authError}</p> : null }
+              { authError ? <p>{ authError }</p> : null }
             </div>
           </div>
         </form>
@@ -48,6 +52,7 @@ class Login extends Component {
 
 const mapStateToProps = (state) => {
   return {
+    auth: state.firebase.auth,
     authError: state.auth.authError
   }
 }
