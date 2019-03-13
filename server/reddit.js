@@ -1,12 +1,5 @@
 const request = require("request");
-const admin = require("firebase-admin");
-const firebaseSecret = require("./firebaseSecret");
-
-admin.initializeApp({
-  credential: admin.credential.cert(firebaseSecret)
-});
-
-const db = admin.firestore();
+const database = require("./database");
 
 exports.getSubreddits = (req, res) => {
   var data = { userId: req.query.userId };
@@ -36,74 +29,74 @@ exports.getPosts = (req, res) => {
   });
 }
 
-var getAccessToken=function(data,run,callback){
-  db.collection("auths")
+var getAccessToken = (data, run, callback) => {
+  database.firestore.collection("auths")
   .where("user", "==", data.userId)
   .where("platform", "==", "reddit")
   .get().then((snapshot) => {
-    if(snapshot.size>0){
-      var url="https://www.reddit.com/api/v1/access_token"
-              +"?refresh_token="+snapshot.docs[0].data().refreshToken
+    if(snapshot.size > 0){
+      var url = "https://www.reddit.com/api/v1/access_token"
+              +"?refresh_token=" + snapshot.docs[0].data().refreshToken
               +"&grant_type=refresh_token";
 
-      var auth="Basic "+new Buffer(process.env.redditClientId+":"+process.env.redditSecret).toString("base64");
+      var auth="Basic " + new Buffer(process.env.redditClientId + ":" + process.env.redditSecret).toString("base64");
 
-      var headers={
+      var headers = {
         "User-Agent":"Entertainment-Hub by dedeco99",
-        "Authorization":auth
+        "Authorization": auth
       };
 
-      request.post({url:url,headers:headers},function(error,response,html){
+      request.post({ url: url, headers: headers }, (error, response, html) => {
         if(error) console.log(error);
-        var json=JSON.parse(html);
+        var json = JSON.parse(html);
 
-        run(data,json.access_token,callback);
+        run(data, json.access_token, callback);
       });
     }
   });
 }
 
-var getSubreddits=function(data,accessToken,callback){
-  var url="https://oauth.reddit.com/subreddits/mine/subscriber?limit=1000";
-  var headers={
+var getSubreddits = (data, accessToken, callback) => {
+  var url = "https://oauth.reddit.com/subreddits/mine/subscriber?limit=1000";
+  var headers = {
     "User-Agent":"Entertainment-Hub by dedeco99",
-    "Authorization":"bearer "+accessToken
+    "Authorization":"bearer " + accessToken
   };
 
-  request({url:url,headers:headers},function(error,response,html){
+  request({ url: url, headers: headers }, (error, response, html) => {
     if(error) console.log(error);
-    var json=JSON.parse(html);
+    var json = JSON.parse(html);
 
-    var res=[];
-    var all="";
-    for(var i=0;i<json.data.children.length;i++){
-      var displayName=json.data.children[i].data.display_name;
-      all+=displayName+"+";
-      displayName=displayName.charAt(0).toUpperCase()+displayName.slice(1);
-      var subreddit={
-        id:displayName,
-        displayName:displayName
+    var res = [];
+    var all = "";
+    for(var i = 0; i < json.data.children.length; i++){
+      var displayName = json.data.children[i].data.display_name;
+      all += displayName + "+";
+      displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+      var subreddit = {
+        id: displayName,
+        displayName: displayName
       };
       res.push(subreddit);
     }
-    var subreddit={
-      id:all,
-      displayName:"All"
+    var subreddit = {
+      id: all,
+      displayName: "All"
     };
     res.unshift(subreddit);
-    callback(res,accessToken);
+    callback(res, accessToken);
   });
 }
 
-var getPosts=function(data,accessToken,callback){
-  var url="https://oauth.reddit.com/r/"+data.subreddit+"/"+data.category;
-  if(data.after) url+="?after="+data.after;
-  var headers={
+var getPosts = (data, accessToken, callback) => {
+  var url = "https://oauth.reddit.com/r/" + data.subreddit + "/" + data.category;
+  if(data.after) url += "?after=" + data.after;
+  var headers = {
     "User-Agent":"Entertainment-Hub by dedeco99",
-    "Authorization":"bearer "+accessToken
+    "Authorization":"bearer " + accessToken
   };
 
-  request({url:url,headers:headers},function(error,response,html){
+  request({ url: url, headers: headers }, (error, response, html) => {
     if(error) console.log(error);
     var json = JSON.parse(html);
 
@@ -113,7 +106,7 @@ var getPosts=function(data,accessToken,callback){
     for(var i = 0; i < json.data.children.length; i++){
       var data = json.data.children[i].data;
 
-      if(data.thumbnail=="self" || data.thumbnail=="default"){
+      if(data.thumbnail == "self" || data.thumbnail == "default"){
         isText = true;
       }
 
@@ -126,7 +119,7 @@ var getPosts=function(data,accessToken,callback){
       if(data.media && data.media.oembed){
         videoHeight = data.media.oembed.height;
       }else if(data.preview && data.preview.images && data.preview.images[0].resolutions){
-        var resolutions=data.preview.images[0].resolutions;
+        var resolutions = data.preview.images[0].resolutions;
         if(resolutions[resolutions.length-1]){
           videoPreview = resolutions[resolutions.length-1].url;
         }
