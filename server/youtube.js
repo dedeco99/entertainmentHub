@@ -1,4 +1,6 @@
 var request=require("request");
+var sanitizeHtml = require("sanitize-html");
+
 const database = require("./database");
 
 exports.getChannels = (req, res) => {
@@ -17,10 +19,15 @@ exports.getChannels = (req, res) => {
 }
 
 exports.getPosts = (req, res) => {
-  res.json((data) => {
-    getAccessToken(data, getVideos, (response) => {
-      res.json(response);
-    });
+  var data = {
+    channelId: req.params.channel,
+    after: "",
+    userId: req.query.userId
+  };
+  console.log(data);
+
+  getAccessToken(data, getVideos, (response) => {
+    res.json(response);
   });
 }
 
@@ -93,12 +100,13 @@ var getVideos = (data, accessToken, nextPageToken, callback) => {
     for(var i = 0; i < json.items.length; i++){
       var video = {
         videoId: json.items[i].id.videoId,
-        title: json.items[i].snippet.title,
+        title: sanitizeHtml(json.items[i].snippet.title),
         thumbnail: json.items[i].snippet.thumbnails.high.url,
         after: json.nextPageToken,
       };
       res.push(video);
     }
+    console.log(res[1].title)
     callback(res);
   });
 }

@@ -1,4 +1,6 @@
 const request = require("request");
+var sanitizeHtml = require("sanitize-html");
+
 const database = require("./database");
 
 exports.getSubreddits = (req, res) => {
@@ -137,7 +139,7 @@ var getPosts = (data, accessToken, callback) => {
         author:data.author,
         domain:data.domain,
         url:data.url,
-        text:data.selftext_html,
+        text:sanitizeHtml(data.selftext_html),
         redditVideo:redditVideo,
         videoHeight:videoHeight,
         videoPreview:videoPreview,
