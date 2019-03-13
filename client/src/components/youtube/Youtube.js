@@ -36,9 +36,9 @@ class Youtube extends Component {
 const mapStateToProps = (state) => {
   return {
     auth: state.firebase.auth,
-    channels: state.youtube.channels,
-    channel: state.youtube.channel,
-    posts: state.youtube.posts
+    channels: state.youtube.youtubeChannels,
+    channel: state.youtube.youtubeChannel,
+    posts: state.youtube.youtubePosts
   }
 }
 

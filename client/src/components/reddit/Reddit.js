@@ -43,8 +43,8 @@ const mapStateToProps = (state) => {
     auth: state.firebase.auth,
     subreddits: state.reddit.subreddits,
     subreddit: state.reddit.subreddit,
-    category: state.reddit.category,
-    posts: state.reddit.posts
+    category: state.reddit.redditCategory,
+    posts: state.reddit.redditPosts
   }
 }
 
