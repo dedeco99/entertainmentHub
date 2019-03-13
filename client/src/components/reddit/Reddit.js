@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 
 import { getSubreddits, getPosts } from "../../store/actions/redditActions";
 
-import Sidebar from "./Sidebar";
+import Sidebar from "../.partials/Sidebar";
 import Categories from "./Categories";
 import Posts from "./Posts";
 
