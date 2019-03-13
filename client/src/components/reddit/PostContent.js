@@ -1,5 +1,4 @@
-import React from 'react';
-import Typography from '@material-ui/core/Typography';
+import React from "react";
 
 const PostContent = ({classes, post}) => {
 	var checkContent = (post) => {
@@ -20,9 +19,7 @@ const PostContent = ({classes, post}) => {
 			src = htmlEscape(post.text);
 			return <div className="container" dangerouslySetInnerHTML={{__html: src}}/>
 		}else{
-			return <Typography component="p">
-				<a href={post.url} target="_blank" rel="noopener noreferrer">{post.url}</a>
-			</Typography>
+			return <a href={post.url} target="_blank" rel="noopener noreferrer">{post.url}</a>
 		}
 	}
 

@@ -19,7 +19,7 @@ class Reddit extends Component {
   }
 
   render(){
-    const { subreddits, subreddit } = this.props;
+    const { subreddits, subreddit, posts } = this.props;
 
     return (
       <div className="reddit">
@@ -30,7 +30,7 @@ class Reddit extends Component {
           <div className="col-sm-9 col-md-10 col-lg-10">
             <Categories subreddit={ subreddit } getPosts={ this.getPosts } />
             <br/>
-            <Posts />
+            <Posts posts={ posts } />
           </div>
         </div>
       </div>
@@ -43,7 +43,8 @@ const mapStateToProps = (state) => {
     auth: state.firebase.auth,
     subreddits: state.reddit.subreddits,
     subreddit: state.reddit.subreddit,
-    category: state.reddit.category
+    category: state.reddit.category,
+    posts: state.reddit.posts
   }
 }
 

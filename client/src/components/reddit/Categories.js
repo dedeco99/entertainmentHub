@@ -1,8 +1,5 @@
 import React, { Component } from "react";
 import { Link } from "react-router-dom";
-import { connect } from "react-redux";
-
-import { getPosts } from "../../store/actions/redditActions";
 
 class Categories extends Component {
   handleClick = (e) => {
@@ -18,7 +15,7 @@ class Categories extends Component {
   };
 
   render() {
-    console.log("cat",this.props.subreddit)
+    console.log("category: ",this.props.subreddit)
     return (
       <ul className="nav nav-pills nav-fill">
         <li className="nav-item" onClick={ this.handleClick }><Link id="hot" to="/reddit" className="nav-link active">Hot</Link></li>

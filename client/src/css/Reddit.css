@@ -1,3 +1,8 @@
 .option {
 	font-size: x-small;
 }
+
+.card {
+	background-color: #333;
+	margin-bottom: 10px;
+}

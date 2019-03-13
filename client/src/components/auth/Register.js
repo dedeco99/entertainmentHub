@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { Redirect } from "react-router-dom";
-import TextField from "@material-ui/core/TextField";
 import { connect } from "react-redux";
 import { register } from "../../store/actions/authActions";
 
@@ -40,6 +39,7 @@ class Register extends Component {
             <label htmlFor="password">Password</label>
             <input type="password" id="password" onChange={ this.handleChange } />
           </div>
+          { /*
           <TextField
             id="birthday"
             label="Birthday"
@@ -50,6 +50,7 @@ class Register extends Component {
             }}
             onChange={ this.handleChange }
           />
+          */}
           <div className="input-field">
             <button className="btn pink lighten-1 z-depth-0">Login</button>
             <div className="red-text center">
