@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 
-import { getSubreddits, getPosts } from "../../store/actions/redditActions";
+import { getSubreddits, getRedditPosts } from "../../store/actions/redditActions";
 
 import Sidebar from "../.partials/Sidebar";
 import Categories from "./Categories";
@@ -43,15 +43,15 @@ const mapStateToProps = (state) => {
     auth: state.firebase.auth,
     subreddits: state.reddit.subreddits,
     subreddit: state.reddit.subreddit,
-    category: state.reddit.redditCategory,
-    posts: state.reddit.redditPosts
+    category: state.reddit.category,
+    posts: state.reddit.posts
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
 	return {
     getSubreddits: (userId) => dispatch(getSubreddits(userId)),
-		getPosts: (subreddit, category, userId) => dispatch(getPosts(subreddit, category, userId))
+		getPosts: (subreddit, category, userId) => dispatch(getRedditPosts(subreddit, category, userId))
 	}
 }
 

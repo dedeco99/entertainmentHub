@@ -10,16 +10,16 @@ export const getSubreddits = (userId) => {
 	}
 };
 
-export const getPosts = (subreddit, category, userId) => {
+export const getRedditPosts = (subreddit, category, userId) => {
 	return (dispatch, getState) => {
 		fetch("api/reddit/subreddits/"+subreddit+"/"+category+"?userId="+userId)
 		.then(res => res.json())
 		.then(posts => {
-			dispatch({ type: "GET_POSTS", posts })
+			dispatch({ type: "GET_REDDIT_POSTS", posts })
 			dispatch({ type: "UPDATE_SUBREDDIT", subreddit })
-			dispatch({ type: "UPDATE_CATEGORY", category })
+			dispatch({ type: "UPDATE_REDDIT_CATEGORY", category })
 		}).catch(error => {
-			console.log("GET_POSTS_ERROR", error.message);
+			console.log("GET_REDDIT_POSTS_ERROR", error.message);
 		});
 	}
 };

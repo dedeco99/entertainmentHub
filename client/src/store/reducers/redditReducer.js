@@ -1,8 +1,8 @@
 const initState = {
 	subreddits: [],
 	subreddit: "all",
-	redditCategory: "hot",
-	redditPosts: []
+	category: "hot",
+	posts: []
 }
 
 const redditReducer = (state = initState, action) => {
@@ -11,14 +11,14 @@ const redditReducer = (state = initState, action) => {
 			console.log("Get subreddits");
 			return { ...state, subreddits: action.subreddits };
 		case "UPDATE_SUBREDDIT":
-			console.log("Updated subreddit");
+			console.log("Updated subreddit", action.subreddit);
 			return { ...state, subreddit: action.subreddit };
-		case "UPDATE_CATEGORY":
-			console.log("Updated category");
-			return { ...state, redditCategory: action.category };
-		case "GET_POSTS":
-			console.log("Get posts");
-			return { ...state, redditPosts: action.posts };
+		case "UPDATE_REDDIT_CATEGORY":
+			console.log("Updated reddit category", action.category);
+			return { ...state, category: action.category };
+		case "GET_REDDIT_POSTS":
+			console.log("Get reddit posts");
+			return { ...state, posts: action.posts };
 		default:
 			return state;
 	}

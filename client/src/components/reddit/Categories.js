@@ -15,7 +15,6 @@ class Categories extends Component {
   };
 
   render() {
-    console.log("category: ",this.props.subreddit)
     return (
       <ul className="nav nav-pills nav-fill">
         <li className="nav-item" onClick={ this.handleClick }><Link id="hot" to="/reddit" className="nav-link active">Hot</Link></li>
