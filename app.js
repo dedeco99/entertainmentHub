@@ -31,6 +31,8 @@ app.get("/api/twitch/streams/", twitch.getStreams);
 
 app.get("/api/twitch/games/", twitch.getGames);
 
+app.get("/api/twitch/games/:game", twitch.getStreamsForGame);
+
 app.get("/api/twitch/channels/", twitch.getChannels);
 
 app.get("*/", function (req, res) {

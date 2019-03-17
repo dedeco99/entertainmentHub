@@ -29,7 +29,10 @@ exports.getGames = (req, res) => {
 }
 
 exports.getStreamsForGame = (req, res) => {
-  var data = { userId: req.query.userId };
+  var data = {
+    userId: req.query.userId,
+    game: req.params.game
+  };
 
   getStreamsForGame(data, (response) => {
     res.json(response);
@@ -203,6 +206,7 @@ const getTopGames = (data, res, callback) => {
     for(var i = 0; i < json.top.length; i++){
       var name = json.top[i].game.name.replace("'", "&#39;");
       var game = {
+        id: json.top[i].game._id,
         name: name,
         logo: json.top[i].game.box.large,
         channels: json.top[i].channels,
@@ -247,6 +251,7 @@ const getFollowedGames = (data, accessToken, callback) => {
       for(var i = 0; i < json.follows.length; i++){
         var name = json.follows[i].game.name.replace("'", "&#39;");
         var game = {
+          id: json.follows[i].game._id,
           name: name,
           logo: json.follows[i].game.box.large,
           channels: json.follows[i].channels,
@@ -279,6 +284,7 @@ const getStreamsForGame = (data, callback) => {
     var res = [];
     for(var i = 0; i < json.streams.length; i++){
       var stream = {
+        id: json.streams[i]._id,
         displayName: json.streams[i].channel.display_name.charAt(0).toUpperCase() + json.streams[i].channel.display_name.slice(1),
         name: json.streams[i].channel.name,
         logo: json.streams[i].channel.logo,
