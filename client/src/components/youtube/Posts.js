@@ -6,7 +6,7 @@ const Posts = ({ posts }) => {
 	const postList = posts.length>0 ? (
 		posts.map(post => {
 			return (
-				<div className="col-xs-12 col-sm-6 col-md-6 col-lg-4 col-xl-3" key={ post.videoId }>
+				<div className="col-xs-12 col-sm-6 col-md-6 col-lg-4 col-xl-3" key={ post.id }>
 						<Post post={ post }/>
 				</div>
 			)

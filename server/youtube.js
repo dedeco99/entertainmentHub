@@ -5,14 +5,14 @@ const database = require("./database");
 
 exports.getChannels = (req, res) => {
   var data = { userId: req.query.userId };
-  console.log(data);
 
-  channels=[];
+  channels = [];
+  channelsString = "";
 
   getAccessToken(data, getChannels, (response) => {
     res.json(response.sort((a,b) => {
-      if(a.displayName<b.displayName) return -1;
-      if(a.displayName>b.displayName) return 1;
+      if(a.displayName < b.displayName) return -1;
+      if(a.displayName > b.displayName) return 1;
       return 0;
     }));
   });
@@ -20,18 +20,15 @@ exports.getChannels = (req, res) => {
 
 exports.getPosts = (req, res) => {
   var data = {
-    channelId: req.params.channel,
+    uploadsId: req.params.channel,
     after: "",
     userId: req.query.userId
   };
-  console.log(data);
 
   getAccessToken(data, getVideos, (response) => {
     res.json(response);
   });
 }
-
-var channels=[];
 
 const getAccessToken = (data, run, callback) => {
   database.firestore.collection("auths")
@@ -55,6 +52,8 @@ const getAccessToken = (data, run, callback) => {
   });
 }
 
+var channels = [];
+
 const getChannels = (data, accessToken, nextPageToken, callback) => {
   var url = "https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&maxResults=50";
   var headers = {
@@ -67,21 +66,52 @@ const getChannels = (data, accessToken, nextPageToken, callback) => {
     if(error) console.log(error);
     var json = JSON.parse(html);
 
+    var channelsString = "";
+
     for(var i = 0; i < json.items.length; i++){
       var channel={
-        id: json.items[i].snippet.resourceId.channelId,
+        id: null,
+        channelId: json.items[i].snippet.resourceId.channelId,
         displayName: json.items[i].snippet.title,
         logo: json.items[i].snippet.thumbnails.high.url
       };
       channels.push(channel);
+
+      channelsString += channel.channelId + ",";
     }
 
     nextPageToken = json.nextPageToken;
     if(nextPageToken == null){
-      callback(channels);
+      getChannelsPlaylist(channelsString.slice(0, -1), accessToken, () => {
+        callback(channels);
+      });
     }else{
-      getChannels(data, accessToken, nextPageToken, callback);
+      getChannelsPlaylist(channelsString.slice(0, -1), accessToken, () => {
+        getChannels(data, accessToken, nextPageToken, callback);
+      });
     }
+  });
+}
+
+const getChannelsPlaylist = (data, accessToken, callback) => {
+  var url = "https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=" + data + "&maxResults=50";
+  var headers = {
+    "Authorization":"Bearer " + accessToken
+  };
+
+  request({ url: url, headers: headers }, (error, response, html) => {
+    if(error) console.log(error);
+    var json = JSON.parse(html);
+
+    for(var i = 0; i < json.items.length; i++){
+      var channel = channels.find(channel => {
+        return channel.channelId === json.items[i].id
+      });
+
+      channel.id = json.items[i].contentDetails.relatedPlaylists.uploads;
+    }
+
+    if(callback) callback(channels);
   });
 }
 
@@ -95,12 +125,10 @@ const getVideos = (data, accessToken, nextPageToken, callback) => {
     if(error) console.log(error);
     var json = JSON.parse(html);
 
-    console.log(json);
-
     var res = [];
     for(var i = 0; i < json.items.length; i++){
       var video = {
-        //videoId: json.items[i].snippet.resourceId.videoId,
+        id: json.items[i].snippet.resourceId.videoId,
         title: sanitizeHtml(json.items[i].snippet.title),
         description: sanitizeHtml(json.items[i].snippet.description),
         date: json.items[i].snippet.publishedAt,
