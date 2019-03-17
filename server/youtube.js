@@ -71,7 +71,6 @@ const getChannels = (data, accessToken, nextPageToken, callback) => {
       var channel={
         id: json.items[i].snippet.resourceId.channelId,
         displayName: json.items[i].snippet.title,
-        channelId: json.items[i].snippet.resourceId.channelId,
         logo: json.items[i].snippet.thumbnails.high.url
       };
       channels.push(channel);
@@ -86,27 +85,30 @@ const getChannels = (data, accessToken, nextPageToken, callback) => {
   });
 }
 
-var getVideos = (data, accessToken, nextPageToken, callback) => {
-  var url = "https://www.googleapis.com/youtube/v3/search?part=snippet&channelId=" + data.channelId + "&order=date&maxResults=50&pageToken=" + data.after;
+const getVideos = (data, accessToken, nextPageToken, callback) => {
+  var url = "https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=" + data.uploadsId + "&maxResults=25&pageToken=" + data.after;
   var headers = {
     "Authorization":"Bearer " + accessToken
   };
 
-  request({ url: url, headers: headers}, (error, response, html) => {
+  request({ url: url, headers: headers }, (error, response, html) => {
     if(error) console.log(error);
     var json = JSON.parse(html);
+
+    console.log(json);
 
     var res = [];
     for(var i = 0; i < json.items.length; i++){
       var video = {
-        videoId: json.items[i].id.videoId,
+        //videoId: json.items[i].snippet.resourceId.videoId,
         title: sanitizeHtml(json.items[i].snippet.title),
+        description: sanitizeHtml(json.items[i].snippet.description),
+        date: json.items[i].snippet.publishedAt,
         thumbnail: json.items[i].snippet.thumbnails.high.url,
         after: json.nextPageToken,
       };
       res.push(video);
     }
-    console.log(res[1].title)
     callback(res);
   });
 }

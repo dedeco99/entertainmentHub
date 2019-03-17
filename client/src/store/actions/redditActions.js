@@ -10,7 +10,7 @@ export const getSubreddits = (userId) => {
 	}
 };
 
-export const getRedditPosts = (subreddit, category, userId) => {
+export const getPosts = (subreddit, category, userId) => {
 	return (dispatch, getState) => {
 		fetch("api/reddit/subreddits/"+subreddit+"/"+category+"?userId="+userId)
 		.then(res => res.json())

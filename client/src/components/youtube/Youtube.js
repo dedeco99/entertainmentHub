@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 
-import { getYoutubeChannels, getYoutubePosts } from "../../store/actions/youtubeActions";
+import { getChannels, getPosts } from "../../store/actions/youtubeActions";
 
 import Sidebar from "../.partials/Sidebar";
 import Posts from "./Posts";
@@ -43,8 +43,8 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
 	return {
-    getChannels: (userId) => dispatch(getYoutubeChannels(userId)),
-		getPosts: (channel, userId) => dispatch(getYoutubePosts(channel, userId))
+    getChannels: (userId) => dispatch(getChannels(userId)),
+		getPosts: (channel, userId) => dispatch(getPosts(channel, userId))
 	}
 }
 

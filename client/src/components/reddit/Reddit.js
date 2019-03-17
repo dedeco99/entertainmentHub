@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { connect } from "react-redux";
 
-import { getSubreddits, getRedditPosts } from "../../store/actions/redditActions";
+import { getSubreddits, getPosts } from "../../store/actions/redditActions";
 
 import Sidebar from "../.partials/Sidebar";
 import Categories from "./Categories";
@@ -51,7 +51,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
 	return {
     getSubreddits: (userId) => dispatch(getSubreddits(userId)),
-		getPosts: (subreddit, category, userId) => dispatch(getRedditPosts(subreddit, category, userId))
+		getPosts: (subreddit, category, userId) => dispatch(getPosts(subreddit, category, userId))
 	}
 }
 

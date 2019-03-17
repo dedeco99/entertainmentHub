@@ -1,4 +1,4 @@
-export const getYoutubeChannels = (userId) => {
+export const getChannels = (userId) => {
 	return (dispatch, getState) => {
 		fetch("api/youtube/channels?userId="+userId)
 		.then(res => res.json())
@@ -10,7 +10,7 @@ export const getYoutubeChannels = (userId) => {
 	}
 };
 
-export const getYoutubePosts = (channel, userId) => {
+export const getPosts = (channel, userId) => {
 	return (dispatch, getState) => {
 		fetch("api/youtube/channels/"+channel+"?userId="+userId)
 		.then(res => res.json())
