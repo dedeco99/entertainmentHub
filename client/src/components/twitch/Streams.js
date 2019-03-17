@@ -2,6 +2,8 @@ import React from "react";
 
 import Stream from "./Stream";
 
+import loading from "../../img/loading.gif";
+
 const Streams = ({ streams }) => {
 	const streamList = streams.length>0 ? (
 		streams.map(stream => {
@@ -12,8 +14,8 @@ const Streams = ({ streams }) => {
 			)
 		})
 	) : (
-		<div className="col-12">
-			<div align="center">No streams</div>
+		<div className="loading">
+			<img src={ loading } width="200px" alt="Loading..."/>
 		</div>
 	)
 

@@ -1,0 +1,14 @@
+.centerContainer {
+	position: relative;
+	display: inline-block;
+	text-align: center;
+}
+
+.youtubeVideo {
+	width: 50px;
+	position: absolute;
+	bottom: 50%;
+	right: 50%;
+	margin: 0px -25px -15px 0px;
+	cursor: pointer;
+}
