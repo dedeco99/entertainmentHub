@@ -8,13 +8,7 @@ exports.getSubreddits = (req, res) => {
   console.log(data);
 
   getAccessToken(data, getSubreddits, (response) => {
-    res.json(response.sort((a, b) => {
-      if(a.displayName != "All" && b.displayName != "All"){
-        if(a.displayName < b.displayName) return -1;
-        if(a.displayName > b.displayName) return 1;
-        return 0;
-      }
-    }));
+    res.json(response);
   });
 }
 
@@ -81,11 +75,22 @@ var getSubreddits = (data, accessToken, callback) => {
       };
       res.push(subreddit);
     }
-    var subreddit = {
-      id: all,
-      displayName: "All"
-    };
-    res.unshift(subreddit);
+
+    res.sort((a, b) => {
+      if(a.displayName < b.displayName) return -1;
+      if(a.displayName > b.displayName) return 1;
+      return 0;
+    });
+
+    var otherSubs = [
+      {id: "original", displayName: "Original"},
+      {id: "popular", displayName: "Popular"},
+      {id: "all", displayName: "All"},
+      {id: all, displayName: "Home"}
+    ];
+    otherSubs.forEach(subreddit => {
+      res.unshift(subreddit)
+    });
     callback(res, accessToken);
   });
 }
