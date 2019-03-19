@@ -1,0 +1,29 @@
+#seriesSearch {
+	display: none;
+}
+
+.modal-content {
+	background-color: #222;
+}
+
+.seriesSearch {
+	padding-bottom: 20px;
+}
+
+.centerContainer {
+	position: relative;
+	display: inline-block;
+	text-align: center;
+}
+
+.addSeries {
+	position: absolute;
+	bottom: 50%;
+	right: 50%;
+	margin: 0px -25px -15px 0px;
+	cursor: pointer;
+}
+
+.icofont-ui-add {
+	color: green;
+}

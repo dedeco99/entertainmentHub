@@ -18,7 +18,7 @@ class Sidebar extends Component {
   render() {
     const { options } = this.props;
 
-		const optionsList = options.length>0 ? (
+		const optionsList = options && options.length > 0 ? (
 			options.map(option => {
 				return (
 						<li

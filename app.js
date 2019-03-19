@@ -6,6 +6,7 @@ const database = require("./server/database");
 const reddit = require("./server/reddit");
 const youtube = require("./server/youtube");
 const twitch = require("./server/twitch");
+const tvSeries = require("./server/tvSeries");
 
 database.initialize();
 
@@ -34,6 +35,8 @@ app.get("/api/twitch/games/", twitch.getGames);
 app.get("/api/twitch/games/:game", twitch.getStreamsForGame);
 
 app.get("/api/twitch/channels/", twitch.getChannels);
+
+app.get("/api/tvSeries/search/:search", tvSeries.getSearch);
 
 app.get("*/", function (req, res) {
   res.sendFile(path.join(__dirname + "/client/build/index.html"))
