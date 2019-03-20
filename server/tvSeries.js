@@ -10,27 +10,31 @@ exports.getSeries=function(socket){
   });
 }
 
-exports.getSeasons=function(socket){
-  socket.on("getImdbSeasons",function(data){
-    if(data.id=="all"){
-      var dataf={
-        username:data.username,
-        id:data.id,
-        all:true
-      };
-      getAllSeries(dataf,function(res){
-        socket.emit("getImdbEpisodes",res.sort(
-          function(a,b){
-            return new Date(b.date)-new Date(a.date) || b.series-a.series || b.season-a.season || b.number-a.number;
-          }
-        ));
-      });
-    }else{
-      getSeasons(data,function(res){
-        socket.emit("getImdbSeasons",res);
-      });
-    }
-  });
+exports.getSeasons = (req, res) => {
+  var data = {
+    tvSeries: req.params.tvSeries,
+    userId: req.query.userId
+  };
+
+  console.log(data);
+
+  if(data.tvSeries == "all"){
+    var dataf = {
+      username:data.username,
+      id:data.id,
+      all:true
+    };
+
+    getAllSeries(dataf, (response) => {
+      res.json(response.sort((a, b) => {
+        return new Date(b.date) - new Date(a.date) || b.series - a.series || b.season - a.season || b.number - a.number;
+      }));
+    });
+  }else{
+    getSeasons(data, (response) => {
+      res.json(response);
+    });
+  }
 }
 
 exports.getEpisodes=function(socket){
@@ -58,18 +62,18 @@ exports.getSearch = (req, res) => {
   });
 }
 
-var getSeasons=function(data,callback){
-  var url="https://api.themoviedb.org/3/tv/"+data.id+"?api_key="+process.env.tmdbKey;
+const getSeasons = (data, callback) => {
+  var url = "https://api.themoviedb.org/3/tv/" + data.tvSeries + "?api_key=" + process.env.tmdbKey;
 
-  request(url,function(error,response,html){
+  request(url, (error, response, html) => {
     if(error) console.log(error);
-    var json=JSON.parse(html);
+    var json = JSON.parse(html);
 
-    var res=[];
-    for(var i=0;i<json.seasons.length;i++){
-      var season={
-        id:json.id,
-        season:json.seasons[i].season_number
+    var res = [];
+    for(var i = 0; i < json.seasons.length; i++){
+      var season = {
+        id: json.id,
+        season: json.seasons[i].season_number
       };
       res.push(season);
     }
@@ -176,7 +180,7 @@ var getEpisodes=function(data,callback){
   });
 }
 
-var getSearch = (data, callback) => {
+const getSearch = (data, callback) => {
   var url = "https://api.themoviedb.org/3/search/tv?query=" + data.search + "&api_key=" + process.env.tmdbKey;
 
   request(url, (error, response, html) => {

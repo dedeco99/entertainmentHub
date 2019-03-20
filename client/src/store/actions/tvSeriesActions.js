@@ -1,3 +1,15 @@
+export const getSeasons = (tvSeries, userId) => {
+	return (dispatch, getState) => {
+		fetch("api/tvSeries/"+tvSeries+"/seasons?userId="+userId)
+		.then(res => res.json())
+		.then(seasons => {
+			dispatch({ type: "GET_TVSERIES_SEASONS", seasons })
+		}).catch(error => {
+			console.log("GET_TVSERIES_SEASONS_ERROR", error.message);
+		});
+	}
+};
+
 export const getSearch = (search, userId) => {
 	return (dispatch, getState) => {
 		fetch("api/tvSeries/search/"+search.search+"?userId="+userId)

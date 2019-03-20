@@ -1,44 +1,35 @@
 import React from "react";
-import { connect } from "react-redux";
-import { firestoreConnect } from "react-redux-firebase";
-import { compose } from "redux";
+import { Link } from "react-router-dom";
 
-const Seasons = ({series}) => {
-	if(series){
-	  return (
-			<div className="seasons container section">
-	      <div className="card z-depth-0">
-	        <div className="card-content">
-	          <span className="card-title">{series.title}</span>
-	          <p>{series.seriesId}</p>
-	        </div>
-	        <div className="card-action grey lighten-4 grey-text">
-	          <div>Posted by {series.user}</div>
-	          <div>2nd September, 2am</div>
-	        </div>
-	      </div>
-	    </div>
-	  )
-	}else{
-		return(
-			<div className="container center">
-				Loading...
-			</div>
-		)
-	}
+const Seasons = ({ seasons }) => {
+	console.log(seasons)
+  const handleClick = (e) => {
+    //this.props.getPosts(this.props.subreddit,e.target.id);
+
+    var i = 0;
+		var a = document.getElementsByTagName("a");
+    for (i = 0; i < a.length; i++) {
+        a[i].classList.remove("active");
+    }
+
+    e.target.closest("a").classList.add("active");
+  }
+
+	const seasonsList = seasons && seasons.length > 0 ? (
+		seasons.map(season => {
+			return (
+				<li className="nav-item" onClick={ handleClick } key={ season.season }><Link id={ season.id } to="/tvSeries" className="nav-link">{ season.season }</Link></li>
+			)
+		})
+	) : (
+		<div></div>
+	);
+
+  return (
+    <ul className="nav nav-pills nav-fill">
+      { seasonsList }
+    </ul>
+  );
 }
 
-const mapStateToProps = (state, ownProps) => {
-	const id = ownProps.match.params.id;
-	const tvSeries = state.firestore.data.tvseries;
-	const series = tvSeries ? tvSeries[id] : null;
-
-	return {
-		series: series
-	}
-}
-
-export default compose(
-	connect(mapStateToProps),
-	firestoreConnect([{ collection: "tvseries" }])
-)(Seasons);
+export default Seasons;

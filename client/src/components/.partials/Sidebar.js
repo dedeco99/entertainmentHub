@@ -16,7 +16,7 @@ class Sidebar extends Component {
 	}
 
   render() {
-    const { options } = this.props;
+    const { options, idField } = this.props;
 
 		const optionsList = options && options.length > 0 ? (
 			options.map(option => {
@@ -25,7 +25,7 @@ class Sidebar extends Component {
               className="nav-link option"
               onClick={ this.handleClick }
               key={ option.id }
-              id={ option.id }
+              id={ option[idField] }
             >
               { option.displayName }
             </li>
