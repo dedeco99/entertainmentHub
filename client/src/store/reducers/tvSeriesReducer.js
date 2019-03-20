@@ -1,14 +1,22 @@
 const initState = {
 	tvSeries: [],
+	series: null,
 	seasons: [],
+	episodes: [],
 	tvSeriesSearch: []
 }
 
 const tvSeriesReducer = (state = initState, action) => {
 	switch(action.type){
 		case "GET_TVSERIES_SEASONS":
-			console.log("Get TV Series seasons",action.seasons);
-			return { ...state, seasons: action.seasons };
+			console.log("Get TV Series seasons");
+			return { ...state, seasons: action.seasons, episodes: [] };
+		case "UPDATE_TVSERIES_SERIES":
+			console.log("Updated TV Series series", action.tvSeries);
+			return { ...state, series: action.tvSeries };
+		case "GET_TVSERIES_EPISODES":
+			console.log("Get TV Series episodes");
+			return { ...state, episodes: action.episodes };
 		case "GET_TVSERIES_SEARCH":
 			console.log("Get TV Series search");
 			return { ...state, tvSeriesSearch: action.tvSeriesSearch };

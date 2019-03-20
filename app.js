@@ -38,6 +38,8 @@ app.get("/api/twitch/channels/", twitch.getChannels);
 
 app.get("/api/tvSeries/:tvSeries/seasons", tvSeries.getSeasons);
 
+app.get("/api/tvSeries/:tvSeries/seasons/:season/episodes", tvSeries.getEpisodes);
+
 app.get("/api/tvSeries/search/:search", tvSeries.getSearch);
 
 app.get("*/", function (req, res) {

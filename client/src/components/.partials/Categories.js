@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-const Categories = ({ options, action }) => {
+const Categories = ({ options, idField, nameField, action }) => {
   const handleClick = (e) => {
     action(e.target.id);
 
@@ -16,16 +16,16 @@ const Categories = ({ options, action }) => {
 
   const optionsList = options.map(option => {
     return (option.active ?
-      <li className="nav-item" onClick={ handleClick } key={ option.id }>
-        <Link id={ option.id } to={ option.path } className="nav-link active">
-          { option.displayName }
-        </Link>
+      <li className="nav-item" onClick={ handleClick } key={ option[idField] }>
+        <a id={ option[idField] } className="nav-link active">
+          { option[nameField] }
+        </a>
       </li>
     :
-      <li className="nav-item" onClick={ handleClick } key={ option.id }>
-        <Link id={ option.id } to={ option.path } className="nav-link">
-          { option.displayName }
-        </Link>
+      <li className="nav-item" onClick={ handleClick } key={ option[idField] }>
+        <a id={ option[idField] } className="nav-link">
+          { option[nameField] }
+        </a>
       </li>
     )
   });

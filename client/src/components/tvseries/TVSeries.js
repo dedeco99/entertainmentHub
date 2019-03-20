@@ -3,10 +3,11 @@ import { connect } from "react-redux";
 import { firestoreConnect } from "react-redux-firebase";
 import { compose } from "redux";
 
-import { getSeasons, getSearch, addTVSeries } from "../../store/actions/tvSeriesActions";
+import { getSeasons, getEpisodes, getSearch, addTVSeries } from "../../store/actions/tvSeriesActions";
 
 import Sidebar from "../.partials/Sidebar";
-import Seasons from "./Seasons";
+import Categories from "../.partials/Categories";
+import Episodes from "./Episodes";
 import Search from "./Search";
 
 import "../../css/TVSeries.css";
@@ -14,6 +15,11 @@ import "../../css/TVSeries.css";
 class TVSeries extends Component {
   getSeasons = (tvSeries) => {
     this.props.getSeasons(tvSeries, this.props.auth.uid);
+    this.showComponent("episodesBlock");
+  }
+
+  getEpisodes = (season) => {
+    this.props.getEpisodes(this.props.series, season, this.props.auth.uid);
     this.showComponent("episodesBlock");
   }
 
@@ -36,7 +42,7 @@ class TVSeries extends Component {
   }
 
   render() {
-    const { tvSeries, seasons, tvSeriesSearch } = this.props;
+    const { tvSeries, seasons, episodes, tvSeriesSearch } = this.props;
 
     return (
       <div className="tvSeries">
@@ -57,7 +63,14 @@ class TVSeries extends Component {
               <Search tvSeriesSearch={ tvSeriesSearch } getSearch={ this.getSearch } addTVSeries={ this.addTVSeries } />
             </div>
             <div id="episodesBlock">
-              <Seasons seasons={ seasons } />
+              <Categories
+                options={ seasons }
+                idField="season"
+                nameField="season"
+                action={ this.getEpisodes }
+              />
+              <br/>
+              <Episodes episodes={ episodes } />
             </div>
           </div>
         </div>
@@ -70,7 +83,9 @@ const mapStateToProps = (state) => {
   return {
     auth: state.firebase.auth,
     tvSeries: state.firestore.ordered.tvSeries,
+    series: state.tvSeries.series,
     seasons: state.tvSeries.seasons,
+    episodes: state.tvSeries.episodes,
     tvSeriesSearch: state.tvSeries.tvSeriesSearch
   }
 }
@@ -78,6 +93,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
 	return {
     getSeasons: (tvSeries, userId) => dispatch(getSeasons(tvSeries, userId)),
+    getEpisodes: (tvSeries, season, userId) => dispatch(getEpisodes(tvSeries, season, userId)),
     getSearch: (search, userId) => dispatch(getSearch(search, userId)),
     addTVSeries: (tvSeries, userId) => dispatch(addTVSeries(tvSeries, userId))
 	}

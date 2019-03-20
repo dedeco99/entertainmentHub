@@ -1,14 +1,6 @@
-const request=require("request");
+const request = require("request");
 
-const database=require("./database");
-
-exports.getSeries=function(socket){
-  socket.on("getImdbSeries",function(data){
-    getSeries(data,function(res){
-      socket.emit("getImdbSeries",res);
-    });
-  });
-}
+const database = require("./database");
 
 exports.getSeasons = (req, res) => {
   var data = {
@@ -37,17 +29,16 @@ exports.getSeasons = (req, res) => {
   }
 }
 
-exports.getEpisodes=function(socket){
-  socket.on("getImdbEpisodes",function(data){
-    var dataf={
-      all:false,
-      id:data.id,
-      series:data.series,
-      season:data.season
-    };
-    getEpisodes(dataf,function(res){
-      socket.emit("getImdbEpisodes",res);
-    });
+exports.getEpisodes = (req, res) => {
+  var data = {
+    tvSeries:req.params.tvSeries,
+    season:req.params.season
+  };
+
+  console.log(data);
+
+  getEpisodes(data, (response) => {
+    res.json(response);
   });
 }
 
@@ -150,29 +141,29 @@ var getAllEpisodes=function(data,callback){
   }
 }
 
-var getEpisodes=function(data,callback){
-  var url="https://api.themoviedb.org/3/tv/"+data.id+"/season/"+data.season+"?api_key="+process.env.tmdbKey;
+var getEpisodes = (data, callback) => {
+  var url = "https://api.themoviedb.org/3/tv/" + data.tvSeries + "/season/" + data.season + "?api_key=" + process.env.tmdbKey;
 
-  request(url,function(error,response,html){
+  request(url, (error, response, html) => {
     if(error) console.log(error);
-    var json=JSON.parse(html);
+    var json = JSON.parse(html);
 
-    var res=[];
-    for(var i=0;i<json.episodes.length;i++){
-      var image="/assets/img/noimage.png";
+    var res = [];
+    for(var i = 0; i < json.episodes.length; i++){
+      var image = "/assets/img/noimage.png";
       if(json.episodes[i].still_path){
-        image="https://image.tmdb.org/t/p/w454_and_h254_bestv2"+json.episodes[i].still_path;
+        image = "https://image.tmdb.org/t/p/w454_and_h254_bestv2" + json.episodes[i].still_path;
       }
 
-      var episode={
-        all:data.all,
-        series:data.id,
-        name:data.series,
-        title:json.episodes[i].name,
-        date:json.episodes[i].air_date,
-        image:image,
-        season:json.episodes[i].season_number,
-        number:json.episodes[i].episode_number
+      var episode = {
+        all: data.all,
+        series: data.id,
+        name: data.series,
+        title: json.episodes[i].name,
+        date: json.episodes[i].air_date,
+        image: image,
+        season: json.episodes[i].season_number,
+        number: json.episodes[i].episode_number
       };
       res.push(episode);
     }

@@ -10,7 +10,6 @@ import Reddit from "./reddit/Reddit";
 import Youtube from "./youtube/Youtube";
 import Twitch from "./twitch/Twitch";
 import TVSeries from "./tvseries/TVSeries";
-import Seasons from "./tvseries/Seasons";
 import Settings from "./settings/Settings";
 
 import "../css/App.css";
@@ -29,7 +28,6 @@ const App = () => {
             <PrivateRoute exact path="/youtube" component={ Youtube } />
             <PrivateRoute exact path="/twitch" component={ Twitch } />
             <PrivateRoute exact path="/tvseries" component={ TVSeries } />
-            <PrivateRoute exact path="/tvseries/:id" component={ Seasons } />
             <PrivateRoute exact path="/settings" component={ Settings } />
           </Switch>
         </div>

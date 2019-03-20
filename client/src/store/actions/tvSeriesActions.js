@@ -4,8 +4,21 @@ export const getSeasons = (tvSeries, userId) => {
 		.then(res => res.json())
 		.then(seasons => {
 			dispatch({ type: "GET_TVSERIES_SEASONS", seasons })
+			dispatch({ type: "UPDATE_TVSERIES_SERIES", tvSeries })
 		}).catch(error => {
 			console.log("GET_TVSERIES_SEASONS_ERROR", error.message);
+		});
+	}
+};
+
+export const getEpisodes = (tvSeries, season, userId) => {
+	return (dispatch, getState) => {
+		fetch("api/tvSeries/"+tvSeries+"/seasons/"+season+"/episodes?userId="+userId)
+		.then(res => res.json())
+		.then(episodes => {
+			dispatch({ type: "GET_TVSERIES_EPISODES", episodes })
+		}).catch(error => {
+			console.log("GET_TVSERIES_EPISODES_ERROR", error.message);
 		});
 	}
 };

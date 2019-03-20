@@ -45,7 +45,12 @@ class Reddit extends Component {
             />
           </div>
           <div className="col-sm-9 col-md-10 col-lg-10">
-            <Categories options={ categories } action={ this.getPostsCategory } />
+            <Categories
+              options={ categories }
+              idField="id"
+              nameField="displayName"
+              action={ this.getPostsCategory }
+            />
             <br/>
             <Posts posts={ posts } />
           </div>

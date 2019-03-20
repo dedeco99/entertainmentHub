@@ -66,6 +66,8 @@ class Twitch extends Component {
           <div className="col-12">
             <Categories
               options={ categories }
+              idField="id"
+              nameField="displayName"
               action={ this.getPosts }
             />
             <br/>
