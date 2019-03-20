@@ -22,7 +22,11 @@ class Youtube extends Component {
       <div className="youtube">
         <div className="row">
           <div className="col-sm-3 col-md-2 col-lg-2">
-            <Sidebar options={ channels } getPosts={ this.getPosts } />
+            <Sidebar
+              options={ channels }
+              idField="id"
+              action={ this.getPosts }
+            />
           </div>
           <div className="col-sm-9 col-md-10 col-lg-10">
             <Posts posts={ posts } />

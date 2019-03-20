@@ -14,7 +14,7 @@ import "../../css/TVSeries.css";
 class TVSeries extends Component {
   getSeasons = (tvSeries) => {
     this.props.getSeasons(tvSeries, this.props.auth.uid);
-    this.showComponent("seasons");
+    this.showComponent("episodesBlock");
   }
 
   getSearch = (search) => {
@@ -26,7 +26,7 @@ class TVSeries extends Component {
   }
 
   showComponent = (component) => {
-    const components = ["seasons", "seriesSearch"];
+    const components = ["episodesBlock", "seriesSearchBlock"];
 
     components.forEach(component => {
       document.getElementById(component).style.display = "none";
@@ -42,17 +42,21 @@ class TVSeries extends Component {
       <div className="tvSeries">
         <div className="row">
           <div className="col-sm-3 col-md-2 col-lg-2">
-            <button type="button" className="btn btn-primary" onClick={ () => this.showComponent("seriesSearch") }>
+            <button type="button" className="btn btn-primary" onClick={ () => this.showComponent("seriesSearchBlock") }>
               Add
             </button>
             <br/><br/>
-            <Sidebar options={ tvSeries } idField="seriesId" getPosts={ this.getSeasons } />
+            <Sidebar
+              options={ tvSeries }
+              idField="seriesId"
+              action={ this.getSeasons }
+            />
           </div>
           <div className="col-sm-9 col-md-10 col-lg-10">
-            <div id="seriesSearch">
+            <div id="seriesSearchBlock">
               <Search tvSeriesSearch={ tvSeriesSearch } getSearch={ this.getSearch } addTVSeries={ this.addTVSeries } />
             </div>
-            <div id="seasons">
+            <div id="episodesBlock">
               <Seasons seasons={ seasons } />
             </div>
           </div>

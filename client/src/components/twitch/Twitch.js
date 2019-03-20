@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 
 import { getGames, getStreamsForGame, getStreams, getChannels } from "../../store/actions/twitchActions";
 
-import Categories from "./Categories";
+import Categories from "../.partials/Categories";
 import Games from "./Games";
 import Streams from "./Streams";
 import Channels from "./Channels";
@@ -16,7 +16,7 @@ class Twitch extends Component {
   }
 
   showComponent = (component) => {
-    const components = ["games", "streamsForGame", "streams", "channels"];
+    const components = ["gamesBlock", "streamsForGameBlock", "streamsBlock", "channelsBlock"];
 
     components.forEach(component => {
       document.getElementById(component).style.display = "none";
@@ -25,44 +25,60 @@ class Twitch extends Component {
     document.getElementById(component).style.display = "block";
   }
 
+  getPosts = (action) => {
+    console.log(action);
+    if(action === "games"){
+      this.getGames();
+    }else if(action === "streams"){
+      this.getStreams();
+    }else if(action === "channels"){
+      return;
+    }
+  }
+
   getGames = () => {
     this.props.getGames(this.props.auth.uid);
-    this.showComponent("games");
+    this.showComponent("gamesBlock");
   }
 
   getStreamsForGame = (game) => {
     this.props.getStreamsForGame(game, this.props.auth.uid);
-    this.showComponent("streamsForGame");
+    this.showComponent("streamsForGameBlock");
   }
 
   getStreams = () => {
     this.props.getStreams(this.props.auth.uid);
-    this.showComponent("streams");
+    this.showComponent("streamsBlock");
   }
 
   render() {
     const { games, streamsForGame, streams, channels } = this.props;
+
+    const categories = [
+      {id: "games", displayName: "Games", path: "/twitch", active: false },
+      {id: "streams", displayName: "Streams", path: "/twitch", active: true },
+      {id: "channels", displayName: "Channels", path: "/twitch", active: false}
+    ];
 
     return (
       <div className="twitch">
         <div className="row">
           <div className="col-12">
             <Categories
-              getGames={ this.getGames }
-              getStreams={ this.getStreams }
-              getChannels={ this.getChannels }
+              options={ categories }
+              action={ this.getPosts }
             />
             <br/>
-            <div id="games">
+            <div id="gamesBlock">
               <Games games={ games } getStreamsForGame={ this.getStreamsForGame } />
             </div>
-            <div id="streamsForGame">
+            <div id="streamsForGameBlock">
               <Streams streams={ streamsForGame } />
             </div>
-            <div id="streams">
+            <div id="streamsBlock">
               <Streams streams={ streams } />
             </div>
-            <div id="channels">
+            <div id="channelsBlock">
               <Channels channels={ channels } />
             </div>
           </div>
