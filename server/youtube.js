@@ -10,11 +10,7 @@ exports.getChannels = (req, res) => {
   channelsString = "";
 
   getAccessToken(data, getChannels, (response) => {
-    res.json(response.sort((a,b) => {
-      if(a.displayName < b.displayName) return -1;
-      if(a.displayName > b.displayName) return 1;
-      return 0;
-    }));
+    res.json(response);
   });
 }
 
@@ -25,7 +21,7 @@ exports.getPosts = (req, res) => {
     userId: req.query.userId
   };
 
-  getAccessToken(data, getVideos, (response) => {
+  getAccessToken(data, getVideoFeed, (response) => {
     res.json(response);
   });
 }
@@ -83,6 +79,19 @@ const getChannels = (data, accessToken, nextPageToken, callback) => {
     nextPageToken = json.nextPageToken;
     if(nextPageToken == null){
       getChannelsPlaylist(channelsString.slice(0, -1), accessToken, () => {
+        channels.sort((a,b) => {
+          if(a.displayName < b.displayName) return -1;
+          if(a.displayName > b.displayName) return 1;
+          return 0;
+        });
+
+        channels.unshift({
+          id: 0,
+          channelId: null,
+          displayName: "All",
+          logo: null
+        });
+
         callback(channels);
       });
     }else{
@@ -113,6 +122,37 @@ const getChannelsPlaylist = (data, accessToken, callback) => {
 
     if(callback) callback(channels);
   });
+}
+
+const getVideoFeed = (data, accessToken, nextPageToken, callback) => {
+  if(data.uploadsId == 0) {
+    var res = [];
+    var completed_requests = 0;
+
+    for(var i = 0; i < channels.length; i++) {
+      if(channels[i].id != 0) {
+        data.uploadsId = channels[i].id;
+        getVideos(data, accessToken, null, (response) => {
+          completed_requests++;
+          res = res.concat(response);
+          if(completed_requests == channels.length-1) {
+
+            res.sort((a, b) => {
+              a = new Date(a.date);
+              b = new Date(b.date);
+              return a > b ? -1 : a < b ? 1 : 0;
+            });
+
+            callback(res);
+          }
+        });
+      }
+    }
+  } else {
+    getVideos(data, accessToken, null, (response) => {
+      callback(response);
+    });
+  }
 }
 
 const getVideos = (data, accessToken, nextPageToken, callback) => {
