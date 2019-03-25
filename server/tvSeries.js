@@ -8,6 +8,7 @@ exports.getSeasons = (req, res) => {
     userId: req.query.userId
   };
 
+  //getAllSeries(null, null);
   console.log(data);
 
   if(data.tvSeries == "all"){
@@ -72,38 +73,36 @@ const getSeasons = (data, callback) => {
   });
 }
 
-var getAllSeries=function(data,callback){
-  database.UserImdbSeries.find({username:data.username}).sort("series").exec(function(err,docs){
-    if(err) throw err;
+var getAllSeries = (data, callback) => {
+  database.firestore.collection("tvSeries")
+  .get().then((snapshot) => {
+    if(snapshot.size > 0) {
+      var itemsProcessed = 0;
+      var episodes = [];
 
-    if(docs.length>0){
-      var itemsProcessed=0;
-      var episodes=[];
+      snapshot.docs.forEach((item,index) => {
+        item = item.data();
+        var dataSeasons = { tvSeries: item.seriesId };
 
-      docs.forEach(function(item,index){
-        var dataSeasons={
-          id:item.id
-        };
+        getSeasons(dataSeasons, (res) => {
 
-        getSeasons(dataSeasons,function(res){
-          var season=res[0].season;
-          for(var i=0;i<res.length;i++){
-            if(res[i].season>season) season=res[i].season;
+          var season = res[0].season;
+          for(var i = 0; i < res.length; i++) {
+            if(res[i].season > season) season = res[i].season;
           }
 
-          var dataEpisodes={
-            id:res[0].id,
-            series:item.series,
-            season:season,
-            all:data.all
+          var dataEpisodes = {
+            seriesName: item.displayName,
+            tvSeries: item.seriesId,
+            season: season,
           };
 
-          getAllEpisodes(dataEpisodes,function(res){
+          getAllEpisodes(dataEpisodes, (res) => {
             itemsProcessed++;
-            console.log(itemsProcessed+"/"+docs.length);
-            episodes=episodes.concat(res);
-            if(itemsProcessed===docs.length){
-              callback(episodes);
+            episodes = episodes.concat(res);
+            if(itemsProcessed === snapshot.docs.length){
+              console.log("Finish");
+              //callback(episodes);
             }
           });
         });
@@ -112,32 +111,31 @@ var getAllSeries=function(data,callback){
   });
 }
 
-var getAllEpisodes=function(data,callback){
-  var items=0;
-  var episodes=[];
-  if(data.season==1){
-    getEpisodes(data,function(res){
-      items++;
-      if(items==data.season){
-        callback(res);
+var getAllEpisodes = (data, callback) => {
+  if(data.season > 1) {
+    for(var i = data.season-1; i <= data.season; i++) {
+
+      var items = 0;
+      var episodes = [];
+
+      var dataf = {
+        seriesName: data.seriesName,
+        tvSeries: data.tvSeries,
+        season: i,
       }
-    });
-  }else{
-    for(var i=data.season-1;i<=data.season;i++){
-      var dataf={
-        id:data.id,
-        series:data.series,
-        season:i,
-        all:data.all
-      }
-      getEpisodes(dataf,function(res){
+
+      getEpisodes(dataf, (res) => {
         items++;
-        episodes=episodes.concat(res);
-        if(items==2){
+        episodes = episodes.concat(res);
+        if(items == data.season || items == 2) {
           callback(episodes);
         }
       });
     }
+  } else {
+    getEpisodes(data, (res) => {
+      callback(episodes);
+    });
   }
 }
 
@@ -156,15 +154,15 @@ var getEpisodes = (data, callback) => {
       }
 
       var episode = {
-        all: data.all,
-        series: data.id,
-        name: data.series,
+        seriesId: data.tvSeries,
+        seriesName: data.seriesName,
         title: json.episodes[i].name,
         date: json.episodes[i].air_date,
         image: image,
         season: json.episodes[i].season_number,
         number: json.episodes[i].episode_number
       };
+
       res.push(episode);
     }
     callback(res);
