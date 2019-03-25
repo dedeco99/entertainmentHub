@@ -10,7 +10,11 @@ const tvSeriesReducer = (state = initState, action) => {
 	switch(action.type){
 		case "GET_TVSERIES_SEASONS":
 			console.log("Get TV Series seasons");
-			return { ...state, seasons: action.seasons, episodes: [] };
+			if(action.tvSeries == "all"){
+				return { ...state, seasons: [], episodes: action.seasons };
+			}else{
+				return { ...state, seasons: action.seasons, episodes: [] };
+			}
 		case "UPDATE_TVSERIES_SERIES":
 			console.log("Updated TV Series series", action.tvSeries);
 			return { ...state, series: action.tvSeries };

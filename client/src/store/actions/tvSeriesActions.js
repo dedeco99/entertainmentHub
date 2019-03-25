@@ -3,7 +3,7 @@ export const getSeasons = (tvSeries, userId) => {
 		fetch("api/tvSeries/"+tvSeries+"/seasons?userId="+userId)
 		.then(res => res.json())
 		.then(seasons => {
-			dispatch({ type: "GET_TVSERIES_SEASONS", seasons })
+			dispatch({ type: "GET_TVSERIES_SEASONS", seasons, tvSeries })
 			dispatch({ type: "UPDATE_TVSERIES_SERIES", tvSeries })
 		}).catch(error => {
 			console.log("GET_TVSERIES_SEASONS_ERROR", error.message);

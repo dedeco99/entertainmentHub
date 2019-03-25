@@ -52,6 +52,14 @@ class TVSeries extends Component {
               Add
             </button>
             <br/><br/>
+            <li
+              className="nav-link option"
+              onClick={ (e) => this.getSeasons(e.target.id) }
+              key="0"
+              id="all"
+            >
+              All
+            </li>
             <Sidebar
               options={ tvSeries }
               idField="seriesId"

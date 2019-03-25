@@ -8,17 +8,10 @@ exports.getSeasons = (req, res) => {
     userId: req.query.userId
   };
 
-  //getAllSeries(null, null);
   console.log(data);
 
   if(data.tvSeries == "all"){
-    var dataf = {
-      username:data.username,
-      id:data.id,
-      all:true
-    };
-
-    getAllSeries(dataf, (response) => {
+    getAllSeries(data, (response) => {
       res.json(response.sort((a, b) => {
         return new Date(b.date) - new Date(a.date) || b.series - a.series || b.season - a.season || b.number - a.number;
       }));
@@ -102,7 +95,7 @@ var getAllSeries = (data, callback) => {
             episodes = episodes.concat(res);
             if(itemsProcessed === snapshot.docs.length){
               console.log("Finish");
-              //callback(episodes);
+              callback(episodes);
             }
           });
         });
@@ -146,9 +139,11 @@ var getEpisodes = (data, callback) => {
     if(error) console.log(error);
     var json = JSON.parse(html);
 
+    console.log(json);
+
     var res = [];
     for(var i = 0; i < json.episodes.length; i++){
-      var image = "/assets/img/noimage.png";
+      var image = null;
       if(json.episodes[i].still_path){
         image = "https://image.tmdb.org/t/p/w454_and_h254_bestv2" + json.episodes[i].still_path;
       }

@@ -5,8 +5,9 @@ import Episode from "./Episode";
 const Episodes = ({ episodes }) => {
   const episodesList = episodes && episodes.length > 0 ? (
 		episodes.map(episode => {
+      if(episode!=null)
 			return (
-        <div className="col-xs-12 col-sm-6 col-md-6 col-lg-4 col-xl-3" key={ episode.number }>
+        <div className="col-xs-12 col-sm-6 col-md-6 col-lg-4 col-xl-3" key={ "" + episode.seriesId + episode.season + episode.number }>
 						<Episode episode={ episode }/>
 				</div>
 			)
