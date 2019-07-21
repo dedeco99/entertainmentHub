@@ -3,15 +3,15 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "firebase": "^5.8.6",
-    "react": "^16.8.3",
-    "react-dom": "^16.8.3",
+    "firebase": "^5.11.1",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
     "react-redux": "^5.0.7",
-    "react-redux-firebase": "^2.2.6",
+    "react-redux-firebase": "^2.3.0",
     "react-router-dom": "^4.3.1",
     "react-scripts": "2.1.5",
-    "redux": "^4.0.1",
-    "redux-firestore": "^0.7.1",
+    "redux": "^4.0.4",
+    "redux-firestore": "^0.7.4",
     "redux-thunk": "^2.3.0"
   },
   "scripts": {
