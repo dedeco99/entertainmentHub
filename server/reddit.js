@@ -1,157 +1,173 @@
-const request = require("request");
-var sanitizeHtml = require("sanitize-html");
+const sanitizeHtml = require("sanitize-html");
 
-const database = require("./database");
+const { getAuth } = require("./database");
+const { get, post } = require("./request");
 
-exports.getSubreddits = (req, res) => {
-  var data = { userId: req.query.userId };
-  console.log(data);
+const getAccessToken = async (data) => {
+	//const refreshToken = await getAuth({ "user": data.userId, "platform": "reddit" });
+	const refreshToken = "24696451-vM4LoYxP9EZxiRnTi55zvFe-iPQ";
 
-  getAccessToken(data, getSubreddits, (response) => {
-    res.json(response);
-  });
-}
+	const url = `https://www.reddit.com/api/v1/access_token
+		?refresh_token=${refreshToken}&grant_type=refresh_token`.replace(/\t/g, "").replace(/\n/g, "");
 
-exports.getPosts = (req, res) => {
-  var data = {
-    subreddit: req.params.subreddit,
-    category: req.params.category,
-    userId: req.query.userId
-  };
-  console.log(data);
+	const encryptedAuth = new Buffer.from(`${process.env.redditClientId}:${process.env.redditSecret}`).toString("base64");
+	const auth = `Basic ${encryptedAuth}`;
+	const headers = {
+		"User-Agent": "Entertainment-Hub by dedeco99",
+		"Authorization": auth
+	};
 
-  getAccessToken(data, getPosts, (response) => {
-    res.json(response);
-  });
-}
+	const res = await post(url, headers);
+	const json = JSON.parse(res);
 
-var getAccessToken = (data, run, callback) => {
-  database.firestore.collection("auths")
-  .where("user", "==", data.userId)
-  .where("platform", "==", "reddit")
-  .get().then((snapshot) => {
-    if(snapshot.size > 0){
-      var url = "https://www.reddit.com/api/v1/access_token"
-              +"?refresh_token=" + snapshot.docs[0].data().refreshToken
-              +"&grant_type=refresh_token";
+	return json.access_token;
+};
 
-      var auth="Basic " + new Buffer(process.env.redditClientId + ":" + process.env.redditSecret).toString("base64");
+const getRefreshToken = async () => { /* eslint-disable-line no-unused-vars */
+	const url = `https://www.reddit.com/api/v1/access_token
+		?code=16U7Amy5y6j83dwUfmCILGVTuyM&grant_type=authorization_code&redirect_uri=http://localhost:5000/lul`.replace(/\t/g, "").replace(/\n/g, "");
 
-      var headers = {
-        "User-Agent":"Entertainment-Hub by dedeco99",
-        "Authorization": auth
-      };
+	const encryptedAuth = new Buffer.from(`${process.env.redditClientId}:${process.env.redditSecret}`).toString("base64"); /* eslint-disable-line no-undef */
+	const auth = `Basic ${encryptedAuth}`;
 
-      request.post({ url: url, headers: headers }, (error, response, html) => {
-        if(error) console.log(error);
-        var json = JSON.parse(html);
+	const headers = {
+		"User-Agent": "Entertainment-Hub by dedeco99",
+		"Authorization": auth
+	};
 
-        run(data, json.access_token, callback);
-      });
-    }
-  });
-}
+	const res = await post(url, headers);
+	const json = JSON.parse(res);
 
-var getSubreddits = (data, accessToken, callback) => {
-  var url = "https://oauth.reddit.com/subreddits/mine/subscriber?limit=1000";
-  var headers = {
-    "User-Agent":"Entertainment-Hub by dedeco99",
-    "Authorization":"bearer " + accessToken
-  };
+	console.log(json);
+};
 
-  request({ url: url, headers: headers }, (error, response, html) => {
-    if(error) console.log(error);
-    var json = JSON.parse(html);
+const formatResponse = (json) => {
+	const res = [];
+	for (let i = 0; i < json.data.children.length; i++) {
+		const data = json.data.children[i].data;
 
-    var res = [];
-    var all = "";
-    for(var i = 0; i < json.data.children.length; i++){
-      var displayName = json.data.children[i].data.display_name;
-      all += displayName + "+";
-      displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
-      var subreddit = {
-        id: displayName,
-        displayName: displayName
-      };
-      res.push(subreddit);
-    }
+		if (data.thumbnail == "self" || data.thumbnail == "default") {
+			isText = true;
+		}
 
-    res.sort((a, b) => {
-      if(a.displayName < b.displayName) return -1;
-      if(a.displayName > b.displayName) return 1;
-      return 0;
-    });
+		let redditVideo = null;
+		if (data.media && data.media.reddit_video) {
+			redditVideo = data.media.reddit_video.fallback_url;
+		}
 
-    var otherSubs = [
-      {id: "original", displayName: "Original"},
-      {id: "popular", displayName: "Popular"},
-      {id: "all", displayName: "All"},
-      {id: all, displayName: "Home"}
-    ];
-    otherSubs.forEach(subreddit => {
-      res.unshift(subreddit)
-    });
-    callback(res, accessToken);
-  });
-}
+		let videoHeight = null, videoPreview = null;
+		if (data.media && data.media.oembed) {
+			videoHeight = data.media.oembed.height;
+		} else if (data.preview && data.preview.images && data.preview.images[0].resolutions) {
+			const resolutions = data.preview.images[0].resolutions;
+			if (resolutions[resolutions.length - 1]) {
+				videoPreview = resolutions[resolutions.length - 1].url;
+			}
+		}
 
-var getPosts = (data, accessToken, callback) => {
-  var url = "https://oauth.reddit.com/r/" + data.subreddit + "/" + data.category;
-  if(data.after) url += "?after=" + data.after;
-  var headers = {
-    "User-Agent":"Entertainment-Hub by dedeco99",
-    "Authorization":"bearer " + accessToken
-  };
+		res.push({
+			id: i,
+			title: data.title,
+			permalink: `https://reddit.com/${data.permalink}`,
+			thumbnail: data.thumbnail,
+			upvotes: data.ups,
+			downvotes: data.downs,
+			comments: data.num_comments,
+			crossposts: data.num_crossposts,
+			author: data.author,
+			domain: data.domain,
+			url: data.url,
+			text: sanitizeHtml(data.selftext_html),
+			redditVideo: redditVideo,
+			videoHeight: videoHeight,
+			videoPreview: videoPreview,
+			created: data.created,
+			after: json.data.after
+		});
+	}
+	return res;
+};
 
-  request({ url: url, headers: headers }, (error, response, html) => {
-    if(error) console.log(error);
-    var json = JSON.parse(html);
+const getSubreddits = async (req, res) => {
+	const data = { userId: req.query.userId };
 
-    //console.log(json.data.children[0].data);
+	const accessToken = await getAccessToken(data);
 
-    var res = [];
-    for(var i = 0; i < json.data.children.length; i++){
-      var data = json.data.children[i].data;
+	const url = "https://oauth.reddit.com/subreddits/mine/subscriber?limit=1000";
+	const headers = {
+		"User-Agent": "Entertainment-Hub by dedeco99",
+		"Authorization": `bearer ${accessToken}`
+	};
 
-      if(data.thumbnail == "self" || data.thumbnail == "default"){
-        isText = true;
-      }
+	try {
+		const request = await get(url, headers);
+		const json = JSON.parse(request);
 
-      var redditVideo = null;
-      if(data.media && data.media.reddit_video){
-        redditVideo = data.media.reddit_video.fallback_url;
-      }
+		const response = [];
+		let all = "";
+		for (let i = 0; i < json.data.children.length; i++) {
+			let displayName = json.data.children[i].data.display_name;
+			all += `${displayName}+`;
+			displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
+			const subreddit = {
+				id: displayName,
+				displayName: displayName
+			};
+			response.push(subreddit);
+		}
 
-      var videoHeight = null, videoPreview = null;
-      if(data.media && data.media.oembed){
-        videoHeight = data.media.oembed.height;
-      }else if(data.preview && data.preview.images && data.preview.images[0].resolutions){
-        var resolutions = data.preview.images[0].resolutions;
-        if(resolutions[resolutions.length-1]){
-          videoPreview = resolutions[resolutions.length-1].url;
-        }
-      }
+		response.sort((a, b) => {
+			if (a.displayName < b.displayName) return -1;
+			if (a.displayName > b.displayName) return 1;
+			return 0;
+		});
 
-      res.push({
-        id: i,
-        title:data.title,
-        permalink:"https://reddit.com/"+data.permalink,
-        thumbnail:data.thumbnail,
-        upvotes:data.ups,
-        downvotes:data.downs,
-        comments:data.num_comments,
-        crossposts:data.num_crossposts,
-        author:data.author,
-        domain:data.domain,
-        url:data.url,
-        text:sanitizeHtml(data.selftext_html),
-        redditVideo:redditVideo,
-        videoHeight:videoHeight,
-        videoPreview:videoPreview,
-        created:data.created,
-        after:json.data.after
-      });
-    }
-    callback(res);
-  });
-}
+		const otherSubs = [
+			{ id: "original", displayName: "Original" },
+			{ id: "popular", displayName: "Popular" },
+			{ id: "all", displayName: "All" },
+			{ id: all, displayName: "Home" }
+		];
+		otherSubs.forEach(subreddit => {
+			response.unshift(subreddit);
+		});
+
+		res.json(response);
+	} catch (err) {
+		res.json("Subreddit not found");
+	}
+};
+
+const getPosts = async (req, res) => {
+	const data = {
+		subreddit: req.params.subreddit,
+		category: req.params.category,
+		userId: req.query.userId
+	};
+
+	const accessToken = await getAccessToken(data);
+
+	let url = `https://oauth.reddit.com/r/${data.subreddit}/${data.category}`;
+	if (data.after) url += `?after=${data.after}`;
+
+	const headers = {
+		"User-Agent": "Entertainment-Hub by dedeco99",
+		"Authorization": `bearer ${accessToken}`
+	};
+
+	try {
+		const res = await get(url, headers);
+		const json = JSON.parse(res);
+		const response = formatResponse(json);
+
+		res.json(response);
+	} catch (err) {
+		console.log(err);
+		res.json("Subreddit not found");
+	}
+};
+
+module.exports = {
+	getSubreddits,
+	getPosts
+};

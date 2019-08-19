@@ -1,24 +1,20 @@
 const path = require("path");
 const express = require("express");
 
-if(!process.env.PORT) var secrets=require("./server/secrets");
-const database = require("./server/database");
 const reddit = require("./server/reddit");
 const youtube = require("./server/youtube");
 const twitch = require("./server/twitch");
 const tvSeries = require("./server/tvSeries");
 
-database.initialize();
-
 const app = express();
 
-app.set("port",(process.env.PORT || 5000));
+app.set("port", (process.env.PORT || 5000));
 
-exports.server=app.listen(app.get("port"),function(){
-  console.log("Node app is running on port",app.get("port"));
+exports.server = app.listen(app.get("port"), () => {
+	console.log("Node app is running on port", app.get("port"));
 });
 
-app.use(express.static(path.join(__dirname, "client/build")))
+app.use(express.static(path.join(__dirname, "client/build")));
 
 app.get("/api/reddit/subreddits/", reddit.getSubreddits);
 
@@ -42,6 +38,6 @@ app.get("/api/tvSeries/:tvSeries/seasons/:season/episodes", tvSeries.getEpisodes
 
 app.get("/api/tvSeries/search/:search", tvSeries.getSearch);
 
-app.get("*/", function (req, res) {
-  res.sendFile(path.join(__dirname + "/client/build/index.html"))
+app.get("*/", (req, res) => {
+	res.sendFile(path.join(`${__dirname}/client/build/index.html`));
 });
