@@ -1,26 +1,26 @@
 {
-	"name": "entertainmenthub-backend",
+	"name": "entertainmenthub-api",
 	"version": "1.0.0",
 	"main": "app.js",
 	"scripts": {
-		"client-install": "npm install --prefix client",
-		"start": "node app.js --prefix server",
-		"server": "nodemon app.js --prefix server",
-		"client": "npm start --prefix client",
-		"dev": "concurrently \"npm run server\" \"npm run client\" --prefix server",
+		"client-install": "cd client && npm install",
+		"start": "node app.js",
+		"server": "nodemon app.js",
+		"client": "cd client && npm start",
+		"dev": "concurrently \"npm run server\" \"npm run client\"",
 		"heroku-postbuild": "cd client && npm install && npm run build"
 	},
-	"author": "Brad Traversy",
+	"author": "Andre Coelho",
 	"license": "MIT",
 	"devDependencies": {
-		"eslint": "^5.12.0",
-		"eslint-plugin-react": "^7.14.2",
+		"eslint": "6.2.0",
+		"eslint-plugin-react": "^7.14.3",
 		"nodemon": "^1.19.1"
 	},
 	"dependencies": {
-		"concurrently": "^3.5.1",
+		"concurrently": "^4.1.2",
 		"express": "^4.17.1",
-		"firebase-admin": "^7.4.0",
+		"firebase-admin": "^8.3.0",
 		"request": "^2.88.0",
 		"sanitize-html": "^1.20.1"
 	}
