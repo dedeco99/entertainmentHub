@@ -1,12 +1,22 @@
 const bcrypt = require("bcryptjs");
 
-const { getUser, createUser } = require("./database");
+const { getUser, createUser, createToken } = require("./database");
 
 const hashPassword = async (password) => {
 	const salt = await bcrypt.genSalt(10);
 	const hash = await bcrypt.hash(password, salt);
 
 	return hash;
+};
+
+const generateToken = (length) => {
+	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+	let token = "";
+	for (var i = 0, n = charset.length; i < length; ++i) {
+		token += charset.charAt(Math.floor(Math.random() * n));
+	}
+
+	return token;
 };
 
 const register = async (req, res) => {
@@ -31,7 +41,9 @@ const login = async (req, res) => {
 		const isPassword = await bcrypt.compare(password, user.password);
 
 		if (isPassword) {
-			res.json({ type: "success", text: "Login successful", data: { user: user.id, token: "lmao" } });
+			const newToken = await createToken({ user: user._id, token: generateToken(60) });
+
+			res.json({ type: "success", text: "Login successful", data: { user: user.id, token: newToken.token } });
 		} else {
 			res.json({ type: "error", text: "Password is incorrect" });
 		}
@@ -40,14 +52,7 @@ const login = async (req, res) => {
 	}
 };
 
-const validateToken = async (req, res) => {
-	const { token } = req.params;
-
-	const user = await getToken({ token });
-};
-
 module.exports = {
 	register,
 	login,
-	validateToken
 };

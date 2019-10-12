@@ -1,27 +1,64 @@
-const request = require("request");
+const { get } = require("./request");
 
-const database = require("./database");
+const { getSeries, createSeries } = require("./database");
+const { middleware, response } = require("./utils");
 
-const fetchSeasons = (data, callback) => {
-	const url = `https://api.themoviedb.org/3/tv/${data.tvSeries}?api_key=${process.env.tmdbKey}`;
+const getSearch = async (event) => {
+	const { params } = event;
+	const { search } = params;
 
-	request(url, (error, response, html) => {
-		if (error) console.log(error);
-		const json = JSON.parse(html);
+	const url = `https://api.themoviedb.org/3/search/tv?query=${search}&api_key=${process.env.tmdbKey}`;
 
-		const res = [];
-		for (let i = 0; i < json.seasons.length; i++) {
-			const season = {
-				id: json.id,
-				season: json.seasons[i].season_number
-			};
-			res.push(season);
-		}
-		callback(res);
+	const res = await get(url);
+	const json = JSON.parse(res);
+
+	const series = json.results.map(series => {
+		return {
+			id: series.id,
+			displayName: series.name,
+			image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${series.poster_path}`
+		};
 	});
+
+	return response(200, "Series found", series);
 };
 
-var getAllSeries = (data, callback) => {
+const addSeries = async (event) => {
+	const { body } = event;
+	const { id, displayName, image } = body;
+
+	const userExists = await getSeries({ seriesId: id });
+
+	if (userExists) {
+		return response(409, "Series already exists");
+	} else {
+		await createSeries({ seriesId: id, displayName, image });
+
+		return response(201, "Series has been added");
+	}
+};
+
+const getSeasons = async (event) => {
+	const { params } = event;
+	const { series } = params;
+
+	const url = `https://api.themoviedb.org/3/tv/${series}?api_key=${process.env.tmdbKey}`;
+
+	const res = await get(url);
+	const json = JSON.parse(res);
+
+	const seasons = json.seasons.map(season => {
+		return {
+			id: season.id,
+			season: season.season_number,
+		};
+	});
+
+	return response(200, 'Seasons found', seasons);
+};
+
+
+const getAllSeries = (data, callback) => {
 	database.firestore.collection("tvSeries")
 		.get().then((snapshot) => {
 			if (snapshot.size > 0) {
@@ -59,28 +96,7 @@ var getAllSeries = (data, callback) => {
 		});
 };
 
-const getSeasons = (req, res) => {
-	const data = {
-		tvSeries: req.params.tvSeries,
-		userId: req.query.userId
-	};
-
-	console.log(data);
-
-	if (data.tvSeries === "all") {
-		getAllSeries(data, (response) => {
-			res.json(response.sort((a, b) => {
-				return new Date(b.date) - new Date(a.date) || b.series - a.series || b.season - a.season || b.number - a.number;
-			}));
-		});
-	} else {
-		fetchSeasons(data, (response) => {
-			res.json(response);
-		});
-	}
-};
-
-var getAllEpisodes = (data, callback) => {
+const getAllEpisodes = (data, callback) => {
 	if (data.season > 1) {
 		for (let i = data.season - 1; i <= data.season; i++) {
 
@@ -108,7 +124,7 @@ var getAllEpisodes = (data, callback) => {
 	}
 };
 
-var fetchEpisodes = (data, callback) => {
+const fetchEpisodes = (data, callback) => {
 	const url = `https://api.themoviedb.org/3/tv/${data.tvSeries}/season/${data.season}?api_key=${process.env.tmdbKey}`;
 
 	request(url, (error, response, html) => {
@@ -153,39 +169,9 @@ const getEpisodes = (req, res) => {
 	});
 };
 
-const fetchSearch = (data, callback) => {
-	const url = `https://api.themoviedb.org/3/search/tv?query=${data.search}&api_key=${process.env.tmdbKey}`;
-
-	request(url, (error, response, html) => {
-		if (error) console.log(error);
-		const json = JSON.parse(html);
-
-		const res = [];
-		for (let i = 0; i < json.results.length; i++) {
-			const series = {
-				id: json.results[i].id,
-				displayName: json.results[i].name,
-				image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${json.results[i].poster_path}`
-			};
-			res.push(series);
-		}
-		callback(res);
-	});
-};
-
-const getSearch = (req, res) => {
-	const data = {
-		search: req.params.search,
-		userId: req.query.userId
-	};
-
-	fetchSearch(data, (response) => {
-		res.json(response);
-	});
-};
-
 module.exports = {
-	getSeasons,
+	getSearch: (req, res) => middleware(req, res, getSearch, { token: true }),
+	addSeries: (req, res) => middleware(req, res, addSeries, { token: true }),
+	getSeasons: (req, res) => middleware(req, res, getSeasons, { token: true }),
 	getEpisodes,
-	getSearch
 };

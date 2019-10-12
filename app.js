@@ -1,16 +1,16 @@
 const express = require("express");
 const path = require("path");
 
-const database = require("./server/database");
+const { initialize } = require("./server/database");
 const auth = require("./server/auth");
 const reddit = require("./server/reddit");
 const youtube = require("./server/youtube");
 const twitch = require("./server/twitch");
-const tvSeries = require("./server/tvSeries");
+const tv = require("./server/tv");
 
 require("./server/secrets");
 
-database.initialize();
+initialize();
 
 const app = express();
 
@@ -24,8 +24,6 @@ app.use(express.json());
 app.post("/api/auth/register/", auth.register);
 
 app.post("/api/auth/login/", auth.login);
-
-app.get("/api/auth/validate/:token", auth.validateToken);
 
 app.get("/api/reddit/subreddits/", reddit.getSubreddits);
 
@@ -43,11 +41,13 @@ app.get("/api/twitch/games/:game", twitch.getStreamsForGame);
 
 app.get("/api/twitch/channels/", twitch.getChannels);
 
-app.get("/api/tvSeries/:tvSeries/seasons", tvSeries.getSeasons);
+app.post("/api/tv", tv.addSeries);
 
-app.get("/api/tvSeries/:tvSeries/seasons/:season/episodes", tvSeries.getEpisodes);
+app.get("/api/tv/:series", tv.getSeasons);
 
-app.get("/api/tvSeries/search/:search", tvSeries.getSearch);
+app.get("/api/tv/:series/seasons/:season", tv.getEpisodes);
+
+app.get("/api/tv/search/:search", tv.getSearch);
 
 app.get("*/", (req, res) => {
 	res.sendFile(path.join(`${__dirname}/client/build/index.html`));
