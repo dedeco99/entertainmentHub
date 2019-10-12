@@ -1,32 +1,22 @@
 import React, { Component } from "react";
 
-import { getSearch, addSeries } from "../../actions/tv";
-
 class Search extends Component {
 	state = {
 		search: "",
-		series: [],
 	}
 
-	getSearch = async (e) => {
+	getSearch(e) {
 		e.preventDefault();
 
-		const response = await getSearch(this.state.search);
-		this.setState({ series: response.data });
-	}
-
-	addSeries = (e) => {
-		e.preventDefault();
-
-		addSeries(this.state.series[e.target.id]);
+		this.props.getSearch(this.state.search);
 	}
 
 	render() {
-		const { search, series } = this.state;
+		const { search } = this.props;
 
 		return (
 			<div className="search">
-				<form onSubmit={this.getSearch}>
+				<form onSubmit={(e) => this.getSearch(e)}>
 					<input
 						type="text"
 						className="form-control"
@@ -38,14 +28,18 @@ class Search extends Component {
 				<br />
 				<div className="row">
 					{
-						series && series.length > 0
+						search && search.length > 0
 							? (
-								series.map((s, index) => {
+								search.map((s, index) => {
 									return (
 										<div className="col-xs-12 col-sm-6 col-md-6 col-lg-4 col-xl-3" key={s.id}>
 											<div className="seriesSearch">
 												<div className="centerContainer">
-													<i id={index} className="addSeries icofont-ui-add icofont-3x" onClick={this.addSeries}></i>
+													<i
+														id={index}
+														className="addSeries icofont-ui-add icofont-3x"
+														onClick={() => this.props.addSeries(index)}
+													></i>
 													<img src={s.image} width="100%" alt={s.displayName} />
 												</div>
 												{s.displayName}

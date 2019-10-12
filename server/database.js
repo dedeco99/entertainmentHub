@@ -7,7 +7,11 @@ const Series = require("./models/series");
 
 const initialize = () => {
 	mongoose.set("useFindAndModify", false);
-	mongoose.connect(process.env.databaseConnectionString, { useNewUrlParser: true, useUnifiedTopology: true });
+	mongoose.connect(process.env.databaseConnectionString, {
+		useNewUrlParser: true,
+		useUnifiedTopology: true,
+		useCreateIndex: true,
+	});
 };
 
 /* User */
@@ -44,20 +48,6 @@ const getAuth = async (query) => {
 	return await Auth.findOne(query);
 };
 
-/* TV */
-
-const getSeries = async (query) => {
-	return await Series.findOne(query);
-};
-
-const createSeries = async (series) => {
-	const newSeries = new Series(series);
-
-	await newSeries.save();
-
-	return newSeries;
-};
-
 module.exports = {
 	initialize,
 	getUser,
@@ -65,6 +55,4 @@ module.exports = {
 	getToken,
 	createToken,
 	getAuth,
-	getSeries,
-	createSeries,
 };

@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 
-import { getSeasons, getEpisodes } from "../../actions/tv";
+import { getSeries, getSeasons, getEpisodes, getSearch, addSeries } from "../../actions/tv";
 
 import Sidebar from "../.partials/Sidebar";
 import Categories from "../.partials/Categories";
@@ -14,19 +14,44 @@ class TV extends Component {
 		series: [],
 		seasons: [],
 		episodes: [],
+		search: [],
+
+		currentSeries: "all",
 	};
 
-	getSeasons = async (series) => {
-		const response = await getSeasons("62560");
-		console.log(response);
-		this.setState({ seasons: response.data });
+	componentDidMount() {
+		this.getSeries();
+	}
+
+	getSeries = async (series) => {
+		const response = await getSeries();
+		this.setState({ series: response.data });
 
 		this.showComponent("episodesBlock");
 	}
 
-	getEpisodes = (series, season) => {
-		getEpisodes(series, season);
+	getSeasons = async (series) => {
+		const response = await getSeasons(series);
+		this.setState({ seasons: response.data, currentSeries: series });
+
 		this.showComponent("episodesBlock");
+	}
+
+	getEpisodes = async (season) => {
+		const response = await getEpisodes(this.state.currentSeries, season);
+		this.setState({ episodes: response.data });
+
+		this.showComponent("episodesBlock");
+	}
+
+	getSearch = async (search) => {
+		const response = await getSearch(search);
+		this.setState({ search: response.data });
+	}
+
+	addSeries = async (id) => {
+		const response = await addSeries(this.state.search[id]);
+		this.setState({ series: response.data });
 	}
 
 	showComponent = (component) => {

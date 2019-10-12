@@ -1,7 +1,14 @@
 const { get } = require("./request");
 
-const { getSeries, createSeries } = require("./database");
 const { middleware, response } = require("./utils");
+
+const Series = require("./models/series");
+
+const getSeries = async (event) => {
+	const series = await Series.find().lean();
+
+	return response(200, "Series found", series);
+};
 
 const getSearch = async (event) => {
 	const { params } = event;
@@ -27,14 +34,17 @@ const addSeries = async (event) => {
 	const { body } = event;
 	const { id, displayName, image } = body;
 
-	const userExists = await getSeries({ seriesId: id });
+	const seriesExists = await Series.findOne({ seriesId: body.id }).lean();
 
-	if (userExists) {
+	if (seriesExists) {
 		return response(409, "Series already exists");
 	} else {
-		await createSeries({ seriesId: id, displayName, image });
+		const newSeries = new Series({ seriesId: id, displayName, image });
+		await newSeries.save();
 
-		return response(201, "Series has been added");
+		const series = await Series.find().lean();
+
+		return response(201, "Series has been added", series);
 	}
 };
 
@@ -47,16 +57,49 @@ const getSeasons = async (event) => {
 	const res = await get(url);
 	const json = JSON.parse(res);
 
-	const seasons = json.seasons.map(season => {
-		return {
-			id: season.id,
-			season: season.season_number,
-		};
-	});
+	let seasons = [];
+	if (json.seasons) {
+		seasons = json.seasons.map(season => {
+			return {
+				id: season.id,
+				season: season.season_number,
+			};
+		});
+	}
 
 	return response(200, 'Seasons found', seasons);
 };
 
+const getEpisodes = async (event) => {
+	const { params } = event;
+	const { series, season } = params;
+
+	const url = `https://api.themoviedb.org/3/tv/${series}/season/${season}?api_key=${process.env.tmdbKey}`;
+
+	const res = await get(url);
+	const json = JSON.parse(res);
+
+	let episodes = [];
+	if (json.episodes) {
+		episodes = json.episodes.map(episode => {
+			let image = null;
+			if (episode.still_path) {
+				image = `https://image.tmdb.org/t/p/w454_and_h254_bestv2${episode.still_path}`;
+			}
+
+			return {
+				seriesId: series,
+				title: episode.name,
+				date: episode.air_date,
+				image: image,
+				season: episode.season_number,
+				number: episode.episode_number
+			};
+		});
+	}
+
+	return response(200, 'Episodes found', episodes);
+};
 
 const getAllSeries = (data, callback) => {
 	database.firestore.collection("tvSeries")
@@ -124,54 +167,10 @@ const getAllEpisodes = (data, callback) => {
 	}
 };
 
-const fetchEpisodes = (data, callback) => {
-	const url = `https://api.themoviedb.org/3/tv/${data.tvSeries}/season/${data.season}?api_key=${process.env.tmdbKey}`;
-
-	request(url, (error, response, html) => {
-		if (error) console.log(error);
-		const json = JSON.parse(html);
-
-		console.log(json);
-
-		const res = [];
-		for (let i = 0; i < json.episodes.length; i++) {
-			let image = null;
-			if (json.episodes[i].still_path) {
-				image = `https://image.tmdb.org/t/p/w454_and_h254_bestv2${json.episodes[i].still_path}`;
-			}
-
-			const episode = {
-				seriesId: data.tvSeries,
-				seriesName: data.seriesName,
-				title: json.episodes[i].name,
-				date: json.episodes[i].air_date,
-				image: image,
-				season: json.episodes[i].season_number,
-				number: json.episodes[i].episode_number
-			};
-
-			res.push(episode);
-		}
-		callback(res);
-	});
-};
-
-const getEpisodes = (req, res) => {
-	const data = {
-		tvSeries: req.params.tvSeries,
-		season: req.params.season
-	};
-
-	console.log(data);
-
-	fetchEpisodes(data, (response) => {
-		res.json(response);
-	});
-};
-
 module.exports = {
+	getSeries: (req, res) => middleware(req, res, getSeries, { token: true }),
 	getSearch: (req, res) => middleware(req, res, getSearch, { token: true }),
 	addSeries: (req, res) => middleware(req, res, addSeries, { token: true }),
 	getSeasons: (req, res) => middleware(req, res, getSeasons, { token: true }),
-	getEpisodes,
+	getEpisodes: (req, res) => middleware(req, res, getEpisodes, { token: true }),
 };

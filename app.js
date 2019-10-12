@@ -41,13 +41,15 @@ app.get("/api/twitch/games/:game", twitch.getStreamsForGame);
 
 app.get("/api/twitch/channels/", twitch.getChannels);
 
+app.get("/api/tv", tv.getSeries);
+
 app.post("/api/tv", tv.addSeries);
+
+app.get("/api/tv/search/:search", tv.getSearch);
 
 app.get("/api/tv/:series", tv.getSeasons);
 
-app.get("/api/tv/:series/seasons/:season", tv.getEpisodes);
-
-app.get("/api/tv/search/:search", tv.getSearch);
+app.get("/api/tv/:series/:season", tv.getEpisodes);
 
 app.get("*/", (req, res) => {
 	res.sendFile(path.join(`${__dirname}/client/build/index.html`));

@@ -10,17 +10,17 @@ const get = async (url, headers = {}) => {
 	return response.data;
 };
 
-const post = (url, headers = {}, body) => {
+const post = async (url, body, headers = {}) => {
 	headers.Authorization = "Bearer " + localStorage.getItem("token");
 
 	const config = { headers };
 
-	const response = axios.post(url, body, config);
+	const response = await axios.post(url, body, config);
 
 	return response.data;
 };
 
 export {
 	get,
-	post
+	post,
 };
