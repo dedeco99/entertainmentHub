@@ -12,14 +12,6 @@ export const login = async (user) => {
 	return res.data;
 };
 
-export const validateToken = async (user, token) => {
-	const res = await post("api/auth/validate", { user, token });
-
-	console.log(res);
-
-	return res.data;
-};
-
 export const logout = () => {
 	localStorage.removeItem("user");
 	localStorage.removeItem("token");

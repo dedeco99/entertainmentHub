@@ -8,34 +8,35 @@ import Register from "./auth/Register";
 import Login from "./auth/Login";
 /*import Reddit from "./reddit/Reddit";
 import Youtube from "./youtube/Youtube";
-import Twitch from "./twitch/Twitch";
-import TVSeries from "./tvseries/TVSeries";*/
+import Twitch from "./twitch/Twitch";*/
+import TV from "./tv/TV";
 import Settings from "./settings/Settings";
 
 import "../css/App.css";
 
 const App = () => {
-	return (
-		<BrowserRouter>
-			<div className="App">
-				<Header />
-				<div className="main container-fluid">
-					<Switch>
-						<Route exact path="/" component={Index} />
-						<Route exact path="/register" component={Register} />
-						<Route exact path="/login" component={Login} />
-						{/*
-							<PrivateRoute exact path="/reddit/:sub?/:category?" component={ Reddit } />
-							<PrivateRoute exact path="/youtube" component={ Youtube } />
-							<PrivateRoute exact path="/twitch" component={ Twitch } />
-							<PrivateRoute exact path="/tvseries" component={ TVSeries } />
+    return (
+        <BrowserRouter>
+            <div className="App">
+                <Header />
+                <div className="main container-fluid">
+                    <Switch>
+                        <Route exact path="/" component={Index} />
+                        <Route exact path="/register" component={Register} />
+                        <Route exact path="/login" component={Login} />
+                        {/*
+						<PrivateRoute exact path="/reddit/:sub?/:category?" component={Reddit} />
+						<PrivateRoute exact path="/youtube" component={Youtube} />
+						<PrivateRoute exact path="/twitch" component={Twitch} />
 						*/}
-						<PrivateRoute exact path="/settings" component={Settings} />
-					</Switch>
-				</div>
-			</div>
-		</BrowserRouter>
-	);
+                        <PrivateRoute exact path="/tv" component={TV} />
+
+                        <PrivateRoute exact path="/settings" component={Settings} />
+                    </Switch>
+                </div>
+            </div>
+        </BrowserRouter>
+    );
 }
 
 export default App;

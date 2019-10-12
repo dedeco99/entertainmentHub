@@ -12,7 +12,6 @@ const Header = () => {
 	const user = localStorage.getItem("user");
 	const token = localStorage.getItem("token");
 
-	//TODO: change to validateToken(user, token)
 	const links = user && token ? <LoggedInLinks /> : <LoggedOutLinks />;
 	const appMenu = user && token ? <AppMenu /> : null;
 

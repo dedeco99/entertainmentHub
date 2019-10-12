@@ -11,7 +11,6 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
 		<Route
 			{...rest}
 			render={props => {
-				//TODO: change to validateToken(user, token)
 				if (user && token) {
 					return <Component {...props} />;
 				} else {
