@@ -4,7 +4,7 @@ const { middleware, response } = require("./utils");
 
 const Series = require("./models/series");
 
-const getSeries = async (event) => {
+const getSeries = async () => {
 	const series = await Series.find().lean();
 
 	return response(200, "Series found", series);
@@ -23,7 +23,7 @@ const getSearch = async (event) => {
 		return {
 			id: series.id,
 			displayName: series.name,
-			image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${series.poster_path}`
+			image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${series.poster_path}`,
 		};
 	});
 
@@ -36,16 +36,14 @@ const addSeries = async (event) => {
 
 	const seriesExists = await Series.findOne({ seriesId: body.id }).lean();
 
-	if (seriesExists) {
-		return response(409, "Series already exists");
-	} else {
-		const newSeries = new Series({ seriesId: id, displayName, image });
-		await newSeries.save();
+	if (seriesExists) return response(409, "Series already exists");
 
-		const series = await Series.find().lean();
+	const newSeries = new Series({ seriesId: id, displayName, image });
+	await newSeries.save();
 
-		return response(201, "Series has been added", series);
-	}
+	const series = await Series.find().lean();
+
+	return response(201, "Series has been added", series);
 };
 
 const getSeasons = async (event) => {
@@ -67,7 +65,7 @@ const getSeasons = async (event) => {
 		});
 	}
 
-	return response(200, 'Seasons found', seasons);
+	return response(200, "Seasons found", seasons);
 };
 
 const getEpisodes = async (event) => {
@@ -93,12 +91,12 @@ const getEpisodes = async (event) => {
 				date: episode.air_date,
 				image: image,
 				season: episode.season_number,
-				number: episode.episode_number
+				number: episode.episode_number,
 			};
 		});
 	}
 
-	return response(200, 'Episodes found', episodes);
+	return response(200, "Episodes found", episodes);
 };
 
 const getAllSeries = (data, callback) => {

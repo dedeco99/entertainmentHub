@@ -48,7 +48,7 @@
 		"default-case": "error",
 		"dot-notation": "error",
 		"eqeqeq": "error",
-		"no-case-declarations": false,
+		"no-case-declarations": 0,
 		"no-else-return": "error",
 		"no-empty-function": "error",
 		"no-eq-null": "error",
@@ -117,12 +117,6 @@
 		"key-spacing": "error",
 		"keyword-spacing": "error",
 		"max-depth": "error",
-		"max-len": [
-			"error",
-			{
-				"code": 150
-			}
-		],
 		"max-lines": "error",
 		"max-lines-per-function": "error",
 		"max-nested-callbacks": [

@@ -33,5 +33,5 @@ const post = (url, headers, body) => {
 
 module.exports = {
 	get,
-	post
+	post,
 };

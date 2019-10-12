@@ -2,8 +2,7 @@ const mongoose = require("mongoose");
 
 const User = require("./models/user");
 const Token = require("./models/token");
-const Auth = require("./models/auth");
-const Series = require("./models/series");
+const App = require("./models/app");
 
 const initialize = () => {
 	mongoose.set("useFindAndModify", false);
@@ -42,10 +41,18 @@ const createToken = async (token) => {
 	return newToken;
 };
 
-/* Auth */
+/* App */
 
-const getAuth = async (query) => {
-	return await Auth.findOne(query);
+const getApp = async (query) => {
+	return await App.findOne(query);
+};
+
+const createApp = async (app) => {
+	const newApp = new App(app);
+
+	await newApp.save();
+
+	return newApp;
 };
 
 module.exports = {
@@ -54,5 +61,6 @@ module.exports = {
 	createUser,
 	getToken,
 	createToken,
-	getAuth,
+	getApp,
+	createApp,
 };

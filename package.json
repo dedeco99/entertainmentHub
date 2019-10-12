@@ -3,8 +3,8 @@
 	"version": "1.0.0",
 	"main": "app.js",
 	"scripts": {
+		"start": "node app.js",
 		"client-install": "cd client && npm install",
-		"start": "nodemon app.js",
 		"server": "nodemon app.js",
 		"client": "cd client && npm start",
 		"dev": "concurrently \"npm run server\" \"npm run client\"",

@@ -1,8 +1,6 @@
 import React from "react";
 import { Route, Redirect } from "react-router-dom";
 
-import { validateToken } from "../../actions/auth";
-
 const PrivateRoute = ({ component: Component, ...rest }) => {
 	const user = localStorage.getItem("user");
 	const token = localStorage.getItem("token");
