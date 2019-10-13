@@ -1,4 +1,4 @@
-const request = require("request");
+/*const request = require("request");
 
 const database = require("./database");
 
@@ -147,16 +147,16 @@ const getChannels = (data, accessToken, callback) => {
         };
         res.push(stream);
 
-        /*if(streams.filter(function(e){return e.name==stream.name;}).length==0){
-          res.push(stream);
-        }*/
+        //if(streams.filter(function(e){return e.name==stream.name;}).length==0){
+          //res.push(stream);
+        //}
       }
       callback(res);
     });
   });
 }
 
-/*const getHosts = (data, accessToken, callback) => {
+const getHosts = (data, accessToken, callback) => {
   var url = "https://api.twitch.tv/kraken/hosting/followed";
   var headers = {
     "Accept":"application/vnd.twitchtv.v5+json",
@@ -186,7 +186,7 @@ const getChannels = (data, accessToken, callback) => {
       }
     ));
   });
-}*/
+}
 
 const getTopGames = (data, res, callback) => {
   var offset = data.after;
@@ -306,3 +306,4 @@ const getStreamsForGame = (data, callback) => {
     callback(res);
   });
 }
+*/

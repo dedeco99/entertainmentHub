@@ -1,4 +1,4 @@
-const sanitizeHtml = require("sanitize-html");
+/*const sanitizeHtml = require("sanitize-html");
 
 const { getAuth } = require("./database");
 const { get, post } = require("./request");
@@ -23,11 +23,11 @@ const getAccessToken = async (data) => {
 	return json.access_token;
 };
 
-const getRefreshToken = async () => { /* eslint-disable-line no-unused-vars */
+const getRefreshToken = async () => {
 	const url = `https://www.reddit.com/api/v1/access_token
 		?code=16U7Amy5y6j83dwUfmCILGVTuyM&grant_type=authorization_code&redirect_uri=http://localhost:5000/lul`.replace(/\t/g, "").replace(/\n/g, "");
 
-	const encryptedAuth = new Buffer.from(`${process.env.redditClientId}:${process.env.redditSecret}`).toString("base64"); /* eslint-disable-line no-undef */
+	const encryptedAuth = new Buffer.from(`${process.env.redditClientId}:${process.env.redditSecret}`).toString("base64");
 	const auth = `Basic ${encryptedAuth}`;
 
 	const headers = {
@@ -171,3 +171,4 @@ module.exports = {
 	getSubreddits,
 	getPosts
 };
+*/

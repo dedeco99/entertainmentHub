@@ -99,7 +99,7 @@ const getEpisodes = async (event) => {
 	return response(200, "Episodes found", episodes);
 };
 
-const getAllSeries = (data, callback) => {
+/*const getAllSeries = (data, callback) => {
 	database.firestore.collection("tvSeries")
 		.get().then((snapshot) => {
 			if (snapshot.size > 0) {
@@ -163,7 +163,7 @@ const getAllEpisodes = (data, callback) => {
 			callback(episodes);
 		});
 	}
-};
+};*/
 
 module.exports = {
 	getSeries: (req, res) => middleware(req, res, getSeries, { token: true }),

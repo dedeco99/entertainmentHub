@@ -8,7 +8,8 @@ const youtube = require("./server/youtube");
 const twitch = require("./server/twitch");
 const tv = require("./server/tv");
 
-require("./server/secrets");
+// eslint-disable-next-line global-require
+if (!process.env.PORT) require("./server/secrets");
 
 initialize();
 
@@ -27,7 +28,7 @@ app.post("/api/auth/login/", auth.login);
 
 app.post("/api/auth/apps", auth.addApp);
 
-app.get("/api/reddit/subreddits/", reddit.getSubreddits);
+/*app.get("/api/reddit/subreddits/", reddit.getSubreddits);
 
 app.get("/api/reddit/subreddits/:subreddit/:category/", reddit.getPosts);
 
@@ -41,7 +42,7 @@ app.get("/api/twitch/games/", twitch.getGames);
 
 app.get("/api/twitch/games/:game", twitch.getStreamsForGame);
 
-app.get("/api/twitch/channels/", twitch.getChannels);
+app.get("/api/twitch/channels/", twitch.getChannels);*/
 
 app.get("/api/tv", tv.getSeries);
 
