@@ -1,50 +1,47 @@
 import React, { Component } from "react";
 import { NavLink } from "react-router-dom";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
 
 class AppMenu extends Component {
-	handleClick(e) {
-		const links = document.getElementsByTagName("a");
-		for (const link of links) {
-			link.classList.remove("active");
-		}
-
-		e.target.closest("a").classList.add("active");
+	constructor() {
+		super();
+		this.state = {
+			selectedMenu: 0,
+		};
 	}
 
 	getAppList() {
 		const apps = [
-			{ id: 1, name: "Reddit", icon: "icofont-reddit icofont-2x", endpoint: "/reddit" },
-			{ id: 2, name: "Youtube", icon: "icofont-youtube-play icofont-2x", endpoint: "/youtube" },
-			{ id: 3, name: "Twitch", icon: "icofont-twitch icofont-2x", endpoint: "/twitch" },
-			{ id: 4, name: "TV Series", icon: "icofont-monitor icofont-2x", endpoint: "/tv" },
+			{ id: 0, name: "Reddit", icon: "icofont-reddit icofont-2x", endpoint: "/reddit" },
+			{ id: 1, name: "Youtube", icon: "icofont-youtube-play icofont-2x", endpoint: "/youtube" },
+			{ id: 2, name: "Twitch", icon: "icofont-twitch icofont-2x", endpoint: "/twitch" },
+			{ id: 3, name: "TV Series", icon: "icofont-monitor icofont-2x", endpoint: "/tv" },
 		];
 
 		return apps.map(app => {
 			return (
-				<li className="nav-item sliding-middle-out" data-toggle="tooltip" data-placement="right" title={app.name} onClick={this.handleClick} key={app.id}>
-					<NavLink to={app.endpoint}><i className={app.icon}></i></NavLink>
-				</li>
+				<ListItem
+					button
+					selected={this.state.selectedMenu === app.id}
+					onClick={() => this.setState({ selectedMenu: app.id })}
+					key={app.id}
+					style={{ paddingLeft: 10 }}
+				>
+					<NavLink className="nav-item" to={app.endpoint}>
+						<i className={app.icon}></i>
+					</NavLink>
+				</ListItem >
 			);
 		});
-	}
-
-	componentDidMount() {
-		//window.$("[data-toggle='tooltip']").tooltip();
-	}
-
-	componentDidUpdate() {
-		//window.$("[data-toggle='tooltip']").tooltip();
-
-		const activeLi = document.querySelector("li.active");
-		console.log(activeLi);
 	}
 
 	render() {
 		return (
 			<div className="appMenu">
-				<ul className="nav flex-column">
+				<List className="list-menu" >
 					{this.getAppList()}
-				</ul>
+				</List>
 			</div>
 		);
 	}

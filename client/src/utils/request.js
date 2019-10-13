@@ -5,9 +5,21 @@ const get = async (url, headers = {}) => {
 
 	const config = { headers };
 
-	const response = await axios.get(url, config);
+	try {
+		const response = await axios.get(url, config);
 
-	return response.data;
+		return {
+			status: response.request.status,
+			message: response.data.message,
+			data: response.data.data,
+		};
+	} catch (error) {
+		return {
+			status: error.request.status,
+			message: error.response.data.message,
+			data: error.response.data.data,
+		};
+	}
 };
 
 const post = async (url, body, headers = {}) => {

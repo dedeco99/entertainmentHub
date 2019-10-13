@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
 class Search extends Component {
 	constructor() {
@@ -19,7 +20,7 @@ class Search extends Component {
 	render() {
 		const { search } = this.props;
 
-		let episodeList = null;
+		let episodeList = <div className="col-12"><div align="center">No series</div></div>;
 		if (search && search.length > 0) {
 			episodeList = search.map((series, index) => {
 				return (
@@ -38,8 +39,6 @@ class Search extends Component {
 					</div>
 				);
 			});
-		} else {
-			episodeList = <div className="col-12"><div align="center">No series</div></div>;
 		}
 
 		return (
@@ -61,5 +60,11 @@ class Search extends Component {
 		);
 	}
 }
+
+Search.propTypes = {
+	search: PropTypes.array,
+	getSearch: PropTypes.func,
+	addSeries: PropTypes.func,
+};
 
 export default Search;

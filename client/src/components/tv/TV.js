@@ -1,4 +1,7 @@
 import React, { Component } from "react";
+import Grid from "@material-ui/core/Grid";
+import Fab from "@material-ui/core/Fab";
+import Button from "@material-ui/core/Button";
 
 import { getSeries, getSeasons, getEpisodes, getSearch, addSeries } from "../../actions/tv";
 
@@ -36,15 +39,13 @@ class TV extends Component {
 	async getSeries() {
 		const response = await getSeries();
 		this.setState({ series: response.data });
-
-		this.showComponent("episodesBlock");
 	}
 
 	async getSeasons(series) {
 		const response = await getSeasons(series);
 		this.setState({ seasons: response.data, currentSeries: series });
 
-		this.showComponent("episodesBlock");
+		this.getEpisodes(response.data[response.data.length - 1].season);
 	}
 
 	async getEpisodes(season) {
@@ -78,44 +79,49 @@ class TV extends Component {
 		const { series, seasons, episodes, search } = this.state;
 
 		return (
-			<div className="tv">
-				<div className="row">
-					<div className="col-sm-3 col-md-2 col-lg-2">
-						<button type="button" className="btn btn-primary" onClick={() => this.showComponent("seriesSearchBlock")}>
-							Add
-						</button>
-						<br /><br />
-						<li
-							className="nav-link option"
-							onClick={(e) => this.getSeasons(e.target.id)}
-							key="0"
-							id="all"
+			<Grid container spacing={2}>
+				<Grid item sm={3} md={2}>
+					<div align="center">
+						<Fab
+							onClick={() => this.showComponent("seriesSearchBlock")}
+							variant="extended"
+							size="medium"
+							style={{ width: "100%" }}
+						>
+							<i className="material-icons">search</i>
+							Search
+						</Fab>
+						<Button
+							onClick={() => this.getSeasons("all")}
+							style={{ color: "white", borderColor: "white", marginTop: 10, marginBottom: 10 }}
+							variant="outlined"
+							fullWidth
 						>
 							All
-						</li>
-						<Sidebar
-							options={series}
-							idField="seriesId"
-							action={this.getSeasons}
+						</Button>
+					</div>
+					<Sidebar
+						options={series}
+						idField="seriesId"
+						action={this.getSeasons}
+					/>
+				</Grid>
+				<Grid item sm={9} md={10} lg={10}>
+					<div id="seriesSearchBlock">
+						<Search search={search} getSearch={this.getSearch} addSeries={this.addSeries} />
+					</div>
+					<div id="episodesBlock">
+						<Categories
+							options={seasons}
+							idField="season"
+							nameField="season"
+							action={this.getEpisodes}
 						/>
+						<br />
+						<Episodes episodes={episodes} />
 					</div>
-					<div className="col-sm-9 col-md-10 col-lg-10">
-						<div id="seriesSearchBlock">
-							<Search search={search} getSearch={this.getSearch} addSeries={this.addSeries} />
-						</div>
-						<div id="episodesBlock">
-							<Categories
-								options={seasons}
-								idField="season"
-								nameField="season"
-								action={this.getEpisodes}
-							/>
-							<br />
-							<Episodes episodes={episodes} />
-						</div>
-					</div>
-				</div>
-			</div>
+				</Grid>
+			</Grid>
 		);
 	}
 }

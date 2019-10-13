@@ -1,39 +1,49 @@
-import React from "react";
+import React, { Component } from "react";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
 
-const Categories = ({ options, idField, nameField, action }) => {
-	const handleClick = (e) => {
-		action(e.target.id);
+class Categories extends Component {
+	constructor() {
+		super();
+		this.state = {
+			selectedMenu: 0,
+		};
 
-		var i = 0;
-		var a = document.getElementsByTagName("a");
-		for (i = 0; i < a.length; i++) {
-			a[i].classList.remove("active");
-		}
+		this.handleClick = this.handleClick.bind(this);
+	}
 
-		e.target.closest("a").classList.add("active");
+	handleClick(id) {
+		this.props.action(id);
+
+		this.setState({ selectedMenu: id });
 	};
 
-	const optionsList = options.map(option => {
-		return (option.active ?
-			<li className="nav-item" onClick={handleClick} key={option[idField]}>
-				<a id={option[idField]} className="nav-link active">
-					{option[nameField]}
-				</a>
-			</li>
-			:
-			<li className="nav-item" onClick={handleClick} key={option[idField]}>
-				<a id={option[idField]} className="nav-link">
-					{option[nameField]}
-				</a>
-			</li>
-		)
-	});
+	render() {
+		const { options, idField, nameField } = this.props;
+		const { selectedMenu } = this.state;
 
-	return (
-		<ul className="nav nav-pills nav-fill">
-			{optionsList}
-		</ul>
-	);
+		const optionsList = options.map(option => {
+			return (
+				<ListItem
+					button
+					selected={selectedMenu === option[idField]}
+					onClick={() => this.handleClick(option[idField])}
+					key={option[idField]}
+					id={option[idField]}
+					style={{ textAlign: "center" }}
+				>
+					<ListItemText primary={option[nameField]} />
+				</ListItem >
+			)
+		});
+
+		return (
+			<List className="list-menu horizontal">
+				{optionsList}
+			</List>
+		);
+	}
 }
 
 export default Categories;

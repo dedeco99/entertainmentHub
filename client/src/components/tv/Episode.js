@@ -1,4 +1,5 @@
 import React from "react";
+import PropTypes from "prop-types";
 
 import noimage from "../../img/noimage.png";
 
@@ -17,6 +18,10 @@ const Episode = ({ episode }) => {
 			{seasonLabel + episodeLabel}
 		</div>
 	);
+};
+
+Episode.propTypes = {
+	episode: PropTypes.object,
 };
 
 export default Episode;

@@ -1,5 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import AppBar from "@material-ui/core/AppBar";
+import Toolbar from "@material-ui/core/Toolbar";
+import Typography from "@material-ui/core/Typography";
 
 import LoggedInLinks from "./LoggedInLinks";
 import LoggedOutLinks from "./LoggedOutLinks";
@@ -16,14 +19,18 @@ const Header = () => {
 	const appMenu = user && token ? <AppMenu /> : null;
 
 	return (
-		<div className="header">
-			<nav className="navbar navbar-expand fixed-top navbar-dark dark">
-				<Link to="/" className="navbar-brand">
-					<img src={logo} id="logo" width="60px" alt="Logo" />
-					<span className="navbar-brand-text">EntertainmentHub</span>
-				</Link>
-				{links}
-			</nav>
+		<div>
+			<AppBar position="static" style={{ backgroundColor: "#222", marginBottom: 20 }}>
+				<Toolbar>
+					<Link to="/" className="navbar-brand">
+						<img src={logo} id="logo" width="60px" alt="Logo" />
+					</Link>
+					<Typography variant="h6" style={{ flexGrow: 1, marginLeft: 50 }}>
+						EntertainmentHub
+          				</Typography>
+					{links}
+				</Toolbar>
+			</AppBar>
 			{appMenu}
 		</div>
 	);

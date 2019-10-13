@@ -1,43 +1,53 @@
-import React from "react";
+import React, { Component } from "react";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import ListItemText from "@material-ui/core/ListItemText";
 
 import loading from "../../img/loading.gif";
 
-const Sidebar = ({ options, idField, action }) => {
-	const handleClick = (e) => {
-		action(e.target.id);
+class Sidebar extends Component {
+	constructor() {
+		super();
+		this.state = {
+			selectedMenu: 0,
+		};
 
-		var i = 0;
-		var li = document.getElementsByTagName("li");
-		for (i = 0; i < li.length; i++) {
-			li[i].classList.remove("active");
-		}
-
-		e.target.closest("li").classList.add("active");
+		this.handleClick = this.handleClick.bind(this);
 	}
 
-	const optionsList = options && options.length > 0
-		? (
-			options.map(option => {
+	handleClick(id) {
+		this.props.action(id);
+
+		this.setState({ selectedMenu: id });
+	}
+
+	render() {
+		const { options, idField } = this.props;
+		const { selectedMenu } = this.state;
+
+		let optionsList = <img src={loading} width="100%" alt="Loading..." />;
+		if (options && options.length > 0) {
+			optionsList = options.map(option => {
 				return (
-					<li
-						className="nav-link option"
-						onClick={handleClick}
-						key={option.id}
+					<ListItem
+						button
+						selected={selectedMenu === option[idField]}
+						onClick={() => this.handleClick(option[idField])}
+						key={option[idField]}
 						id={option[idField]}
 					>
-						{option.displayName}
-					</li>
-				)
-			})
-		) : (
-			<img src={loading} width="100%" alt="Loading..." />
-		)
+						<ListItemText primary={option.displayName} />
+					</ListItem >
+				);
+			});
+		}
 
-	return (
-		<ul className="nav flex-column nav-pills">
-			{optionsList}
-		</ul>
-	);
+		return (
+			<List className="list-menu" >
+				{optionsList}
+			</List>
+		);
+	}
 }
 
 export default Sidebar;

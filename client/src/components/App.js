@@ -20,7 +20,7 @@ const App = () => {
 		<BrowserRouter>
 			<div className="App">
 				<Header />
-				<div className="main container-fluid">
+				<div className="main">
 					<Switch>
 						<Route exact path="/" component={Index} />
 						<Route exact path="/register" component={Register} />

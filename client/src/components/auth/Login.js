@@ -1,4 +1,10 @@
 import React, { Component } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import Container from "@material-ui/core/Container";
+import Button from "@material-ui/core/Button";
+
+import Input from "../.partials/Input";
 
 import { login } from "../../actions/auth";
 
@@ -8,50 +14,73 @@ class Login extends Component {
 		this.state = {
 			email: "",
 			password: "",
-
-			msg: "",
 		};
 
 		this.handleChange = this.handleChange.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
+		this.handleKeyPress = this.handleKeyPress.bind(this);
 	}
 
 	handleChange(e) {
 		this.setState({ [e.target.id]: e.target.value });
 	}
 
-	async handleSubmit(e) {
-		e.preventDefault();
-
+	async handleSubmit() {
 		const { email, password } = this.state;
 		const msg = await login({ email, password });
 
-		this.setState({ msg });
+		toast.error(msg.text);
+	}
+
+	handleKeyPress(event) {
+		if (event.key === "Enter") this.handleSubmit();
 	}
 
 	render() {
-		const { msg } = this.state;
-		console.log(msg);
+		const { email, password } = this.state;
+
 		return (
-			<div className="container">
-				<form className="white" onSubmit={this.handleSubmit}>
-					<h5 className="grey-text text-darken-3">Sign In</h5>
-					<div className="input-field">
-						<label htmlFor="email">Email</label>
-						<input type="email" id="email" onChange={this.handleChange} />
-					</div>
-					<div className="input-field">
-						<label htmlFor="password">Password</label>
-						<input type="password" id="password" onChange={this.handleChange} />
-					</div>
-					<div className="input-field">
-						<button className="btn pink lighten-1 z-depth-0">Login</button>
-						<div className={msg && msg.type === "error" ? "red-text center" : "green-text center"} >
-							{msg ? <p>{msg.text}</p> : null}
-						</div>
-					</div>
-				</form>
-			</div>
+			<Container maxWidth="xs">
+				<h2>Login</h2>
+				<Input
+					id="email"
+					type="email"
+					label="Email"
+					value={email}
+					onChange={this.handleChange}
+					onKeyPress={this.handleKeyPress}
+					margin="normal"
+					variant="outlined"
+					fullWidth
+					required
+				/>
+				<br />
+				<Input
+					id="password"
+					type="password"
+					label="Password"
+					value={password}
+					onChange={this.handleChange}
+					onKeyPress={this.handleKeyPress}
+					margin="normal"
+					variant="outlined"
+					fullWidth
+					required
+				/>
+				<br /><br />
+				<Button
+					onClick={this.handleKeyPress}
+					className="outlined-button"
+					variant="outlined"
+					fullWidth
+				>
+					Login
+					</Button>
+				<ToastContainer
+					position="bottom-right"
+					newestOnTop
+				/>
+			</Container>
 		);
 	}
 }
