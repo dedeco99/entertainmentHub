@@ -11,12 +11,12 @@ const PrivateRoute = ({ component: Component, ...rest }) => {
 			render={props => {
 				if (user && token) {
 					return <Component {...props} />;
-				} else {
-					return <Redirect to={{ pathname: "/login", state: { from: props.location } }} />;
 				}
+
+				return <Redirect to={{ pathname: "/login", state: { from: props.location } }} />;
 			}}
 		/>
-	)
-}
+	);
+};
 
 export default PrivateRoute;

@@ -1,7 +1,7 @@
 import { get, post } from "../utils/request";
 
 const getSeries = async () => {
-	const res = await get('api/tv');
+	const res = await get("api/tv");
 
 	return res;
 };
@@ -25,7 +25,7 @@ const getSearch = async (search) => {
 };
 
 const addSeries = async (series) => {
-	const res = await post('api/tv', series);
+	const res = await post("api/tv", series);
 
 	return res;
 };

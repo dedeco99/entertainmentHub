@@ -11,8 +11,15 @@
 		"SharedArrayBuffer": "readonly"
 	},
 	"parserOptions": {
-		"ecmaVersion": 2018
+		"ecmaFeatures": {
+			"jsx": true
+		},
+		"ecmaVersion": 2018,
+		"sourceType": "module"
 	},
+	"plugins": [
+		"react"
+	],
 	"rules": {
 		"indent": [
 			"error",
@@ -97,10 +104,12 @@
 				"min": 2,
 				"max": 25,
 				"exceptions": [
+					"e",
 					"i",
 					"j",
 					"k",
 					"l",
+					"n",
 					"x",
 					"y",
 					"$"
@@ -160,7 +169,14 @@
 		"semi-style": "error",
 		"sort-vars": "warn",
 		"space-before-blocks": "error",
-		"space-before-function-paren": "error",
+		"space-before-function-paren": [
+			"error",
+			{
+				"anonymous": "always",
+				"named": "never",
+				"asyncArrow": "always"
+			}
+		],
 		"space-in-parens": "error",
 		"space-infix-ops": "error",
 		"space-unary-ops": "error",
@@ -177,6 +193,8 @@
 			}
 		],
 		"prefer-template": "error",
-		"sort-imports": "error"
+		"sort-imports": 0,
+		"react/jsx-uses-react": "error",
+		"react/jsx-uses-vars": "error"
 	}
 }

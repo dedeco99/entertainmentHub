@@ -10,56 +10,66 @@ import Search from "./Search";
 import "../../css/TV.css";
 
 class TV extends Component {
-	state = {
-		series: [],
-		seasons: [],
-		episodes: [],
-		search: [],
+	constructor() {
+		super();
+		this.state = {
+			series: [],
+			seasons: [],
+			episodes: [],
+			search: [],
 
-		currentSeries: "all",
-	};
+			currentSeries: "all",
+		};
+
+		this.getSeries = this.getSeries.bind(this);
+		this.getSeasons = this.getSeasons.bind(this);
+		this.getEpisodes = this.getEpisodes.bind(this);
+		this.getSearch = this.getSearch.bind(this);
+		this.addSeries = this.addSeries.bind(this);
+		this.showComponent = this.showComponent.bind(this);
+	}
 
 	componentDidMount() {
 		this.getSeries();
 	}
 
-	getSeries = async (series) => {
+	async getSeries() {
 		const response = await getSeries();
 		this.setState({ series: response.data });
 
 		this.showComponent("episodesBlock");
 	}
 
-	getSeasons = async (series) => {
+	async getSeasons(series) {
 		const response = await getSeasons(series);
 		this.setState({ seasons: response.data, currentSeries: series });
 
 		this.showComponent("episodesBlock");
 	}
 
-	getEpisodes = async (season) => {
+	async getEpisodes(season) {
 		const response = await getEpisodes(this.state.currentSeries, season);
 		this.setState({ episodes: response.data });
 
 		this.showComponent("episodesBlock");
 	}
 
-	getSearch = async (search) => {
+	async getSearch(search) {
 		const response = await getSearch(search);
 		this.setState({ search: response.data });
 	}
 
-	addSeries = async (id) => {
+	async addSeries(id) {
 		const response = await addSeries(this.state.search[id]);
 		this.setState({ series: response.data });
 	}
 
-	showComponent = (component) => {
+	showComponent(component) {
 		const components = ["episodesBlock", "seriesSearchBlock"];
 
 		components.forEach(component => {
 			document.getElementById(component).style.display = "none";
-		})
+		});
 
 		document.getElementById(component).style.display = "block";
 	}
@@ -73,7 +83,7 @@ class TV extends Component {
 					<div className="col-sm-3 col-md-2 col-lg-2">
 						<button type="button" className="btn btn-primary" onClick={() => this.showComponent("seriesSearchBlock")}>
 							Add
-                        </button>
+						</button>
 						<br /><br />
 						<li
 							className="nav-link option"
@@ -82,7 +92,7 @@ class TV extends Component {
 							id="all"
 						>
 							All
-                        </li>
+						</li>
 						<Sidebar
 							options={series}
 							idField="seriesId"

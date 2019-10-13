@@ -6,14 +6,14 @@ const response = (status, message, data) => {
 		body: {
 			message,
 			data,
-		}
+		},
 	};
-}
+};
 
 const token = async (authorization) => {
 	if (!authorization) return false;
 
-	let bearerToken = authorization.split(" ");
+	const bearerToken = authorization.split(" ");
 
 	if (bearerToken[0] !== "Bearer") return false;
 
@@ -29,7 +29,7 @@ const token = async (authorization) => {
 };
 
 const middleware = async (req, res, fn, options) => {
-	let event = {};
+	const event = {};
 
 	for (const option in options) {
 		switch (option) {

@@ -14,6 +14,7 @@ const hashPassword = async (password) => {
 const generateToken = (length) => {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	let token = "";
+
 	for (let i = 0, j = charset.length; i < length; ++i) {
 		token += charset.charAt(Math.floor(Math.random() * j));
 	}
@@ -21,21 +22,22 @@ const generateToken = (length) => {
 	return token;
 };
 
-const register = async (req, res) => {
-	const { email, password } = req.body;
+const register = async (event) => {
+	const { body } = event;
+	const { email, password } = body;
+
 	const userExists = await getUser({ email });
 
-	if (userExists) {
-		res.json({ type: "error", text: "User already exists" });
-	} else {
-		await createUser({ email, password: await hashPassword(password) });
+	if (userExists) return response(409, "User already exists");
 
-		res.json({ type: "success", text: "User registered successfully" });
-	}
+	await createUser({ email, password: await hashPassword(password) });
+
+	return response(201, "User registered successfully");
 };
 
-const login = async (req, res) => {
-	const { email, password } = req.body;
+const login = async (event) => {
+	const { body } = event;
+	const { email, password } = body;
 
 	const user = await getUser({ email });
 
@@ -45,13 +47,13 @@ const login = async (req, res) => {
 		if (isPassword) {
 			const newToken = await createToken({ user: user._id, token: generateToken(60) });
 
-			res.json({ type: "success", text: "Login successful", data: { user: user.id, token: newToken.token } });
-		} else {
-			res.json({ type: "error", text: "Password is incorrect" });
+			return response(200, "Login successful", { user: user.id, token: newToken.token });
 		}
-	} else {
-		res.json({ type: "error", text: "User is not registered" });
+
+		return response(401, "Password is incorrect");
 	}
+
+	return response(401, "User is not registered");
 };
 
 const addApp = async (event) => {
@@ -105,7 +107,7 @@ const addApp = async (event) => {
 };
 
 module.exports = {
-	register,
-	login,
+	register: (req, res) => middleware(req, res, register),
+	login: (req, res) => middleware(req, res, login),
 	addApp: (req, res) => middleware(req, res, addApp, { token: true }),
 };

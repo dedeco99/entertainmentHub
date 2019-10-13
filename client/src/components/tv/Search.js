@@ -1,8 +1,13 @@
 import React, { Component } from "react";
 
 class Search extends Component {
-	state = {
-		search: "",
+	constructor() {
+		super();
+		this.state = {
+			search: "",
+		};
+
+		this.getSearch = this.getSearch.bind(this);
 	}
 
 	getSearch(e) {
@@ -13,6 +18,29 @@ class Search extends Component {
 
 	render() {
 		const { search } = this.props;
+
+		let episodeList = null;
+		if (search && search.length > 0) {
+			episodeList = search.map((series, index) => {
+				return (
+					<div className="col-xs-12 col-sm-6 col-md-6 col-lg-4 col-xl-3" key={series.id}>
+						<div className="seriesSearch">
+							<div className="centerContainer">
+								<i
+									id={index}
+									className="addSeries icofont-ui-add icofont-3x"
+									onClick={() => this.props.addSeries(index)}
+								></i>
+								<img src={series.image} width="100%" alt={series.displayName} />
+							</div>
+							{series.displayName}
+						</div>
+					</div>
+				);
+			});
+		} else {
+			episodeList = <div className="col-12"><div align="center">No series</div></div>;
+		}
 
 		return (
 			<div className="search">
@@ -27,35 +55,10 @@ class Search extends Component {
 				</form>
 				<br />
 				<div className="row">
-					{
-						search && search.length > 0
-							? (
-								search.map((s, index) => {
-									return (
-										<div className="col-xs-12 col-sm-6 col-md-6 col-lg-4 col-xl-3" key={s.id}>
-											<div className="seriesSearch">
-												<div className="centerContainer">
-													<i
-														id={index}
-														className="addSeries icofont-ui-add icofont-3x"
-														onClick={() => this.props.addSeries(index)}
-													></i>
-													<img src={s.image} width="100%" alt={s.displayName} />
-												</div>
-												{s.displayName}
-											</div>
-										</div>
-									)
-								})
-							) : (
-								<div className="col-12">
-									<div align="center">No results</div>
-								</div>
-							)
-					}
+					{episodeList}
 				</div>
 			</div>
-		)
+		);
 	}
 }
 

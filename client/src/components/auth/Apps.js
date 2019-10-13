@@ -10,7 +10,7 @@ class Apps extends Component {
 		this.addApp(platform, code);
 	}
 
-	addApp = async (platform, code) => {
+	addApp(platform, code) {
 		addApp(platform, code);
 	}
 

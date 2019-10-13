@@ -3,38 +3,35 @@ import React, { Component } from "react";
 import { login } from "../../actions/auth";
 
 class Login extends Component {
-	state = {
-		email: "",
-		password: "",
+	constructor() {
+		super();
+		this.state = {
+			email: "",
+			password: "",
 
-		msg: ""
+			msg: "",
+		};
+
+		this.handleChange = this.handleChange.bind(this);
+		this.handleSubmit = this.handleSubmit.bind(this);
 	}
 
-	handleChange = (e) => {
-		this.setState({
-			[e.target.id]: e.target.value
-		})
+	handleChange(e) {
+		this.setState({ [e.target.id]: e.target.value });
 	}
 
-	handleSubmit = async (e) => {
+	async handleSubmit(e) {
 		e.preventDefault();
 
 		const { email, password } = this.state;
 		const msg = await login({ email, password });
-
-		if (msg.type === "success") {
-			localStorage.setItem("user", msg.data.user);
-			localStorage.setItem("token", msg.data.token);
-
-			window.location.replace("/");
-		}
 
 		this.setState({ msg });
 	}
 
 	render() {
 		const { msg } = this.state;
-
+		console.log(msg);
 		return (
 			<div className="container">
 				<form className="white" onSubmit={this.handleSubmit}>
@@ -55,7 +52,7 @@ class Login extends Component {
 					</div>
 				</form>
 			</div>
-		)
+		);
 	}
 }
 

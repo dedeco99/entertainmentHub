@@ -3,32 +3,35 @@ import React, { Component } from "react";
 import { register } from "../../actions/auth";
 
 class Register extends Component {
-	state = {
-		email: "",
-		password: "",
+	constructor() {
+		super();
+		this.state = {
+			email: "",
+			password: "",
 
-		msg: "",
+			msg: "",
+		};
+
+		this.handleChange = this.handleChange.bind(this);
+		this.handleSubmit = this.handleSubmit.bind(this);
 	}
 
-	handleChange = (e) => {
-		this.setState({
-			[e.target.id]: e.target.value
-		})
+	handleChange(e) {
+		this.setState({ [e.target.id]: e.target.value });
 	}
 
-	handleSubmit = async (e) => {
+	async handleSubmit(e) {
 		e.preventDefault();
 
 		const { email, password } = this.state;
 		const msg = await register({ email, password });
-
-		if (msg.type === "success") this.props.history.push("/login");
 
 		this.setState({ msg });
 	}
 
 	render() {
 		const { msg } = this.state;
+		console.log(msg);
 
 		return (
 			<div className="container">
@@ -50,7 +53,7 @@ class Register extends Component {
 					</div>
 				</form>
 			</div >
-		)
+		);
 	}
 }
 

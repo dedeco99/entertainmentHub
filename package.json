@@ -1,6 +1,8 @@
 {
 	"name": "entertainmenthub-api",
 	"version": "1.0.0",
+	"author": "Andre Coelho",
+	"license": "MIT",
 	"main": "app.js",
 	"scripts": {
 		"start": "node app.js",
@@ -10,12 +12,9 @@
 		"dev": "concurrently \"npm run server\" \"npm run client\"",
 		"heroku-postbuild": "cd client && npm install && npm run build"
 	},
-	"author": "Andre Coelho",
-	"license": "MIT",
 	"devDependencies": {
 		"concurrently": "^5.0.0",
 		"eslint": "^6.5.1",
-		"eslint-plugin-react": "^7.16.0",
 		"nodemon": "^1.19.3"
 	},
 	"dependencies": {

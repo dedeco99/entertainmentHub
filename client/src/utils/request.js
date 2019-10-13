@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const get = async (url, headers = {}) => {
-	headers.Authorization = "Bearer " + localStorage.getItem("token");
+	headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
 
 	const config = { headers };
 
@@ -11,13 +11,25 @@ const get = async (url, headers = {}) => {
 };
 
 const post = async (url, body, headers = {}) => {
-	headers.Authorization = "Bearer " + localStorage.getItem("token");
+	headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
 
 	const config = { headers };
 
-	const response = await axios.post(url, body, config);
+	try {
+		const response = await axios.post(url, body, config);
 
-	return response.data;
+		return {
+			status: response.request.status,
+			message: response.data.message,
+			data: response.data.data,
+		};
+	} catch (error) {
+		return {
+			status: error.request.status,
+			message: error.response.data.message,
+			data: error.response.data.data,
+		};
+	}
 };
 
 export {

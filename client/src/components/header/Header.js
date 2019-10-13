@@ -27,6 +27,6 @@ const Header = () => {
 			{appMenu}
 		</div>
 	);
-}
+};
 
 export default Header;
