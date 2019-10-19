@@ -1,4 +1,5 @@
-const { getUser, getToken } = require("./database");
+const User = require("./models/user");
+const Token = require("./models/token");
 
 const response = (status, message, data) => {
 	return {
@@ -19,11 +20,11 @@ const token = async (authorization) => {
 
 	if (!bearerToken[1]) return false;
 
-	const token = await getToken({ token: bearerToken[1] });
+	const token = await Token.findOne({ token: bearerToken[1] });
 
 	if (!token) return false;
 
-	const user = await getUser({ _id: token.user });
+	const user = await User.findOne({ _id: token.user });
 
 	return user;
 };

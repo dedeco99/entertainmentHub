@@ -1,4 +1,4 @@
-import { post } from "../utils/request";
+import { get, post } from "../utils/request";
 
 const register = async (user) => {
 	const res = await post("/api/auth/register", user);
@@ -28,6 +28,12 @@ const logout = () => {
 	window.location.replace("/");
 };
 
+const getApps = async () => {
+	const res = await get("/api/auth/apps");
+
+	return res;
+};
+
 const addApp = async (platform, code) => {
 	window.location.replace("/");
 
@@ -38,5 +44,6 @@ export {
 	register,
 	login,
 	logout,
+	getApps,
 	addApp,
 };

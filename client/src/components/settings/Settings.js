@@ -43,6 +43,10 @@ class Settings extends Component {
 						&client_id=769835198677-vn6mkg9odjt6p08a2ph0jslssdgbtnaj.apps.googleusercontent.com
 						&scope=https://www.googleapis.com/auth/youtube.readonly`,
 				},
+				{
+					platform: "tv",
+					link: "/apps/tv",
+				},
 			],
 
 			selectedMenu: 0,
@@ -93,7 +97,9 @@ class Settings extends Component {
 						</Grid>
 						<Grid item xs={12} sm={6} md={4} lg={3} xl={2}>
 							<div className="choicecontainer">
-								<img src={tv} width="100%" alt="TV" />
+								<a href={apps.find(app => app.platform === "tv").link}>
+									<img src={tv} width="100%" alt="TV" />
+								</a>
 							</div>
 						</Grid>
 					</Grid>

@@ -27,7 +27,7 @@ const Header = () => {
 					</Link>
 					<Typography variant="h6" style={{ flexGrow: 1, marginLeft: 50 }}>
 						EntertainmentHub
-          				</Typography>
+					</Typography>
 					{links}
 				</Toolbar>
 			</AppBar>

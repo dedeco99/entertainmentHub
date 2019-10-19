@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
 import { addApp } from "../../actions/auth";
 
@@ -20,5 +21,9 @@ class Apps extends Component {
 		);
 	}
 }
+
+Apps.propTypes = {
+	history: PropTypes.object,
+};
 
 export default Apps;

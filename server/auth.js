@@ -2,7 +2,11 @@ const bcrypt = require("bcryptjs");
 
 const { post } = require("./request");
 const { middleware, response } = require("./utils");
-const { getUser, createUser, createToken, getApp, createApp } = require("./database");
+
+const User = require("./models/user");
+const Token = require("./models/token");
+
+const App = require("./models/app");
 
 const hashPassword = async (password) => {
 	const salt = await bcrypt.genSalt(10);
@@ -26,11 +30,12 @@ const register = async (event) => {
 	const { body } = event;
 	const { email, password } = body;
 
-	const userExists = await getUser({ email });
+	const userExists = await User.findOne({ email });
 
 	if (userExists) return response(409, "User already exists");
 
-	await createUser({ email, password: await hashPassword(password) });
+	const newUser = new User({ email, password: await hashPassword(password) });
+	await newUser.save();
 
 	return response(201, "User registered successfully");
 };
@@ -39,13 +44,14 @@ const login = async (event) => {
 	const { body } = event;
 	const { email, password } = body;
 
-	const user = await getUser({ email });
+	const user = await User.findOne({ email });
 
 	if (user) {
 		const isPassword = await bcrypt.compare(password, user.password);
 
 		if (isPassword) {
-			const newToken = await createToken({ user: user._id, token: generateToken(60) });
+			const newToken = new Token({ user: user._id, token: generateToken(60) });
+			await newToken.save();
 
 			return response(200, "Login successful", { user: user.id, token: newToken.token });
 		}
@@ -56,13 +62,20 @@ const login = async (event) => {
 	return response(401, "User is not registered");
 };
 
+const getApps = async (event) => {
+	const { user } = event;
+
+	const apps = await App.find({ user: user._id });
+
+	return response(200, "Apps found", apps);
+};
+
 const addApp = async (event) => {
 	const { body, user } = event;
 	const { platform, code } = body;
-	const appExists = await getApp({ user: user._id, platform });
+	const appExists = await App.findOne({ user: user._id, platform });
 
 	if (appExists) return response(409, "App already exists");
-	console.log(code);
 
 	let json = {};
 	let url = null;
@@ -97,9 +110,16 @@ const addApp = async (event) => {
 		default:
 			break;
 	}
-	console.log(json);
+
 	if (json.refresh_token) {
-		await createApp({ user: user._id, platform, refreshToken: json.refresh_token });
+		const newApp = new App({ user: user._id, platform, refreshToken: json.refresh_token });
+		await newApp.save();
+
+		return response(201, "App added");
+	} else if (platform === "tv") {
+		const newApp = new App({ user: user._id, platform });
+		await newApp.save();
+
 		return response(201, "App added");
 	}
 
@@ -109,5 +129,6 @@ const addApp = async (event) => {
 module.exports = {
 	register: (req, res) => middleware(req, res, register),
 	login: (req, res) => middleware(req, res, login),
+	getApps: (req, res) => middleware(req, res, getApps, { token: true }),
 	addApp: (req, res) => middleware(req, res, addApp, { token: true }),
 };

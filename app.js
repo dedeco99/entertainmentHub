@@ -26,6 +26,8 @@ app.post("/api/auth/register/", auth.register);
 
 app.post("/api/auth/login/", auth.login);
 
+app.get("/api/auth/apps", auth.getApps);
+
 app.post("/api/auth/apps", auth.addApp);
 
 /*app.get("/api/reddit/subreddits/", reddit.getSubreddits);
