@@ -43,3 +43,11 @@ li {
 	width: 100%;
 	text-align: center;
 }
+
+.delete{
+	position: absolute;
+	font-size: 2em;
+	top: 5px;
+	right: 5px;
+	cursor: pointer;
+}

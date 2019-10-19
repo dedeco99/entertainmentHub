@@ -149,10 +149,6 @@
 			25
 		],
 		"max-statements-per-line": "error",
-		"multiline-ternary": [
-			"error",
-			"never"
-		],
 		"newline-per-chained-call": [
 			"error",
 			{
@@ -205,6 +201,6 @@
 		"prefer-template": "error",
 		"sort-imports": 0,
 		"react/jsx-uses-react": "error",
-		"react/jsx-uses-vars": "error"
+		"react/jsx-uses-vars": "error",
 	}
 }

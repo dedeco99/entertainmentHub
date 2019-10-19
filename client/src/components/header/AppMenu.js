@@ -9,8 +9,9 @@ class AppMenu extends Component {
 	constructor() {
 		super();
 		this.state = {
-			selectedMenu: 0,
 			apps: [],
+
+			selectedMenu: 0,
 		};
 
 		this.getApps = this.getApps.bind(this);

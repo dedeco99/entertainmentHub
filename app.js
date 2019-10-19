@@ -30,6 +30,8 @@ app.get("/api/auth/apps", auth.getApps);
 
 app.post("/api/auth/apps", auth.addApp);
 
+app.delete("/api/auth/apps/:app", auth.deleteApp);
+
 /*app.get("/api/reddit/subreddits/", reddit.getSubreddits);
 
 app.get("/api/reddit/subreddits/:subreddit/:category/", reddit.getPosts);

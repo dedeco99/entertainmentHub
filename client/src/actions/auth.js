@@ -1,4 +1,4 @@
-import { get, post } from "../utils/request";
+import { get, post, remove } from "../utils/request";
 
 const register = async (user) => {
 	const res = await post("/api/auth/register", user);
@@ -22,8 +22,7 @@ const login = async (user) => {
 };
 
 const logout = () => {
-	localStorage.removeItem("user");
-	localStorage.removeItem("token");
+	localStorage.clear();
 
 	window.location.replace("/");
 };
@@ -35,9 +34,13 @@ const getApps = async () => {
 };
 
 const addApp = async (platform, code) => {
-	window.location.replace("/");
-
 	await post("/api/auth/apps", { platform, code });
+
+	window.location.replace("/settings");
+};
+
+const deleteApp = async (app) => {
+	await remove(`/api/auth/apps/${app}`);
 };
 
 export {
@@ -46,4 +49,5 @@ export {
 	logout,
 	getApps,
 	addApp,
+	deleteApp,
 };

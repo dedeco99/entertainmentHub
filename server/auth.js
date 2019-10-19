@@ -126,9 +126,23 @@ const addApp = async (event) => {
 	return response(400, "Bad Request");
 };
 
+const deleteApp = async (event) => {
+	const { params } = event;
+	const { app } = params;
+
+	try {
+		await App.deleteOne({ _id: app });
+
+		return response(200, "App deleted");
+	} catch (err) {
+		return response(400, err);
+	}
+};
+
 module.exports = {
 	register: (req, res) => middleware(req, res, register),
 	login: (req, res) => middleware(req, res, login),
 	getApps: (req, res) => middleware(req, res, getApps, { token: true }),
 	addApp: (req, res) => middleware(req, res, addApp, { token: true }),
+	deleteApp: (req, res) => middleware(req, res, deleteApp, { token: true }),
 };
