@@ -41,7 +41,11 @@ li {
 
 .loading {
 	width: 100%;
-	text-align: center;
+}
+
+.loading img {
+	width: 100%;
+	max-width: 300px;
 }
 
 .delete{

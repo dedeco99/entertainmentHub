@@ -2,28 +2,16 @@
 	display: none;
 }
 
-.modal-content {
-	background-color: #222;
-}
-
-.seriesSearch {
-	padding-bottom: 20px;
-}
-
-.centerContainer {
+.add-series-container {
 	position: relative;
 	display: inline-block;
 	text-align: center;
 }
 
-.addSeries {
+.add-series-icon {
 	position: absolute;
 	bottom: 50%;
 	right: 50%;
 	margin: 0px -25px -15px 0px;
 	cursor: pointer;
-}
-
-.icofont-ui-add {
-	color: green;
 }

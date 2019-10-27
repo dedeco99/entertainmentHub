@@ -4,8 +4,10 @@ import Grid from "@material-ui/core/Grid";
 
 import Episode from "./Episode";
 
+import loading from "../../img/loading2.gif";
+
 const Episodes = ({ episodes }) => {
-	let episodeList = <div className="col-12"><div align="center">No episodes</div></div>;
+	let episodeList = <div className="loading" align="center"><img src={loading} alt="Loading..." /></div>;
 	if (episodes && episodes.length > 0) {
 		episodeList = episodes.map(episode => {
 			return (
@@ -20,11 +22,9 @@ const Episodes = ({ episodes }) => {
 	}
 
 	return (
-		<div className="tvseries-list">
-			<Grid container spacing={2}>
-				{episodeList}
-			</Grid>
-		</div>
+		<Grid container spacing={2}>
+			{episodeList}
+		</Grid>
 	);
 };
 

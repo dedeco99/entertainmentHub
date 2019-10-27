@@ -69,13 +69,13 @@ class Login extends Component {
 				/>
 				<br /><br />
 				<Button
-					onClick={this.handleKeyPress}
+					onClick={this.handleSubmit}
 					className="outlined-button"
 					variant="outlined"
 					fullWidth
 				>
 					Login
-					</Button>
+				</Button>
 				<ToastContainer
 					position="bottom-right"
 					newestOnTop

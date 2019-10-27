@@ -49,10 +49,10 @@ class TV extends Component {
 	}
 
 	async getEpisodes(season) {
+		this.showComponent("episodesBlock");
+
 		const response = await getEpisodes(this.state.currentSeries, season);
 		this.setState({ episodes: response.data });
-
-		this.showComponent("episodesBlock");
 	}
 
 	async getSearch(search) {
@@ -86,7 +86,7 @@ class TV extends Component {
 							onClick={() => this.showComponent("seriesSearchBlock")}
 							variant="extended"
 							size="medium"
-							style={{ width: "100%" }}
+							style={{ width: "100%", backgroundColor: "#222" }}
 						>
 							<i className="material-icons">search</i>
 							Search

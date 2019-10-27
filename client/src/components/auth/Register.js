@@ -77,7 +77,7 @@ class Register extends Component {
 					fullWidth
 				>
 					Register
-					</Button>
+				</Button>
 				<ToastContainer
 					position="bottom-right"
 					newestOnTop
