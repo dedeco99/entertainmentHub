@@ -12,12 +12,6 @@ const getSeasons = async (series) => {
 	return res;
 };
 
-const getEpisodes = async (series, season) => {
-	const res = await get(`api/tv/${series}/${season}`);
-
-	return res;
-};
-
 const getSearch = async (search) => {
 	const res = await get(`api/tv/search/${search}`);
 
@@ -33,7 +27,6 @@ const addSeries = async (series) => {
 export {
 	getSeries,
 	getSeasons,
-	getEpisodes,
 	getSearch,
 	addSeries,
 };

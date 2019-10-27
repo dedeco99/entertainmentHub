@@ -108,18 +108,15 @@ const cronjob = async (event) => {
 		}
 
 		let lastSeason = seasons[seasons.length - 1].season;
-		let checkPreviousSeason = true;
-		while (checkPreviousSeason && lastSeason >= 0) {
-			console.log(checkPreviousSeason, lastSeason);
+		let checkPreviousSeason = false;
+		do {
+			checkPreviousSeason = false;
 			url = `https://api.themoviedb.org/3/tv/${series.seriesId}/season/${lastSeason}?api_key=${process.env.tmdbKey}`;
 
 			res = await get(url);
 			json = JSON.parse(res);
 
-			checkPreviousSeason = false;
-			lastSeason--;
-
-			if (json.episodes) {
+			if (json.episodes && json.episodes.length) {
 				json.episodes = json.episodes.reverse();
 				for (const episode of json.episodes) {
 					const episodeExists = await Episode.findOne({
@@ -152,8 +149,12 @@ const cronjob = async (event) => {
 						console.log(episode.season_number, episode.episode_number, "edited");
 					}
 				}
+			} else {
+				checkPreviousSeason = true;
 			}
-		}
+
+			lastSeason--;
+		} while (checkPreviousSeason && lastSeason >= 0);
 	}
 
 	return response(200, "Episodes found", []);
@@ -163,7 +164,6 @@ module.exports = {
 	getSeries: (req, res) => middleware(req, res, getSeries, { token: true }),
 	getSearch: (req, res) => middleware(req, res, getSearch, { token: true }),
 	addSeries: (req, res) => middleware(req, res, addSeries, { token: true }),
-	getSeasons: (req, res) => middleware(req, res, getSeasons, { token: true }),
 	getEpisodes: (req, res) => middleware(req, res, getEpisodes, { token: true }),
 	cronjob: (req, res) => middleware(req, res, cronjob, { token: true }),
 };

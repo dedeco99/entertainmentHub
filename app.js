@@ -54,6 +54,8 @@ app.post("/api/tv", tv.addSeries);
 
 app.get("/api/tv/search/:search", tv.getSearch);
 
+app.get("/api/tv/cronjob", tv.cronjob);
+
 app.get("/api/tv/:series", tv.getEpisodes);
 
 app.get("*/", (req, res) => {

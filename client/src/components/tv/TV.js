@@ -3,7 +3,7 @@ import Grid from "@material-ui/core/Grid";
 import Fab from "@material-ui/core/Fab";
 import Button from "@material-ui/core/Button";
 
-import { getSeries, getSeasons, getEpisodes, getSearch, addSeries } from "../../actions/tv";
+import { getSeries, getSeasons, getSearch, addSeries } from "../../actions/tv";
 
 import Sidebar from "../.partials/Sidebar";
 import Categories from "../.partials/Categories";
@@ -25,6 +25,7 @@ class TV extends Component {
 		};
 
 		this.getSeries = this.getSeries.bind(this);
+		this.getAll = this.getAll.bind(this);
 		this.getSeasons = this.getSeasons.bind(this);
 		this.getEpisodes = this.getEpisodes.bind(this);
 		this.getSearch = this.getSearch.bind(this);
@@ -41,18 +42,26 @@ class TV extends Component {
 		this.setState({ series: response.data });
 	}
 
+	async getAll() {
+		this.showComponent("episodesBlock");
+
+		const response = await getSeasons("all");
+		this.setState({ episodes: response.data, currentSeries: "all" });
+	}
+
 	async getSeasons(series) {
 		const response = await getSeasons(series);
 		this.setState({ seasons: response.data, currentSeries: series });
 
-		this.getEpisodes(response.data[response.data.length - 1].season);
+		this.getEpisodes(response.data[response.data.length - 1]._id);
 	}
 
-	async getEpisodes(season) {
+	getEpisodes(season) {
 		this.showComponent("episodesBlock");
 
-		const response = await getEpisodes(this.state.currentSeries, season);
-		this.setState({ episodes: response.data });
+		const foundSeason = this.state.seasons.find(s => s._id === season);
+
+		if (foundSeason) this.setState({ episodes: foundSeason.episodes });
 	}
 
 	async getSearch(search) {
@@ -76,7 +85,9 @@ class TV extends Component {
 	}
 
 	render() {
-		const { series, seasons, episodes, search } = this.state;
+		const { series, seasons, episodes, search, currentSeries } = this.state;
+
+		console.log(episodes);
 
 		return (
 			<Grid container spacing={2}>
@@ -92,7 +103,15 @@ class TV extends Component {
 							Search
 						</Fab>
 						<Button
-							onClick={() => this.getSeasons("all")}
+							onClick={() => this.getSeasons("cronjob")}
+							style={{ color: "white", borderColor: "white", marginTop: 10, marginBottom: 10 }}
+							variant="outlined"
+							fullWidth
+						>
+							refresh
+						</Button>
+						<Button
+							onClick={this.getAll}
 							style={{ color: "white", borderColor: "white", marginTop: 10, marginBottom: 10 }}
 							variant="outlined"
 							fullWidth
@@ -111,12 +130,15 @@ class TV extends Component {
 						<Search search={search} getSearch={this.getSearch} addSeries={this.addSeries} />
 					</div>
 					<div id="episodesBlock">
-						<Categories
-							options={seasons}
-							idField="season"
-							nameField="season"
-							action={this.getEpisodes}
-						/>
+						{
+							currentSeries === "all" ? "" :
+								<Categories
+									options={seasons}
+									idField="_id"
+									nameField="_id"
+									action={this.getEpisodes}
+								/>
+						}
 						<br />
 						<Episodes episodes={episodes} />
 					</div>
