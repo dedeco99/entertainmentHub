@@ -54,9 +54,7 @@ app.post("/api/tv", tv.addSeries);
 
 app.get("/api/tv/search/:search", tv.getSearch);
 
-app.get("/api/tv/:series", tv.getSeasons);
-
-app.get("/api/tv/:series/:season", tv.getEpisodes);
+app.get("/api/tv/:series", tv.getEpisodes);
 
 app.get("*/", (req, res) => {
 	res.sendFile(path.join(`${__dirname}/client/build/index.html`));

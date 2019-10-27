@@ -3,9 +3,12 @@ const { get } = require("./request");
 const { middleware, response } = require("./utils");
 
 const Series = require("./models/series");
+const Episode = require("./models/episode");
 
-const getSeries = async () => {
-	const series = await Series.find().lean();
+const getSeries = async (event) => {
+	const { user } = event;
+
+	const series = await Series.find({ user: user._id }).lean();
 
 	return response(200, "Series found", series);
 };
@@ -31,139 +34,130 @@ const getSearch = async (event) => {
 };
 
 const addSeries = async (event) => {
-	const { body } = event;
+	const { body, user } = event;
 	const { id, displayName, image } = body;
 
-	const seriesExists = await Series.findOne({ seriesId: body.id }).lean();
+	const seriesExists = await Series.findOne({ user: user._id, seriesId: body.id }).lean();
 
 	if (seriesExists) return response(409, "Series already exists");
 
-	const newSeries = new Series({ seriesId: id, displayName, image });
+	const newSeries = new Series({ user: user._id, seriesId: id, displayName, image });
 	await newSeries.save();
 
-	const series = await Series.find().lean();
+	const series = await Series.find({ user: user._id }).lean();
 
 	return response(201, "Series has been added", series);
 };
 
-const getSeasons = async (event) => {
-	const { params } = event;
+const getEpisodes = async (event) => {
+	const { params, user } = event;
 	const { series } = params;
 
-	const url = `https://api.themoviedb.org/3/tv/${series}?api_key=${process.env.tmdbKey}`;
+	const userSeries = await Series.find({ user: user._id }).lean();
 
-	const res = await get(url);
-	const json = JSON.parse(res);
-
-	let seasons = [];
-	if (json.seasons) {
-		seasons = json.seasons.map(season => {
-			return {
-				id: season.id,
-				season: season.season_number,
-			};
-		});
-	}
-
-	return response(200, "Seasons found", seasons);
-};
-
-const getEpisodes = async (event) => {
-	const { params } = event;
-	const { series, season } = params;
-
-	const url = `https://api.themoviedb.org/3/tv/${series}/season/${season}?api_key=${process.env.tmdbKey}`;
-
-	const res = await get(url);
-	const json = JSON.parse(res);
+	const seriesIds = userSeries.map(s => s.seriesId);
 
 	let episodes = [];
-	if (json.episodes) {
-		episodes = json.episodes.map(episode => {
-			let image = null;
-			if (episode.still_path) {
-				image = `https://image.tmdb.org/t/p/w454_and_h254_bestv2${episode.still_path}`;
-			}
-
-			return {
-				seriesId: series,
-				title: episode.name,
-				date: episode.air_date,
-				image: image,
-				season: episode.season_number,
-				number: episode.episode_number,
-			};
-		});
+	if (series === "all") {
+		episodes = await Episode.aggregate([
+			{
+				$match: { seriesId: { $in: seriesIds } },
+			},
+			{
+				$sort: { date: -1 },
+			},
+		]);
+	} else {
+		episodes = await Episode.aggregate([
+			{
+				$match: { seriesId: series },
+			},
+			{
+				$group: {
+					_id: "$season",
+					episodes: { $push: "$$ROOT" },
+				},
+			},
+			{
+				$sort: { _id: 1 },
+			},
+		]);
 	}
 
 	return response(200, "Episodes found", episodes);
 };
 
-/*const getAllSeries = (data, callback) => {
-	database.firestore.collection("tvSeries")
-		.get().then((snapshot) => {
-			if (snapshot.size > 0) {
-				let itemsProcessed = 0;
-				let episodes = [];
+const cronjob = async (event) => {
+	const { user } = event;
+	const seriesList = await Series.find({ user: user._id }).lean();
 
-				snapshot.docs.forEach((item, index) => {
-					item = item.data();
-					const dataSeasons = { tvSeries: item.seriesId };
+	for (const series of seriesList) {
+		let url = `https://api.themoviedb.org/3/tv/${series.seriesId}?api_key=${process.env.tmdbKey}`;
 
-					getSeasons(dataSeasons, (res) => {
+		let res = await get(url);
+		let json = JSON.parse(res);
 
-						let season = res[0].season;
-						for (let i = 0; i < res.length; i++) {
-							if (res[i].season > season) season = res[i].season;
-						}
-
-						const dataEpisodes = {
-							seriesName: item.displayName,
-							tvSeries: item.seriesId,
-							season: season
-						};
-
-						getAllEpisodes(dataEpisodes, (res) => {
-							itemsProcessed++;
-							episodes = episodes.concat(res);
-							if (itemsProcessed === snapshot.docs.length) {
-								console.log("Finish");
-								callback(episodes);
-							}
-						});
-					});
-				});
-			}
-		});
-};
-
-const getAllEpisodes = (data, callback) => {
-	if (data.season > 1) {
-		for (let i = data.season - 1; i <= data.season; i++) {
-
-			var items = 0;
-			var episodes = [];
-
-			const dataf = {
-				seriesName: data.seriesName,
-				tvSeries: data.tvSeries,
-				season: i
-			};
-
-			getEpisodes(dataf, (res) => {
-				items++;
-				episodes = episodes.concat(res);
-				if (items == data.season || items == 2) {
-					callback(episodes);
-				}
+		let seasons = [];
+		if (json.seasons) {
+			seasons = json.seasons.map(season => {
+				return {
+					id: season.id,
+					season: season.season_number,
+				};
 			});
 		}
-	} else {
-		getEpisodes(data, (res) => {
-			callback(episodes);
-		});
+
+		let lastSeason = seasons[seasons.length - 1].season;
+		let checkPreviousSeason = true;
+		while (checkPreviousSeason && lastSeason >= 0) {
+			console.log(checkPreviousSeason, lastSeason);
+			url = `https://api.themoviedb.org/3/tv/${series.seriesId}/season/${lastSeason}?api_key=${process.env.tmdbKey}`;
+
+			res = await get(url);
+			json = JSON.parse(res);
+
+			checkPreviousSeason = false;
+			lastSeason--;
+
+			if (json.episodes) {
+				json.episodes = json.episodes.reverse();
+				for (const episode of json.episodes) {
+					const episodeExists = await Episode.findOne({
+						seriesId: series.seriesId,
+						season: episode.season_number,
+						number: episode.episode_number,
+					}).lean();
+
+					if (!episodeExists) {
+						const newEpisode = new Episode({
+							seriesId: series.seriesId,
+							title: episode.name,
+							image: episode.still_path ? `https://image.tmdb.org/t/p/w454_and_h254_bestv2${episode.still_path}` : "",
+							season: episode.season_number,
+							number: episode.episode_number,
+							overview: episode.overview,
+							date: episode.air_date,
+						});
+						await newEpisode.save();
+						console.log(episode.season_number, episode.episode_number, "created");
+						checkPreviousSeason = true;
+					} else if (!episodeExists.image && episode.still_path) {
+						await Episode.updateOne({
+							seriesId: series.seriesId,
+							season: episode.season_number,
+							number: episode.episode_number,
+						}, {
+							image: `https://image.tmdb.org/t/p/w454_and_h254_bestv2${episode.still_path}`,
+						});
+						console.log(episode.season_number, episode.episode_number, "edited");
+					}
+				}
+			}
+		}
 	}
-};*/
+
+	return response(200, "Episodes found", []);
+};
 
 module.exports = {
 	getSeries: (req, res) => middleware(req, res, getSeries, { token: true }),
@@ -171,4 +165,5 @@ module.exports = {
 	addSeries: (req, res) => middleware(req, res, addSeries, { token: true }),
 	getSeasons: (req, res) => middleware(req, res, getSeasons, { token: true }),
 	getEpisodes: (req, res) => middleware(req, res, getEpisodes, { token: true }),
+	cronjob: (req, res) => middleware(req, res, cronjob, { token: true }),
 };

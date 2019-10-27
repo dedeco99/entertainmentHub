@@ -109,28 +109,9 @@
 		"func-name-matching": "error",
 		"func-names": "error",
 		"func-style": "error",
-		"id-length": [
-			"error",
-			{
-				"min": 2,
-				"max": 25,
-				"exceptions": [
-					"e",
-					"i",
-					"j",
-					"k",
-					"l",
-					"n",
-					"x",
-					"y",
-					"$"
-				]
-			}
-		],
 		"implicit-arrow-linebreak": "error",
 		"key-spacing": "error",
 		"keyword-spacing": "error",
-		"max-depth": "error",
 		"max-lines": "error",
 		"max-nested-callbacks": [
 			"error",
@@ -143,10 +124,6 @@
 			{
 				"max": 5
 			}
-		],
-		"max-statements": [
-			"error",
-			25
 		],
 		"max-statements-per-line": "error",
 		"newline-per-chained-call": [
