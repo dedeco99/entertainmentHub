@@ -14,14 +14,14 @@
 	},
 	"devDependencies": {
 		"concurrently": "^5.0.0",
-		"eslint": "^6.5.1",
+		"eslint": "^6.6.0",
 		"eslint-plugin-react": "^7.16.0",
-		"nodemon": "^1.19.3"
+		"nodemon": "^1.19.4"
 	},
 	"dependencies": {
 		"bcryptjs": "^2.4.3",
 		"express": "^4.17.1",
-		"mongoose": "^5.7.4",
+		"mongoose": "^5.7.7",
 		"request": "^2.88.0",
 		"sanitize-html": "^1.20.1"
 	}
