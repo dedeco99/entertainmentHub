@@ -1,7 +1,7 @@
-Access the app at http://localhost:5001
-API at http://localhost:5000
+Access the app at <http://localhost:5001>
+API at <http://localhost:5000>
 
-<b>API is proxied so no need to include http://localhost:5000 in API calls</b>
+<b>API is proxied so no need to include <http://localhost:5000> in API calls</b>
 
 ## Available Scripts
 

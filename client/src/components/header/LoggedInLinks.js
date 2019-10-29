@@ -8,10 +8,10 @@ function LoggedInLinks() {
 	return (
 		<div>
 			<NavLink className="nav-item" to="/settings" style={{ marginRight: 20 }}>
-				<i className="icofont-ui-user"></i>
+				<i className="icofont-ui-user" />
 			</NavLink>
 			<NavLink className="nav-item" to="/logout" onClick={logout}>
-				<Button className="outlined-button" variant="outlined">Logout</Button>
+				<Button className="outlined-button" variant="outlined">{"Logout"}</Button>
 			</NavLink>
 		</div>
 	);

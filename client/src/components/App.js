@@ -7,15 +7,17 @@ import Index from "./Index";
 import Register from "./auth/Register";
 import Login from "./auth/Login";
 import Apps from "./auth/Apps";
-/*import Reddit from "./reddit/Reddit";
+/*
+import Reddit from "./reddit/Reddit";
 import Youtube from "./youtube/Youtube";
-import Twitch from "./twitch/Twitch";*/
+import Twitch from "./twitch/Twitch";
+*/
 import TV from "./tv/TV";
 import Settings from "./settings/Settings";
 
 import "../css/App.css";
 
-const App = () => {
+function App() {
 	return (
 		<BrowserRouter>
 			<div className="App">
@@ -39,6 +41,6 @@ const App = () => {
 			</div>
 		</BrowserRouter>
 	);
-};
+}
 
 export default App;

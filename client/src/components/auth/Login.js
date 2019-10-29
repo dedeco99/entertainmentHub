@@ -41,7 +41,7 @@ class Login extends Component {
 
 		return (
 			<Container maxWidth="xs">
-				<h2>Login</h2>
+				<h2>{"Login"}</h2>
 				<Input
 					id="email"
 					type="email"
@@ -74,7 +74,7 @@ class Login extends Component {
 					variant="outlined"
 					fullWidth
 				>
-					Login
+					{"Login"}
 				</Button>
 				<ToastContainer
 					position="bottom-right"

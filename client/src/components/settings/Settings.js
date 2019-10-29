@@ -97,15 +97,16 @@ class Settings extends Component {
 				<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={app}>
 					{
 						apps[app].active
-							?
-							<div style={{ position: "relative" }}>
-								<img src={images[app]} width="100%" alt={apps[app].displayName} />
-								<i className="delete material-icons" onClick={() => deleteApp(apps[app].id)}>delete</i>
-							</div>
-							:
-							<a href={apps[app].link} target="_self">
-								<img src={images[app]} width="100%" alt={apps[app].displayName} />
-							</a>
+							? (
+								<div style={{ position: "relative" }}>
+									<img src={images[app]} width="100%" alt={apps[app].displayName} />
+									<i className="delete material-icons" onClick={() => deleteApp(apps[app].id)}>{"delete"}</i>
+								</div>
+							) : (
+								<a href={apps[app].link} target="_self">
+									<img src={images[app]} width="100%" alt={apps[app].displayName} />
+								</a>
+							)
 
 					}
 				</Grid>
@@ -126,7 +127,7 @@ class Settings extends Component {
 							onClick={() => this.setState({ selectedMenu: 0 })}
 						>
 							<ListItemIcon>
-								<i className="material-icons" style={{ color: "white", fontSize: "2em" }}>apps</i>
+								<i className="material-icons" style={{ color: "white", fontSize: "2em" }}>{"apps"}</i>
 							</ListItemIcon>
 							<ListItemText primary="Apps" />
 						</ListItem>

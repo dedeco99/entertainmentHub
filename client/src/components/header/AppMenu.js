@@ -56,7 +56,7 @@ class AppMenu extends Component {
 					style={{ paddingLeft: 10 }}
 				>
 					<NavLink className="nav-item" to={app.endpoint}>
-						<i className={app.icon}></i>
+						<i className={app.icon} />
 					</NavLink>
 				</ListItem >
 			);

@@ -43,7 +43,7 @@ class Register extends Component {
 
 		return (
 			<Container maxWidth="xs">
-				<h2>Register</h2>
+				<h2>{"Register"}</h2>
 				<Input
 					id="email"
 					type="email"
@@ -76,7 +76,7 @@ class Register extends Component {
 					variant="outlined"
 					fullWidth
 				>
-					Register
+					{"Register"}
 				</Button>
 				<ToastContainer
 					position="bottom-right"

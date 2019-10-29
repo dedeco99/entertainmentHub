@@ -50,7 +50,7 @@ class Search extends Component {
 								id={index}
 								className="add-series-icon icofont-ui-add icofont-3x"
 								onClick={() => this.props.addSeries(index)}
-							></i>
+							/>
 							<img src={series.image.substr(series.image.length - 4) === "null" ? placeholder : series.image} width="100%" alt={series.displayName} />
 						</div>
 					</Grid>

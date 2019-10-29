@@ -17,7 +17,7 @@ class Apps extends Component {
 
 	render() {
 		return (
-			<div>Yap</div>
+			<div>{"Yap"}</div>
 		);
 	}
 }

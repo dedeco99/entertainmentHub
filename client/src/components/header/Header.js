@@ -26,7 +26,7 @@ function Header() {
 						<img src={logo} id="logo" width="60px" alt="Logo" />
 					</Link>
 					<Typography variant="h6" style={{ flexGrow: 1, marginLeft: 50 }}>
-						EntertainmentHub
+						{"EntertainmentHub"}
 					</Typography>
 					{links}
 				</Toolbar>

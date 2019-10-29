@@ -48,7 +48,13 @@
 			"always"
 		],
 		//possible errors
-		"no-extra-parens": "error",
+		"no-extra-parens": [
+			"error",
+			"all",
+			{
+				"ignoreJSX": "multi-line"
+			}
+		],
 		"no-template-curly-in-string": "error",
 		//best practices
 		"array-callback-return": "error",
@@ -109,7 +115,10 @@
 		"func-name-matching": "error",
 		"func-style": [
 			"error",
-			"declaration"
+			"declaration",
+			{
+				"allowArrowFunctions": true
+			}
 		],
 		"implicit-arrow-linebreak": "error",
 		"key-spacing": "error",
@@ -161,6 +170,7 @@
 		"space-in-parens": "error",
 		"space-infix-ops": "error",
 		"space-unary-ops": "error",
+		"spaced-comment": "error",
 		//ecmascript
 		"arrow-spacing": "error",
 		"no-duplicate-imports": "error",

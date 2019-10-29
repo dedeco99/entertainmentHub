@@ -99,8 +99,8 @@ class TV extends Component {
 							size="medium"
 							style={{ width: "100%", backgroundColor: "#222" }}
 						>
-							<i className="material-icons">search</i>
-							Search
+							<i className="material-icons">{"search"}</i>
+							{"Search"}
 						</Fab>
 						<Button
 							onClick={() => this.getSeasons("cronjob")}
@@ -108,7 +108,7 @@ class TV extends Component {
 							variant="outlined"
 							fullWidth
 						>
-							refresh
+							{"refresh"}
 						</Button>
 						<Button
 							onClick={this.getAll}
@@ -116,7 +116,7 @@ class TV extends Component {
 							variant="outlined"
 							fullWidth
 						>
-							All
+							{"All"}
 						</Button>
 					</div>
 					<Sidebar

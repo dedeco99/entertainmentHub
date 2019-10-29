@@ -21,7 +21,7 @@ const isLocalhost = Boolean(
 	)
 );
 
-const registerValidSW = (swUrl, config) => {
+function registerValidSW(swUrl, config) {
 	navigator.serviceWorker
 		.register(swUrl)
 		.then(registration => {
@@ -63,9 +63,9 @@ const registerValidSW = (swUrl, config) => {
 		.catch(error => {
 			console.error("Error during service worker registration:", error);
 		});
-};
+}
 
-const checkValidServiceWorker = (swUrl, config) => {
+function checkValidServiceWorker(swUrl, config) {
 	// Check if the service worker can be found. If it can't reload the page.
 	fetch(swUrl)
 		.then(response => {
@@ -91,9 +91,9 @@ const checkValidServiceWorker = (swUrl, config) => {
 				"No internet connection found. App is running in offline mode."
 			);
 		});
-};
+}
 
-const register = (config) => {
+function register(config) {
 	if (process.env.NODE_ENV === "production" && "serviceWorker" in navigator) {
 		// The URL constructor is available in all browsers that support SW.
 		const publicUrl = new URL(process.env.PUBLIC_URL, window.location.href);
@@ -125,15 +125,15 @@ const register = (config) => {
 			}
 		});
 	}
-};
+}
 
-const unregister = () => {
+function unregister() {
 	if ("serviceWorker" in navigator) {
 		navigator.serviceWorker.ready.then(registration => {
 			registration.unregister();
 		});
 	}
-};
+}
 
 export {
 	register,
