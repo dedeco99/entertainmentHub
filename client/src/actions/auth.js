@@ -1,14 +1,14 @@
 import { get, post, remove } from "../utils/request";
 
-const register = async (user) => {
+async function register(user) {
 	const res = await post("/api/auth/register", user);
 
 	if (res.status === 201) window.location.replace("/login");
 
 	return { type: "error", text: res.message };
-};
+}
 
-const login = async (user) => {
+async function login(user) {
 	const res = await post("/api/auth/login", user);
 
 	if (res.status === 200) {
@@ -19,29 +19,29 @@ const login = async (user) => {
 	}
 
 	return { type: "error", text: res.message };
-};
+}
 
-const logout = () => {
+function logout() {
 	localStorage.clear();
 
 	window.location.replace("/");
-};
+}
 
-const getApps = async () => {
+async function getApps() {
 	const res = await get("/api/auth/apps");
 
 	return res;
-};
+}
 
-const addApp = async (platform, code) => {
+async function addApp(platform, code) {
 	await post("/api/auth/apps", { platform, code });
 
 	window.location.replace("/settings");
-};
+}
 
-const deleteApp = async (app) => {
+async function deleteApp(app) {
 	await remove(`/api/auth/apps/${app}`);
-};
+}
 
 export {
 	register,

@@ -8,14 +8,14 @@ const Token = require("./models/token");
 
 const App = require("./models/app");
 
-const hashPassword = async (password) => {
+async function hashPassword(password) {
 	const salt = await bcrypt.genSalt(10);
 	const hash = await bcrypt.hash(password, salt);
 
 	return hash;
-};
+}
 
-const generateToken = (length) => {
+function generateToken(length) {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
 	let token = "";
 
@@ -24,9 +24,9 @@ const generateToken = (length) => {
 	}
 
 	return token;
-};
+}
 
-const register = async (event) => {
+async function register(event) {
 	const { body } = event;
 	const { email, password } = body;
 
@@ -38,9 +38,9 @@ const register = async (event) => {
 	await newUser.save();
 
 	return response(201, "User registered successfully");
-};
+}
 
-const login = async (event) => {
+async function login(event) {
 	const { body } = event;
 	const { email, password } = body;
 
@@ -60,17 +60,17 @@ const login = async (event) => {
 	}
 
 	return response(401, "User is not registered");
-};
+}
 
-const getApps = async (event) => {
+async function getApps(event) {
 	const { user } = event;
 
 	const apps = await App.find({ user: user._id });
 
 	return response(200, "Apps found", apps);
-};
+}
 
-const addApp = async (event) => {
+async function addApp(event) {
 	const { body, user } = event;
 	const { platform, code } = body;
 	const appExists = await App.findOne({ user: user._id, platform });
@@ -78,11 +78,9 @@ const addApp = async (event) => {
 	if (appExists) return response(409, "App already exists");
 
 	let json = {};
-	let url = null;
-	let res = null;
 	switch (platform) {
-		case "reddit":
-			url = `https://www.reddit.com/api/v1/access_token?code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/reddit`;
+		case "reddit": {
+			const url = `https://www.reddit.com/api/v1/access_token?code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/reddit`;
 
 			const encryptedAuth = new Buffer.from(`${process.env.redditClientId}:${process.env.redditSecret}`).toString("base64"); /* eslint-disable-line no-undef */
 			const auth = `Basic ${encryptedAuth}`;
@@ -92,23 +90,27 @@ const addApp = async (event) => {
 				"Authorization": auth,
 			};
 
-			res = await post(url, headers);
+			const res = await post(url, headers);
 			json = JSON.parse(res);
 			break;
-		case "twitch":
-			url = `https://api.twitch.tv/kraken/oauth2/token?client_id=${process.env.twitchClientId}&client_secret=${process.env.twitchSecret}&code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/twitch`;
+		}
+		case "twitch": {
+			const url = `https://api.twitch.tv/kraken/oauth2/token?client_id=${process.env.twitchClientId}&client_secret=${process.env.twitchSecret}&code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/twitch`;
 
-			res = await post(url);
+			const res = await post(url);
 			json = JSON.parse(res);
 			break;
-		case "youtube":
-			url = `https://www.googleapis.com/oauth2/v4/token?client_id=${process.env.googleClientId}&client_secret=${process.env.googleSecret}&code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/google`;
+		}
+		case "youtube": {
+			const url = `https://www.googleapis.com/oauth2/v4/token?client_id=${process.env.googleClientId}&client_secret=${process.env.googleSecret}&code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/google`;
 
-			res = await post(url, headers);
+			const res = await post(url);
 			json = JSON.parse(res);
 			break;
-		default:
+		}
+		default: {
 			break;
+		}
 	}
 
 	if (json.refresh_token) {
@@ -124,9 +126,9 @@ const addApp = async (event) => {
 	}
 
 	return response(400, "Bad Request");
-};
+}
 
-const deleteApp = async (event) => {
+async function deleteApp(event) {
 	const { params } = event;
 	const { app } = params;
 
@@ -137,7 +139,7 @@ const deleteApp = async (event) => {
 	} catch (err) {
 		return response(400, err);
 	}
-};
+}
 
 module.exports = {
 	register: (req, res) => middleware(req, res, register),

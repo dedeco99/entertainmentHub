@@ -6,7 +6,7 @@ import Episode from "./Episode";
 
 import loading from "../../img/loading2.gif";
 
-const Episodes = ({ episodes }) => {
+function Episodes({ episodes }) {
 	let episodeList = <div className="loading" align="center"><img src={loading} alt="Loading..." /></div>;
 	if (episodes && episodes.length > 0) {
 		episodeList = episodes.map(episode => {
@@ -26,7 +26,7 @@ const Episodes = ({ episodes }) => {
 			{episodeList}
 		</Grid>
 	);
-};
+}
 
 Episodes.propTypes = {
 	episodes: PropTypes.array,

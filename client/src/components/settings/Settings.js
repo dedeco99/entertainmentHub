@@ -89,24 +89,24 @@ class Settings extends Component {
 			reddit,
 			twitch,
 			youtube,
-			tv
+			tv,
 		};
 
 		return Object.keys(apps).map(app => {
 			return (
-				<Grid item xs={12} sm={6} md={4} lg={3} xl={2}>
+				<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={app}>
 					{
 						apps[app].active
-							? (
-								<div style={{ position: "relative" }}>
-									<img src={images[app]} width="100%" alt={apps[app].displayName} />
-									<i className="delete material-icons" onClick={() => deleteApp(apps[app].id)}>delete</i>
-								</div>
-							) : (
-								<a href={apps[app].link} target="_self">
-									<img src={images[app]} width="100%" alt={apps[app].displayName} />
-								</a>
-							)
+							?
+							<div style={{ position: "relative" }}>
+								<img src={images[app]} width="100%" alt={apps[app].displayName} />
+								<i className="delete material-icons" onClick={() => deleteApp(apps[app].id)}>delete</i>
+							</div>
+							:
+							<a href={apps[app].link} target="_self">
+								<img src={images[app]} width="100%" alt={apps[app].displayName} />
+							</a>
+
 					}
 				</Grid>
 			);

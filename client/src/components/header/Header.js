@@ -11,7 +11,7 @@ import AppMenu from "./AppMenu";
 import "../../css/Header.css";
 import logo from "../../img/logo.png";
 
-const Header = () => {
+function Header() {
 	const user = localStorage.getItem("user");
 	const token = localStorage.getItem("token");
 
@@ -34,6 +34,6 @@ const Header = () => {
 			{appMenu}
 		</div>
 	);
-};
+}
 
 export default Header;

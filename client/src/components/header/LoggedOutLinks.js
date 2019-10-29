@@ -2,7 +2,7 @@ import React from "react";
 import { NavLink } from "react-router-dom";
 import Button from "@material-ui/core/Button";
 
-const LoggedOutLinks = () => {
+function LoggedOutLinks() {
 	return (
 		<div>
 			<NavLink className="nav-item" to="/register" style={{ marginRight: 20 }}>

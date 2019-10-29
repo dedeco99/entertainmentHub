@@ -4,7 +4,7 @@ import Button from "@material-ui/core/Button";
 
 import { logout } from "../../actions/auth";
 
-const LoggedInLinks = () => {
+function LoggedInLinks() {
 	return (
 		<div>
 			<NavLink className="nav-item" to="/settings" style={{ marginRight: 20 }}>
@@ -15,6 +15,6 @@ const LoggedInLinks = () => {
 			</NavLink>
 		</div>
 	);
-};
+}
 
 export default LoggedInLinks;

@@ -1,28 +1,28 @@
 import { get, post } from "../utils/request";
 
-const getSeries = async () => {
+async function getSeries() {
 	const res = await get("api/tv");
 
 	return res;
-};
+}
 
-const getSeasons = async (series) => {
+async function getSeasons(series) {
 	const res = await get(`api/tv/${series}`);
 
 	return res;
-};
+}
 
-const getSearch = async (search) => {
+async function getSearch(search) {
 	const res = await get(`api/tv/search/${search}`);
 
 	return res;
-};
+}
 
-const addSeries = async (series) => {
+async function addSeries(series) {
 	const res = await post("api/tv", series);
 
 	return res;
-};
+}
 
 export {
 	getSeries,

@@ -1,7 +1,7 @@
 const User = require("./models/user");
 const Token = require("./models/token");
 
-const response = (status, message, data) => {
+function response(status, message, data) {
 	return {
 		status,
 		body: {
@@ -9,9 +9,9 @@ const response = (status, message, data) => {
 			data,
 		},
 	};
-};
+}
 
-const token = async (authorization) => {
+async function token(authorization) {
 	if (!authorization) return false;
 
 	const bearerToken = authorization.split(" ");
@@ -27,9 +27,9 @@ const token = async (authorization) => {
 	const user = await User.findOne({ _id: token.user });
 
 	return user;
-};
+}
 
-const middleware = async (req, res, fn, options) => {
+async function middleware(req, res, fn, options) {
 	const event = {};
 
 	for (const option in options) {
@@ -54,7 +54,7 @@ const middleware = async (req, res, fn, options) => {
 	const response = await fn(event);
 
 	return res.status(response.status).send(response.body);
-};
+}
 
 module.exports = {
 	response,

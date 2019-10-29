@@ -5,15 +5,15 @@ const { middleware, response } = require("./utils");
 const Series = require("./models/series");
 const Episode = require("./models/episode");
 
-const getSeries = async (event) => {
+async function getSeries(event) {
 	const { user } = event;
 
 	const series = await Series.find({ user: user._id }).lean();
 
 	return response(200, "Series found", series);
-};
+}
 
-const getSearch = async (event) => {
+async function getSearch(event) {
 	const { params } = event;
 	const { search } = params;
 
@@ -31,9 +31,9 @@ const getSearch = async (event) => {
 	});
 
 	return response(200, "Series found", series);
-};
+}
 
-const addSeries = async (event) => {
+async function addSeries(event) {
 	const { body, user } = event;
 	const { id, displayName, image } = body;
 
@@ -47,9 +47,9 @@ const addSeries = async (event) => {
 	const series = await Series.find({ user: user._id }).lean();
 
 	return response(201, "Series has been added", series);
-};
+}
 
-const getEpisodes = async (event) => {
+async function getEpisodes(event) {
 	const { params, user } = event;
 	const { series } = params;
 
@@ -85,9 +85,9 @@ const getEpisodes = async (event) => {
 	}
 
 	return response(200, "Episodes found", episodes);
-};
+}
 
-const cronjob = async (event) => {
+async function cronjob(event) {
 	const { user } = event;
 	const seriesList = await Series.find({ user: user._id }).lean();
 
@@ -158,7 +158,7 @@ const cronjob = async (event) => {
 	}
 
 	return response(200, "Episodes found", []);
-};
+}
 
 module.exports = {
 	getSeries: (req, res) => middleware(req, res, getSeries, { token: true }),

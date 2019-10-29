@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const get = async (url, headers = {}) => {
+async function get(url, headers = {}) {
 	headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
 
 	const config = { headers };
@@ -20,9 +20,9 @@ const get = async (url, headers = {}) => {
 			data: error.response.data.data,
 		};
 	}
-};
+}
 
-const post = async (url, body, headers = {}) => {
+async function post(url, body, headers = {}) {
 	headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
 
 	const config = { headers };
@@ -42,9 +42,9 @@ const post = async (url, body, headers = {}) => {
 			data: error.response.data.data,
 		};
 	}
-};
+}
 
-const remove = async (url, headers = {}) => {
+async function remove(url, headers = {}) {
 	headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
 
 	const config = { headers };
@@ -64,7 +64,7 @@ const remove = async (url, headers = {}) => {
 			data: error.response.data.data,
 		};
 	}
-};
+}
 
 export {
 	get,

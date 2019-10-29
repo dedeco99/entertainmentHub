@@ -1,4 +1,5 @@
-/*const sanitizeHtml = require("sanitize-html");
+/*
+const sanitizeHtml = require("sanitize-html");
 
 const { getAuth } = require("./database");
 const { get, post } = require("./request");

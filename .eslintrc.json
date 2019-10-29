@@ -107,8 +107,10 @@
 		"eol-last": "error",
 		"func-call-spacing": "error",
 		"func-name-matching": "error",
-		"func-names": "error",
-		"func-style": "error",
+		"func-style": [
+			"error",
+			"declaration"
+		],
 		"implicit-arrow-linebreak": "error",
 		"key-spacing": "error",
 		"keyword-spacing": "error",
@@ -154,11 +156,7 @@
 		"space-before-blocks": "error",
 		"space-before-function-paren": [
 			"error",
-			{
-				"anonymous": "always",
-				"named": "never",
-				"asyncArrow": "always"
-			}
+			"never"
 		],
 		"space-in-parens": "error",
 		"space-infix-ops": "error",
