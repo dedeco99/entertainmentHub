@@ -4,6 +4,9 @@
 	"author": "Andre Coelho",
 	"license": "MIT",
 	"main": "app.js",
+	"engines": {
+		"node": "12.13.0"
+	},
 	"scripts": {
 		"start": "node app.js",
 		"client-install": "cd client && npm install",
