@@ -6,7 +6,7 @@ function PrivateRoute({ component: Component, ...rest }) {
 	const user = localStorage.getItem("user");
 	const token = localStorage.getItem("token");
 
-	const handleRender = (props) => {
+	const handleRender = props => {
 		if (user && token) {
 			return <Component {...props} />;
 		}
@@ -23,7 +23,7 @@ function PrivateRoute({ component: Component, ...rest }) {
 }
 
 PrivateRoute.propTypes = {
-	component: PropTypes.Component,
+	component: PropTypes.elementType,
 	location: PropTypes.object,
 };
 
