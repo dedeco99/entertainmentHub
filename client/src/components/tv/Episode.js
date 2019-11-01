@@ -16,6 +16,8 @@ function Episode({ episode }) {
 			{episode.date}
 			<br />
 			{seasonLabel + episodeLabel}
+			<br />
+			{episode.seriesId.displayName ? episode.seriesId.displayName : ""}
 		</div>
 	);
 }
