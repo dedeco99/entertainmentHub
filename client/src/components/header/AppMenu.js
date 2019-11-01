@@ -16,6 +16,7 @@ class AppMenu extends Component {
 
 		this.getApps = this.getApps.bind(this);
 		this.getAppList = this.getAppList.bind(this);
+		this.handleAppClick = this.handleAppClick.bind(this);
 	}
 
 	componentDidMount() {
@@ -43,24 +44,27 @@ class AppMenu extends Component {
 		}
 	}
 
-	getAppList() {
-		const { apps } = this.state;
+	handleAppClick(e) {
+		this.setState({ selectedMenu: e.target.id });
+	}
 
-		return apps.map(app => {
-			return (
-				<ListItem
-					button
-					selected={this.state.selectedMenu === app.platform}
-					onClick={() => this.setState({ selectedMenu: app.platform })}
-					key={app.platform}
-					style={{ paddingLeft: 10 }}
-				>
-					<NavLink className="nav-item" to={app.endpoint}>
-						<i className={app.icon} />
-					</NavLink>
-				</ListItem >
-			);
-		});
+	getAppList() {
+		const { apps, selectedMenu } = this.state;
+
+		return apps.map(app => (
+			<ListItem
+				button
+				id={app.platform}
+				key={app.platform}
+				selected={selectedMenu === app.platform}
+				onClick={this.handleAppClick}
+				style={{ paddingLeft: 10 }}
+			>
+				<NavLink className="nav-item" to={app.endpoint}>
+					<i className={app.icon} />
+				</NavLink>
+			</ListItem >
+		));
 	}
 
 	render() {

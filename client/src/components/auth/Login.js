@@ -27,9 +27,16 @@ class Login extends Component {
 
 	async handleSubmit() {
 		const { email, password } = this.state;
-		const msg = await login({ email, password });
+		const response = await login({ email, password });
 
-		toast.error(msg.text);
+		if (response.status < 400) {
+			localStorage.setItem("user", response.data.user);
+			localStorage.setItem("token", response.data.token);
+
+			window.location.replace("/");
+		} else {
+			toast.error(response.message);
+		}
 	}
 
 	handleKeyPress(event) {

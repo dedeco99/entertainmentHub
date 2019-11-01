@@ -22,27 +22,104 @@ async function getSearch(event) {
 	const res = await get(url);
 	const json = JSON.parse(res);
 
-	const series = json.results.map(series => {
-		return {
-			id: series.id,
-			displayName: series.name,
-			image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${series.poster_path}`,
-		};
-	});
+	const series = json.results.map(series => ({
+		id: series.id,
+		displayName: series.name,
+		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${series.poster_path}`,
+	}));
 
 	return response(200, "Series found", series);
+}
+
+async function cronjob(event) {
+	const { user, series } = event;
+
+	let seriesList = [];
+	if (series) {
+		seriesList.push(series);
+	} else {
+		seriesList = await Series.find({ user: user._id }).lean();
+	}
+
+	for (const series of seriesList) {
+		console.log(series.displayName);
+		let url = `https://api.themoviedb.org/3/tv/${series.seriesId}?api_key=${process.env.tmdbKey}`;
+
+		let res = await get(url);
+		let json = JSON.parse(res);
+
+		let seasons = [];
+		if (json.seasons) {
+			seasons = json.seasons.map(season => season.season_number);
+		}
+
+		for (const season of seasons) {
+			url = `https://api.themoviedb.org/3/tv/${series.seriesId}/season/${season}?api_key=${process.env.tmdbKey}`;
+
+			res = await get(url);
+			json = JSON.parse(res);
+
+			if (json.episodes && json.episodes.length) {
+				const episodesToAdd = [];
+				for (const episode of json.episodes) {
+					const episodeExists = await Episode.findOne({
+						seriesId: series.seriesId,
+						season: episode.season_number,
+						number: episode.episode_number,
+					}).lean();
+
+					if (!episodeExists) {
+						const newEpisode = new Episode({
+							seriesId: series.seriesId,
+							title: episode.name,
+							image: episode.still_path ? `https://image.tmdb.org/t/p/w454_and_h254_bestv2${episode.still_path}` : "",
+							season: episode.season_number,
+							number: episode.episode_number,
+							overview: episode.overview,
+							date: episode.air_date,
+						});
+						episodesToAdd.push(newEpisode);
+
+						console.log(`- S${episode.season_number}E${episode.episode_number} created`);
+					} else if (!episodeExists.image && episode.still_path) {
+						await Episode.updateOne({
+							seriesId: series.seriesId,
+							season: episode.season_number,
+							number: episode.episode_number,
+						}, {
+							image: `https://image.tmdb.org/t/p/w454_and_h254_bestv2${episode.still_path}`,
+						});
+
+						console.log(`- S${episode.season_number}E${episode.episode_number} edited`);
+					}
+				}
+
+				if (episodesToAdd.length) {
+					Episode.insertMany(episodesToAdd);
+				}
+			}
+		}
+	}
+
+	return response(200, "Episodes found", []);
 }
 
 async function addSeries(event) {
 	const { body, user } = event;
 	const { id, displayName, image } = body;
 
-	const seriesExists = await Series.findOne({ user: user._id, seriesId: body.id }).lean();
+	const seriesExists = await Series.findOne({ user: user._id, seriesId: id }).lean();
 
 	if (seriesExists) return response(409, "Series already exists");
 
+	const seriesPopulated = await Series.findOne({ seriesId: id }).lean();
+
 	const newSeries = new Series({ user: user._id, seriesId: id, displayName, image });
 	await newSeries.save();
+
+	if (!seriesPopulated) {
+		await cronjob({ series: newSeries });
+	}
 
 	const series = await Series.find({ user: user._id }).lean();
 
@@ -64,7 +141,21 @@ async function getEpisodes(event) {
 				$match: { seriesId: { $in: seriesIds } },
 			},
 			{
+				$lookup: {
+					from: "series",
+					localField: "seriesId",
+					foreignField: "seriesId",
+					as: "seriesId",
+				},
+			},
+			{
+				$unwind: "$seriesId",
+			},
+			{
 				$sort: { date: -1 },
+			},
+			{
+				$limit: 50,
 			},
 		]);
 	} else {
@@ -85,79 +176,6 @@ async function getEpisodes(event) {
 	}
 
 	return response(200, "Episodes found", episodes);
-}
-
-async function cronjob(event) {
-	const { user } = event;
-	const seriesList = await Series.find({ user: user._id }).lean();
-
-	for (const series of seriesList) {
-		let url = `https://api.themoviedb.org/3/tv/${series.seriesId}?api_key=${process.env.tmdbKey}`;
-
-		let res = await get(url);
-		let json = JSON.parse(res);
-
-		let seasons = [];
-		if (json.seasons) {
-			seasons = json.seasons.map(season => {
-				return {
-					id: season.id,
-					season: season.season_number,
-				};
-			});
-		}
-
-		let lastSeason = seasons[seasons.length - 1].season;
-		let checkPreviousSeason = false;
-		do {
-			checkPreviousSeason = false;
-			url = `https://api.themoviedb.org/3/tv/${series.seriesId}/season/${lastSeason}?api_key=${process.env.tmdbKey}`;
-
-			res = await get(url);
-			json = JSON.parse(res);
-
-			if (json.episodes && json.episodes.length) {
-				json.episodes = json.episodes.reverse();
-				for (const episode of json.episodes) {
-					const episodeExists = await Episode.findOne({
-						seriesId: series.seriesId,
-						season: episode.season_number,
-						number: episode.episode_number,
-					}).lean();
-
-					if (!episodeExists) {
-						const newEpisode = new Episode({
-							seriesId: series.seriesId,
-							title: episode.name,
-							image: episode.still_path ? `https://image.tmdb.org/t/p/w454_and_h254_bestv2${episode.still_path}` : "",
-							season: episode.season_number,
-							number: episode.episode_number,
-							overview: episode.overview,
-							date: episode.air_date,
-						});
-						await newEpisode.save();
-						console.log(episode.season_number, episode.episode_number, "created");
-						checkPreviousSeason = true;
-					} else if (!episodeExists.image && episode.still_path) {
-						await Episode.updateOne({
-							seriesId: series.seriesId,
-							season: episode.season_number,
-							number: episode.episode_number,
-						}, {
-							image: `https://image.tmdb.org/t/p/w454_and_h254_bestv2${episode.still_path}`,
-						});
-						console.log(episode.season_number, episode.episode_number, "edited");
-					}
-				}
-			} else {
-				checkPreviousSeason = true;
-			}
-
-			lastSeason--;
-		} while (checkPreviousSeason && lastSeason >= 0);
-	}
-
-	return response(200, "Episodes found", []);
 }
 
 module.exports = {

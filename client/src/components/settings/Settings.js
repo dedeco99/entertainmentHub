@@ -57,6 +57,8 @@ class Settings extends Component {
 
 			selectedMenu: 0,
 		};
+
+		this.handleSettingsClick = this.handleSettingsClick.bind(this);
 	}
 
 	componentDidMount() {
@@ -78,8 +80,8 @@ class Settings extends Component {
 		}
 	}
 
-	async deleteApp(app) {
-		await deleteApp(app);
+	async deleteApp(e) {
+		await deleteApp(e.target.id);
 	}
 
 	getAppList() {
@@ -92,26 +94,28 @@ class Settings extends Component {
 			tv,
 		};
 
-		return Object.keys(apps).map(app => {
-			return (
-				<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={app}>
-					{
-						apps[app].active
-							? (
-								<div style={{ position: "relative" }}>
-									<img src={images[app]} width="100%" alt={apps[app].displayName} />
-									<i className="delete material-icons" onClick={() => deleteApp(apps[app].id)}>{"delete"}</i>
-								</div>
-							) : (
-								<a href={apps[app].link} target="_self">
-									<img src={images[app]} width="100%" alt={apps[app].displayName} />
-								</a>
-							)
+		return Object.keys(apps).map(app => (
+			<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={app}>
+				{
+					apps[app].active
+						? (
+							<div style={{ position: "relative" }}>
+								<img src={images[app]} width="100%" alt={apps[app].displayName} />
+								<i className="delete material-icons" id={apps[app].id} onClick={this.deleteApp}>{"delete"}</i>
+							</div>
+						) : (
+							<a href={apps[app].link} target="_self">
+								<img src={images[app]} width="100%" alt={apps[app].displayName} />
+							</a>
+						)
 
-					}
-				</Grid>
-			);
-		});
+				}
+			</Grid>
+		));
+	}
+
+	handleSettingsClick() {
+		this.setState({ selectedMenu: 0 });
 	}
 
 	render() {
@@ -124,7 +128,7 @@ class Settings extends Component {
 						<ListItem
 							button
 							selected={selectedMenu === 0}
-							onClick={() => this.setState({ selectedMenu: 0 })}
+							onClick={this.handleSettingsClick}
 						>
 							<ListItemIcon>
 								<i className="material-icons" style={{ color: "white", fontSize: "2em" }}>{"apps"}</i>

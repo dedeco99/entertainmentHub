@@ -41,6 +41,8 @@ li {
 
 .loading {
 	width: 100%;
+	position: absolute;
+	z-index: 1000;
 }
 
 .loading img {

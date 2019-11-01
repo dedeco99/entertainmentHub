@@ -25,13 +25,15 @@ class Register extends Component {
 		this.setState({ [e.target.id]: e.target.value });
 	}
 
-	async handleSubmit(e) {
-		e.preventDefault();
-
+	async handleSubmit() {
 		const { email, password } = this.state;
-		const msg = await register({ email, password });
+		const response = await register({ email, password });
 
-		toast.error(msg.text);
+		if (response.status < 400) {
+			window.location.replace("/login");
+		} else {
+			toast.error(response.message);
+		}
 	}
 
 	handleKeyPress(event) {
