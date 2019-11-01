@@ -12,21 +12,40 @@ class Search extends Component {
 	constructor() {
 		super();
 		this.state = {
-			search: "",
+			query: "",
 
 			showLoader: false,
 		};
 
 		this.getSearch = this.getSearch.bind(this);
+		this.handleAddSeries = this.handleAddSeries.bind(this);
+		this.handleSearch = this.handleSearch.bind(this);
 		this.handleKeyPress = this.handleKeyPress.bind(this);
 	}
 
 	async getSearch() {
+		const { getSearch } = this.props;
+		const { query } = this.state;
+
 		this.setState({ showLoader: true });
 
-		await this.props.getSearch(this.state.search);
+		await getSearch(query);
 
 		this.setState({ showLoader: false });
+	}
+
+	async handleAddSeries(e) {
+		const { addSeries } = this.props;
+
+		this.setState({ showLoader: true });
+
+		await addSeries(e.target.id);
+
+		this.setState({ showLoader: false });
+	}
+
+	handleSearch(e) {
+		this.setState({ query: e.target.value });
 	}
 
 	handleKeyPress(event) {
@@ -35,27 +54,25 @@ class Search extends Component {
 
 	render() {
 		const { search } = this.props;
-		const { showLoader } = this.state;
+		const { query, showLoader } = this.state;
 
 		let seriesList = showLoader ? <div className="loading" align="center"><img src={loading} alt="Loading..." /></div> : null;
 		if (search && search.length > 0) {
-			seriesList = search.map((series, index) => {
-				return (
-					<Grid
-						item xs={12} sm={6} md={4} lg={4} xl={3}
-						key={`${series.seriesId}${series.season}${series.number}`}
-					>
-						<div className="add-series-container">
-							<i
-								id={index}
-								className="add-series-icon icofont-ui-add icofont-3x"
-								onClick={() => this.props.addSeries(index)}
-							/>
-							<img src={series.image.substr(series.image.length - 4) === "null" ? placeholder : series.image} width="100%" alt={series.displayName} />
-						</div>
-					</Grid>
-				);
-			});
+			seriesList = search.map((series, index) => (
+				<Grid
+					item xs={12} sm={6} md={4} lg={4} xl={3}
+					key={series.id}
+				>
+					<div className="add-series-container">
+						<i
+							id={index}
+							className="add-series-icon icofont-ui-add icofont-3x"
+							onClick={this.handleAddSeries}
+						/>
+						<img src={series.image.substr(series.image.length - 4) === "null" ? placeholder : series.image} width="100%" alt={series.displayName} />
+					</div>
+				</Grid>
+			));
 		}
 
 		return (
@@ -63,8 +80,8 @@ class Search extends Component {
 				<Input
 					id="search"
 					label="Search"
-					value={this.state.search}
-					onChange={e => this.setState({ search: e.target.value })}
+					value={query}
+					onChange={this.handleSearch}
 					onKeyPress={this.handleKeyPress}
 					margin="normal"
 					variant="outlined"

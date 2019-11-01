@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Grid from "@material-ui/core/Grid";
 import Fab from "@material-ui/core/Fab";
 import Button from "@material-ui/core/Button";
@@ -22,6 +24,8 @@ class TV extends Component {
 			search: [],
 
 			currentSeries: "all",
+			showEpisodesBlock: false,
+			showSearchBlock: false,
 		};
 
 		this.getSeries = this.getSeries.bind(this);
@@ -30,7 +34,7 @@ class TV extends Component {
 		this.getEpisodes = this.getEpisodes.bind(this);
 		this.getSearch = this.getSearch.bind(this);
 		this.addSeries = this.addSeries.bind(this);
-		this.showComponent = this.showComponent.bind(this);
+		this.showSearchBlock = this.showSearchBlock.bind(this);
 	}
 
 	componentDidMount() {
@@ -43,10 +47,13 @@ class TV extends Component {
 	}
 
 	async getAll() {
-		this.showComponent("episodesBlock");
-
 		const response = await getSeasons("all");
-		this.setState({ episodes: response.data, currentSeries: "all" });
+		this.setState({
+			episodes: response.data,
+			currentSeries: "all",
+			showSearchBlock: false,
+			showEpisodesBlock: true,
+		});
 	}
 
 	async getSeasons(series) {
@@ -57,11 +64,15 @@ class TV extends Component {
 	}
 
 	getEpisodes(season) {
-		this.showComponent("episodesBlock");
+		const { seasons } = this.state;
 
-		const foundSeason = this.state.seasons.find(s => s._id === season);
+		const foundSeason = seasons.find(s => s._id === season);
 
-		if (foundSeason) this.setState({ episodes: foundSeason.episodes });
+		if (foundSeason) this.setState({
+			episodes: foundSeason.episodes,
+			showSearchBlock: false,
+			showEpisodesBlock: true,
+		});
 	}
 
 	async getSearch(search) {
@@ -70,31 +81,35 @@ class TV extends Component {
 	}
 
 	async addSeries(id) {
-		const response = await addSeries(this.state.search[id]);
-		this.setState({ series: response.data });
+		const { search } = this.state;
+
+		const response = await addSeries(search[id]);
+		if (response.status < 400) {
+			this.setState({ series: response.data });
+
+			toast.success(response.message);
+		} else {
+			toast.error(response.message);
+		}
 	}
 
-	showComponent(component) {
-		const components = ["episodesBlock", "seriesSearchBlock"];
+	async updateSeries() {
+		await getSeasons("cronjob");
+	}
 
-		components.forEach(component => {
-			document.getElementById(component).style.display = "none";
-		});
-
-		document.getElementById(component).style.display = "block";
+	showSearchBlock() {
+		this.setState({ showSearchBlock: true, showEpisodesBlock: false });
 	}
 
 	render() {
-		const { series, seasons, episodes, search, currentSeries } = this.state;
-
-		console.log(episodes);
+		const { series, seasons, episodes, search, currentSeries, showSearchBlock, showEpisodesBlock } = this.state;
 
 		return (
 			<Grid container spacing={2}>
 				<Grid item sm={3} md={2}>
 					<div align="center">
 						<Fab
-							onClick={() => this.showComponent("seriesSearchBlock")}
+							onClick={this.showSearchBlock}
 							variant="extended"
 							size="medium"
 							style={{ width: "100%", backgroundColor: "#222" }}
@@ -103,8 +118,9 @@ class TV extends Component {
 							{"Search"}
 						</Fab>
 						<Button
-							onClick={() => this.getSeasons("cronjob")}
-							style={{ color: "white", borderColor: "white", marginTop: 10, marginBottom: 10 }}
+							onClick={this.updateSeries}
+							className="outlined-button"
+							style={{ marginTop: 10, marginBottom: 10 }}
 							variant="outlined"
 							fullWidth
 						>
@@ -112,7 +128,8 @@ class TV extends Component {
 						</Button>
 						<Button
 							onClick={this.getAll}
-							style={{ color: "white", borderColor: "white", marginTop: 10, marginBottom: 10 }}
+							className="outlined-button"
+							style={{ marginTop: 10, marginBottom: 10 }}
 							variant="outlined"
 							fullWidth
 						>
@@ -126,23 +143,33 @@ class TV extends Component {
 					/>
 				</Grid>
 				<Grid item sm={9} md={10} lg={10}>
-					<div id="seriesSearchBlock">
-						<Search search={search} getSearch={this.getSearch} addSeries={this.addSeries} />
-					</div>
-					<div id="episodesBlock">
-						{
-							currentSeries === "all" ? "" :
-								<Categories
-									options={seasons}
-									idField="_id"
-									nameField="_id"
-									action={this.getEpisodes}
-								/>
-						}
-						<br />
-						<Episodes episodes={episodes} />
-					</div>
+					{showSearchBlock ?
+						<Search
+							search={search}
+							getSearch={this.getSearch}
+							addSeries={this.addSeries}
+						/>
+						: null}
+					{showEpisodesBlock ?
+						<div id="episodesBlock">
+							{
+								currentSeries === "all" ? "" :
+									<Categories
+										options={seasons}
+										idField="_id"
+										nameField="_id"
+										action={this.getEpisodes}
+									/>
+							}
+							<br />
+							<Episodes episodes={episodes} />
+						</div>
+						: null}
 				</Grid>
+				<ToastContainer
+					position="bottom-right"
+					newestOnTop
+				/>
 			</Grid>
 		);
 	}

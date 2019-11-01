@@ -6,18 +6,17 @@ function PrivateRoute({ component: Component, ...rest }) {
 	const user = localStorage.getItem("user");
 	const token = localStorage.getItem("token");
 
-	const handleRender = props => {
-		if (user && token) {
-			return <Component {...props} />;
-		}
-
-		return <Redirect to={{ pathname: "/login", state: { from: props.location } }} />;
-	};
-
 	return (
 		<Route
 			{...rest}
-			render={handleRender}
+			// eslint-disable-next-line react/jsx-no-bind
+			render={props => {
+				if (user && token) {
+					return <Component {...props} />;
+				}
+
+				return <Redirect to={{ pathname: "/login", state: { from: props.location } }} />;
+			}}
 		/>
 	);
 }

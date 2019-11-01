@@ -5,20 +5,13 @@ async function register(user) {
 
 	if (res.status === 201) window.location.replace("/login");
 
-	return { type: "error", text: res.message };
+	return res;
 }
 
 async function login(user) {
 	const res = await post("/api/auth/login", user);
 
-	if (res.status === 200) {
-		localStorage.setItem("user", res.data.user);
-		localStorage.setItem("token", res.data.token);
-
-		window.location.replace("/");
-	}
-
-	return { type: "error", text: res.message };
+	return res;
 }
 
 function logout() {
@@ -41,6 +34,8 @@ async function addApp(platform, code) {
 
 async function deleteApp(app) {
 	await remove(`/api/auth/apps/${app}`);
+
+	window.location.replace("/settings");
 }
 
 export {
