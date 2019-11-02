@@ -56,6 +56,10 @@ app.get("/api/tv", tv.getSeries);
 
 app.post("/api/tv", tv.addSeries);
 
+app.put("/api/tv/:id", tv.editSeries);
+
+app.delete("/api/tv/:id", tv.deleteSeries);
+
 app.get("/api/tv/search/:search", tv.getSearch);
 
 app.get("/api/tv/cronjob", tv.cronjob);

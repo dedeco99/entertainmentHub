@@ -14,6 +14,7 @@ class SeriesDetail extends Component {
 
 		this.handleChange = this.handleChange.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
+		this.handleKeyPress = this.handleKeyPress.bind(this);
 	}
 
 	componentDidMount() {
@@ -28,10 +29,14 @@ class SeriesDetail extends Component {
 	}
 
 	async handleSubmit() {
-		const { series, addSeries } = this.props;
+		const { type, series, addSeries, editSeries } = this.props;
 		const { title } = this.state;
 
-		await addSeries({ ...series, displayName: title });
+		if (type === "add") {
+			await addSeries({ ...series, displayName: title });
+		} else {
+			await editSeries(series.seriesId, { displayName: title });
+		}
 	}
 
 	handleKeyPress(event) {
@@ -71,8 +76,10 @@ class SeriesDetail extends Component {
 }
 
 SeriesDetail.propTypes = {
+	type: PropTypes.string,
 	series: PropTypes.object,
 	addSeries: PropTypes.func,
+	editSeries: PropTypes.func,
 };
 
 export default SeriesDetail;

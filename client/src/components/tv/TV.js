@@ -4,13 +4,15 @@ import "react-toastify/dist/ReactToastify.css";
 import Grid from "@material-ui/core/Grid";
 import Fab from "@material-ui/core/Fab";
 import Button from "@material-ui/core/Button";
+import Modal from "@material-ui/core/Modal";
 
-import { getSeries, getSeasons, getSearch, addSeries } from "../../actions/tv";
+import { getSeries, getSeasons, getSearch, addSeries, editSeries, deleteSeries } from "../../actions/tv";
 
 import Sidebar from "../.partials/Sidebar";
 import Categories from "../.partials/Categories";
 import Episodes from "./Episodes";
 import Search from "./Search";
+import SeriesDetail from "./SeriesDetail";
 
 import "../../css/TV.css";
 
@@ -26,6 +28,7 @@ class TV extends Component {
 			currentSeries: "all",
 			showEpisodesBlock: false,
 			showSearchBlock: false,
+			showModal: false,
 		};
 
 		this.getSeries = this.getSeries.bind(this);
@@ -34,7 +37,11 @@ class TV extends Component {
 		this.getEpisodes = this.getEpisodes.bind(this);
 		this.getSearch = this.getSearch.bind(this);
 		this.addSeries = this.addSeries.bind(this);
+		this.editSeries = this.editSeries.bind(this);
+		this.deleteSeries = this.deleteSeries.bind(this);
 		this.showSearchBlock = this.showSearchBlock.bind(this);
+		this.showModal = this.showModal.bind(this);
+		this.hideModal = this.hideModal.bind(this);
 	}
 
 	componentDidMount() {
@@ -44,6 +51,10 @@ class TV extends Component {
 	async getSeries() {
 		const response = await getSeries();
 		this.setState({ series: response.data });
+	}
+
+	async updateSeries() {
+		await getSeasons("cronjob");
 	}
 
 	async getAll() {
@@ -68,11 +79,13 @@ class TV extends Component {
 
 		const foundSeason = seasons.find(s => s._id === season);
 
-		if (foundSeason) this.setState({
-			episodes: foundSeason.episodes,
-			showSearchBlock: false,
-			showEpisodesBlock: true,
-		});
+		if (foundSeason) {
+			this.setState({
+				episodes: foundSeason.episodes,
+				showSearchBlock: false,
+				showEpisodesBlock: true,
+			});
+		}
 	}
 
 	async getSearch(search) {
@@ -91,16 +104,54 @@ class TV extends Component {
 		}
 	}
 
-	async updateSeries() {
-		await getSeasons("cronjob");
+	async editSeries(id, series) {
+		const response = await editSeries(id, series);
+		if (response.status < 400) {
+			this.setState({ series: response.data });
+
+			toast.success(response.message);
+		} else {
+			toast.error(response.message);
+		}
+	}
+
+
+	async deleteSeries(e) {
+		const response = await deleteSeries(e.target.id);
+		if (response.status < 400) {
+			this.setState({ series: response.data });
+
+			toast.success(response.message);
+		} else {
+			toast.error(response.message);
+		}
 	}
 
 	showSearchBlock() {
 		this.setState({ showSearchBlock: true, showEpisodesBlock: false });
 	}
 
+	showModal(e, type) {
+		const { search, series } = this.state;
+
+		if (type === "edit") {
+			this.setState({ currentSeries: series.find(s => s.seriesId === e.target.id), showModal: true });
+		} else {
+			this.setState({ currentSeries: search.find(s => s.id.toString() === e.target.id), showModal: true });
+		}
+	}
+
+	hideModal() {
+		this.setState({ showModal: false });
+	}
+
 	render() {
-		const { series, seasons, episodes, search, currentSeries, showSearchBlock, showEpisodesBlock } = this.state;
+		const { series, seasons, episodes, search, currentSeries, showSearchBlock, showEpisodesBlock, showModal } = this.state;
+
+		const menuOptions = [
+			{ displayName: "Edit", onClick: e => this.showModal(e, "edit") },
+			{ displayName: "Delete", onClick: this.deleteSeries },
+		];
 
 		return (
 			<Grid container spacing={2}>
@@ -138,6 +189,7 @@ class TV extends Component {
 						options={series}
 						idField="seriesId"
 						action={this.getSeasons}
+						menu={menuOptions}
 					/>
 				</Grid>
 				<Grid item sm={9} md={10} lg={10}>
@@ -145,7 +197,7 @@ class TV extends Component {
 						<Search
 							search={search}
 							getSearch={this.getSearch}
-							addSeries={this.addSeries}
+							showModal={this.showModal}
 						/>
 						: null}
 					{showEpisodesBlock ?
@@ -161,9 +213,19 @@ class TV extends Component {
 							}
 							<br />
 							<Episodes episodes={episodes} />
-						</div>
-						: null}
+						</div> : null}
 				</Grid>
+				<Modal
+					open={showModal}
+					onClose={this.hideModal}
+				>
+					<SeriesDetail
+						type={currentSeries.seriesId ? "edit" : "add"}
+						series={currentSeries.id || currentSeries.seriesId ? currentSeries : {}}
+						addSeries={this.addSeries}
+						editSeries={this.editSeries}
+					/>
+				</Modal>
 				<ToastContainer
 					position="bottom-right"
 					newestOnTop

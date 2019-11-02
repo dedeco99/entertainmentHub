@@ -1,4 +1,4 @@
-import { get, post } from "../utils/request";
+import { get, post, put, remove } from "../utils/request";
 
 async function getSeries() {
 	const res = await get("api/tv");
@@ -24,9 +24,23 @@ async function addSeries(series) {
 	return res;
 }
 
+async function editSeries(id, series) {
+	const res = await put(`api/tv/${id}`, series);
+
+	return res;
+}
+
+async function deleteSeries(id) {
+	const res = await remove(`api/tv/${id}`);
+
+	return res;
+}
+
 export {
 	getSeries,
 	getSeasons,
 	getSearch,
 	addSeries,
+	editSeries,
+	deleteSeries,
 };

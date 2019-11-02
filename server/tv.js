@@ -8,7 +8,7 @@ const Episode = require("./models/episode");
 async function getSeries(event) {
 	const { user } = event;
 
-	const series = await Series.find({ user: user._id }).lean();
+	const series = await Series.find({ user: user._id }).sort({ displayName: 1 }).lean();
 
 	return response(200, "Series found", series);
 }
@@ -38,7 +38,7 @@ async function cronjob(event) {
 	if (series) {
 		seriesList.push(series);
 	} else {
-		seriesList = await Series.find({ user: user._id }).lean();
+		seriesList = await Series.find({ user: user._id }).sort({ displayName: 1 }).lean();
 	}
 
 	for (const series of seriesList) {
@@ -121,16 +121,45 @@ async function addSeries(event) {
 		await cronjob({ series: newSeries });
 	}
 
-	const series = await Series.find({ user: user._id }).lean();
+	const series = await Series.find({ user: user._id }).sort({ displayName: 1 }).lean();
 
 	return response(201, "Series has been added", series);
+}
+
+async function editSeries(event) {
+	const { params, body, user } = event;
+	const { id } = params;
+	const { displayName } = body;
+
+	const seriesExists = await Series.findOne({ user: user._id, seriesId: id }).lean();
+
+	if (!seriesExists) return response(404, "Series doesn't exist");
+
+	await Series.updateOne({ seriesId: id }, { displayName }).lean();
+
+	const series = await Series.find({ user: user._id }).sort({ displayName: 1 }).lean();
+
+	return response(200, "Series has been updated", series);
+}
+
+async function deleteSeries(event) {
+	const { params, user } = event;
+	const { id } = params;
+
+	const seriesExists = await Series.findOneAndDelete({ user: user._id, seriesId: id });
+
+	if (!seriesExists) return response(404, "Series not found");
+
+	const series = await Series.find({ user: user._id }).sort({ displayName: 1 }).lean();
+
+	return response(200, "Series has been deleted", series);
 }
 
 async function getEpisodes(event) {
 	const { params, user } = event;
 	const { series } = params;
 
-	const userSeries = await Series.find({ user: user._id }).lean();
+	const userSeries = await Series.find({ user: user._id }).sort({ displayName: 1 }).lean();
 
 	const seriesIds = userSeries.map(s => s.seriesId);
 
@@ -182,6 +211,8 @@ module.exports = {
 	getSeries: (req, res) => middleware(req, res, getSeries, { token: true }),
 	getSearch: (req, res) => middleware(req, res, getSearch, { token: true }),
 	addSeries: (req, res) => middleware(req, res, addSeries, { token: true }),
+	editSeries: (req, res) => middleware(req, res, editSeries, { token: true }),
+	deleteSeries: (req, res) => middleware(req, res, deleteSeries, { token: true }),
 	getEpisodes: (req, res) => middleware(req, res, getEpisodes, { token: true }),
 	cronjob: (req, res) => middleware(req, res, cronjob, { token: true }),
 };
