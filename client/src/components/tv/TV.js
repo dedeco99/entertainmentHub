@@ -80,10 +80,8 @@ class TV extends Component {
 		this.setState({ search: response.data });
 	}
 
-	async addSeries(id) {
-		const { search } = this.state;
-
-		const response = await addSeries(search[id]);
+	async addSeries(series) {
+		const response = await addSeries(series);
 		if (response.status < 400) {
 			this.setState({ series: response.data });
 

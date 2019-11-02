@@ -2,8 +2,10 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
+import Modal from "@material-ui/core/Modal";
 
 import Input from "../.partials/Input";
+import SeriesDetail from "./SeriesDetail";
 
 import loading from "../../img/loading2.gif";
 import placeholder from "../../img/noimage.png";
@@ -14,13 +16,16 @@ class Search extends Component {
 		this.state = {
 			query: "",
 
+			currentSeries: null,
 			showLoader: false,
+			showModal: false,
 		};
 
 		this.getSearch = this.getSearch.bind(this);
-		this.handleAddSeries = this.handleAddSeries.bind(this);
 		this.handleSearch = this.handleSearch.bind(this);
+		this.handleModalOpen = this.handleModalOpen.bind(this);
 		this.handleKeyPress = this.handleKeyPress.bind(this);
+		this.handleModalClose = this.handleModalClose.bind(this);
 	}
 
 	async getSearch() {
@@ -34,16 +39,6 @@ class Search extends Component {
 		this.setState({ showLoader: false });
 	}
 
-	async handleAddSeries(e) {
-		const { addSeries } = this.props;
-
-		this.setState({ showLoader: true });
-
-		await addSeries(e.target.id);
-
-		this.setState({ showLoader: false });
-	}
-
 	handleSearch(e) {
 		this.setState({ query: e.target.value });
 	}
@@ -52,9 +47,18 @@ class Search extends Component {
 		if (event.key === "Enter") this.getSearch();
 	}
 
-	render() {
+	handleModalOpen(e) {
 		const { search } = this.props;
-		const { query, showLoader } = this.state;
+		this.setState({ currentSeries: search[e.target.id], showModal: true });
+	}
+
+	handleModalClose() {
+		this.setState({ showModal: false });
+	}
+
+	render() {
+		const { search, addSeries } = this.props;
+		const { query, currentSeries, showLoader, showModal } = this.state;
 
 		let seriesList = showLoader ? <div className="loading" align="center"><img src={loading} alt="Loading..." /></div> : null;
 		if (search && search.length > 0) {
@@ -67,7 +71,7 @@ class Search extends Component {
 						<i
 							id={index}
 							className="add-series-icon icofont-ui-add icofont-3x"
-							onClick={this.handleAddSeries}
+							onClick={this.handleModalOpen}
 						/>
 						<img src={series.image.substr(series.image.length - 4) === "null" ? placeholder : series.image} width="100%" alt={series.displayName} />
 					</div>
@@ -90,6 +94,12 @@ class Search extends Component {
 				<br />
 				<Grid container spacing={2}>
 					{seriesList}
+					<Modal
+						open={showModal}
+						onClose={this.handleModalClose}
+					>
+						<SeriesDetail addSeries={addSeries} series={currentSeries} />
+					</Modal>
 				</Grid>
 			</Container>
 		);
