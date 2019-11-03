@@ -12,6 +12,12 @@ async function getSeasons(series) {
 	return res;
 }
 
+async function getPopular(search) {
+	const res = await get('api/tv/popular');
+
+	return res;
+}
+
 async function getSearch(search) {
 	const res = await get(`api/tv/search/${search}`);
 
@@ -39,6 +45,7 @@ async function deleteSeries(id) {
 export {
 	getSeries,
 	getSeasons,
+	getPopular,
 	getSearch,
 	addSeries,
 	editSeries,

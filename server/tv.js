@@ -31,6 +31,21 @@ async function getSearch(event) {
 	return response(200, "Series found", series);
 }
 
+async function getPopular() {
+	const url = `https://api.themoviedb.org/3/tv/popular?api_key=${process.env.tmdbKey}`;
+
+	const res = await get(url);
+	const json = JSON.parse(res);
+
+	const series = json.results.map(series => ({
+		id: series.id,
+		displayName: series.name,
+		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${series.poster_path}`,
+	}));
+
+	return response(200, "Series found", series);
+}
+
 async function cronjob(event) {
 	const { user, series } = event;
 
@@ -210,6 +225,7 @@ async function getEpisodes(event) {
 module.exports = {
 	getSeries: (req, res) => middleware(req, res, getSeries, { token: true }),
 	getSearch: (req, res) => middleware(req, res, getSearch, { token: true }),
+	getPopular: (req, res) => middleware(req, res, getPopular, { token: true }),
 	addSeries: (req, res) => middleware(req, res, addSeries, { token: true }),
 	editSeries: (req, res) => middleware(req, res, editSeries, { token: true }),
 	deleteSeries: (req, res) => middleware(req, res, deleteSeries, { token: true }),

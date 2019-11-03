@@ -62,6 +62,8 @@ app.delete("/api/tv/:id", tv.deleteSeries);
 
 app.get("/api/tv/search/:search", tv.getSearch);
 
+app.get("/api/tv/popular", tv.getPopular);
+
 app.get("/api/tv/cronjob", tv.cronjob);
 
 app.get("/api/tv/:series", tv.getEpisodes);
