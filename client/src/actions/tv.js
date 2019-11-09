@@ -6,14 +6,14 @@ async function getSeries() {
 	return res;
 }
 
-async function getSeasons(series) {
-	const res = await get(`api/tv/${series}`);
+async function getSeasons(series, page) {
+	const res = await get(`api/tv/${series}${page >= 0 ? `?page=${page}` : ""}`);
 
 	return res;
 }
 
-async function getPopular(search) {
-	const res = await get('api/tv/popular');
+async function getPopular() {
+	const res = await get("api/tv/popular");
 
 	return res;
 }

@@ -5,6 +5,7 @@ import Grid from "@material-ui/core/Grid";
 import Fab from "@material-ui/core/Fab";
 import Button from "@material-ui/core/Button";
 import Modal from "@material-ui/core/Modal";
+import InfiniteScroll from "react-infinite-scroller";
 
 import { getSeries, getSeasons, getPopular, getSearch, addSeries, editSeries, deleteSeries } from "../../actions/tv";
 
@@ -30,6 +31,7 @@ class TV extends Component {
 			query: "",
 
 			currentSeries: "all",
+			page: 0,
 			showSearchBlock: false,
 			showSeriesBlock: false,
 			showEpisodesBlock: false,
@@ -54,6 +56,9 @@ class TV extends Component {
 		this.showSearchBlock = this.showSearchBlock.bind(this);
 		this.showModal = this.showModal.bind(this);
 		this.hideModal = this.hideModal.bind(this);
+
+		this.renderSearchBlock = this.renderSearchBlock.bind(this);
+		this.renderEpisodesBlock = this.renderEpisodesBlock.bind(this);
 	}
 
 	componentDidMount() {
@@ -70,10 +75,16 @@ class TV extends Component {
 	}
 
 	async getAll() {
-		const response = await getSeasons("all");
+		const { episodes, page } = this.state;
+
+		const response = await getSeasons("all", page);
+
+		const newEpisodes = page === 0 ? response.data : episodes.concat(response.data);
+
 		this.setState({
-			episodes: response.data,
+			episodes: newEpisodes,
 			currentSeries: "all",
+			page: page + 1,
 			showSearchBlock: false,
 			showSeriesBlock: false,
 			showEpisodesBlock: true,
@@ -82,7 +93,7 @@ class TV extends Component {
 
 	async getSeasons(series) {
 		const response = await getSeasons(series);
-		this.setState({ seasons: response.data, currentSeries: series });
+		this.setState({ seasons: response.data, currentSeries: series, page: 0 });
 
 		this.getEpisodes(response.data[response.data.length - 1]._id);
 	}
@@ -178,19 +189,63 @@ class TV extends Component {
 		this.setState({ showModal: false });
 	}
 
+	renderSearchBlock() {
+		const { query, showSearchBlock } = this.state;
+
+		if (showSearchBlock) {
+			return (
+				<Input
+					id="search"
+					label="Search"
+					value={query}
+					onChange={this.handleSearch}
+					onKeyPress={this.handleKeyPress}
+					margin="normal"
+					variant="outlined"
+					fullWidth
+				/>
+			);
+		}
+
+		return null;
+	}
+
+	renderEpisodesBlock() {
+		const { seasons, episodes, currentSeries, showEpisodesBlock } = this.state;
+
+		if (showEpisodesBlock) {
+			if (currentSeries === "all") {
+				return (
+					<InfiniteScroll
+						pageStart={0}
+						loadMore={this.getAll}
+						hasMore
+						loader={<div key={0} className="loading" align="center"><img src={loading} alt="Loading..." /></div>}
+					>
+						<Episodes episodes={episodes} />
+					</InfiniteScroll>
+				);
+			}
+
+			return (
+				<div>
+					<Categories
+						options={seasons}
+						idField="_id"
+						nameField="_id"
+						action={this.getEpisodes}
+					/>
+					<br />
+					<Episodes episodes={episodes} />
+				</div>
+			);
+		}
+
+		return null;
+	}
+
 	render() {
-		const {
-			series,
-			seasons,
-			episodes,
-			search,
-			query,
-			currentSeries,
-			showSearchBlock,
-			showSeriesBlock,
-			showEpisodesBlock,
-			showModal,
-		} = this.state;
+		const { series, search, currentSeries, showSeriesBlock, showModal } = this.state;
 
 		const menuOptions = [
 			{ displayName: "Edit", onClick: e => this.showModal(e, "edit") },
@@ -266,33 +321,10 @@ class TV extends Component {
 				</Grid>
 				<Grid item sm={9} md={10} lg={10}>
 					<Grid container spacing={2}>
-						{showSearchBlock ?
-							<Input
-								id="search"
-								label="Search"
-								value={query}
-								onChange={this.handleSearch}
-								onKeyPress={this.handleKeyPress}
-								margin="normal"
-								variant="outlined"
-								fullWidth
-							/> : null}
+						{this.renderSearchBlock()}
 						{showSeriesBlock ? seriesList : null}
+						{this.renderEpisodesBlock()}
 					</Grid>
-					{showEpisodesBlock ?
-						<div id="episodesBlock">
-							{
-								currentSeries === "all" ? "" :
-									<Categories
-										options={seasons}
-										idField="_id"
-										nameField="_id"
-										action={this.getEpisodes}
-									/>
-							}
-							<br />
-							<Episodes episodes={episodes} />
-						</div> : null}
 				</Grid>
 				<Modal
 					open={showModal}

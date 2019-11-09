@@ -50,10 +50,16 @@ li {
 	max-width: 300px;
 }
 
-.delete{
+.delete {
 	position: absolute;
 	font-size: 2em;
 	top: 5px;
 	right: 5px;
 	cursor: pointer;
+}
+
+.go-back-up {
+	bottom: 25px;
+	right: 25px;
+	position: fixed;
 }

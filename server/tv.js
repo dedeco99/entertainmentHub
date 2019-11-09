@@ -171,8 +171,9 @@ async function deleteSeries(event) {
 }
 
 async function getEpisodes(event) {
-	const { params, user } = event;
+	const { params, query, user } = event;
 	const { series } = params;
+	const { page } = query;
 
 	const userSeries = await Series.find({ user: user._id }).sort({ displayName: 1 }).lean();
 
@@ -197,6 +198,9 @@ async function getEpisodes(event) {
 			},
 			{
 				$sort: { date: -1 },
+			},
+			{
+				$skip: page ? page * 50 : 0,
 			},
 			{
 				$limit: 50,
