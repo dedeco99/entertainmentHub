@@ -19,6 +19,7 @@ import "../../css/TV.css";
 
 import loading from "../../img/loading2.gif";
 import placeholder from "../../img/noimage.png";
+import goBackUp from "../../img/go_back_up.png";
 
 class TV extends Component {
 	constructor() {
@@ -35,8 +36,11 @@ class TV extends Component {
 			showSearchBlock: false,
 			showSeriesBlock: false,
 			showEpisodesBlock: false,
+			showGoBackUpButton: false,
 			showModal: false,
 		};
+
+		this.listenToScroll = this.listenToScroll.bind(this);
 
 		this.getSeries = this.getSeries.bind(this);
 		this.updateSeries = this.updateSeries.bind(this);
@@ -59,10 +63,29 @@ class TV extends Component {
 
 		this.renderSearchBlock = this.renderSearchBlock.bind(this);
 		this.renderEpisodesBlock = this.renderEpisodesBlock.bind(this);
+		this.renderGoBackUpButton = this.renderGoBackUpButton.bind(this);
 	}
 
 	componentDidMount() {
 		this.getSeries();
+
+		window.addEventListener("scroll", this.listenToScroll);
+	}
+
+	listenToScroll() {
+		const { showGoBackUpButton } = this.state;
+
+		const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+
+		const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+
+		const scrolled = winScroll / height;
+
+		if (scrolled > 0.75 && !showGoBackUpButton) {
+			this.setState({ showGoBackUpButton: true });
+		} else if (scrolled === 0) {
+			this.setState({ showGoBackUpButton: false });
+		}
 	}
 
 	async getSeries() {
@@ -244,6 +267,22 @@ class TV extends Component {
 		return null;
 	}
 
+	goBackUp() {
+		window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+	}
+
+	renderGoBackUpButton() {
+		const { showGoBackUpButton } = this.state;
+
+		if (showGoBackUpButton) {
+			return (
+				<div className="go-back-up" onClick={this.goBackUp}>
+					<img src={goBackUp} width="50px" alt="Go Back Up" />
+				</div>
+			);
+		}
+	}
+
 	render() {
 		const { series, search, currentSeries, showSeriesBlock, showModal } = this.state;
 
@@ -326,6 +365,7 @@ class TV extends Component {
 						{this.renderEpisodesBlock()}
 					</Grid>
 				</Grid>
+				{this.renderGoBackUpButton()}
 				<Modal
 					open={showModal}
 					onClose={this.hideModal}
