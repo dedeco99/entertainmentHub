@@ -19,6 +19,7 @@ class Settings extends Component {
 			apps: {
 				reddit: {
 					active: false,
+					key: "reddit",
 					displayName: "Reddit",
 					link: `https://www.reddit.com/api/v1/authorize
 						?client_id=VXMNKvXfKALA3A
@@ -30,6 +31,7 @@ class Settings extends Component {
 				},
 				twitch: {
 					active: false,
+					key: "twitch",
 					displayName: "Twitch",
 					link: `https://api.twitch.tv/kraken/oauth2/authorize
 						?client_id=9haxv452ih4k8ewiml53vqetrbm0z9q
@@ -39,6 +41,7 @@ class Settings extends Component {
 				},
 				youtube: {
 					active: false,
+					key: "youtube",
 					displayName: "Youtube",
 					link: `https://accounts.google.com/o/oauth2/v2/auth
 						?redirect_uri=http://localhost:5001/apps/google
@@ -50,6 +53,7 @@ class Settings extends Component {
 				},
 				tv: {
 					active: false,
+					key: "tv",
 					displayName: "TV",
 					link: "/apps/tv",
 				},
@@ -84,9 +88,11 @@ class Settings extends Component {
 		await deleteApp(e.target.id);
 	}
 
-	getAppList() {
-		const { apps } = this.state;
+	handleSettingsClick() {
+		this.setState({ selectedMenu: 0 });
+	}
 
+	renderApp(app) {
 		const images = {
 			reddit,
 			twitch,
@@ -94,30 +100,30 @@ class Settings extends Component {
 			tv,
 		};
 
-		return Object.keys(apps).map(app => (
-			<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={app}>
-				{
-					apps[app].active ?
-						<div style={{ position: "relative" }}>
-							<img src={images[app]} width="100%" alt={apps[app].displayName} />
-							<i className="delete material-icons" id={apps[app].id} onClick={this.deleteApp}>{"delete"}</i>
-						</div> :
-						<a href={apps[app].link} target="_self">
-							<img src={images[app]} width="100%" alt={apps[app].displayName} />
-						</a>
+		if (app.active) {
+			return (
+				<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={app.key}>
+					<div style={{ position: "relative" }}>
+						<img src={images[app.key]} width="100%" alt={app.displayName} />
+						<i className="delete material-icons" id={app.id} onClick={this.deleteApp}>
+							{"delete"}
+						</i>
+					</div>
+				</Grid>
+			);
+		}
 
-
-				}
+		return (
+			<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={app.key}>
+				<a href={app.link} target="_self">
+					<img src={images[app.key]} width="100%" alt={app.displayName} />
+				</a>
 			</Grid>
-		));
-	}
-
-	handleSettingsClick() {
-		this.setState({ selectedMenu: 0 });
+		);
 	}
 
 	render() {
-		const { selectedMenu } = this.state;
+		const { apps, selectedMenu } = this.state;
 
 		return (
 			<Grid container spacing={2}>
@@ -137,7 +143,7 @@ class Settings extends Component {
 				</Grid>
 				<Grid item xs={12} sm={8} md={9} lg={10}>
 					<Grid container spacing={2}>
-						{this.getAppList()}
+						{Object.keys(apps).map(app => this.renderApp(apps[app]))}
 					</Grid>
 				</Grid>
 			</Grid >

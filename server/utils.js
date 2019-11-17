@@ -32,18 +32,11 @@ async function token(authorization) {
 async function middleware(req, res, fn, options) {
 	const event = {};
 
-	for (const option in options) {
-		switch (option) {
-			case "token":
-				const validToken = await token(req.headers.authorization);
+	if (options.includes("token")) {
+		const validToken = await token(req.headers.authorization);
 
-				if (!validToken) res.status(401).json({ type: "error", text: "Invalid Token" });
-				event.user = validToken;
-
-				break;
-			default:
-				break;
-		}
+		if (!validToken) res.status(401).json({ type: "error", text: "Invalid Token" });
+		event.user = validToken;
 	}
 
 	event.headers = req.headers;

@@ -77,7 +77,8 @@ class TV extends Component {
 
 		const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
 
-		const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+		const height = document.documentElement.scrollHeight -
+			document.documentElement.clientHeight;
 
 		const scrolled = winScroll / height;
 
@@ -202,14 +203,63 @@ class TV extends Component {
 		const { search, series } = this.state;
 
 		if (type === "edit") {
-			this.setState({ currentSeries: series.find(s => s.seriesId === e.target.id), showModal: true });
+			this.setState({
+				currentSeries: series.find(s => s.seriesId === e.target.id),
+				showModal: true,
+			});
 		} else {
-			this.setState({ currentSeries: search.find(s => s.id.toString() === e.target.id), showModal: true });
+			this.setState({
+				currentSeries: search.find(s => s.id.toString() === e.target.id),
+				showModal: true,
+			});
 		}
 	}
 
 	hideModal() {
 		this.setState({ showModal: false });
+	}
+
+	renderButtons() {
+		return (
+			<div align="center">
+				<Fab
+					onClick={this.showSearchBlock}
+					variant="extended"
+					size="medium"
+					style={{ width: "100%", backgroundColor: "#222" }}
+				>
+					<i className="material-icons">{"search"}</i>
+					{"Search"}
+				</Fab>
+				<Button
+					onClick={this.getPopular}
+					className="outlined-button"
+					style={{ marginTop: 10, marginBottom: 10 }}
+					variant="outlined"
+					fullWidth
+				>
+					{"popular"}
+				</Button>
+				<Button
+					onClick={this.updateSeries}
+					className="outlined-button"
+					style={{ marginTop: 10, marginBottom: 10 }}
+					variant="outlined"
+					fullWidth
+				>
+					{"refresh"}
+				</Button>
+				<Button
+					onClick={this.getAll}
+					className="outlined-button"
+					style={{ marginTop: 10, marginBottom: 10 }}
+					variant="outlined"
+					fullWidth
+				>
+					{"All"}
+				</Button>
+			</div>
+		);
 	}
 
 	renderSearchBlock() {
@@ -231,6 +281,34 @@ class TV extends Component {
 		}
 
 		return null;
+	}
+
+	renderSeriesBlock() {
+		const { search } = this.state;
+
+		if (search && search.length > 0) {
+			return search.map(series => (
+				<Grid
+					item xs={12} sm={6} md={4} lg={4} xl={3}
+					key={series.id}
+				>
+					<div className="add-series-container">
+						<i
+							id={series.id}
+							className="add-series-icon icofont-ui-add icofont-3x"
+							onClick={this.showModal}
+						/>
+						<img src={series.image.substr(series.image.length - 4) === "null" ? placeholder : series.image} width="100%" alt={series.displayName} />
+					</div>
+				</Grid>
+			));
+		}
+
+		return (
+			<div className="loading" align="center">
+				<img src={loading} alt="Loading..." />
+			</div>
+		);
 	}
 
 	renderEpisodesBlock() {
@@ -281,76 +359,22 @@ class TV extends Component {
 				</div>
 			);
 		}
+
+		return null;
 	}
 
 	render() {
-		const { series, search, currentSeries, showSeriesBlock, showModal } = this.state;
+		const { series, currentSeries, showSeriesBlock, showModal } = this.state;
 
 		const menuOptions = [
 			{ displayName: "Edit", onClick: e => this.showModal(e, "edit") },
 			{ displayName: "Delete", onClick: this.deleteSeries },
 		];
 
-		let seriesList = <div className="loading" align="center"><img src={loading} alt="Loading..." /></div>;
-		if (search && search.length > 0) {
-			seriesList = search.map(series => (
-				<Grid
-					item xs={12} sm={6} md={4} lg={4} xl={3}
-					key={series.id}
-				>
-					<div className="add-series-container">
-						<i
-							id={series.id}
-							className="add-series-icon icofont-ui-add icofont-3x"
-							onClick={this.showModal}
-						/>
-						<img src={series.image.substr(series.image.length - 4) === "null" ? placeholder : series.image} width="100%" alt={series.displayName} />
-					</div>
-				</Grid>
-			));
-		}
-
 		return (
 			<Grid container spacing={2}>
 				<Grid item sm={3} md={2}>
-					<div align="center">
-						<Fab
-							onClick={this.showSearchBlock}
-							variant="extended"
-							size="medium"
-							style={{ width: "100%", backgroundColor: "#222" }}
-						>
-							<i className="material-icons">{"search"}</i>
-							{"Search"}
-						</Fab>
-						<Button
-							onClick={this.getPopular}
-							className="outlined-button"
-							style={{ marginTop: 10, marginBottom: 10 }}
-							variant="outlined"
-							fullWidth
-						>
-							{"popular"}
-						</Button>
-						<Button
-							onClick={this.updateSeries}
-							className="outlined-button"
-							style={{ marginTop: 10, marginBottom: 10 }}
-							variant="outlined"
-							fullWidth
-						>
-							{"refresh"}
-						</Button>
-						<Button
-							onClick={this.getAll}
-							className="outlined-button"
-							style={{ marginTop: 10, marginBottom: 10 }}
-							variant="outlined"
-							fullWidth
-						>
-							{"All"}
-						</Button>
-					</div>
+					{this.renderButtons()}
 					<Sidebar
 						options={series}
 						idField="seriesId"
@@ -361,7 +385,7 @@ class TV extends Component {
 				<Grid item sm={9} md={10} lg={10}>
 					<Grid container spacing={2}>
 						{this.renderSearchBlock()}
-						{showSeriesBlock ? seriesList : null}
+						{showSeriesBlock ? this.renderSeriesBlock() : null}
 						{this.renderEpisodesBlock()}
 					</Grid>
 				</Grid>

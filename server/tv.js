@@ -227,12 +227,12 @@ async function getEpisodes(event) {
 }
 
 module.exports = {
-	getSeries: (req, res) => middleware(req, res, getSeries, { token: true }),
-	getSearch: (req, res) => middleware(req, res, getSearch, { token: true }),
-	getPopular: (req, res) => middleware(req, res, getPopular, { token: true }),
-	addSeries: (req, res) => middleware(req, res, addSeries, { token: true }),
-	editSeries: (req, res) => middleware(req, res, editSeries, { token: true }),
-	deleteSeries: (req, res) => middleware(req, res, deleteSeries, { token: true }),
-	getEpisodes: (req, res) => middleware(req, res, getEpisodes, { token: true }),
-	cronjob: (req, res) => middleware(req, res, cronjob, { token: true }),
+	getSeries: (req, res) => middleware(req, res, getSeries, ["token"]),
+	getSearch: (req, res) => middleware(req, res, getSearch, ["token"]),
+	getPopular: (req, res) => middleware(req, res, getPopular, ["token"]),
+	addSeries: (req, res) => middleware(req, res, addSeries, ["token"]),
+	editSeries: (req, res) => middleware(req, res, editSeries, ["token"]),
+	deleteSeries: (req, res) => middleware(req, res, deleteSeries, ["token"]),
+	getEpisodes: (req, res) => middleware(req, res, getEpisodes, ["token"]),
+	cronjob: (req, res) => middleware(req, res, cronjob, ["token"]),
 };

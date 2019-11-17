@@ -13,7 +13,8 @@
 		"server": "nodemon app.js",
 		"client": "cd client && npm start",
 		"dev": "concurrently \"npm run server\" \"npm run client\"",
-		"heroku-postbuild": "cd client && npm install && npm run build"
+		"heroku-postbuild": "cd client && npm install && npm run build",
+		"lint": "eslint '**/*.js' --ignore-pattern node_modules/ --ignore-pattern build/ --ignore-pattern public/"
 	},
 	"devDependencies": {
 		"concurrently": "^5.0.0",
