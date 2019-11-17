@@ -33,6 +33,7 @@ class TV extends Component {
 
 			currentSeries: "all",
 			page: 0,
+			hasMore: true,
 			showSearchBlock: false,
 			showSeriesBlock: false,
 			showEpisodesBlock: false,
@@ -109,6 +110,7 @@ class TV extends Component {
 			episodes: newEpisodes,
 			currentSeries: "all",
 			page: page + 1,
+			hasMore: !(response.data.length < 50),
 			showSearchBlock: false,
 			showSeriesBlock: false,
 			showEpisodesBlock: true,
@@ -219,6 +221,14 @@ class TV extends Component {
 		this.setState({ showModal: false });
 	}
 
+	renderLoading() {
+		return (
+			<div key={0} className="loading" align="center">
+				<img src={loading} alt="Loading..." />
+			</div>
+		);
+	}
+
 	renderButtons() {
 		return (
 			<div align="center">
@@ -304,15 +314,11 @@ class TV extends Component {
 			));
 		}
 
-		return (
-			<div className="loading" align="center">
-				<img src={loading} alt="Loading..." />
-			</div>
-		);
+		return this.renderLoading();
 	}
 
 	renderEpisodesBlock() {
-		const { seasons, episodes, currentSeries, showEpisodesBlock } = this.state;
+		const { seasons, episodes, currentSeries, hasMore, showEpisodesBlock } = this.state;
 
 		if (showEpisodesBlock) {
 			if (currentSeries === "all") {
@@ -320,8 +326,8 @@ class TV extends Component {
 					<InfiniteScroll
 						pageStart={0}
 						loadMore={this.getAll}
-						hasMore
-						loader={<div key={0} className="loading" align="center"><img src={loading} alt="Loading..." /></div>}
+						hasMore={hasMore}
+						loader={this.renderLoading()}
 					>
 						<Episodes episodes={episodes} />
 					</InfiniteScroll>
