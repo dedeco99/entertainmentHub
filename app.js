@@ -72,6 +72,10 @@ app.get("*/", (req, res) => {
 	res.sendFile(path.join(`${__dirname}/client/build/index.html`));
 });
 
-exports.server = app.listen(app.get("port"), () => {
+const server = app.listen(app.get("port"), () => {
 	console.log("Node app is running on port", app.get("port"));
 });
+
+server.timeout = 1000 * 60 * 2; // 2 minutes
+
+exports.server = server;

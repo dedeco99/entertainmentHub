@@ -428,7 +428,13 @@ class TV extends Component {
 										className="add-series-icon icofont-ui-add icofont-3x"
 										onClick={this.addSeries}
 									/>}
-								<img src={series.image.substr(series.image.length - 4) === "null" ? placeholder : series.image} width="100%" alt={series.displayName} />
+								<img
+									src={series.image.substr(series.image.length - 4) === "null" ?
+										placeholder :
+										series.image}
+									width="100%"
+									alt={series.displayName}
+								/>
 							</div>
 						</Grid>
 					))}
