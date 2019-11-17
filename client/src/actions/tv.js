@@ -12,14 +12,14 @@ async function getSeasons(series, page) {
 	return res;
 }
 
-async function getPopular() {
-	const res = await get("api/tv/popular");
+async function getPopular(page) {
+	const res = await get(`api/tv/popular${page >= 0 ? `?page=${page}` : ""}`);
 
 	return res;
 }
 
-async function getSearch(search) {
-	const res = await get(`api/tv/search/${search}`);
+async function getSearch(search, page) {
+	const res = await get(`api/tv/search/${search}${page >= 0 ? `?page=${page}` : ""}`);
 
 	return res;
 }

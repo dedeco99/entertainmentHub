@@ -14,10 +14,13 @@ async function getSeries(event) {
 }
 
 async function getSearch(event) {
-	const { params } = event;
+	const { params, query } = event;
 	const { search } = params;
+	const { page } = query;
 
-	const url = `https://api.themoviedb.org/3/search/tv?query=${search}&api_key=${process.env.tmdbKey}`;
+	if (!page && page !== "0") return response(400, "Missing page in query");
+
+	const url = `https://api.themoviedb.org/3/search/tv?query=${search}${`&page=${Number(page) + 1}`}&api_key=${process.env.tmdbKey}`;
 
 	const res = await get(url);
 	const json = JSON.parse(res);
@@ -31,8 +34,13 @@ async function getSearch(event) {
 	return response(200, "Series found", series);
 }
 
-async function getPopular() {
-	const url = `https://api.themoviedb.org/3/tv/popular?api_key=${process.env.tmdbKey}`;
+async function getPopular(event) {
+	const { query } = event;
+	const { page } = query;
+
+	if (!page && page !== "0") return response(400, "Missing page in query");
+
+	const url = `https://api.themoviedb.org/3/tv/popular?${`page=${Number(page) + 1}`}&api_key=${process.env.tmdbKey}`;
 
 	const res = await get(url);
 	const json = JSON.parse(res);
