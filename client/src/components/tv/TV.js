@@ -4,6 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import Grid from "@material-ui/core/Grid";
 import Fab from "@material-ui/core/Fab";
 import Button from "@material-ui/core/Button";
+import InputAdornment from "@material-ui/core/InputAdornment";
 import Modal from "@material-ui/core/Modal";
 import InfiniteScroll from "react-infinite-scroller";
 
@@ -17,7 +18,7 @@ import SeriesDetail from "./SeriesDetail";
 
 import "../../css/TV.css";
 
-import loading from "../../img/loading2.gif";
+import loadingGif from "../../img/loading3.gif";
 import placeholder from "../../img/noimage.png";
 import goBackUp from "../../img/go_back_up.png";
 
@@ -29,16 +30,26 @@ class TV extends Component {
 			seasons: [],
 			episodes: [],
 			search: [],
+			popular: [],
 			query: "",
 
 			currentSeries: "all",
-			page: 0,
-			hasMore: true,
+			allPage: 0,
+			allHasMore: false,
+			searchPage: 0,
+			searchHasMore: false,
+			popularPage: 0,
+			popularHasMore: false,
+
 			showSearchBlock: false,
-			showSeriesBlock: false,
+			showPopularBlock: false,
 			showEpisodesBlock: false,
 			showGoBackUpButton: false,
 			showModal: false,
+
+			loadingSearch: false,
+			loadingPopular: false,
+			loadingAll: false,
 		};
 
 		this.listenToScroll = this.listenToScroll.bind(this);
@@ -51,18 +62,22 @@ class TV extends Component {
 
 		this.getPopular = this.getPopular.bind(this);
 		this.getSearch = this.getSearch.bind(this);
-		this.handleSearch = this.handleSearch.bind(this);
-		this.handleKeyPress = this.handleKeyPress.bind(this);
 
 		this.addSeries = this.addSeries.bind(this);
 		this.editSeries = this.editSeries.bind(this);
 		this.deleteSeries = this.deleteSeries.bind(this);
 
+		this.handleSearch = this.handleSearch.bind(this);
+		this.handleKeyPress = this.handleKeyPress.bind(this);
+
 		this.showSearchBlock = this.showSearchBlock.bind(this);
+		this.showPopularBlock = this.showPopularBlock.bind(this);
+		this.showAllBlock = this.showAllBlock.bind(this);
 		this.showModal = this.showModal.bind(this);
 		this.hideModal = this.hideModal.bind(this);
 
 		this.renderSearchBlock = this.renderSearchBlock.bind(this);
+		this.renderPopularBlock = this.renderPopularBlock.bind(this);
 		this.renderEpisodesBlock = this.renderEpisodesBlock.bind(this);
 		this.renderGoBackUpButton = this.renderGoBackUpButton.bind(this);
 	}
@@ -100,26 +115,32 @@ class TV extends Component {
 	}
 
 	async getAll() {
-		const { episodes, page } = this.state;
+		const { episodes, allPage, loadingAll } = this.state;
 
-		const response = await getSeasons("all", page);
+		if (!loadingAll) {
+			this.setState({ loadingAll: true });
 
-		const newEpisodes = page === 0 ? response.data : episodes.concat(response.data);
+			const response = await getSeasons("all", allPage);
 
-		this.setState({
-			episodes: newEpisodes,
-			currentSeries: "all",
-			page: page + 1,
-			hasMore: !(response.data.length < 50),
-			showSearchBlock: false,
-			showSeriesBlock: false,
-			showEpisodesBlock: true,
-		});
+			const newEpisodes = allPage === 0 ? response.data : episodes.concat(response.data);
+
+			this.setState({
+				episodes: newEpisodes,
+				currentSeries: "all",
+				allPage: allPage + 1,
+				allHasMore: !(response.data.length < 50),
+				showSearchBlock: false,
+				showPopularBlock: false,
+				showEpisodesBlock: true,
+				loadingAll: false,
+			});
+		}
 	}
 
 	async getSeasons(series) {
 		const response = await getSeasons(series);
-		this.setState({ seasons: response.data, currentSeries: series, page: 0 });
+
+		this.setState({ seasons: response.data, currentSeries: series, allPage: 0 });
 
 		this.getEpisodes(response.data[response.data.length - 1]._id);
 	}
@@ -133,38 +154,66 @@ class TV extends Component {
 			this.setState({
 				episodes: foundSeason.episodes,
 				showSearchBlock: false,
-				showSeriesBlock: false,
+				showPopularBlock: false,
 				showEpisodesBlock: true,
 			});
 		}
 	}
 
 	async getPopular() {
-		this.setState({ showSearchBlock: false, showSeriesBlock: true, showEpisodesBlock: false });
+		const { popular, popularPage, loadingPopular } = this.state;
 
-		const response = await getPopular();
+		if (!loadingPopular) {
+			this.setState({ loadingPopular: true });
 
-		this.setState({ search: response.data });
+			const response = await getPopular(popularPage);
+
+			const newPopular = popularPage === 0 ? response.data : popular.concat(response.data);
+
+			this.setState({
+				popular: newPopular,
+				popularPage: popularPage + 1,
+				popularHasMore: !(response.data.length < 20),
+				showSearchBlock: false,
+				showPopularBlock: true,
+				showEpisodesBlock: false,
+				loadingPopular: false,
+			});
+		}
 	}
 
 	async getSearch() {
-		const { query } = this.state;
+		const { search, query, searchPage, loadingSearch } = this.state;
 
-		const response = await getSearch(query);
+		if (!loadingSearch) {
+			this.setState({ loadingSearch: true });
 
-		this.setState({ search: response.data, showSeriesBlock: true });
-	}
+			const response = await getSearch(query, searchPage);
 
-	handleSearch(e) {
-		this.setState({ query: e.target.value });
-	}
+			const newSearch = searchPage === 0 ? response.data : search.concat(response.data);
 
-	handleKeyPress(event) {
-		if (event.key === "Enter") this.getSearch();
+			this.setState({
+				search: newSearch,
+				searchPage: searchPage + 1,
+				searchHasMore: !(response.data.length < 20),
+				loadingSearch: false,
+			});
+		}
 	}
 
 	async addSeries(series) {
-		const response = await addSeries(series);
+		const { search, popular } = this.state;
+
+		this.setState({ loadingAddSeries: true });
+
+		let newSeries = series;
+		if (!series.displayName) {
+			let found = search.find(s => s.id.toString() === series.target.id);
+			if (!found) found = popular.find(s => s.id.toString() === series.target.id);
+			newSeries = found;
+		}
+
+		const response = await addSeries(newSeries);
 		if (response.status < 400) {
 			this.setState({ series: response.data });
 
@@ -172,6 +221,8 @@ class TV extends Component {
 		} else {
 			toast.error(response.message);
 		}
+
+		this.setState({ loadingAddSeries: false });
 	}
 
 	async editSeries(id, series) {
@@ -197,12 +248,42 @@ class TV extends Component {
 		}
 	}
 
+	handleSearch(e) {
+		this.setState({ query: e.target.value, searchPage: 0 });
+	}
+
+	handleKeyPress(event) {
+		if (event.key === "Enter") this.getSearch();
+	}
+
 	showSearchBlock() {
-		this.setState({ showSearchBlock: true, showEpisodesBlock: false });
+		this.setState({ showSearchBlock: true, showPopularBlock: false, showEpisodesBlock: false });
+	}
+
+	showPopularBlock() {
+		this.setState({
+			popular: [],
+			popularPage: 0,
+			popularHasMore: false,
+			showSearchBlock: false,
+			showPopularBlock: true,
+			showEpisodesBlock: false,
+		}, this.getPopular);
+	}
+
+	showAllBlock() {
+		this.setState({
+			episodes: [],
+			allPage: 0,
+			allHasMore: false,
+			showSearchBlock: false,
+			showPopularBlock: false,
+			showEpisodesBlock: true,
+		}, this.getAll);
 	}
 
 	showModal(e, type) {
-		const { search, series } = this.state;
+		const { search, popular, series } = this.state;
 
 		if (type === "edit") {
 			this.setState({
@@ -210,8 +291,11 @@ class TV extends Component {
 				showModal: true,
 			});
 		} else {
+			let found = search.find(s => s.id.toString() === e.target.id);
+			if (!found) found = popular.find(s => s.id.toString() === e.target.id);
+
 			this.setState({
-				currentSeries: search.find(s => s.id.toString() === e.target.id),
+				currentSeries: found,
 				showModal: true,
 			});
 		}
@@ -221,15 +305,9 @@ class TV extends Component {
 		this.setState({ showModal: false });
 	}
 
-	renderLoading() {
-		return (
-			<div key={0} className="loading" align="center">
-				<img src={loading} alt="Loading..." />
-			</div>
-		);
-	}
-
 	renderButtons() {
+		const { loadingPopular, loadingAll } = this.state;
+
 		return (
 			<div align="center">
 				<Fab
@@ -242,13 +320,13 @@ class TV extends Component {
 					{"Search"}
 				</Fab>
 				<Button
-					onClick={this.getPopular}
+					onClick={this.showPopularBlock}
 					className="outlined-button"
 					style={{ marginTop: 10, marginBottom: 10 }}
 					variant="outlined"
 					fullWidth
 				>
-					{"popular"}
+					{loadingPopular ? <img src={loadingGif} height="25px" alt="Loading..." /> : "Popular"}
 				</Button>
 				<Button
 					onClick={this.updateSeries}
@@ -257,68 +335,112 @@ class TV extends Component {
 					variant="outlined"
 					fullWidth
 				>
-					{"refresh"}
+					{"Refresh"}
 				</Button>
 				<Button
-					onClick={this.getAll}
+					onClick={this.showAllBlock}
 					className="outlined-button"
 					style={{ marginTop: 10, marginBottom: 10 }}
 					variant="outlined"
 					fullWidth
 				>
-					{"All"}
+					{loadingAll ? <img src={loadingGif} height="25px" alt="Loading..." /> : "All"}
 				</Button>
 			</div>
 		);
 	}
 
 	renderSearchBlock() {
-		const { query, showSearchBlock } = this.state;
+		const { search, query, searchHasMore, showSearchBlock, loadingSearch } = this.state;
 
 		if (showSearchBlock) {
 			return (
-				<Input
-					id="search"
-					label="Search"
-					value={query}
-					onChange={this.handleSearch}
-					onKeyPress={this.handleKeyPress}
-					margin="normal"
-					variant="outlined"
-					fullWidth
-				/>
+				<div>
+					<Input
+						id="search"
+						label="Search"
+						value={query}
+						onChange={this.handleSearch}
+						onKeyPress={this.handleKeyPress}
+						InputProps={{
+							endAdornment: (
+								<InputAdornment position="end">
+									{loadingSearch ?
+										<img src={loadingGif} height="25px" alt="Loading..." /> :
+										<div />}
+								</InputAdornment>
+							),
+						}}
+						margin="normal"
+						variant="outlined"
+						fullWidth
+					/>
+					<InfiniteScroll
+						pageStart={0}
+						loadMore={this.getSearch}
+						hasMore={searchHasMore}
+					>
+						{this.renderSeriesBlock(search)}
+					</InfiniteScroll>
+				</div>
 			);
 		}
 
-		return null;
+		return <div />;
 	}
 
-	renderSeriesBlock() {
-		const { search } = this.state;
+	renderPopularBlock() {
+		const { popular, popularHasMore, showPopularBlock } = this.state;
 
-		if (search && search.length > 0) {
-			return search.map(series => (
-				<Grid
-					item xs={12} sm={6} md={4} lg={4} xl={3}
-					key={series.id}
+		if (showPopularBlock) {
+			return (
+				<InfiniteScroll
+					pageStart={0}
+					loadMore={this.getPopular}
+					hasMore={popularHasMore}
 				>
-					<div className="add-series-container">
-						<i
-							id={series.id}
-							className="add-series-icon icofont-ui-add icofont-3x"
-							onClick={this.showModal}
-						/>
-						<img src={series.image.substr(series.image.length - 4) === "null" ? placeholder : series.image} width="100%" alt={series.displayName} />
-					</div>
-				</Grid>
-			));
+					{this.renderSeriesBlock(popular)}
+				</InfiniteScroll>
+			);
 		}
 
-		return this.renderLoading();
+		return <div />;
+	}
+
+	renderSeriesBlock(series) {
+		const { loadingAddSeries } = this.state;
+
+		if (series && series.length > 0) {
+			return (
+				<Grid container spacing={2}>
+					{series.map(series => (
+						<Grid
+							item xs={12} sm={6} md={4} lg={4} xl={3}
+							key={series.id}
+						>
+							<div className="add-series-container">
+								{loadingAddSeries ?
+									<span className="add-series-icon">
+										<img src={loadingGif} height="48px" alt="Loading..." />
+									</span> :
+									<i
+										id={series.id}
+										className="add-series-icon icofont-ui-add icofont-3x"
+										onClick={this.addSeries}
+									/>}
+								<img src={series.image.substr(series.image.length - 4) === "null" ? placeholder : series.image} width="100%" alt={series.displayName} />
+							</div>
+						</Grid>
+					))}
+				</Grid>
+			);
+		}
+
+		return <div />;
 	}
 
 	renderEpisodesBlock() {
-		const { seasons, episodes, currentSeries, hasMore, showEpisodesBlock } = this.state;
+		const { seasons, episodes, currentSeries, allHasMore, showEpisodesBlock } = this.state;
 
 		if (showEpisodesBlock) {
 			if (currentSeries === "all") {
@@ -326,8 +448,7 @@ class TV extends Component {
 					<InfiniteScroll
 						pageStart={0}
 						loadMore={this.getAll}
-						hasMore={hasMore}
-						loader={this.renderLoading()}
+						hasMore={allHasMore}
 					>
 						<Episodes episodes={episodes} />
 					</InfiniteScroll>
@@ -370,7 +491,7 @@ class TV extends Component {
 	}
 
 	render() {
-		const { series, currentSeries, showSeriesBlock, showModal } = this.state;
+		const { series, currentSeries, showModal } = this.state;
 
 		const menuOptions = [
 			{ displayName: "Edit", onClick: e => this.showModal(e, "edit") },
@@ -389,11 +510,9 @@ class TV extends Component {
 					/>
 				</Grid>
 				<Grid item sm={9} md={10} lg={10}>
-					<Grid container spacing={2}>
-						{this.renderSearchBlock()}
-						{showSeriesBlock ? this.renderSeriesBlock() : null}
-						{this.renderEpisodesBlock()}
-					</Grid>
+					{this.renderSearchBlock()}
+					{this.renderPopularBlock()}
+					{this.renderEpisodesBlock()}
 				</Grid>
 				{this.renderGoBackUpButton()}
 				<Modal

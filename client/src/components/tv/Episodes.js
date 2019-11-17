@@ -10,7 +10,7 @@ function Episodes({ episodes }) {
 		episodeList = episodes.map(episode => (
 			<Grid
 				item xs={12} sm={6} md={4} lg={3} xl={2}
-				key={`${episode.seriesId.seriesId}-${episode.season}-${episode.number}`}
+				key={episode._id}
 			>
 				<Episode episode={episode} />
 			</Grid>

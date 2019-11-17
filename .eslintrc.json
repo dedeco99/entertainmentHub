@@ -269,13 +269,7 @@
 		"operator-assignment": "error",
 		"operator-linebreak": [
 			"error",
-			"after",
-			{
-				"overrides": {
-					"?": "none",
-					":": "none"
-				}
-			}
+			"after"
 		],
 		// "padded-blocks": "error",
 		"padding-line-between-statements": "error",
