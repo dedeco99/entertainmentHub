@@ -8,7 +8,7 @@ const EpisodeSchema = new Schema({
 	image: { type: String, default: "" },
 	season: { type: String, default: null },
 	number: { type: String, default: null },
-	date: { type: String, default: null },
+	date: { type: Date, default: null },
 });
 
 const Episode = mongoose.model("Episode", EpisodeSchema);

@@ -40,6 +40,7 @@ class TV extends Component {
 			searchHasMore: false,
 			popularPage: 0,
 			popularHasMore: false,
+			episodeFilter: "all",
 
 			showSearchBlock: false,
 			showPopularBlock: false,
@@ -59,6 +60,8 @@ class TV extends Component {
 		this.getAll = this.getAll.bind(this);
 		this.getSeasons = this.getSeasons.bind(this);
 		this.getEpisodes = this.getEpisodes.bind(this);
+		this.getPassedEpisodes = this.getPassedEpisodes.bind(this);
+		this.getFutureEpisodes = this.getFutureEpisodes.bind(this);
 
 		this.getPopular = this.getPopular.bind(this);
 		this.getSearch = this.getSearch.bind(this);
@@ -115,12 +118,12 @@ class TV extends Component {
 	}
 
 	async getAll() {
-		const { episodes, allPage, loadingAll } = this.state;
+		const { episodes, allPage, episodeFilter, loadingAll } = this.state;
 
 		if (!loadingAll) {
 			this.setState({ loadingAll: true });
 
-			const response = await getSeasons("all", allPage);
+			const response = await getSeasons("all", allPage, episodeFilter);
 
 			const newEpisodes = allPage === 0 ? response.data : episodes.concat(response.data);
 
@@ -445,19 +448,62 @@ class TV extends Component {
 		return <div />;
 	}
 
+	getPassedEpisodes() {
+		this.setState({ episodeFilter: "passed", episodes: [] });
+
+		this.showAllBlock();
+	}
+
+	getFutureEpisodes() {
+		this.setState({ episodeFilter: "future", episodes: [] });
+
+		this.showAllBlock();
+	}
+
 	renderEpisodesBlock() {
-		const { seasons, episodes, currentSeries, allHasMore, showEpisodesBlock } = this.state;
+		const {
+			seasons,
+			episodes,
+			currentSeries,
+			allHasMore,
+			episodeFilter,
+			showEpisodesBlock,
+		} = this.state;
 
 		if (showEpisodesBlock) {
 			if (currentSeries === "all") {
 				return (
-					<InfiniteScroll
-						pageStart={0}
-						loadMore={this.getAll}
-						hasMore={allHasMore}
-					>
-						<Episodes episodes={episodes} />
-					</InfiniteScroll>
+					<Grid container spacing={2}>
+						<Grid item sm={3} md={2}>
+							<Button
+								onClick={this.getPassedEpisodes}
+								className="outlined-button"
+								style={{ marginTop: 10, marginBottom: 10 }}
+								variant="outlined"
+								fullWidth
+							>
+								{"Passed"}
+							</Button>
+						</Grid>
+						<Grid item sm={3} md={2}>
+							<Button
+								onClick={this.getFutureEpisodes}
+								className="outlined-button"
+								style={{ marginTop: 10, marginBottom: 10 }}
+								variant="outlined"
+								fullWidth
+							>
+								{"Future"}
+							</Button>
+						</Grid>
+						<InfiniteScroll
+							pageStart={0}
+							loadMore={this.getAll}
+							hasMore={allHasMore}
+						>
+							<Episodes episodes={episodes} filter={episodeFilter} />
+						</InfiniteScroll>
+					</Grid>
 				);
 			}
 

@@ -23,7 +23,7 @@ async function getSearch(event) {
 	const url = `https://api.themoviedb.org/3/search/tv?query=${search}${`&page=${Number(page) + 1}`}&api_key=${process.env.tmdbKey}`;
 
 	const res = await get(url);
-	const json = JSON.parse(res);
+	const json = JSON.parse(res.data);
 
 	const series = json.results.map(series => ({
 		id: series.id,
@@ -43,7 +43,7 @@ async function getPopular(event) {
 	const url = `https://api.themoviedb.org/3/tv/popular?${`page=${Number(page) + 1}`}&api_key=${process.env.tmdbKey}`;
 
 	const res = await get(url);
-	const json = JSON.parse(res);
+	const json = JSON.parse(res.data);
 
 	const series = json.results.map(series => ({
 		id: series.id,
@@ -65,11 +65,12 @@ async function cronjob(event) {
 	}
 
 	for (const series of seriesList) {
-		console.log(series.displayName);
 		let url = `https://api.themoviedb.org/3/tv/${series.seriesId}?api_key=${process.env.tmdbKey}`;
 
 		let res = await get(url);
-		let json = JSON.parse(res);
+		let json = res.data;
+
+		console.log(`${series.displayName} - ${res.status}`);
 
 		let seasons = [];
 		if (json.seasons) {
@@ -80,7 +81,7 @@ async function cronjob(event) {
 			url = `https://api.themoviedb.org/3/tv/${series.seriesId}/season/${season}?api_key=${process.env.tmdbKey}`;
 
 			res = await get(url);
-			json = JSON.parse(res);
+			json = res.data;
 
 			if (json.episodes && json.episodes.length) {
 				const episodesToAdd = [];
@@ -181,17 +182,26 @@ async function deleteSeries(event) {
 async function getEpisodes(event) {
 	const { params, query, user } = event;
 	const { series } = params;
-	const { page } = query;
+	const { page, filter } = query;
 
 	const userSeries = await Series.find({ user: user._id }).sort({ displayName: 1 }).lean();
 
 	const seriesIds = userSeries.map(s => s.seriesId);
 
+	const episodeQuery = { seriesId: { $in: seriesIds } };
+
+	if (filter === "passed") {
+		episodeQuery.date = { $lte: new Date() };
+	} else if (filter === "future") {
+		episodeQuery.date = { $gt: new Date() };
+	}
+
+
 	let episodes = [];
 	if (series === "all") {
 		episodes = await Episode.aggregate([
 			{
-				$match: { seriesId: { $in: seriesIds } },
+				$match: episodeQuery,
 			},
 			{
 				$lookup: {

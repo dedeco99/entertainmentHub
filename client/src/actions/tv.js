@@ -6,8 +6,9 @@ async function getSeries() {
 	return res;
 }
 
-async function getSeasons(series, page) {
-	const res = await get(`api/tv/${series}${page >= 0 ? `?page=${page}` : ""}`);
+async function getSeasons(series, page, filter) {
+	console.log(filter);
+	const res = await get(`api/tv/${series}${page >= 0 ? `?page=${page}&filter=${filter}` : `?filter=${filter}`}`);
 
 	return res;
 }
