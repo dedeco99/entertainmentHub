@@ -91,21 +91,21 @@ async function addApp(event) {
 			};
 
 			const res = await post(url, headers);
-			json = JSON.parse(res);
+			json = res.data;
 			break;
 		}
 		case "twitch": {
 			const url = `https://api.twitch.tv/kraken/oauth2/token?client_id=${process.env.twitchClientId}&client_secret=${process.env.twitchSecret}&code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/twitch`;
 
 			const res = await post(url);
-			json = JSON.parse(res);
+			json = res.data;
 			break;
 		}
 		case "youtube": {
 			const url = `https://www.googleapis.com/oauth2/v4/token?client_id=${process.env.googleClientId}&client_secret=${process.env.googleSecret}&code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/google`;
 
 			const res = await post(url);
-			json = JSON.parse(res);
+			json = res.data;
 			break;
 		}
 		default: {

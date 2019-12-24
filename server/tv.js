@@ -23,7 +23,7 @@ async function getSearch(event) {
 	const url = `https://api.themoviedb.org/3/search/tv?query=${search}${`&page=${Number(page) + 1}`}&api_key=${process.env.tmdbKey}`;
 
 	const res = await get(url);
-	const json = JSON.parse(res.data);
+	const json = res.data;
 
 	const series = json.results.map(series => ({
 		id: series.id,
@@ -43,7 +43,7 @@ async function getPopular(event) {
 	const url = `https://api.themoviedb.org/3/tv/popular?${`page=${Number(page) + 1}`}&api_key=${process.env.tmdbKey}`;
 
 	const res = await get(url);
-	const json = JSON.parse(res.data);
+	const json = res.data;
 
 	const series = json.results.map(series => ({
 		id: series.id,
@@ -189,11 +189,12 @@ async function getEpisodes(event) {
 	const seriesIds = userSeries.map(s => s.seriesId);
 
 	const episodeQuery = { seriesId: { $in: seriesIds } };
-
+	const sortQuery = { date: -1 };
 	if (filter === "passed") {
 		episodeQuery.date = { $lte: new Date() };
 	} else if (filter === "future") {
 		episodeQuery.date = { $gt: new Date() };
+		sortQuery.date = 1;
 	}
 
 
@@ -215,7 +216,7 @@ async function getEpisodes(event) {
 				$unwind: "$seriesId",
 			},
 			{
-				$sort: { date: -1 },
+				$sort: sortQuery,
 			},
 			{
 				$skip: page ? page * 50 : 0,
