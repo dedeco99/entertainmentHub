@@ -231,6 +231,9 @@ async function getEpisodes(event) {
 				$match: { seriesId: series },
 			},
 			{
+				$sort: { number: -1 },
+			},
+			{
 				$group: {
 					_id: "$season",
 					episodes: { $push: "$$ROOT" },
