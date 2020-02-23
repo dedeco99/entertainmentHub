@@ -32,7 +32,7 @@ async function token(authorization) {
 async function middleware(req, res, fn, options) {
 	const event = {};
 
-	if (options.includes("token")) {
+	if (options && options.includes("token")) {
 		const validToken = await token(req.headers.authorization);
 
 		if (!validToken) res.status(401).json({ type: "error", text: "Invalid Token" });
