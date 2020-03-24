@@ -20,7 +20,9 @@ const app = express();
 
 app.set("port", process.env.PORT || 5000);
 
-app.use(morgan("dev"));
+app.use(morgan("dev", {
+	skip: req => req.originalUrl.includes("/static/"),
+}));
 
 app.use(express.static(path.join(__dirname, "client/build")));
 
