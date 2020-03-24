@@ -1,5 +1,6 @@
 const express = require("express");
 const path = require("path");
+const morgan = require("morgan");
 
 const { initialize } = require("./server/database");
 const auth = require("./server/auth");
@@ -18,6 +19,8 @@ initialize();
 const app = express();
 
 app.set("port", process.env.PORT || 5000);
+
+app.use(morgan("dev"));
 
 app.use(express.static(path.join(__dirname, "client/build")));
 
