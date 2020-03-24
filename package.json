@@ -1,11 +1,11 @@
 {
-	"name": "entertainmenthub-api",
+	"name": "entertainmenthub",
 	"version": "1.0.0",
 	"author": "Andre Coelho",
 	"license": "MIT",
 	"main": "app.js",
 	"engines": {
-		"node": "12.13.0"
+		"node": "13.11.0"
 	},
 	"scripts": {
 		"start": "node app.js",
@@ -13,7 +13,6 @@
 		"server": "nodemon app.js",
 		"client": "cd client && npm start",
 		"dev": "concurrently \"npm run server\" \"npm run client\"",
-		"heroku-postbuild": "cd client && npm install && npm run build",
 		"lint": "eslint '**/*.js' --ignore-pattern node_modules/ --ignore-pattern build/ --ignore-pattern public/"
 	},
 	"devDependencies": {
@@ -26,6 +25,6 @@
 		"axios": "^0.19.2",
 		"bcryptjs": "^2.4.3",
 		"express": "^4.17.1",
-		"mongoose": "^5.9.5"
+		"mongoose": "^5.9.6"
 	}
 }
