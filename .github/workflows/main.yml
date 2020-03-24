@@ -2,7 +2,7 @@ name: CD
 
 on:
   push:
-    branches: [ master ]
+    branches: [master]
 
 jobs:
   deploy:
@@ -10,16 +10,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Deploy
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        key: ${{ secrets.SSH_KEY }}
-        script: |
-          cd entertainmenthub
-          git pull
-          cd client
-          npm run build
-          npm i
-          npm run client-install
-          pm2 reload 0
+      - uses: appleboy/ssh-action@master
+      - with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            cd entertainmenthub
+            git pull
+            cd client
+            npm run build
+            npm i
+            npm run client-install
+            pm2 reload 0
