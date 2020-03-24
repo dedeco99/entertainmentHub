@@ -20,6 +20,7 @@ jobs:
             git pull
             cd client
             npm run build
+            cd ..
             npm i
             npm run client-install
             pm2 reload 0
