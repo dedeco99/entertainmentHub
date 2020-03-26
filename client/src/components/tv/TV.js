@@ -51,6 +51,7 @@ class TV extends Component {
 			loadingSearch: false,
 			loadingPopular: false,
 			loadingAll: false,
+			loadingRefresh: false,
 		};
 
 		this.listenToScroll = this.listenToScroll.bind(this);
@@ -114,7 +115,17 @@ class TV extends Component {
 	}
 
 	async updateSeries() {
-		await getSeasons("cronjob");
+		const { loadingRefresh } = this.state;
+
+		if (!loadingRefresh) {
+			this.setState({ loadingRefresh: true });
+
+			await getSeasons("cronjob");
+
+			this.setState({ loadingRefresh: false });
+
+			await this.getAll();
+		}
 	}
 
 	async getAll() {
@@ -309,7 +320,7 @@ class TV extends Component {
 	}
 
 	renderButtons() {
-		const { loadingPopular, loadingAll } = this.state;
+		const { loadingPopular, loadingAll, loadingRefresh } = this.state;
 
 		return (
 			<div align="center">
@@ -338,7 +349,7 @@ class TV extends Component {
 					variant="outlined"
 					fullWidth
 				>
-					{"Refresh"}
+					{loadingRefresh ? <img src={loadingGif} height="25px" alt="Loading..." /> : "Refresh"}
 				</Button>
 				<Button
 					onClick={this.showAllBlock}
