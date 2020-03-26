@@ -56,7 +56,7 @@
 		"consistent-return": "error",
 		// "curly": "error",
 		"default-case": "error",
-		"default-param-last": "error",
+		// "default-param-last": "error",
 		"dot-location": [
 			"error",
 			"property"

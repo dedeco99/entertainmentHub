@@ -1,6 +1,7 @@
 const express = require("express");
 const path = require("path");
 const morgan = require("morgan");
+const socketio = require("socket.io");
 
 const { initialize } = require("./server/database");
 const auth = require("./server/auth");
@@ -11,8 +12,9 @@ const twitch = require("./server/twitch");
 */
 const tv = require("./server/tv");
 
-// eslint-disable-next-line global-require
-if (!process.env.PORT) require("./server/secrets");
+global.sockets = [];
+
+require("./server/secrets");
 
 initialize();
 
@@ -77,6 +79,27 @@ app.get("*/", (req, res) => {
 	res.sendFile(path.join(`${__dirname}/client/build/index.html`));
 });
 
-exports.server = app.listen(app.get("port"), () => {
+const server = app.listen(app.get("port"), () => {
 	console.log("Node app is running on port", app.get("port"));
+});
+
+const io = socketio(server);
+io.sockets.on("connection", socket => {
+	console.log("New socket connection", socket.id);
+
+	socket.emit("notification", "big lmao");
+
+	setTimeout(() => {
+		socket.emit("notification", "small lmao");
+	}, 3000);
+
+	/*
+	socket.on("typing", data => {
+		socket.broadcast.emit("typing", data);
+	});
+	*/
+
+	socket.on("disconnect", reason => {
+		console.log("Disconnect", reason);
+	});
 });
