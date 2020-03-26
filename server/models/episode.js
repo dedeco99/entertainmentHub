@@ -9,7 +9,7 @@ const EpisodeSchema = new Schema({
 	season: { type: String, default: null },
 	number: { type: String, default: null },
 	date: { type: Date, default: null },
-});
+}, { timestamps: { createdAt: "_created", updatedAt: "_modified" } });
 
 const Episode = mongoose.model("Episode", EpisodeSchema);
 
