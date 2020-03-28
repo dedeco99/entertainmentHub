@@ -4,6 +4,7 @@ const express = require("express");
 const path = require("path");
 const morgan = require("morgan");
 const socketio = require("socket.io");
+const cron = require("node-cron");
 
 const { initialize } = require("./server/database");
 const auth = require("./server/auth");
@@ -76,8 +77,6 @@ app.get("/api/tv/search/:search", tv.getSearch);
 
 app.get("/api/tv/popular", tv.getPopular);
 
-app.get("/api/tv/cronjob", tv.cronjob);
-
 app.get("/api/tv/:series", tv.getEpisodes);
 
 app.get("*/", (req, res) => {
@@ -114,4 +113,8 @@ io.sockets.on("connection", socket => {
 			console.log("Disconnected", socket.id);
 		}
 	});
+});
+
+cron.schedule("0 0,8,16 * * *", () => {
+	tv.cronjob();
 });

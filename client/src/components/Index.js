@@ -24,7 +24,7 @@ class Index extends Component {
 
 		const notificationList = notifications.map(notification => {
 			return (
-				<div key={notification}>
+				<div key={notification._id}>
 					{`${notification.type} - ${notification.message}`}
 					<br />
 				</div>

@@ -12,15 +12,18 @@ async function getNotifications(event) {
 	return response(200, "Notifications found", notifications);
 }
 
-async function sendNotifications(user, type, message) {
-	const notificationExists = await Notification.findOne({ user: user._id, type, message }).lean();
+async function sendNotifications(notifications) {
+	for (const notification of notifications) {
+		const { user, type, message } = notification;
+		const notificationExists = await Notification.findOne({ user, type, message }).lean();
 
-	if (!notificationExists) {
-		const newNotification = new Notification({ user: user._id, type, message });
-		newNotification.save();
+		if (!notificationExists) {
+			const newNotification = new Notification({ user, type, message });
+			newNotification.save();
 
-		for (const socket of sockets[user._id]) {
-			socket.emit("notification", { type, message });
+			for (const socket of sockets[user]) {
+				socket.emit("notification", { type, message });
+			}
 		}
 	}
 }
