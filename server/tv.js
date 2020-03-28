@@ -1,6 +1,7 @@
 const { get } = require("./request");
 
 const { middleware, response } = require("./utils");
+const { sendNotifications } = require("./notifications");
 
 const Series = require("./models/series");
 const Episode = require("./models/episode");
@@ -104,6 +105,8 @@ async function cronjob(event) {
 						});
 						episodesToAdd.push(newEpisode);
 
+						sendNotifications(user, "tv", `${series.displayName} - S${episode.season_number}E${episode.episode_number} created`);
+
 						console.log(`- S${episode.season_number}E${episode.episode_number} created`);
 					} else if (!episodeExists.image && episode.still_path) {
 						await Episode.updateOne({
@@ -189,7 +192,7 @@ async function getEpisodes(event) {
 	const seriesIds = userSeries.map(s => s.seriesId);
 
 	const episodeQuery = { seriesId: { $in: seriesIds } };
-	const sortQuery = { date: -1 };
+	const sortQuery = { date: -1, number: -1 };
 	if (filter === "passed") {
 		episodeQuery.date = { $lte: new Date() };
 	} else if (filter === "future") {

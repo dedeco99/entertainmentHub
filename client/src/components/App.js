@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { connect } from "react-redux";
-import socketIOClient from "socket.io-client";
+import socketio from "socket.io-client";
 
 import PrivateRoute from "./auth/PrivateRoute";
 import Header from "./header/Header";
@@ -24,7 +24,12 @@ class App extends Component {
 	componentDidMount() {
 		const { addNotification } = this.props;
 
-		const socket = socketIOClient("http://localhost:5000");
+		const socket = socketio("http://localhost:5000");
+
+		socket.on("connect", () => {
+			const user = localStorage.getItem("user");
+			socket.emit("bind", user);
+		});
 
 		socket.on("notification", data => {
 			addNotification(data);
@@ -32,7 +37,6 @@ class App extends Component {
 	}
 
 	render() {
-		console.log("good");
 		return (
 			<BrowserRouter>
 				<div className="App">

@@ -1,3 +1,5 @@
+/* global sockets */
+
 const express = require("express");
 const path = require("path");
 const morgan = require("morgan");
@@ -5,6 +7,7 @@ const socketio = require("socket.io");
 
 const { initialize } = require("./server/database");
 const auth = require("./server/auth");
+const notifications = require("./server/notifications");
 /*
 const reddit = require("./server/reddit");
 const youtube = require("./server/youtube");
@@ -40,6 +43,8 @@ app.get("/api/auth/apps", auth.getApps);
 app.post("/api/auth/apps", auth.addApp);
 
 app.delete("/api/auth/apps/:app", auth.deleteApp);
+
+app.get("/api/notifications", notifications.getNotifications);
 
 /*
 app.get("/api/reddit/subreddits/", reddit.getSubreddits);
@@ -83,15 +88,19 @@ const server = app.listen(app.get("port"), () => {
 	console.log("Node app is running on port", app.get("port"));
 });
 
-const io = socketio(server);
+const io = socketio(server, { origins: "*:*" });
 io.sockets.on("connection", socket => {
-	console.log("New socket connection", socket.id);
+	console.log("Connected", socket.id);
 
-	socket.emit("notification", "big lmao");
-
-	setTimeout(() => {
-		socket.emit("notification", "small lmao");
-	}, 3000);
+	socket.on("bind", user => {
+		if (user) {
+			if (sockets[user]) {
+				sockets[user].push(socket);
+			} else {
+				sockets[user] = [socket];
+			}
+		}
+	});
 
 	/*
 	socket.on("typing", data => {
@@ -99,7 +108,10 @@ io.sockets.on("connection", socket => {
 	});
 	*/
 
-	socket.on("disconnect", reason => {
-		console.log("Disconnect", reason);
+	socket.on("disconnect", () => {
+		for (const user in sockets) {
+			sockets[user] = sockets[user].filter(s => !s.disconnected);
+			console.log("Disconnected", socket.id);
+		}
 	});
 });

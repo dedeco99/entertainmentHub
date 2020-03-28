@@ -1,0 +1,31 @@
+/* global sockets */
+
+const { middleware, response } = require("./utils");
+
+const Notification = require("./models/notification");
+
+async function getNotifications(event) {
+	const { user } = event;
+
+	const notifications = await Notification.find({ user: user._id }).sort({ _created: -1 }).lean();
+
+	return response(200, "Notifications found", notifications);
+}
+
+async function sendNotifications(user, type, message) {
+	const notificationExists = await Notification.findOne({ user: user._id, type, message }).lean();
+
+	if (!notificationExists) {
+		const newNotification = new Notification({ user: user._id, type, message });
+		newNotification.save();
+
+		for (const socket of sockets[user._id]) {
+			socket.emit("notification", { type, message });
+		}
+	}
+}
+
+module.exports = {
+	getNotifications: (req, res) => middleware(req, res, getNotifications, ["token"]),
+	sendNotifications,
+};

@@ -1,30 +1,49 @@
-import React from "react";
+import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 
-function Index(props) {
-	const { notifications } = props;
+import { getNotifications } from "../actions/notifications";
 
-	const notificationList = notifications.map(notification => {
+class Index extends Component {
+	componentDidMount() {
+		this.getNotifications();
+	}
+
+	async getNotifications() {
+		const { addNotification } = this.props;
+
+		const response = await getNotifications();
+
+		if (response.data) {
+			addNotification(response.data);
+		}
+	}
+
+	render() {
+		const { notifications } = this.props;
+
+		const notificationList = notifications.map(notification => {
+			return (
+				<div key={notification}>
+					{`${notification.type} - ${notification.message}`}
+					<br />
+				</div>
+			);
+		});
+
 		return (
-			<div key={notification}>
-				{notification}
+			<div className="Index">
+				<h1>{"Notifications"}</h1>
 				<br />
+				{notificationList}
 			</div>
 		);
-	});
-
-	return (
-		<div className="Index">
-			{"Dashboard yes"}
-			<br />
-			{notificationList}
-		</div>
-	);
+	}
 }
 
 Index.propTypes = {
 	notifications: PropTypes.array,
+	addNotification: PropTypes.func,
 };
 
 const mapStateToProps = state => {
@@ -33,4 +52,11 @@ const mapStateToProps = state => {
 	};
 };
 
-export default connect(mapStateToProps)(Index);
+const mapDispatchToProps = dispatch => {
+	return {
+		addNotification: notification => dispatch({ type: "ADD_NOTIFICATION", notification }),
+	};
+};
+
+
+export default connect(mapStateToProps, mapDispatchToProps)(Index);

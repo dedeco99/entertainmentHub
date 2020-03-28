@@ -212,7 +212,7 @@
 		"max-lines-per-function": [
 			"warn",
 			{
-				"max": 75
+				"max": 100
 			}
 		],
 		"max-nested-callbacks": "error",
