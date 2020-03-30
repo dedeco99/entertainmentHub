@@ -51,13 +51,11 @@ class TV extends Component {
 			loadingSearch: false,
 			loadingPopular: false,
 			loadingAll: false,
-			loadingRefresh: false,
 		};
 
 		this.listenToScroll = this.listenToScroll.bind(this);
 
 		this.getSeries = this.getSeries.bind(this);
-		this.updateSeries = this.updateSeries.bind(this);
 		this.getAll = this.getAll.bind(this);
 		this.getSeasons = this.getSeasons.bind(this);
 		this.getEpisodes = this.getEpisodes.bind(this);
@@ -112,20 +110,6 @@ class TV extends Component {
 	async getSeries() {
 		const response = await getSeries();
 		this.setState({ series: response.data });
-	}
-
-	async updateSeries() {
-		const { loadingRefresh } = this.state;
-
-		if (!loadingRefresh) {
-			this.setState({ loadingRefresh: true });
-
-			await getSeasons("cronjob");
-
-			this.setState({ loadingRefresh: false });
-
-			await this.getAll();
-		}
 	}
 
 	async getAll() {
@@ -320,7 +304,7 @@ class TV extends Component {
 	}
 
 	renderButtons() {
-		const { loadingPopular, loadingAll, loadingRefresh } = this.state;
+		const { loadingPopular, loadingAll } = this.state;
 
 		return (
 			<div align="center">
@@ -341,15 +325,6 @@ class TV extends Component {
 					fullWidth
 				>
 					{loadingPopular ? <img src={loadingGif} height="25px" alt="Loading..." /> : "Popular"}
-				</Button>
-				<Button
-					onClick={this.updateSeries}
-					className="outlined-button"
-					style={{ marginTop: 10, marginBottom: 10 }}
-					variant="outlined"
-					fullWidth
-				>
-					{loadingRefresh ? <img src={loadingGif} height="25px" alt="Loading..." /> : "Refresh"}
 				</Button>
 				<Button
 					onClick={this.showAllBlock}
