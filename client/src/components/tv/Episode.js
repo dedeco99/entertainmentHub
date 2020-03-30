@@ -1,6 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
 
+import moment from "moment";
+
 import noimage from "../../img/noimage.png";
 
 function Episode({ episode }) {
@@ -13,7 +15,7 @@ function Episode({ episode }) {
 			<img src={image} width="100%" alt="Preview" />
 			{episode.title}
 			<br />
-			{episode.date}
+			{moment(episode.date).format("DD-MM-YYYY")}
 			<br />
 			{seasonLabel + episodeLabel}
 			<br />

@@ -7,7 +7,7 @@ const SeriesSchema = new Schema({
 	seriesId: { type: String, default: null },
 	displayName: { type: String, default: "" },
 	image: { type: String, default: "" },
-});
+}, { timestamps: { createdAt: "_created", updatedAt: "_modified" } });
 
 const Series = mongoose.model("Series", SeriesSchema);
 

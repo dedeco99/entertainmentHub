@@ -82,7 +82,7 @@ async function addApp(event) {
 		case "reddit": {
 			const url = `https://www.reddit.com/api/v1/access_token?code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/reddit`;
 
-			const encryptedAuth = new Buffer.from(`${process.env.redditClientId}:${process.env.redditSecret}`).toString("base64"); /* eslint-disable-line no-undef */
+			const encryptedAuth = new Buffer.from(`${process.env.redditClientId}:${process.env.redditSecret}`).toString("base64");
 			const auth = `Basic ${encryptedAuth}`;
 
 			const headers = {
@@ -91,21 +91,21 @@ async function addApp(event) {
 			};
 
 			const res = await post(url, headers);
-			json = JSON.parse(res);
+			json = res.data;
 			break;
 		}
 		case "twitch": {
 			const url = `https://api.twitch.tv/kraken/oauth2/token?client_id=${process.env.twitchClientId}&client_secret=${process.env.twitchSecret}&code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/twitch`;
 
 			const res = await post(url);
-			json = JSON.parse(res);
+			json = res.data;
 			break;
 		}
 		case "youtube": {
 			const url = `https://www.googleapis.com/oauth2/v4/token?client_id=${process.env.googleClientId}&client_secret=${process.env.googleSecret}&code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/google`;
 
 			const res = await post(url);
-			json = JSON.parse(res);
+			json = res.data;
 			break;
 		}
 		default: {
@@ -144,7 +144,7 @@ async function deleteApp(event) {
 module.exports = {
 	register: (req, res) => middleware(req, res, register),
 	login: (req, res) => middleware(req, res, login),
-	getApps: (req, res) => middleware(req, res, getApps, { token: true }),
-	addApp: (req, res) => middleware(req, res, addApp, { token: true }),
-	deleteApp: (req, res) => middleware(req, res, deleteApp, { token: true }),
+	getApps: (req, res) => middleware(req, res, getApps, ["token"]),
+	addApp: (req, res) => middleware(req, res, addApp, ["token"]),
+	deleteApp: (req, res) => middleware(req, res, deleteApp, ["token"]),
 };

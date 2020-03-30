@@ -34,8 +34,10 @@ class AppMenu extends Component {
 
 		const response = await getApps();
 
-		if (response.data.length) {
-			const userApps = apps.filter(app => response.data.find(appR => appR.platform === app.platform));
+		if (response.data && response.data.length) {
+			const userApps = apps.filter(app => {
+				return response.data.find(appR => appR.platform === app.platform);
+			});
 
 			this.setState({ apps: userApps });
 		} else if (!redirected) {

@@ -44,6 +44,28 @@ async function post(url, body, headers = {}) {
 	}
 }
 
+async function put(url, body, headers = {}) {
+	headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
+
+	const config = { headers };
+
+	try {
+		const response = await axios.put(url, body, config);
+
+		return {
+			status: response.request.status,
+			message: response.data.message,
+			data: response.data.data,
+		};
+	} catch (error) {
+		return {
+			status: error.request.status,
+			message: error.response.data.message,
+			data: error.response.data.data,
+		};
+	}
+}
+
 async function remove(url, headers = {}) {
 	headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
 
@@ -69,5 +91,6 @@ async function remove(url, headers = {}) {
 export {
 	get,
 	post,
+	put,
 	remove,
 };
