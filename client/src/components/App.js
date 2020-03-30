@@ -24,7 +24,7 @@ class App extends Component {
 	componentDidMount() {
 		const { addNotification } = this.props;
 
-		const socket = socketio("http://localhost:5000");
+		const socket = socketio("http://localhost:5000", { transports: ["websocket"] });
 
 		socket.on("connect", () => {
 			const user = localStorage.getItem("user");
