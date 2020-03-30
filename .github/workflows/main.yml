@@ -18,9 +18,7 @@ jobs:
           script: |
             cd entertainmenthub
             git pull
-            cd client
-            npm run build
-            cd ..
             npm i
             npm run client-install
+            npm run client-build
             pm2 reload 0
