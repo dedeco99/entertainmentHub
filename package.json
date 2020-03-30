@@ -10,6 +10,7 @@
 	"scripts": {
 		"start": "node app.js",
 		"client-install": "cd client && npm install",
+		"client-build": "cd client && npm run build",
 		"server": "nodemon app.js",
 		"client": "cd client && npm start",
 		"dev": "concurrently \"npm run server\" \"npm run client\"",
