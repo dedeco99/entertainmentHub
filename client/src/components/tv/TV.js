@@ -48,6 +48,7 @@ class TV extends Component {
 			showGoBackUpButton: false,
 			showModal: false,
 
+			loadingSeries: false,
 			loadingSearch: false,
 			loadingPopular: false,
 			loadingAll: false,
@@ -108,8 +109,11 @@ class TV extends Component {
 	}
 
 	async getSeries() {
+		this.setState({ loadingSeries: true });
+
 		const response = await getSeries();
-		this.setState({ series: response.data });
+
+		this.setState({ loadingSeries: false, series: response.data });
 	}
 
 	async getAll() {
@@ -529,7 +533,7 @@ class TV extends Component {
 	}
 
 	render() {
-		const { series, currentSeries, showModal } = this.state;
+		const { loadingSeries, series, currentSeries, showModal } = this.state;
 
 		const menuOptions = [
 			{ displayName: "Edit", onClick: e => this.showModal(e, "edit") },
@@ -545,6 +549,8 @@ class TV extends Component {
 						idField="seriesId"
 						action={this.getSeasons}
 						menu={menuOptions}
+						loading={loadingSeries}
+						noResultsMessage={"No series"}
 					/>
 				</Grid>
 				<Grid item sm={9} md={10} lg={10}>

@@ -8,7 +8,7 @@ import Menu from "@material-ui/core/Menu";
 
 import { StyledMenu, StyledMenuItem } from "../.partials/Menu";
 
-import loading from "../../img/loading2.gif";
+import loadingGif from "../../img/loading2.gif";
 
 class Sidebar extends Component {
 	constructor() {
@@ -38,11 +38,25 @@ class Sidebar extends Component {
 		this.setState({ anchorEl: null });
 	}
 
+	renderLoading() {
+		const { loading, noResultsMessage } = this.props;
+
+		if (loading) {
+			return (
+				<div className="loading" align="center"><img src={loadingGif} alt="Loading..." /></div>
+			);
+		} else {
+			return (
+				<div style={{ textAlign: "center" }}>{noResultsMessage}</div>
+			)
+		}
+	}
+
 	render() {
 		const { options, idField, menu } = this.props;
 		const { selectedMenu, anchorEl, currentId } = this.state;
 
-		let optionsList = <div className="loading" align="center"><img src={loading} alt="Loading..." /></div>;
+		let optionsList = this.renderLoading();
 		if (options && options.length > 0) {
 			optionsList = options.map(option => {
 				return (
