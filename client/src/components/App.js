@@ -24,6 +24,8 @@ class App extends Component {
 	componentDidMount() {
 		const { addNotification } = this.props;
 
+		document.title = "EntertainmentHub";
+
 		const socket = socketio("http://localhost:5000", { transports: ["websocket"] });
 
 		socket.on("connect", () => {
