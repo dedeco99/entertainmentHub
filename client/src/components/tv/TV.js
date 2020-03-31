@@ -19,7 +19,6 @@ import "../../css/TV.css";
 
 import loadingGif from "../../img/loading3.gif";
 import placeholder from "../../img/noimage.png";
-import goBackUp from "../../img/go_back_up.png";
 
 class TV extends Component {
 	constructor() {
@@ -44,7 +43,6 @@ class TV extends Component {
 			showSearchBlock: false,
 			showPopularBlock: false,
 			showEpisodesBlock: false,
-			showGoBackUpButton: false,
 			showModal: false,
 
 			loadingSeries: false,
@@ -78,7 +76,6 @@ class TV extends Component {
 		this.renderPopularBlock = this.renderPopularBlock.bind(this);
 		this.renderAddIcon = this.renderAddIcon.bind(this);
 		this.renderEpisodesBlock = this.renderEpisodesBlock.bind(this);
-		this.renderGoBackUpButton = this.renderGoBackUpButton.bind(this);
 	}
 
 	async componentDidMount() {
@@ -87,23 +84,6 @@ class TV extends Component {
 		const response = await getSeries();
 
 		this.setState({ loadingSeries: false, series: response.data });
-
-		window.addEventListener("scroll", () => {
-			const { showGoBackUpButton } = this.state;
-
-			const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-
-			const height = document.documentElement.scrollHeight -
-				document.documentElement.clientHeight;
-
-			const scrolled = winScroll / height;
-
-			if (scrolled > 0.75 && !showGoBackUpButton) {
-				this.setState({ showGoBackUpButton: true });
-			} else if (scrolled === 0) {
-				this.setState({ showGoBackUpButton: false });
-			}
-		});
 	}
 
 	async getAll() {
@@ -478,24 +458,6 @@ class TV extends Component {
 		return null;
 	}
 
-	goBackUp() {
-		window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-	}
-
-	renderGoBackUpButton() {
-		const { showGoBackUpButton } = this.state;
-
-		if (showGoBackUpButton) {
-			return (
-				<div className="go-back-up" onClick={this.goBackUp}>
-					<img src={goBackUp} width="50px" alt="Go Back Up" />
-				</div>
-			);
-		}
-
-		return null;
-	}
-
 	render() {
 		const { loadingSeries, series, currentSeries, showModal } = this.state;
 
@@ -522,7 +484,6 @@ class TV extends Component {
 					{this.renderPopularBlock()}
 					{this.renderEpisodesBlock()}
 				</Grid>
-				{this.renderGoBackUpButton()}
 				<Modal
 					open={showModal}
 					onClose={this.hideModal}

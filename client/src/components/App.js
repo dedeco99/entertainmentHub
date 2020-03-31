@@ -21,7 +21,16 @@ import Settings from "./settings/Settings";
 
 import "../css/App.css";
 
+import goBackUp from "../img/go_back_up.png";
+
 class App extends Component {
+	constructor() {
+		super();
+		this.state = {
+			showGoBackUpButton: false,
+		};
+	}
+
 	componentDidMount() {
 		const { addNotification } = this.props;
 
@@ -37,6 +46,41 @@ class App extends Component {
 		socket.on("notification", data => {
 			addNotification(data);
 		});
+
+		window.addEventListener("scroll", () => {
+			const { showGoBackUpButton } = this.state;
+
+			const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+
+			const height = document.documentElement.scrollHeight -
+				document.documentElement.clientHeight;
+
+			const scrolled = winScroll / height;
+
+			if (scrolled > 0.75 && !showGoBackUpButton) {
+				this.setState({ showGoBackUpButton: true });
+			} else if (scrolled === 0) {
+				this.setState({ showGoBackUpButton: false });
+			}
+		});
+	}
+
+	goBackUp() {
+		window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
+	}
+
+	renderGoBackUpButton() {
+		const { showGoBackUpButton } = this.state;
+
+		if (showGoBackUpButton) {
+			return (
+				<div className="go-back-up" onClick={this.goBackUp}>
+					<img src={goBackUp} width="50px" alt="Go Back Up" />
+				</div>
+			);
+		}
+
+		return null;
 	}
 
 	render() {
@@ -62,6 +106,7 @@ class App extends Component {
 							<PrivateRoute exact path="/settings" component={Settings} />
 						</Switch>
 					</div>
+					{this.renderGoBackUpButton()}
 					<ToastContainer
 						position="bottom-right"
 						newestOnTop
