@@ -15,6 +15,15 @@ function Episodes({ episodes }) {
 				<Episode episode={episode} />
 			</Grid>
 		));
+	} else {
+		episodeList = (
+			<Grid
+				item xs={12}
+				key={1}
+			>
+				<div style={{ textAlign: "center" }}>{"No episodes"}</div>
+			</Grid>
+		);
 	}
 
 	return (
