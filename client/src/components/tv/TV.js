@@ -81,6 +81,7 @@ class TV extends Component {
 
 		this.renderSearchBlock = this.renderSearchBlock.bind(this);
 		this.renderPopularBlock = this.renderPopularBlock.bind(this);
+		this.renderAddIcon = this.renderAddIcon.bind(this);
 		this.renderEpisodesBlock = this.renderEpisodesBlock.bind(this);
 		this.renderGoBackUpButton = this.renderGoBackUpButton.bind(this);
 	}
@@ -400,37 +401,53 @@ class TV extends Component {
 		return <div />;
 	}
 
-	renderSeriesBlock(series) {
-		const { loadingAddSeries } = this.state;
+	renderAddIcon(s) {
+		const { series, loadingAddSeries } = this.state;
 
+		const seriesIds = series.map(us => us.seriesId);
+
+		if (loadingAddSeries) {
+			return (
+				<span className="add-series-icon">
+					<img src={loadingGif} height="48px" alt="Loading..." />
+				</span>
+			);
+		} else if (!seriesIds.includes(s.id.toString())) {
+			return (
+				<i
+					id={s.id}
+					className="add-series-icon icofont-ui-add icofont-3x"
+					onClick={this.addSeries}
+				/>
+			);
+		}
+
+		return null;
+	}
+
+	renderSeriesBlock(series) {
 		if (series && series.length > 0) {
 			return (
 				<Grid container spacing={2}>
-					{series.map(series => (
-						<Grid
-							item xs={12} sm={6} md={4} lg={4} xl={3}
-							key={series.id}
-						>
-							<div className="add-series-container">
-								{loadingAddSeries ?
-									<span className="add-series-icon">
-										<img src={loadingGif} height="48px" alt="Loading..." />
-									</span> :
-									<i
-										id={series.id}
-										className="add-series-icon icofont-ui-add icofont-3x"
-										onClick={this.addSeries}
-									/>}
-								<img
-									src={series.image.substr(series.image.length - 4) === "null" ?
-										placeholder :
-										series.image}
-									width="100%"
-									alt={series.displayName}
-								/>
-							</div>
-						</Grid>
-					))}
+					{
+						series.map(s => {
+							return (
+								<Grid
+									item xs={12} sm={4} md={4} lg={4} xl={3}
+									key={s.id}
+								>
+									<div className="add-series-container">
+										{this.renderAddIcon(s)}
+										<img
+											src={s.image.substr(s.image.length - 4) === "null" ? placeholder : s.image}
+											width="100%"
+											alt={s.displayName}
+										/>
+									</div>
+								</Grid>
+							);
+						})
+					}
 				</Grid>
 			);
 		}
