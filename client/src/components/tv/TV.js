@@ -11,7 +11,6 @@ import InfiniteScroll from "react-infinite-scroller";
 import { getSeries, getSeasons, getPopular, getSearch, addSeries, editSeries, deleteSeries } from "../../actions/tv";
 
 import Sidebar from "../.partials/Sidebar";
-import Categories from "../.partials/Categories";
 import Input from "../.partials/Input";
 import Episodes from "./Episodes";
 import SeriesDetail from "./SeriesDetail";
@@ -54,14 +53,10 @@ class TV extends Component {
 			loadingAll: false,
 		};
 
-		this.listenToScroll = this.listenToScroll.bind(this);
-
-		this.getSeries = this.getSeries.bind(this);
 		this.getAll = this.getAll.bind(this);
 		this.getSeasons = this.getSeasons.bind(this);
 		this.getEpisodes = this.getEpisodes.bind(this);
-		this.getPassedEpisodes = this.getPassedEpisodes.bind(this);
-		this.getFutureEpisodes = this.getFutureEpisodes.bind(this);
+		this.filterEpisodes = this.filterEpisodes.bind(this);
 
 		this.getPopular = this.getPopular.bind(this);
 		this.getSearch = this.getSearch.bind(this);
@@ -86,35 +81,29 @@ class TV extends Component {
 		this.renderGoBackUpButton = this.renderGoBackUpButton.bind(this);
 	}
 
-	componentDidMount() {
-		this.getSeries();
-
-		window.addEventListener("scroll", this.listenToScroll);
-	}
-
-	listenToScroll() {
-		const { showGoBackUpButton } = this.state;
-
-		const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-
-		const height = document.documentElement.scrollHeight -
-			document.documentElement.clientHeight;
-
-		const scrolled = winScroll / height;
-
-		if (scrolled > 0.75 && !showGoBackUpButton) {
-			this.setState({ showGoBackUpButton: true });
-		} else if (scrolled === 0) {
-			this.setState({ showGoBackUpButton: false });
-		}
-	}
-
-	async getSeries() {
+	async componentDidMount() {
 		this.setState({ loadingSeries: true });
 
 		const response = await getSeries();
 
 		this.setState({ loadingSeries: false, series: response.data });
+
+		window.addEventListener("scroll", () => {
+			const { showGoBackUpButton } = this.state;
+
+			const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+
+			const height = document.documentElement.scrollHeight -
+				document.documentElement.clientHeight;
+
+			const scrolled = winScroll / height;
+
+			if (scrolled > 0.75 && !showGoBackUpButton) {
+				this.setState({ showGoBackUpButton: true });
+			} else if (scrolled === 0) {
+				this.setState({ showGoBackUpButton: false });
+			}
+		});
 	}
 
 	async getAll() {
@@ -359,9 +348,11 @@ class TV extends Component {
 						InputProps={{
 							endAdornment: (
 								<InputAdornment position="end">
-									{loadingSearch ?
-										<img src={loadingGif} height="25px" alt="Loading..." /> :
-										<div />}
+									{
+										loadingSearch
+											? <img src={loadingGif} height="25px" alt="Loading..." />
+											: <div />
+									}
 								</InputAdornment>
 							),
 						}}
@@ -455,76 +446,32 @@ class TV extends Component {
 		return <div />;
 	}
 
-	getPassedEpisodes() {
-		this.setState({ episodeFilter: "passed", episodes: [] });
-
-		this.showAllBlock();
-	}
-
-	getFutureEpisodes() {
-		this.setState({ episodeFilter: "future", episodes: [] });
+	filterEpisodes(filter) {
+		this.setState({ episodeFilter: filter, episodes: [] });
 
 		this.showAllBlock();
 	}
 
 	renderEpisodesBlock() {
 		const {
+			currentSeries,
 			seasons,
 			episodes,
-			currentSeries,
 			allHasMore,
-			episodeFilter,
 			showEpisodesBlock,
 		} = this.state;
 
 		if (showEpisodesBlock) {
-			if (currentSeries === "all") {
-				return (
-					<Grid container spacing={2}>
-						<Grid item sm={3} md={2}>
-							<Button
-								onClick={this.getPassedEpisodes}
-								className="outlined-button"
-								style={{ marginTop: 10, marginBottom: 10 }}
-								variant="outlined"
-								fullWidth
-							>
-								{"Passed"}
-							</Button>
-						</Grid>
-						<Grid item sm={3} md={2}>
-							<Button
-								onClick={this.getFutureEpisodes}
-								className="outlined-button"
-								style={{ marginTop: 10, marginBottom: 10 }}
-								variant="outlined"
-								fullWidth
-							>
-								{"Future"}
-							</Button>
-						</Grid>
-						<InfiniteScroll
-							pageStart={0}
-							loadMore={this.getAll}
-							hasMore={allHasMore}
-						>
-							<Episodes episodes={episodes} filter={episodeFilter} />
-						</InfiniteScroll>
-					</Grid>
-				);
-			}
-
 			return (
-				<div>
-					<Categories
-						options={seasons}
-						idField="_id"
-						nameField="_id"
-						action={this.getEpisodes}
-					/>
-					<br />
-					<Episodes episodes={episodes} />
-				</div>
+				<Episodes
+					currentSeries={currentSeries}
+					seasons={seasons}
+					episodes={episodes}
+					getEpisodes={this.getEpisodes}
+					getAll={this.getAll}
+					allHasMore={allHasMore}
+					filterEpisodes={this.filterEpisodes}
+				/>
 			);
 		}
 
