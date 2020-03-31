@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { ToastContainer, toast } from "react-toastify";
+import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Container from "@material-ui/core/Container";
 import Button from "@material-ui/core/Button";
@@ -83,10 +83,6 @@ class Login extends Component {
 				>
 					{"Login"}
 				</Button>
-				<ToastContainer
-					position="bottom-right"
-					newestOnTop
-				/>
 			</Container>
 		);
 	}

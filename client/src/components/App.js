@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { connect } from "react-redux";
 import socketio from "socket.io-client";
+import { ToastContainer } from "react-toastify";
 
 import PrivateRoute from "./auth/PrivateRoute";
 import Header from "./header/Header";
@@ -61,6 +62,10 @@ class App extends Component {
 							<PrivateRoute exact path="/settings" component={Settings} />
 						</Switch>
 					</div>
+					<ToastContainer
+						position="bottom-right"
+						newestOnTop
+					/>
 				</div>
 			</BrowserRouter>
 		);
