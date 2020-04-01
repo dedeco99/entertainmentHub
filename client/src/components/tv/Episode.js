@@ -49,7 +49,7 @@ function Episode({ episode }) {
 					{seasonLabel + episodeLabel}
 				</div>
 				<div className={`${classes.overlay} ${classes.date}`}>
-					{moment(episode.date).format("DD-MM-YYYY")}
+					{formatDate(episode.date, "DD-MM-YYYY")}
 				</div>
 			</CardActionArea>
 		</Card>
