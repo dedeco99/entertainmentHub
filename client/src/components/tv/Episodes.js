@@ -8,6 +8,13 @@ import Categories from "../.partials/Categories";
 import Episode from "./Episode";
 
 class Episodes extends Component {
+	constructor() {
+		super();
+
+		this.getPassedEpisodes = this.getPassedEpisodes.bind(this);
+		this.getFutureEpisodes = this.getFutureEpisodes.bind(this);
+	}
+
 	getPassedEpisodes() {
 		const { filterEpisodes } = this.props;
 

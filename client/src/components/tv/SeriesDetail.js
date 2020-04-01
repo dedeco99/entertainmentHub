@@ -20,7 +20,6 @@ class SeriesDetail extends Component {
 	componentDidMount() {
 		const { series } = this.props;
 
-		// eslint-disable-next-line react/no-did-mount-set-state
 		this.setState({ title: series.displayName });
 	}
 
@@ -29,14 +28,10 @@ class SeriesDetail extends Component {
 	}
 
 	async handleSubmit() {
-		const { type, series, addSeries, editSeries } = this.props;
+		const { series, editSeries } = this.props;
 		const { title } = this.state;
 
-		if (type === "add") {
-			await addSeries({ ...series, displayName: title });
-		} else {
-			await editSeries(series.seriesId, { displayName: title });
-		}
+		await editSeries(series.seriesId, { displayName: title });
 	}
 
 	handleKeyPress(event) {
@@ -76,9 +71,7 @@ class SeriesDetail extends Component {
 }
 
 SeriesDetail.propTypes = {
-	type: PropTypes.string,
 	series: PropTypes.object,
-	addSeries: PropTypes.func,
 	editSeries: PropTypes.func,
 };
 
