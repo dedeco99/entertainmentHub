@@ -1,43 +1,34 @@
 import React from "react";
 import PropTypes from "prop-types";
+import { makeStyles } from "@material-ui/core/styles";
+import Card from "@material-ui/core/Card";
+import CardMedia from "@material-ui/core/CardMedia";
+import CardActionArea from "@material-ui/core/CardActionArea";
 
 import moment from "moment";
 
 import noimage from "../../img/noimage.png";
 
-import { makeStyles } from '@material-ui/core/styles';
-import Card from '@material-ui/core/Card';
-import CardMedia from '@material-ui/core/CardMedia';
-import CardActionArea from '@material-ui/core/CardActionArea';
-
 const useStyles = makeStyles({
-	root: {
-		position: 'relative',
-		width: '100%',
-	},
-	media: {
-		height: 0,
-		paddingTop: '56.25%' // 16:9
-	},
 	overlay: {
-		position: 'absolute',
-		color: 'white',
-		backgroundColor: '#212121dd',
-		padding: '3px',
+		position: "absolute",
+		color: "white",
+		backgroundColor: "#212121dd",
+		padding: "3px",
 		borderRadius: "3px",
 	},
 	title: {
-		top: '5px',
-		left: '5px',
+		top: "5px",
+		left: "5px",
 	},
 	date: {
-		bottom: '5px',
-		right: '5px',
+		bottom: "5px",
+		right: "5px",
 	},
 	season: {
-		bottom: '5px',
-		left: '5px',
-	}
+		bottom: "5px",
+		left: "5px",
+	},
 });
 
 function Episode({ episode }) {
@@ -50,7 +41,7 @@ function Episode({ episode }) {
 	return (
 		<Card className={classes.root}>
 			<CardActionArea>
-				<CardMedia className={classes.media} image={image}/>
+				<CardMedia component="img" height="150" image={image} />
 				<div className={`${classes.overlay} ${classes.title}`}>
 					{episode.title}
 				</div>
