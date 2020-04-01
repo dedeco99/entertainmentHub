@@ -5,7 +5,7 @@ import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
 import CardActionArea from "@material-ui/core/CardActionArea";
 
-import moment from "moment";
+import { formatDate } from "../../utils/utils";
 
 import noimage from "../../img/noimage.png";
 

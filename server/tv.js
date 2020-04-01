@@ -58,7 +58,11 @@ async function getPopular(event) {
 async function cronjob(specificSeries) {
 	let seriesList = [];
 	if (specificSeries) {
-		seriesList.push(specificSeries);
+		seriesList.push({
+			_id: specificSeries.seriesId,
+			displayNames: [specificSeries.name],
+			users: [specificSeries.user],
+		});
 	} else {
 		seriesList = await Series.aggregate([
 			{
