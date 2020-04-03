@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import List from "@material-ui/core/List";
+import ListSubheader from "@material-ui/core/ListSubheader";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import ListItemText from "@material-ui/core/ListItemText";
@@ -11,17 +12,26 @@ import Avatar from "@material-ui/core/Avatar";
 
 import { formatDate } from "../../utils/utils";
 
-import { getNotifications, patchNotification } from "../../actions/notifications";
+import { getNotifications, patchNotifications, deleteNotifications } from "../../actions/notifications";
 
 class Notifications extends Component {
+	constructor() {
+		super();
+		this.state = {
+			history: false,
+		};
+
+		this.toggleHistory = this.toggleHistory.bind(this);
+	}
+
 	componentDidMount() {
 		this.getNotifications();
 	}
 
-	async getNotifications() {
+	async getNotifications(history) {
 		const { addNotification } = this.props;
 
-		const response = await getNotifications();
+		const response = await getNotifications(history);
 
 		if (response.data) {
 			addNotification(response.data);
@@ -30,12 +40,21 @@ class Notifications extends Component {
 
 	async hideNotification(id) {
 		const { deleteNotification } = this.props;
+		const { history } = this.state;
 
-		const response = await patchNotification(id);
+		const response = history ? await deleteNotifications(id) : await patchNotifications(id);
 
 		if (response.data) {
 			deleteNotification(response.data);
 		}
+	}
+
+	async toggleHistory() {
+		const { history } = this.state;
+
+		await this.getNotifications(!history);
+
+		this.setState({ history: !history });
 	}
 
 	renderNotificationType(type) {
@@ -49,6 +68,7 @@ class Notifications extends Component {
 
 	render() {
 		const { notifications } = this.props;
+		const { history } = this.state;
 
 		const notificationList = notifications.map(notification => {
 			return (
@@ -62,9 +82,11 @@ class Notifications extends Component {
 						primary={notification.message}
 						secondary={formatDate(notification._created, "DD-MM-YYYY HH:mm")}
 					/>
-					<ListItemSecondaryAction onClick={() => this.hideNotification(notification._id)}>
-						<IconButton edge="end" aria-label="Hide">
-							<i className="material-icons">{"check_circle"}</i>
+					<ListItemSecondaryAction
+						onClick={() => this.hideNotification(notification._id)}
+					>
+						<IconButton edge="end">
+							<i className="material-icons">{history ? "delete" : "check_circle"}</i>
 						</IconButton>
 					</ListItemSecondaryAction>
 				</ListItem >
@@ -80,9 +102,20 @@ class Notifications extends Component {
 						overflow: "auto",
 					}}
 				>
+					<ListSubheader
+						style={{ top: "-8px", paddingTop: "5px", height: "35px" }}
+						onClick={this.toggleHistory}
+					>
+						<i
+							className="material-icons"
+							style={{ top: "10px", float: "right" }}
+						>
+							{history ? "notifications" : "history"}
+						</i>
+					</ListSubheader>
 					{notificationList}
 				</List>
-			</div>
+			</div >
 		);
 	}
 }
