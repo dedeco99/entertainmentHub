@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const NotificationSchema = new Schema({
+	active: { type: Boolean, default: true },
 	user: { type: Schema.ObjectId, ref: "User" },
 	type: { type: String, default: "" },
 	message: { type: String, default: "" },

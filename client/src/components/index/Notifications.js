@@ -1,18 +1,19 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import Grid from "@material-ui/core/Grid";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
+import ListItemText from "@material-ui/core/ListItemText";
+import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
+import IconButton from "@material-ui/core/IconButton";
 import Avatar from "@material-ui/core/Avatar";
 
-import { formatDate } from "../utils/utils";
+import { formatDate } from "../../utils/utils";
 
-import { getNotifications } from "../actions/notifications";
+import { getNotifications, patchNotification } from "../../actions/notifications";
 
-class Index extends Component {
+class Notifications extends Component {
 	componentDidMount() {
 		this.getNotifications();
 	}
@@ -27,6 +28,16 @@ class Index extends Component {
 		}
 	}
 
+	async hideNotification(id) {
+		const { deleteNotification } = this.props;
+
+		const response = await patchNotification(id);
+
+		if (response.data) {
+			deleteNotification(response.data);
+		}
+	}
+
 	renderNotificationType(type) {
 		switch (type) {
 			case "tv":
@@ -36,7 +47,7 @@ class Index extends Component {
 		}
 	}
 
-	renderDashboard() {
+	render() {
 		const { notifications } = this.props;
 
 		const notificationList = notifications.map(notification => {
@@ -51,51 +62,35 @@ class Index extends Component {
 						primary={notification.message}
 						secondary={formatDate(notification._created, "DD-MM-YYYY HH:mm")}
 					/>
+					<ListItemSecondaryAction onClick={() => this.hideNotification(notification._id)}>
+						<IconButton edge="end" aria-label="Hide">
+							<i className="material-icons">{"check_circle"}</i>
+						</IconButton>
+					</ListItemSecondaryAction>
 				</ListItem >
 			);
 		});
 
 		return (
-			<div className="Index" >
-				<Grid container spacing={2}>
-					<Grid item xs={12} sm={6} md={4} lg={3} xl={2}>
-						<h1 style={{ textAlign: "center" }}>{"Notifications"}</h1>
-						<List
-							style={{
-								backgroundColor: "#222",
-								height: "calc( 100vh - 200px )",
-								overflow: "auto",
-							}}
-						>
-							{notificationList}
-						</List>
-					</Grid>
-				</Grid>
-			</div>
-		);
-	}
-
-	renderIndex() {
-		return (
 			<div>
-				{"Login to see the good stuff"}
+				<List
+					style={{
+						backgroundColor: "#222",
+						height: "calc( 100vh - 200px )",
+						overflow: "auto",
+					}}
+				>
+					{notificationList}
+				</List>
 			</div>
 		);
-	}
-
-	render() {
-		const user = localStorage.getItem("user");
-		const token = localStorage.getItem("token");
-
-		if (user && token) return this.renderDashboard();
-
-		return this.renderIndex();
 	}
 }
 
-Index.propTypes = {
+Notifications.propTypes = {
 	notifications: PropTypes.array,
 	addNotification: PropTypes.func,
+	deleteNotification: PropTypes.func,
 };
 
 const mapStateToProps = state => {
@@ -107,8 +102,9 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
 	return {
 		addNotification: notification => dispatch({ type: "ADD_NOTIFICATION", notification }),
+		deleteNotification: notification => dispatch({ type: "DELETE_NOTIFICATION", notification }),
 	};
 };
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(Index);
+export default connect(mapStateToProps, mapDispatchToProps)(Notifications);

@@ -1,4 +1,4 @@
-import { get } from "../utils/request";
+import { get, patch } from "../utils/request";
 
 async function getNotifications() {
 	const res = await get("api/notifications");
@@ -6,6 +6,13 @@ async function getNotifications() {
 	return res;
 }
 
+async function patchNotification(id) {
+	const res = await patch(`api/notifications/${id}`);
+
+	return res;
+}
+
 export {
 	getNotifications,
+	patchNotification,
 };

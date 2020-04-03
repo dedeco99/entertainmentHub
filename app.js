@@ -47,6 +47,8 @@ app.delete("/api/auth/apps/:app", auth.deleteApp);
 
 app.get("/api/notifications", notifications.getNotifications);
 
+app.patch("/api/notifications/:id", notifications.patchNotification);
+
 /*
 app.get("/api/reddit/subreddits/", reddit.getSubreddits);
 

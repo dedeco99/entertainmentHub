@@ -7,7 +7,7 @@ import { ToastContainer } from "react-toastify";
 
 import PrivateRoute from "./auth/PrivateRoute";
 import Header from "./header/Header";
-import Index from "./Index";
+import Index from "./index/Index";
 import Register from "./auth/Register";
 import Login from "./auth/Login";
 import Apps from "./auth/Apps";
