@@ -1,7 +1,7 @@
 const { get } = require("./request");
 
 const { middleware, response } = require("./utils");
-const { sendNotifications } = require("./notifications");
+const { addNotifications } = require("./notifications");
 
 const Series = require("./models/series");
 const Episode = require("./models/episode");
@@ -26,10 +26,10 @@ async function getSearch(event) {
 	const res = await get(url);
 	const json = res.data;
 
-	const series = json.results.map(series => ({
-		id: series.id,
-		displayName: series.name,
-		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${series.poster_path}`,
+	const series = json.results.map(s => ({
+		id: s.id,
+		displayName: s.name,
+		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}`,
 	}));
 
 	return response(200, "Series found", series);
@@ -46,110 +46,135 @@ async function getPopular(event) {
 	const res = await get(url);
 	const json = res.data;
 
-	const series = json.results.map(series => ({
-		id: series.id,
-		displayName: series.name,
-		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${series.poster_path}`,
+	const series = json.results.map(s => ({
+		id: s.id,
+		displayName: s.name,
+		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}`,
 	}));
 
 	return response(200, "Series found", series);
 }
 
-async function cronjob(specificSeries) {
-	let seriesList = [];
-	if (specificSeries) {
-		seriesList.push({
-			_id: specificSeries.seriesId,
-			displayNames: [specificSeries.name],
-			users: [specificSeries.user],
-		});
-	} else {
-		seriesList = await Series.aggregate([
-			{
-				$group: {
-					_id: "$seriesId",
-					displayNames: { $push: "$displayName" },
-					users: { $push: "$user" },
-				},
-			},
-			{ $sort: { _id: 1 } },
-		]);
+// eslint-disable-next-line complexity
+async function fetchEpisodes(series) {
+	const episodesToAdd = [];
+	const episodesToUpdate = [];
+	const notificationsToAdd = [];
+
+	let url = `https://api.themoviedb.org/3/tv/${series._id}?api_key=${process.env.tmdbKey}`;
+
+	const res = await get(url);
+	let json = res.data;
+
+	console.log(`${series.displayNames[0]} - ${res.status} started`);
+
+	let seasons = [];
+	if (json.seasons) {
+		seasons = json.seasons.map(season => season.season_number);
 	}
 
-	for (const series of seriesList) {
-		let url = `https://api.themoviedb.org/3/tv/${series._id}?api_key=${process.env.tmdbKey}`;
+	const seasonsPromises = [];
+	for (const season of seasons) {
+		url = `https://api.themoviedb.org/3/tv/${series._id}/season/${season}?api_key=${process.env.tmdbKey}`;
 
-		let res = await get(url);
-		let json = res.data;
+		seasonsPromises.push(get(url));
+	}
 
-		console.log(`${series.displayNames[0]} - ${res.status}`);
+	seasons = await Promise.all(seasonsPromises);
 
-		let seasons = [];
-		if (json.seasons) {
-			seasons = json.seasons.map(season => season.season_number);
-		}
+	for (const season of seasons) {
+		json = season.data;
 
-		for (const season of seasons) {
-			url = `https://api.themoviedb.org/3/tv/${series._id}/season/${season}?api_key=${process.env.tmdbKey}`;
+		if (json.episodes && json.episodes.length) {
+			for (const episode of json.episodes) {
+				// eslint-disable-next-line no-await-in-loop
+				const episodeExists = await Episode.findOne({
+					seriesId: series._id,
+					season: episode.season_number,
+					number: episode.episode_number,
+				}).lean();
 
-			res = await get(url);
-			json = res.data;
+				if (!episodeExists) {
+					const newEpisode = new Episode({
+						seriesId: series._id,
+						title: episode.name,
+						image: episode.still_path ? `https://image.tmdb.org/t/p/w454_and_h254_bestv2${episode.still_path}` : "",
+						season: episode.season_number,
+						number: episode.episode_number,
+						overview: episode.overview,
+						date: episode.air_date,
+					});
+					episodesToAdd.push(newEpisode);
 
-			if (json.episodes && json.episodes.length) {
-				const episodesToAdd = [];
-				for (const episode of json.episodes) {
-					const episodeExists = await Episode.findOne({
+					const notifications = [];
+					for (let i = 0; i < series.users.length; i++) {
+						const displayName = series.displayNames[i];
+
+						notifications.push({
+							dateToSend: newEpisode.date,
+							notificationId: `${series.users[i]}${episode.id}`,
+							user: series.users[i],
+							type: "tv",
+							info: {
+								displayName,
+								season: newEpisode.season,
+								number: newEpisode.number,
+							},
+						});
+					}
+
+					notificationsToAdd.push(addNotifications(notifications));
+
+					console.log(`- S${episode.season_number}E${episode.episode_number} created`);
+				} else if (
+					(episode.still_path && !episodeExists.image) ||
+					episodeExists.title !== episode.name
+				) {
+					episodesToUpdate.push(Episode.updateOne({
 						seriesId: series._id,
 						season: episode.season_number,
 						number: episode.episode_number,
-					}).lean();
+					}, {
+						title: episode.name,
+						overview: episode.overview,
+						image: episode.still_path ? `https://image.tmdb.org/t/p/w454_and_h254_bestv2${episode.still_path}` : "",
+					}));
 
-					if (!episodeExists) {
-						const newEpisode = new Episode({
-							seriesId: series._id,
-							title: episode.name,
-							image: episode.still_path ? `https://image.tmdb.org/t/p/w454_and_h254_bestv2${episode.still_path}` : "",
-							season: episode.season_number,
-							number: episode.episode_number,
-							overview: episode.overview,
-							date: episode.air_date,
-						});
-						episodesToAdd.push(newEpisode);
-
-						const notifications = [];
-
-						for (let i = 0; i < series.users.length; i++) {
-							const displayName = series.displayNames[i];
-
-							notifications.push({
-								user: series.users[i],
-								type: "tv",
-								message: `${displayName} - S${episode.season_number}E${episode.episode_number} created`,
-							});
-						}
-
-						sendNotifications(notifications);
-
-						console.log(`- S${episode.season_number}E${episode.episode_number} created`);
-					} else if (!episodeExists.image && episode.still_path) {
-						Episode.updateOne({
-							seriesId: series._id,
-							season: episode.season_number,
-							number: episode.episode_number,
-						}, {
-							image: `https://image.tmdb.org/t/p/w454_and_h254_bestv2${episode.still_path}`,
-						});
-
-						console.log(`- S${episode.season_number}E${episode.episode_number} edited`);
-					}
-				}
-
-				if (episodesToAdd.length) {
-					Episode.insertMany(episodesToAdd);
+					console.log(`- S${episode.season_number}E${episode.episode_number} edited`);
 				}
 			}
 		}
 	}
+
+	if (episodesToAdd.length) await Episode.insertMany(episodesToAdd);
+	if (episodesToUpdate.length) await Promise.all(episodesToUpdate);
+	if (notificationsToAdd.length) await Promise.all(notificationsToAdd);
+
+	console.log(`${series.displayNames[0]} finished`);
+
+	return true;
+}
+
+async function cronjob() {
+	const seriesList = await Series.aggregate([
+		{
+			$group: {
+				_id: "$seriesId",
+				displayNames: { $push: "$displayName" },
+				users: { $push: "$user" },
+			},
+		},
+		{ $sort: { _id: 1 } },
+	]);
+
+	const seriesPromises = [];
+	for (const series of seriesList) {
+		seriesPromises.push(fetchEpisodes(series));
+	}
+
+	await Promise.all(seriesPromises);
+
+	console.log("Cronjob finished");
 
 	return true;
 }
@@ -168,7 +193,11 @@ async function addSeries(event) {
 	await newSeries.save();
 
 	if (!seriesPopulated) {
-		await cronjob(newSeries);
+		await fetchEpisodes({
+			_id: newSeries.seriesId,
+			displayNames: [newSeries.name],
+			users: [newSeries.user],
+		});
 	}
 
 	const series = await Series.find({ user: user._id }).sort({ displayName: 1 }).lean();

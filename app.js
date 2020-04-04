@@ -119,6 +119,11 @@ io.sockets.on("connection", socket => {
 	});
 });
 
+cron.schedule("0 * * * *", () => {
+	notifications.cronjob();
+});
+
+
 cron.schedule("0 0,8,16 * * *", () => {
 	tv.cronjob();
 });

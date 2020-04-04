@@ -66,11 +66,26 @@ class Notifications extends Component {
 		}
 	}
 
+	renderNotificationMessage(notification) {
+		switch (notification.type) {
+			case "tv":
+				const { displayName, season, number } = notification.info;
+				const seasonLabel = season > 9 ? `S${season}` : `S0${season}`;
+				const episodeLabel = number > 9 ? `E${number}` : `E0${number}`;
+
+				return `${displayName} - ${seasonLabel}${episodeLabel}`;
+			default:
+				return <i className="material-icons">{notification.info.message}</i>;
+		}
+	}
+
 	render() {
 		const { notifications } = this.props;
 		const { history } = this.state;
 
 		const notificationList = notifications.map(notification => {
+			const notificationText = this.renderNotificationMessage(notification);
+
 			return (
 				<ListItem key={notification._id}>
 					<ListItemAvatar>
@@ -79,8 +94,8 @@ class Notifications extends Component {
 						</Avatar>
 					</ListItemAvatar>
 					<ListItemText
-						primary={notification.message}
-						secondary={formatDate(notification._created, "DD-MM-YYYY HH:mm")}
+						primary={notificationText}
+						secondary={formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}
 					/>
 					<ListItemSecondaryAction
 						onClick={() => this.hideNotification(notification._id)}

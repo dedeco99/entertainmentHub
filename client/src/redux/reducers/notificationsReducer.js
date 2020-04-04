@@ -17,8 +17,6 @@ const notificationsReducer = (state = initState, action) => {
 		case "DELETE_NOTIFICATION":
 			notifications = notifications.filter(n => n._id !== action.notification._id);
 
-			console.log(notifications);
-
 			return { ...state, notifications };
 		default:
 			return state;
