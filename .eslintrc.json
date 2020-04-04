@@ -39,7 +39,8 @@
 			"error",
 			"all",
 			{
-				"ignoreJSX": "multi-line"
+				"ignoreJSX": "multi-line",
+				"nestedBinaryExpressions": false
 			}
 		],
 		"no-import-assign": "error",
@@ -401,7 +402,7 @@
 			}
 		],
 		// "react/jsx-max-props-per-line": "error",
-		"react/jsx-no-bind": "error",
+		// "react/jsx-no-bind": "error",
 		"react/jsx-no-comment-textnodes": "error", // recommended
 		"react/jsx-no-duplicate-props": "error", // recommended
 		"react/jsx-no-literals": "error",

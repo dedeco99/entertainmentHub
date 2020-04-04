@@ -3,14 +3,19 @@ const initState = {
 };
 
 const notificationsReducer = (state = initState, action) => {
+	let notifications = JSON.parse(JSON.stringify(state.notifications));
+
 	switch (action.type) {
 		case "ADD_NOTIFICATION":
-			let notifications = JSON.parse(JSON.stringify(state.notifications));
 			if (Array.isArray(action.notification)) {
 				notifications = action.notification;
 			} else {
 				notifications.push(action.notification);
 			}
+
+			return { ...state, notifications };
+		case "DELETE_NOTIFICATION":
+			notifications = notifications.filter(n => n._id !== action.notification._id);
 
 			return { ...state, notifications };
 		default:

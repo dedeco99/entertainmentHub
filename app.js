@@ -47,6 +47,10 @@ app.delete("/api/auth/apps/:app", auth.deleteApp);
 
 app.get("/api/notifications", notifications.getNotifications);
 
+app.patch("/api/notifications/:id", notifications.patchNotification);
+
+app.delete("/api/notifications/:id", notifications.deleteNotification);
+
 /*
 app.get("/api/reddit/subreddits/", reddit.getSubreddits);
 
@@ -114,6 +118,11 @@ io.sockets.on("connection", socket => {
 		}
 	});
 });
+
+cron.schedule("0 * * * *", () => {
+	notifications.cronjob();
+});
+
 
 cron.schedule("0 0,8,16 * * *", () => {
 	tv.cronjob();
