@@ -9,8 +9,8 @@ const cron = require("node-cron");
 const { initialize } = require("./server/database");
 const auth = require("./server/auth");
 const notifications = require("./server/notifications");
-/*
 const reddit = require("./server/reddit");
+/*
 const youtube = require("./server/youtube");
 const twitch = require("./server/twitch");
 */
@@ -47,11 +47,15 @@ app.delete("/api/auth/apps/:app", auth.deleteApp);
 
 app.get("/api/notifications", notifications.getNotifications);
 
-/*
+app.patch("/api/notifications/:id", notifications.patchNotification);
+
+app.delete("/api/notifications/:id", notifications.deleteNotification);
+
 app.get("/api/reddit/subreddits/", reddit.getSubreddits);
 
 app.get("/api/reddit/subreddits/:subreddit/:category/", reddit.getPosts);
 
+/*
 app.get("/api/youtube/channels/", youtube.getChannels);
 
 app.get("/api/youtube/channels/:channel/", youtube.getPosts);
@@ -114,6 +118,11 @@ io.sockets.on("connection", socket => {
 		}
 	});
 });
+
+cron.schedule("0 * * * *", () => {
+	notifications.cronjob();
+});
+
 
 cron.schedule("0 0,8,16 * * *", () => {
 	tv.cronjob();
