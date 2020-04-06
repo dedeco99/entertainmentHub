@@ -7,6 +7,7 @@ import { ToastContainer } from "react-toastify";
 
 import PrivateRoute from "./auth/PrivateRoute";
 import Header from "./header/Header";
+import AppMenu from "./header/AppMenu";
 import Index from "./Index";
 import Register from "./auth/Register";
 import Login from "./auth/Login";
@@ -92,6 +93,7 @@ class App extends Component {
 				<BrowserRouter>
 					<div className="App">
 						<Header />
+						<AppMenu />
 						<div className="main">
 							<Switch>
 								<Route exact path="/" component={Index} />

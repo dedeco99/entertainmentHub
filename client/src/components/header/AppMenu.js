@@ -70,13 +70,20 @@ class AppMenu extends Component {
 	}
 
 	render() {
-		return (
-			<div className="appMenu">
-				<List className="list-menu" >
-					{this.getAppList()}
-				</List>
-			</div>
-		);
+		const user = localStorage.getItem("user");
+		const token = localStorage.getItem("token");
+
+		if (user && token) {
+			return (
+				<div className="appMenu">
+					<List className="list-menu" >
+						{this.getAppList()}
+					</List>
+				</div>
+			);
+		}
+
+		return <div />;
 	}
 }
 
