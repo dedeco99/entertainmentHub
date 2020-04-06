@@ -9,8 +9,8 @@ const cron = require("node-cron");
 const { initialize } = require("./server/database");
 const auth = require("./server/auth");
 const notifications = require("./server/notifications");
-/*
 const reddit = require("./server/reddit");
+/*
 const youtube = require("./server/youtube");
 const twitch = require("./server/twitch");
 */
@@ -51,11 +51,11 @@ app.patch("/api/notifications/:id", notifications.patchNotification);
 
 app.delete("/api/notifications/:id", notifications.deleteNotification);
 
-/*
 app.get("/api/reddit/subreddits/", reddit.getSubreddits);
 
 app.get("/api/reddit/subreddits/:subreddit/:category/", reddit.getPosts);
 
+/*
 app.get("/api/youtube/channels/", youtube.getChannels);
 
 app.get("/api/youtube/channels/:channel/", youtube.getPosts);

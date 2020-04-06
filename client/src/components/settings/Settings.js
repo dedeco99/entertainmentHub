@@ -25,7 +25,7 @@ class Settings extends Component {
 						?client_id=VXMNKvXfKALA3A
 						&response_type=code
 						&state=some_state
-						&redirect_uri=http://localhost:5001/apps/reddit
+						&redirect_uri=http://localhost:3000/apps/reddit
 						&duration=permanent
 						&scope=read`,
 				},
@@ -36,7 +36,7 @@ class Settings extends Component {
 					link: `https://api.twitch.tv/kraken/oauth2/authorize
 						?client_id=9haxv452ih4k8ewiml53vqetrbm0z9q
 						&response_type=code
-						&redirect_uri=http://localhost:5001/apps/twitch
+						&redirect_uri=http://localhost:3000/apps/twitch
 						&scope=user_read`,
 				},
 				youtube: {
@@ -44,7 +44,7 @@ class Settings extends Component {
 					key: "youtube",
 					displayName: "Youtube",
 					link: `https://accounts.google.com/o/oauth2/v2/auth
-						?redirect_uri=http://localhost:5001/apps/google
+						?redirect_uri=http://localhost:3000/apps/google
 						&prompt=consent
 						&access_type=offline
 						&response_type=code
