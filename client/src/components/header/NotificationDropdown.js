@@ -2,18 +2,13 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 
 import { withStyles } from "@material-ui/core/styles";
-import Button from "@material-ui/core/Button";
 import Paper from "@material-ui/core/Paper";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import IconButton from "@material-ui/core/IconButton";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemAvatar from "@material-ui/core/ListItemAvatar";
-import ListItemText from "@material-ui/core/ListItemText";
-import Avatar from "@material-ui/core/Avatar";
-import Divider from "@material-ui/core/Divider";
-import ListSubheader from "@material-ui/core/ListSubheader";
+import Grow from "@material-ui/core/Grow";
+import Badge from "@material-ui/core/Badge";
 
+import Notifications from "../index/Notifications";
 import { connect } from "react-redux";
 
 const styles = {
@@ -23,12 +18,9 @@ const styles = {
 	},
 	paper: {
 		position: "absolute",
-		width: 250,
+		width: 280,
 		right: 0,
 		backgroundColor: "#212121",
-	},
-	list: {
-		paddingBottom: 0,
 	},
 };
 
@@ -43,8 +35,6 @@ class NotificationDropdown extends Component {
 
 		this.handleClick = this.handleClick.bind(this);
 		this.handleClickAway = this.handleClickAway.bind(this);
-		this.getNotifications = this.getNotifications.bind(this);
-		this.renderNotificationType = this.renderNotificationType.bind(this);
 	}
 
 	handleClick() {
@@ -56,66 +46,34 @@ class NotificationDropdown extends Component {
 		this.setState({ open: false });
 	}
 
-	renderNotificationType(type) {
-		switch (type) {
-			case "tv":
-				return <i className="material-icons">{"tv"}</i>;
-			default:
-				return <i className="material-icons">{"notifications"}</i>;
-		}
-	}
+	renderDropdownContent() {
+		const { open } = this.state;
+		const { classes } = this.props;
 
-	getNotifications() {
-		const { notifications } = this.props;
-
-		const notificationList = notifications.map(notification => {
+		if (open) {
 			return (
-				<ListItem key={notification._id} button divider>
-					<ListItemAvatar>
-						<Avatar style={{ backgroundColor: "#444" }}>
-							{this.renderNotificationType(notification.type)}
-						</Avatar>
-					</ListItemAvatar>
-					<ListItemText
-						primary={notification.message}
-						secondary={notification._created}
-						primaryTypographyProps={{ noWrap: true }}
-					/>
-				</ListItem>
+				<Grow in={open} style={{ transformOrigin: "right top" }}>
+					<Paper variant="outlined" className={classes.paper}>
+						<Notifications />
+					</Paper>
+				</Grow>
 			);
-		});
-
-		return notificationList;
+		}
+		return null;
 	}
 
 	render() {
-		const { classes } = this.props;
-		const { open } = this.state;
+		const { classes, notifications } = this.props;
 
 		return (
 			<ClickAwayListener onClickAway={this.handleClickAway}>
 				<div className={classes.wrapper}>
-					<IconButton onClick={this.handleClick}>
-						<i className="icofont-alarm" />
-					</IconButton>
-					{open
-						? <Paper variant="outlined" className={classes.paper}>
-							<List
-								component="nav"
-								aria-labelledby="nested-list-subheader"
-								subheader={
-									<ListSubheader component="div" id="nested-list-subheader">
-										{"Notifications"}
-									</ListSubheader>
-								}
-								className={classes.list}
-							>
-								<Divider />
-								{this.getNotifications()}
-								<Button size="small" fullWidth style={{ borderRadius: 0 }}>{"See All"}</Button>
-							</List>
-						</Paper>
-						: null}
+					<Badge badgeContent={notifications.length} overlap="circle" color="error">
+						<IconButton onClick={this.handleClick}>
+							<i className="icofont-alarm" />
+						</IconButton>
+					</Badge>
+					{this.renderDropdownContent()}
 				</div>
 			</ClickAwayListener>
 		);
