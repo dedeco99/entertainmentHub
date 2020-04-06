@@ -90,7 +90,7 @@ async function addApp(event) {
 				"Authorization": auth,
 			};
 
-			const res = await post(url, headers);
+			const res = await post(url, null, headers);
 			json = res.data;
 			break;
 		}
