@@ -133,7 +133,7 @@ async function getPosts(event) {
 
 	const accessToken = await getAccessToken(user);
 
-	let url = `https://oauth.reddit.com/r/${data.subreddit}/${data.category}?limit=1000`;
+	let url = `https://oauth.reddit.com/r/${data.subreddit}/${data.category}`;
 	if (data.after) url += `?after=${data.after}`;
 
 	const headers = {

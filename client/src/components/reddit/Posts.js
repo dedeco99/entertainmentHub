@@ -54,6 +54,8 @@ class Post extends Component {
 	async componentDidMount() {
 		const response = await getPosts();
 
+		response.data = response.data.filter(post => post.thumbnail !== "self");
+
 		this.setState({ posts: response.data });
 	}
 
@@ -72,7 +74,6 @@ class Post extends Component {
 		if (!posts || !posts.length) return null;
 
 		const post = posts[num];
-		console.log(post);
 
 		post.url = post.url.slice(-1) === "/" ? post.url.slice(0, -1) : post.url; // Remove last backslash
 		post.url = post.url.replace("&amp;t", ""); // Broken youtube link
@@ -94,9 +95,8 @@ class Post extends Component {
 			);
 		} else if (post.domain === "imgur.com") {
 			const imgurId = post.url.substr(post.url.lastIndexOf("/") + 1);
-			console.log(imgurId);
 
-			const imgurLink = post.url.includes("gallery")
+			const imgurLink = post.url.includes("gallery") || post.url.includes("/a/")
 				? `https://imgur.com/a/${imgurId}/embed?pub=true`
 				: `https://imgur.com/${imgurId}/embed?pub=true`;
 
@@ -133,8 +133,6 @@ class Post extends Component {
 				: post.url.substr(post.url.lastIndexOf("/") + 1);
 			// const thumbnail = `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`;
 
-			console.log(videoId, "mdutNDesJ0Q");
-
 			content = (
 				<CardMedia
 					component="iframe"
@@ -162,7 +160,7 @@ class Post extends Component {
 				</div>
 				<div
 					className={`${classes.overlay} ${classes.next}`}
-					onClick={num < posts.length ? () => this.setState({ num: num + 1 }) : null}
+					onClick={num < posts.length - 1 ? () => this.setState({ num: num + 1 }) : null}
 				>
 					{">"}
 				</div>
@@ -187,7 +185,7 @@ class Post extends Component {
 }
 
 Post.propTypes = {
-	classes: PropTypes.array,
+	classes: PropTypes.object,
 };
 
 export default withStyles(styles)(Post);
