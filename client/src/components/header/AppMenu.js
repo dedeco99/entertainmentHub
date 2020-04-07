@@ -11,7 +11,7 @@ class AppMenu extends Component {
 		this.state = {
 			apps: [],
 
-			selectedMenu: 0,
+			selectedMenu: null,
 		};
 
 		this.getApps = this.getApps.bind(this);
@@ -39,33 +39,39 @@ class AppMenu extends Component {
 				return response.data.find(appR => appR.platform === app.platform);
 			});
 
-			this.setState({ apps: userApps });
+			const currentApp = userApps.find(app => app.endpoint === window.location.pathname);
+
+			console.log(currentApp);
+
+			this.setState({ apps: userApps, selectedMenu: currentApp.platform });
 		} else if (!redirected) {
 			localStorage.setItem("redirected", true);
 			window.location.replace("/settings");
 		}
 	}
 
-	handleAppClick(e) {
-		this.setState({ selectedMenu: e.target.id });
+	handleAppClick(id) {
+		this.setState({ selectedMenu: id });
 	}
 
 	getAppList() {
 		const { apps, selectedMenu } = this.state;
 
 		return apps.map(app => (
-			<ListItem
-				button
-				id={app.platform}
+			<NavLink
+				className="nav-item"
 				key={app.platform}
-				selected={selectedMenu === app.platform}
-				onClick={this.handleAppClick}
-				style={{ paddingLeft: 10 }}
+				to={app.endpoint}
+				onClick={() => this.handleAppClick(app.platform)}
 			>
-				<NavLink className="nav-item" to={app.endpoint}>
+				<ListItem
+					button
+					selected={selectedMenu === app.platform}
+					style={{ paddingLeft: 10 }}
+				>
 					<i className={app.icon} />
-				</NavLink>
-			</ListItem >
+				</ListItem >
+			</NavLink>
 		));
 	}
 
