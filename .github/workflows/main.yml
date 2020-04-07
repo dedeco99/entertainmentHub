@@ -17,6 +17,7 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           script: |
             cd entertainmenthub
+            git reset --hard
             git pull
             npm i
             npm run client-install
