@@ -7,6 +7,7 @@ import { ToastContainer } from "react-toastify";
 
 import PrivateRoute from "./auth/PrivateRoute";
 import Header from "./header/Header";
+import AppMenu from "./header/AppMenu";
 import Index from "./index/Index";
 import Register from "./auth/Register";
 import Login from "./auth/Login";
@@ -22,6 +23,9 @@ import Settings from "./settings/Settings";
 import "../css/App.css";
 
 import goBackUp from "../img/go_back_up.png";
+
+import { createMuiTheme } from "@material-ui/core/styles";
+import { ThemeProvider } from "@material-ui/styles";
 
 class App extends Component {
 	constructor() {
@@ -85,34 +89,37 @@ class App extends Component {
 
 	render() {
 		return (
-			<BrowserRouter>
-				<div className="App">
-					<Header />
-					<div className="main">
-						<Switch>
-							<Route exact path="/" component={Index} />
-							<Route exact path="/register" component={Register} />
-							<Route exact path="/login" component={Login} />
-							<PrivateRoute exact path="/apps/:app" component={Apps} />
-							{
-								/*
-								<PrivateRoute exact path="/reddit/:sub?/:category?" component={Reddit} />
-								<PrivateRoute exact path="/youtube" component={Youtube} />
-								<PrivateRoute exact path="/twitch" component={Twitch} />
-								*/
-							}
-							<PrivateRoute exact path="/tv" component={TV} />
+			<ThemeProvider theme={createMuiTheme({ palette: { type: "dark" } })}>
+				<BrowserRouter>
+					<div className="App">
+						<Header />
+						<AppMenu />
+						<div className="main">
+							<Switch>
+								<Route exact path="/" component={Index} />
+								<Route exact path="/register" component={Register} />
+								<Route exact path="/login" component={Login} />
+								<PrivateRoute exact path="/apps/:app" component={Apps} />
+								{
+									/*
+									<PrivateRoute exact path="/reddit/:sub?/:category?" component={Reddit} />
+									<PrivateRoute exact path="/youtube" component={Youtube} />
+									<PrivateRoute exact path="/twitch" component={Twitch} />
+									*/
+								}
+								<PrivateRoute exact path="/tv" component={TV} />
 
-							<PrivateRoute exact path="/settings" component={Settings} />
-						</Switch>
+								<PrivateRoute exact path="/settings" component={Settings} />
+							</Switch>
+						</div>
+						{this.renderGoBackUpButton()}
+						<ToastContainer
+							position="bottom-right"
+							newestOnTop
+						/>
 					</div>
-					{this.renderGoBackUpButton()}
-					<ToastContainer
-						position="bottom-right"
-						newestOnTop
-					/>
-				</div>
-			</BrowserRouter>
+				</BrowserRouter>
+			</ThemeProvider>
 		);
 	}
 }

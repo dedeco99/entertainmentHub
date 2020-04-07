@@ -87,7 +87,7 @@ class Notifications extends Component {
 			const notificationText = this.renderNotificationMessage(notification);
 
 			return (
-				<ListItem key={notification._id}>
+				<ListItem key={notification._id} button divider>
 					<ListItemAvatar>
 						<Avatar style={{ backgroundColor: "#444" }}>
 							{this.renderNotificationType(notification.type)}
@@ -95,7 +95,9 @@ class Notifications extends Component {
 					</ListItemAvatar>
 					<ListItemText
 						primary={notificationText}
+						title={notificationText}
 						secondary={formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}
+						primaryTypographyProps={{ noWrap: true }}
 					/>
 					<ListItemSecondaryAction
 						onClick={() => this.hideNotification(notification._id)}
