@@ -94,7 +94,7 @@ class Sidebar extends Component {
 								<StyledMenuItem
 									id={currentId}
 									key={option.displayName}
-									onClick={option.onClick}
+									onClick={e => { option.onClick(e); this.handleClose(); }}
 								>
 									{option.displayName}
 								</StyledMenuItem>

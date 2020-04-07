@@ -41,8 +41,10 @@ class NotificationDropdown extends Component {
 		this.setState({ open: !open });
 	}
 
-	handleClickAway() {
-		this.setState({ open: false });
+	handleClickAway(e) {
+		if (!e.target.id.includes("filter-")) {
+			this.setState({ open: false });
+		}
 	}
 
 	renderDropdownContent() {
