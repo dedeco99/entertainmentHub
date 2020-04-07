@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import Zoom from "@material-ui/core/Zoom";
 import List from "@material-ui/core/List";
 import ListSubheader from "@material-ui/core/ListSubheader";
 import ListItem from "@material-ui/core/ListItem";
@@ -19,6 +20,8 @@ class Notifications extends Component {
 		super();
 		this.state = {
 			history: false,
+
+			open: false,
 		};
 
 		this.toggleHistory = this.toggleHistory.bind(this);
@@ -36,6 +39,8 @@ class Notifications extends Component {
 		if (response.data) {
 			addNotification(response.data);
 		}
+
+		this.setState({ open: true });
 	}
 
 	async hideNotification(id) {
@@ -81,7 +86,7 @@ class Notifications extends Component {
 
 	render() {
 		const { notifications, height } = this.props;
-		const { history } = this.state;
+		const { history, open } = this.state;
 
 		const notificationList = notifications.map(notification => {
 			const notificationText = this.renderNotificationMessage(notification);
@@ -111,7 +116,7 @@ class Notifications extends Component {
 		});
 
 		return (
-			<div>
+			<Zoom in={open}>
 				<List
 					style={{
 						backgroundColor: "#222",
@@ -132,7 +137,7 @@ class Notifications extends Component {
 					</ListSubheader>
 					{notificationList}
 				</List>
-			</div >
+			</Zoom >
 		);
 	}
 }
