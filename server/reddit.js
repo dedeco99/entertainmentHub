@@ -57,8 +57,7 @@ function formatResponse(json) {
 			title: data.title,
 			permalink: `https://reddit.com/${data.permalink}`,
 			thumbnail: data.thumbnail,
-			upvotes: data.ups,
-			downvotes: data.downs,
+			score: data.score,
 			comments: data.num_comments,
 			crossposts: data.num_crossposts,
 			author: data.author,
@@ -68,7 +67,7 @@ function formatResponse(json) {
 			redditVideo,
 			videoHeight,
 			videoPreview,
-			created: data.created,
+			created: data.created_utc,
 			after: json.data.after,
 		});
 	}
