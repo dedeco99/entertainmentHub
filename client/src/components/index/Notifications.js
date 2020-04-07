@@ -80,7 +80,7 @@ class Notifications extends Component {
 	}
 
 	render() {
-		const { notifications } = this.props;
+		const { notifications, height } = this.props;
 		const { history } = this.state;
 
 		const notificationList = notifications.map(notification => {
@@ -115,7 +115,7 @@ class Notifications extends Component {
 				<List
 					style={{
 						backgroundColor: "#222",
-						height: "calc( 100vh - 200px )",
+						height: height ? height : "calc( 100vh - 200px )",
 						overflow: "auto",
 					}}
 				>
@@ -123,12 +123,12 @@ class Notifications extends Component {
 						style={{ top: "-8px", paddingTop: "5px", height: "35px" }}
 						onClick={this.toggleHistory}
 					>
-						<i
-							className="material-icons"
-							style={{ top: "10px", float: "right" }}
-						>
-							{history ? "notifications" : "history"}
-						</i>
+						{"Notifications"}
+						<IconButton edge="end" style={{ float: "right" }}>
+							<i className="material-icons">
+								{history ? "notifications" : "history"}
+							</i>
+						</IconButton>
 					</ListSubheader>
 					{notificationList}
 				</List>
@@ -141,6 +141,7 @@ Notifications.propTypes = {
 	notifications: PropTypes.array,
 	addNotification: PropTypes.func,
 	deleteNotification: PropTypes.func,
+	height: PropTypes.string,
 };
 
 const mapStateToProps = state => {
