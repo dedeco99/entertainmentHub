@@ -60,10 +60,20 @@ async function addNotifications(notifications) {
 	for (const notification of notifications) {
 		const { dateToSend, notificationId, user, type, info } = notification;
 		if (moment(dateToSend).diff(moment(), "days") >= -5) {
-			const notificationExists = await Notification.findOne({ user, type, notificationId }).lean();
+			const notificationExists = await Notification.findOne({
+				user,
+				type,
+				notificationId,
+			}).lean();
 
 			if (!notificationExists) {
-				const newNotification = new Notification({ dateToSend, notificationId, user, type, info });
+				const newNotification = new Notification({
+					dateToSend,
+					notificationId,
+					user,
+					type,
+					info,
+				});
 				newNotification.save();
 			}
 		}

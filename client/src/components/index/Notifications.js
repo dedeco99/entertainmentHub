@@ -149,18 +149,14 @@ Notifications.propTypes = {
 	height: PropTypes.string,
 };
 
-const mapStateToProps = state => {
-	return {
-		notifications: state.notifications.notifications,
-	};
-};
+const mapStateToProps = state => ({
+	notifications: state.notifications.notifications,
+});
 
-const mapDispatchToProps = dispatch => {
-	return {
-		addNotification: notification => dispatch({ type: "ADD_NOTIFICATION", notification }),
-		deleteNotification: notification => dispatch({ type: "DELETE_NOTIFICATION", notification }),
-	};
-};
+const mapDispatchToProps = dispatch => ({
+	addNotification: notification => dispatch({ type: "ADD_NOTIFICATION", notification }),
+	deleteNotification: notification => dispatch({ type: "DELETE_NOTIFICATION", notification }),
+});
 
 
 export default connect(mapStateToProps, mapDispatchToProps)(Notifications);

@@ -35,13 +35,17 @@ class AppMenu extends Component {
 		const response = await getApps();
 
 		if (response.data && response.data.length) {
+			// eslint-disable-next-line arrow-body-style
 			const userApps = apps.filter(app => {
 				return response.data.find(appR => appR.platform === app.platform);
 			});
 
 			const currentApp = userApps.find(app => app.endpoint === window.location.pathname);
 
-			this.setState({ apps: userApps, selectedMenu: currentApp ? currentApp.platform : null });
+			this.setState({
+				apps: userApps,
+				selectedMenu: currentApp ? currentApp.platform : null,
+			});
 		} else if (!redirected) {
 			localStorage.setItem("redirected", true);
 			window.location.replace("/settings");
