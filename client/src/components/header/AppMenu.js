@@ -41,9 +41,7 @@ class AppMenu extends Component {
 
 			const currentApp = userApps.find(app => app.endpoint === window.location.pathname);
 
-			console.log(currentApp);
-
-			this.setState({ apps: userApps, selectedMenu: currentApp.platform });
+			this.setState({ apps: userApps, selectedMenu: currentApp ? currentApp.platform : null });
 		} else if (!redirected) {
 			localStorage.setItem("redirected", true);
 			window.location.replace("/settings");
