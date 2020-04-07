@@ -9,13 +9,19 @@ const Notification = require("./models/notification");
 
 async function getNotifications(event) {
 	const { query, user } = event;
-	const { history } = query;
+	const { type, history } = query;
 
-	const notifications = await Notification.find({
+	const searchQuery = {
 		user: user._id,
 		active: !history,
 		sent: true,
-	}).sort({ dateToSend: -1, _id: -1 }).lean();
+	};
+
+	if (type) searchQuery.type = type;
+
+	const sortQuery = { dateToSend: -1, _id: -1 };
+
+	const notifications = await Notification.find(searchQuery).sort(sortQuery).lean();
 
 	return response(200, "Notifications found", notifications);
 }
@@ -60,10 +66,20 @@ async function addNotifications(notifications) {
 	for (const notification of notifications) {
 		const { dateToSend, notificationId, user, type, info } = notification;
 		if (moment(dateToSend).diff(moment(), "days") >= -5) {
-			const notificationExists = await Notification.findOne({ user, type, notificationId }).lean();
+			const notificationExists = await Notification.findOne({
+				user,
+				type,
+				notificationId,
+			}).lean();
 
 			if (!notificationExists) {
-				const newNotification = new Notification({ dateToSend, notificationId, user, type, info });
+				const newNotification = new Notification({
+					dateToSend,
+					notificationId,
+					user,
+					type,
+					info,
+				});
 				newNotification.save();
 			}
 		}

@@ -20,11 +20,11 @@ async function token(authorization) {
 
 	if (!bearerToken[1]) return false;
 
-	const token = await Token.findOne({ token: bearerToken[1] });
+	const tokenFound = await Token.findOne({ token: bearerToken[1] });
 
-	if (!token) return false;
+	if (!tokenFound) return false;
 
-	const user = await User.findOne({ _id: token.user });
+	const user = await User.findOne({ _id: tokenFound.user });
 
 	return user;
 }
@@ -44,9 +44,9 @@ async function middleware(req, res, fn, options) {
 	event.query = req.query;
 	event.body = req.body;
 
-	const response = await fn(event);
+	const result = await fn(event);
 
-	return res.status(response.status).send(response.body);
+	return res.status(result.status).send(result.body);
 }
 
 module.exports = {

@@ -59,23 +59,21 @@ class Banners extends Component {
 			return (
 				<Grid container spacing={2}>
 					{
-						series.map(s => {
-							return (
-								<Grid
-									item xs={6} sm={4} md={3} lg={2} xl={1}
-									key={s.id}
-								>
-									<div className="add-series-container">
-										{this.renderAddIcon(s)}
-										<img
-											src={s.image.substr(s.image.length - 4) === "null" ? placeholder : s.image}
-											width="100%"
-											alt={s.displayName}
-										/>
-									</div>
-								</Grid>
-							);
-						})
+						series.map(s => (
+							<Grid
+								item xs={6} sm={4} md={3} lg={2} xl={1}
+								key={s.id}
+							>
+								<div className="add-series-container">
+									{this.renderAddIcon(s)}
+									<img
+										src={s.image.substr(s.image.length - 4) === "null" ? placeholder : s.image}
+										width="100%"
+										alt={s.displayName}
+									/>
+								</div>
+							</Grid>
+						))
 					}
 				</Grid>
 			);

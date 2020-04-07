@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/styles";
+import Zoom from "@material-ui/core/Zoom";
 import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
 import CardActionArea from "@material-ui/core/CardActionArea";
@@ -25,20 +26,22 @@ const styles = () => ({
 		left: "5px",
 	},
 	previous: {
+		fontSize: "2em",
 		top: "50%",
 		left: "5px",
 	},
 	next: {
+		fontSize: "2em",
 		top: "50%",
 		right: "5px",
 	},
 	score: {
 		bottom: "5px",
-		right: "5px",
+		left: "5px",
 	},
 	comments: {
 		bottom: "5px",
-		left: "5px",
+		right: "5px",
 	},
 });
 
@@ -48,6 +51,8 @@ class Post extends Component {
 		this.state = {
 			posts: [],
 			num: 0,
+
+			open: false,
 		};
 	}
 
@@ -56,7 +61,7 @@ class Post extends Component {
 
 		response.data = response.data.filter(post => post.thumbnail !== "self");
 
-		this.setState({ posts: response.data });
+		this.setState({ posts: response.data, open: true });
 	}
 
 	htmlEscape(str) {
@@ -69,7 +74,7 @@ class Post extends Component {
 	// eslint-disable-next-line max-lines-per-function,complexity
 	render() {
 		const { classes } = this.props;
-		const { posts, num } = this.state;
+		const { posts, num, open } = this.state;
 
 		if (!posts || !posts.length) return null;
 
@@ -174,12 +179,14 @@ class Post extends Component {
 		);
 
 		return (
-			<Card className={classes.root}>
-				<CardActionArea>
-					{content}
-					{info}
-				</CardActionArea>
-			</Card>
+			<Zoom in={open}>
+				<Card className={classes.root}>
+					<CardActionArea>
+						{content}
+						{info}
+					</CardActionArea>
+				</Card>
+			</Zoom>
 		);
 	}
 }
