@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
+import Zoom from "@material-ui/core/Zoom";
 import List from "@material-ui/core/List";
 import ListSubheader from "@material-ui/core/ListSubheader";
 import ListItem from "@material-ui/core/ListItem";
@@ -22,10 +23,12 @@ class Notifications extends Component {
 	constructor() {
 		super();
 		this.state = {
+			currentFilter: "filter-all",
 			history: false,
+
 			anchorEl: null,
 			selectedIndex: 0,
-			currentFilter: "filter-all",
+			open: false,
 		};
 
 		this.toggleHistory = this.toggleHistory.bind(this);
@@ -51,6 +54,8 @@ class Notifications extends Component {
 		if (response.data) {
 			addNotification(response.data);
 		}
+
+		this.setState({ open: true });
 	}
 
 	async hideNotification(id) {
@@ -110,14 +115,9 @@ class Notifications extends Component {
 
 	render() {
 		const { notifications, height } = this.props;
-		const { history, anchorEl, selectedIndex } = this.state;
+		const { history, anchorEl, selectedIndex, open } = this.state;
 
-		const options = [
-			"All",
-			"TV",
-			"Reddit",
-			"Twitch",
-		];
+		const options = ["All", "TV", "Reddit", "Twitch"];
 
 		const notificationList = notifications.map(notification => {
 			const notificationText = this.renderNotificationMessage(notification);
@@ -147,7 +147,7 @@ class Notifications extends Component {
 		});
 
 		return (
-			<div>
+			<Zoom in={open}>
 				<List
 					style={{
 						backgroundColor: "#222",
@@ -199,7 +199,7 @@ class Notifications extends Component {
 					</ListSubheader>
 					{notificationList}
 				</List>
-			</div >
+			</Zoom >
 		);
 	}
 }
@@ -211,18 +211,14 @@ Notifications.propTypes = {
 	height: PropTypes.string,
 };
 
-const mapStateToProps = state => {
-	return {
-		notifications: state.notifications.notifications,
-	};
-};
+const mapStateToProps = state => ({
+	notifications: state.notifications.notifications,
+});
 
-const mapDispatchToProps = dispatch => {
-	return {
-		addNotification: notification => dispatch({ type: "ADD_NOTIFICATION", notification }),
-		deleteNotification: notification => dispatch({ type: "DELETE_NOTIFICATION", notification }),
-	};
-};
+const mapDispatchToProps = dispatch => ({
+	addNotification: notification => dispatch({ type: "ADD_NOTIFICATION", notification }),
+	deleteNotification: notification => dispatch({ type: "DELETE_NOTIFICATION", notification }),
+});
 
 
 export default connect(mapStateToProps, mapDispatchToProps)(Notifications);

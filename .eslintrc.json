@@ -144,7 +144,10 @@
 		/* style */
 		"array-bracket-newline": "error",
 		"array-bracket-spacing": "error",
-		"array-element-newline": "error",
+		"array-element-newline": [
+			"error",
+			"consistent"
+		],
 		"block-spacing": "error",
 		"brace-style": "error",
 		"camelcase": "error",
@@ -170,8 +173,11 @@
 				"allowArrowFunctions": true
 			}
 		],
-		// "function-call-argument-newline": "error",
-		// "function-paren-newline": "error",
+		"function-call-argument-newline": [
+			"error",
+			"consistent"
+		],
+		"function-paren-newline": "error",
 		"id-blacklist": "error",
 		// "id-length": "error",
 		"id-match": "error",
@@ -264,15 +270,26 @@
 			"error",
 			"always"
 		],
-		// "object-property-newline": "error",
+		"object-property-newline": [
+			"error",
+			{
+				"allowAllPropertiesOnSameLine": true
+			}
+		],
 		// "one-var": "error",
 		"one-var-declaration-per-line": "error",
 		"operator-assignment": "error",
 		"operator-linebreak": "error",
-		// "padded-blocks": "error",
+		"padded-blocks": [
+			"error",
+			"never"
+		],
 		"padding-line-between-statements": "error",
 		"prefer-object-spread": "error",
-		// "quote-props": "error",
+		"quote-props": [
+			"error",
+			"consistent-as-needed"
+		],
 		"quotes": [
 			"error",
 			"double"
@@ -299,7 +316,7 @@
 		"unicode-bom": "error",
 		"wrap-regex": "error",
 		/* ecmascript */
-		// "arrow-body-style": "error",
+		"arrow-body-style": "warn",
 		"arrow-parens": [
 			"error",
 			"as-needed"
@@ -348,7 +365,7 @@
 		"react/no-danger": "error",
 		"react/no-danger-with-children": "error", // recommended
 		"react/no-deprecated": "error", // recommended
-		// "react/no-did-mount-set-state": "error",
+		"react/no-did-mount-set-state": "warn",
 		"react/no-did-update-set-state": "error",
 		"react/no-direct-mutation-state": "error", // recommended
 		"react/no-find-dom-node": "error", // recommended
@@ -391,9 +408,15 @@
 		"react/jsx-equals-spacing": "error",
 		// "react/jsx-filename-extension": "error",
 		"react/jsx-first-prop-new-line": "error",
-		// "react/jsx-handler-names": "error",
-		// "react/jsx-indent": "error",
-		// "react/jsx-indent-props": "error",
+		"react/jsx-handler-names": "warn",
+		"react/jsx-indent": [
+			"error",
+			"tab"
+		],
+		"react/jsx-indent-props": [
+			"error",
+			"tab"
+		],
 		"react/jsx-key": "error", // recommended
 		"react/jsx-max-depth": [
 			"error",
@@ -402,7 +425,7 @@
 			}
 		],
 		// "react/jsx-max-props-per-line": "error",
-		// "react/jsx-no-bind": "error",
+		"react/jsx-no-bind": "warn",
 		"react/jsx-no-comment-textnodes": "error", // recommended
 		"react/jsx-no-duplicate-props": "error", // recommended
 		"react/jsx-no-literals": "error",

@@ -83,10 +83,8 @@ NotificationDropdown.propTypes = {
 	notifications: PropTypes.array,
 };
 
-const mapStateToProps = state => {
-	return {
-		notifications: state.notifications.notifications,
-	};
-};
+const mapStateToProps = state => ({
+	notifications: state.notifications.notifications,
+});
 
 export default connect(mapStateToProps)(withStyles(styles)(NotificationDropdown));

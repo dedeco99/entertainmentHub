@@ -7,7 +7,7 @@ const { get, post } = require("./request");
 const App = require("./models/app");
 
 async function getAccessToken(user) {
-	const app = await App.findOne({ "user": user._id, "platform": "reddit" }).lean();
+	const app = await App.findOne({ user: user._id, platform: "reddit" }).lean();
 
 	const url = `https://www.reddit.com/api/v1/access_token?refresh_token=${app.refreshToken}&grant_type=refresh_token`;
 
@@ -21,7 +21,7 @@ async function getAccessToken(user) {
 	const res = await post(url, null, headers);
 
 	if (res.status === 400) {
-		await App.deleteOne({ "user": user._id, "platform": "reddit" });
+		await App.deleteOne({ user: user._id, platform: "reddit" });
 
 		throw errors.redditRefreshToken;
 	}
@@ -90,7 +90,7 @@ async function getSubreddits(req, res) {
 		const request = await get(url, headers);
 		const json = JSON.parse(request);
 
-		const response = [];
+		const subreddits = [];
 		let all = "";
 		for (let i = 0; i < json.data.children.length; i++) {
 			let displayName = json.data.children[i].data.display_name;
@@ -100,10 +100,10 @@ async function getSubreddits(req, res) {
 				id: displayName,
 				displayName,
 			};
-			response.push(subreddit);
+			subreddits.push(subreddit);
 		}
 
-		response.sort((a, b) => {
+		subreddits.sort((a, b) => {
 			if (a.displayName < b.displayName) return -1;
 			if (a.displayName > b.displayName) return 1;
 			return 0;
@@ -116,10 +116,10 @@ async function getSubreddits(req, res) {
 			{ id: all, displayName: "Home" },
 		];
 		otherSubs.forEach(subreddit => {
-			response.unshift(subreddit);
+			subreddits.unshift(subreddit);
 		});
 
-		res.json(response);
+		res.json(subreddits);
 	} catch (err) {
 		res.json("Subreddit not found");
 	}

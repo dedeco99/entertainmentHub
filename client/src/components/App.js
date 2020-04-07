@@ -87,6 +87,27 @@ class App extends Component {
 		return null;
 	}
 
+	renderRoutes() {
+		return (
+			<Switch>
+				<Route exact path="/" component={Index} />
+				<Route exact path="/register" component={Register} />
+				<Route exact path="/login" component={Login} />
+				<PrivateRoute exact path="/apps/:app" component={Apps} />
+				{
+					/*
+					<PrivateRoute exact path="/reddit/:sub?/:category?" component={Reddit} />
+					<PrivateRoute exact path="/youtube" component={Youtube} />
+					<PrivateRoute exact path="/twitch" component={Twitch} />
+					*/
+				}
+				<PrivateRoute exact path="/tv" component={TV} />
+
+				<PrivateRoute exact path="/settings" component={Settings} />
+			</Switch>
+		);
+	}
+
 	render() {
 		return (
 			<ThemeProvider theme={createMuiTheme({ palette: { type: "dark" } })}>
@@ -95,22 +116,7 @@ class App extends Component {
 						<Header />
 						<AppMenu />
 						<div className="main">
-							<Switch>
-								<Route exact path="/" component={Index} />
-								<Route exact path="/register" component={Register} />
-								<Route exact path="/login" component={Login} />
-								<PrivateRoute exact path="/apps/:app" component={Apps} />
-								{
-									/*
-									<PrivateRoute exact path="/reddit/:sub?/:category?" component={Reddit} />
-									<PrivateRoute exact path="/youtube" component={Youtube} />
-									<PrivateRoute exact path="/twitch" component={Twitch} />
-									*/
-								}
-								<PrivateRoute exact path="/tv" component={TV} />
-
-								<PrivateRoute exact path="/settings" component={Settings} />
-							</Switch>
+							{this.renderRoutes()}
 						</div>
 						{this.renderGoBackUpButton()}
 						<ToastContainer
@@ -128,10 +134,8 @@ App.propTypes = {
 	addNotification: PropTypes.func,
 };
 
-const mapDispatchToProps = dispatch => {
-	return {
-		addNotification: notification => dispatch({ type: "ADD_NOTIFICATION", notification }),
-	};
-};
+const mapDispatchToProps = dispatch => ({
+	addNotification: notification => dispatch({ type: "ADD_NOTIFICATION", notification }),
+});
 
 export default connect(null, mapDispatchToProps)(App);
