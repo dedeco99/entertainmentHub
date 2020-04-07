@@ -1,7 +1,12 @@
 import { get, patch, remove } from "../utils/request";
 
-async function getNotifications(history) {
-	const query = history ? "?history=true" : "";
+async function getNotifications(history, filter) {
+	let query = "";
+	if (history) {
+		query = filter ? `?history=true&type=${filter}` : "?history=true";
+	} else if (filter) {
+		query = `?type=${filter}`;
+	}
 	const res = await get(`api/notifications${query}`);
 
 	return res;
