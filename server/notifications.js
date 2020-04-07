@@ -9,13 +9,19 @@ const Notification = require("./models/notification");
 
 async function getNotifications(event) {
 	const { query, user } = event;
-	const { history } = query;
+	const { type, history } = query;
 
-	const notifications = await Notification.find({
+	const searchQuery = {
 		user: user._id,
 		active: !history,
 		sent: true,
-	}).sort({ dateToSend: -1, _id: -1 }).lean();
+	};
+
+	if (type) searchQuery.type = type;
+
+	const sortQuery = { dateToSend: -1, _id: -1 };
+
+	const notifications = await Notification.find(searchQuery).sort(sortQuery).lean();
 
 	return response(200, "Notifications found", notifications);
 }
