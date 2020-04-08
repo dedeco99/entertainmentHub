@@ -7,6 +7,7 @@ import CardMedia from "@material-ui/core/CardMedia";
 import CardActionArea from "@material-ui/core/CardActionArea";
 
 import { getPosts } from "../../actions/reddit";
+import { formatDate } from "../../utils/utils";
 
 import placeholder from "../../img/noimage.png";
 
@@ -24,24 +25,31 @@ const styles = () => ({
 	title: {
 		top: "5px",
 		left: "5px",
+		maxWidth: "95%",
+		whiteSpace: "nowrap",
+		overflow: "hidden",
+		textOverflow: "ellipsis",
 	},
 	previous: {
 		fontSize: "2em",
-		top: "50%",
+		top: "35px",
 		left: "5px",
 	},
 	next: {
 		fontSize: "2em",
-		top: "50%",
+		top: "35px",
 		right: "5px",
 	},
 	score: {
 		bottom: "5px",
 		left: "5px",
 	},
-	comments: {
+	date: {
 		bottom: "5px",
 		right: "5px",
+	},
+	hide: {
+		display: "none",
 	},
 });
 
@@ -53,7 +61,11 @@ class Post extends Component {
 			num: 0,
 
 			open: false,
+			showInfo: true,
 		};
+
+		this.showInfo = this.showInfo.bind(this);
+		this.hideInfo = this.hideInfo.bind(this);
 	}
 
 	async componentDidMount() {
@@ -65,16 +77,21 @@ class Post extends Component {
 	}
 
 	htmlEscape(str) {
-		return String(str)
-			.replace(/&amp;/g, "&")
-			.replace(/&lt;/g, "<")
-			.replace(/&gt;/g, ">");
+		return String(str).replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
+	}
+
+	showInfo() {
+		this.setState({ showInfo: true });
+	}
+
+	hideInfo() {
+		this.setState({ showInfo: false });
 	}
 
 	// eslint-disable-next-line max-lines-per-function,complexity
 	render() {
 		const { classes } = this.props;
-		const { posts, num, open } = this.state;
+		const { posts, num, open, showInfo } = this.state;
 
 		if (!posts || !posts.length) return null;
 
@@ -87,7 +104,7 @@ class Post extends Component {
 		let content = null;
 
 		if (imgTypes.includes(post.url.substr(post.url.lastIndexOf(".") + 1))) {
-			content = <CardMedia component="img" src={post.url} height="400px" />;
+			content = <CardMedia component="img" src={post.url} width="100%" />;
 		} else if (post.domain === "gfycat.com") {
 			content = (
 				<CardMedia
@@ -154,33 +171,44 @@ class Post extends Component {
 
 		const info = (
 			<div>
-				<div className={`${classes.overlay} ${classes.title}`}>
+				<div
+					className={`${classes.overlay} ${classes.title} ${!showInfo && classes.hide}`}
+					title={post.title}
+				>
 					{post.title}
 				</div>
 				<div
 					className={`${classes.overlay} ${classes.previous}`}
 					onClick={num > 0 ? () => this.setState({ num: num - 1 }) : null}
+					onMouseEnter={this.showInfo}
+					onMouseLeave={this.hideInfo}
 				>
 					{"<"}
 				</div>
 				<div
 					className={`${classes.overlay} ${classes.next}`}
 					onClick={num < posts.length - 1 ? () => this.setState({ num: num + 1 }) : null}
+					onMouseEnter={this.showInfo}
+					onMouseLeave={this.hideInfo}
 				>
 					{">"}
 				</div>
-				<div className={`${classes.overlay} ${classes.score}`}>
-					{`${post.upvotes} | ${post.downvotes}`}
+				<div className={`${classes.overlay} ${classes.score} ${!showInfo && classes.hide}`}>
+					{`↑ ${post.score} ↓`}
 				</div>
-				<div className={`${classes.overlay} ${classes.comments}`}>
-					{post.comments}
+				<div className={`${classes.overlay} ${classes.date} ${!showInfo && classes.hide}`}>
+					{formatDate(post.created * 1000, null, true)}
 				</div>
 			</div >
 		);
 
 		return (
 			<Zoom in={open}>
-				<Card className={classes.root}>
+				<Card
+					className={classes.root}
+					onMouseEnter={this.hideInfo}
+					onMouseLeave={this.showInfo}
+				>
 					<CardActionArea>
 						{content}
 						{info}
