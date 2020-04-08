@@ -64,7 +64,8 @@ class Post extends Component {
 			showInfo: true,
 		};
 
-		this.toggleInfo = this.toggleInfo.bind(this);
+		this.showInfo = this.showInfo.bind(this);
+		this.hideInfo = this.hideInfo.bind(this);
 	}
 
 	async componentDidMount() {
@@ -79,10 +80,12 @@ class Post extends Component {
 		return String(str).replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">");
 	}
 
-	toggleInfo() {
-		const { showInfo } = this.state;
+	showInfo() {
+		this.setState({ showInfo: true });
+	}
 
-		this.setState({ showInfo: !showInfo });
+	hideInfo() {
+		this.setState({ showInfo: false });
 	}
 
 	// eslint-disable-next-line max-lines-per-function,complexity
@@ -177,16 +180,16 @@ class Post extends Component {
 				<div
 					className={`${classes.overlay} ${classes.previous}`}
 					onClick={num > 0 ? () => this.setState({ num: num - 1 }) : null}
-					onMouseEnter={this.toggleInfo}
-					onMouseLeave={this.toggleInfo}
+					onMouseEnter={this.showInfo}
+					onMouseLeave={this.hideInfo}
 				>
 					{"<"}
 				</div>
 				<div
 					className={`${classes.overlay} ${classes.next}`}
 					onClick={num < posts.length - 1 ? () => this.setState({ num: num + 1 }) : null}
-					onMouseEnter={this.toggleInfo}
-					onMouseLeave={this.toggleInfo}
+					onMouseEnter={this.showInfo}
+					onMouseLeave={this.hideInfo}
 				>
 					{">"}
 				</div>
@@ -203,8 +206,8 @@ class Post extends Component {
 			<Zoom in={open}>
 				<Card
 					className={classes.root}
-					onMouseEnter={this.toggleInfo}
-					onMouseLeave={this.toggleInfo}
+					onMouseEnter={this.hideInfo}
+					onMouseLeave={this.showInfo}
 				>
 					<CardActionArea>
 						{content}
