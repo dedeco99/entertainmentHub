@@ -3,13 +3,47 @@ import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/styles";
 import Zoom from "@material-ui/core/Zoom";
 import Card from "@material-ui/core/Card";
-import CardActionArea from "@material-ui/core/CardActionArea";
+import Typography from "@material-ui/core/Typography";
+import Box from "@material-ui/core/Box";
+import Tooltip from "@material-ui/core/Tooltip";
+
+import moment from "moment";
 
 import { getWeather } from "../../actions/weather";
 
 const styles = () => ({
 	root: {
 		backgroundColor: "#212121dd",
+	},
+	content: {
+		padding: 16,
+		paddingBottom: 0,
+	},
+	info: {
+		"display": "flex",
+		"alignItems": "center",
+		"& i": {
+			fontSize: "1.5rem",
+			paddingRight: 4,
+			display: "inline-block",
+		},
+	},
+	nextDays: {
+		"& div": {
+			"borderTop": "1px solid #121212",
+			"borderRight": "1px solid #121212",
+			"padding": 10,
+			"& img": {
+				width: 40,
+				height: 40,
+			},
+		},
+	},
+	lastDay: {
+		borderRight: "none !important",
+	},
+	nextDaysTemps: {
+		fontSize: "0.60rem",
 	},
 });
 
@@ -18,8 +52,7 @@ class Weather extends Component {
 		super();
 		this.state = {
 			weather: null,
-
-			open: false,
+			loaded: false,
 		};
 	}
 
@@ -30,23 +63,131 @@ class Weather extends Component {
 	async getWeather() {
 		const response = await getWeather(38.5767759, -9.1566862);
 
-		this.setState({ open: true, weather: response.data });
+		this.setState({ loaded: true, weather: response.data });
+	}
+
+	showFeelsLike() {
+		const { weather } = this.state;
+
+		if (Math.round(weather.current.feelsLike) !== Math.round(weather.current.temp)) {
+			return (
+				<Typography variant="caption">
+					{weather && `Feels Like ${Math.round(weather.current.feelsLike)}º`}
+				</Typography>
+			);
+		}
+		return null;
+	}
+
+	renderWindDirection() {
+		const { weather } = this.state;
+
+		const rotation = { transform: `rotate(${weather.current.windDirection}deg)` };
+
+		return (
+			<Tooltip title="Wind Direction/Speed">
+				<i className="icofont-arrow-up" style={rotation} />
+			</Tooltip>
+		);
+	}
+
+	renderNextDays() {
+		const { classes } = this.props;
+		const { weather } = this.state;
+
+		const nextDays = weather.daily.slice(0, 4).map((day, i, { length }) => (
+			<Box
+				key={day.date}
+				display="flex"
+				alignItems="center"
+				justifyContent="center"
+				flexDirection="column"
+				flexGrow={1}
+				className={length - 1 === i ? classes.lastDay : null}
+			>
+				<Typography variant="caption">
+					{weather && moment(day.date, "DD/MM/YYYY").format("ddd")}
+				</Typography>
+				<Tooltip title={day.forecast.description} placement="top">
+					{weather && <img src={day.forecast.image} />}
+				</Tooltip>
+				<Typography variant="caption" className={classes.nextDaysTemps}>
+					<i className="icofont-caret-up" />
+					{weather && `${Math.round(day.maxTemp)}º `}
+					<i className="icofont-caret-down" />
+					{weather && `${Math.round(day.minTemp)}º`}
+				</Typography>
+			</Box>
+		));
+
+		return nextDays;
 	}
 
 	render() {
 		const { classes } = this.props;
-		const { weather, open } = this.state;
+		const { weather, loaded } = this.state;
 
 		return (
-			<Zoom in={open}>
-				<Card className={classes.root}>
-					<CardActionArea>
-						{weather && `${weather.current.temp} (${weather.current.minTemp} - ${weather.current.maxTemp})`}
-						<br />
-						{weather && weather.current.forecast.description}
-						<br />
-						{weather && <img src={weather.current.forecast.image} />}
-					</CardActionArea>
+			<Zoom in={loaded}>
+				<Card variant="outlined" className={classes.root}>
+					<div className={classes.content}>
+						<Box display="flex">
+							<Box display="flex" flexDirection="column" justifyContent="center" flexGrow={1}>
+								<Typography variant="h6">
+									{"Amora, Portugal"}
+								</Typography>
+								<Typography variant="subtitle1">
+									{weather && weather.current.forecast.description}
+								</Typography>
+							</Box>
+							<Box display="flex" flexDirection="column" alignItems="flex-end">
+								<Typography variant="h4">
+									{weather && `${Math.round(weather.current.temp)}º`}
+								</Typography>
+								<Typography variant="caption">
+									<i className="icofont-caret-up" />
+									{weather && `${Math.round(weather.current.maxTemp)}º `}
+									<i className="icofont-caret-down" />
+									{weather && `${Math.round(weather.current.minTemp)}º`}
+								</Typography>
+								{weather && this.showFeelsLike()}
+							</Box>
+						</Box>
+						<Box display="flex">
+							<Box display="flex" flexDirection="column" justifyContent="center" flexGrow={1}>
+								<Typography variant="caption" className={classes.info}>
+									<Tooltip title="Clouds">
+										<i className="icofont-clouds" />
+									</Tooltip>
+									{weather && `${Math.round(weather.current.clouds)}%`}
+								</Typography>
+								<Typography variant="caption" className={classes.info}>
+									{weather && this.renderWindDirection()}
+									{weather && `${Math.round(weather.current.windSpeed)} m/s`}
+								</Typography>
+							</Box>
+							<Box>
+								{weather && <img src={weather.current.forecast.image} />}
+							</Box>
+							<Box display="flex" flexDirection="column" justifyContent="center" alignItems="flex-end" flexGrow={1}>
+								<Typography variant="caption" className={classes.info}>
+									<Tooltip title="Sunrise">
+										<i className="icofont-sun-rise" />
+									</Tooltip>
+									{weather && `${weather.current.sunrise}`}
+								</Typography>
+								<Typography variant="caption" className={classes.info}>
+									<Tooltip title="Sunset">
+										<i className="icofont-sun-set" />
+									</Tooltip>
+									{weather && `${weather.current.sunset}`}
+								</Typography>
+							</Box>
+						</Box>
+					</div>
+					<Box display="flex" className={classes.nextDays}>
+						{weather && this.renderNextDays()}
+					</Box>
 				</Card>
 			</Zoom>
 		);
