@@ -153,6 +153,7 @@ class Notifications extends Component {
 						backgroundColor: "#222",
 						height: height ? height : "calc( 100vh - 200px )",
 						overflow: "auto",
+						padding: 0,
 					}}
 				>
 					<ListSubheader

@@ -7,7 +7,11 @@ import WidgetDetail from "./WidgetDetail";
 import Notifications from "./Notifications";
 import Posts from "../reddit/Posts";
 
+import { Responsive, WidthProvider } from 'react-grid-layout';
+
 import { getWidgets, addWidget, deleteWidget } from "../../actions/widgets";
+
+const ResponsiveGridLayout = WidthProvider(Responsive);
 
 class Index extends Component {
 	constructor() {
@@ -76,33 +80,27 @@ class Index extends Component {
 				switch (widget.type) {
 					case "notifications":
 						return (
-							<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={widget._id}>
-								<Notifications />
-							</Grid>
+							<div style={{ backgroundColor: "orange" }} key={widget._id} data-grid={{ x: 0, y: 0, w: 3, h: 2 }}>
+								<Notifications height="100%" />
+							</div>
 						);
 					case "reddit":
 						return (
-							<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={widget._id}>
+							<div style={{ backgroundColor: "orange" }} key={widget._id} data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
 								<Posts subreddit={widget.info.subreddit} />
-							</Grid>
+							</div>
 						);
 					default: return null;
 				}
 			});
 		}
 
-		return (
-			<Grid
-				item xs={12}
-				key={1}
-			>
-				<div style={{ textAlign: "center" }}>{"No widgets"}</div>
-			</Grid>
-		);
+		return null;
 	}
 
 	renderDashboard() {
 		const { openWidgetDetail } = this.state;
+		const widgets = this.renderWidgets();
 
 		return (
 			<div className="Index" >
@@ -117,9 +115,18 @@ class Index extends Component {
 				<IconButton onClick={this.handleDeleteWidget}>
 					<i className="icofont-ui-delete" />
 				</IconButton>
-				<Grid container spacing={2}>
-					{this.renderWidgets()}
-				</Grid>
+				{ widgets ? (
+					<ResponsiveGridLayout
+						className="layout"
+						breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+						cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
+						verticalCompact={true}
+						containerPadding={[10, 10]}
+						style={{ backgroundColor: "lightgrey" }}
+					>
+						{ widgets }
+					</ResponsiveGridLayout>
+				) : "No widgets"}
 			</div>
 		);
 	}
