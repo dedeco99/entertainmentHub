@@ -11,6 +11,16 @@ function response(status, message, data) {
 	};
 }
 
+function error(status, message, data) {
+	return {
+		status,
+		body: {
+			message,
+			data,
+		},
+	};
+}
+
 async function token(authorization) {
 	if (!authorization) return false;
 
@@ -51,5 +61,6 @@ async function middleware(req, res, fn, options) {
 
 module.exports = {
 	response,
+	error,
 	middleware,
 };

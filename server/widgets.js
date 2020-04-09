@@ -15,6 +15,8 @@ async function addWidget(event) {
 	const { body, user } = event;
 	const { type, info } = body;
 
+	if (!type) return errors.requiredFieldsMissing;
+
 	switch (type) {
 		case "reddit":
 			if (!info.subreddit) return errors.requiredFieldsMissing;

@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import Grid from "@material-ui/core/Grid";
 import IconButton from "@material-ui/core/IconButton";
 
+import WidgetDetail from "./WidgetDetail";
 import Notifications from "./Notifications";
 import Posts from "../reddit/Posts";
 
@@ -14,10 +15,15 @@ class Index extends Component {
 
 		this.state = {
 			widgets: [],
+
+			openWidgetDetail: false,
 		};
 
-		this.addWidget = this.addWidget.bind(this);
-		this.deleteWidget = this.deleteWidget.bind(this);
+		this.handleAddWidget = this.handleAddWidget.bind(this);
+		this.handleDeleteWidget = this.handleDeleteWidget.bind(this);
+
+		this.handleWidgetDetailOpen = this.handleWidgetDetailOpen.bind(this);
+		this.handleWidgetDetailClose = this.handleWidgetDetailClose.bind(this);
 	}
 
 	async componentDidMount() {
@@ -26,15 +32,8 @@ class Index extends Component {
 		this.setState({ widgets: response.data });
 	}
 
-	async addWidget(widget) {
-		const subreddits = ["MechanicalKeyboards", "dankmemes", "gif", "GlobalOffensive"];
-
-		const response = await addWidget({
-			type: "reddit",
-			info: {
-				subreddit: subreddits[Math.floor(Math.random() * subreddits.length)],
-			},
-		});
+	async handleAddWidget(widget) {
+		const response = await addWidget(widget);
 
 		if (response.status < 400) {
 			this.setState(prevState => ({ widgets: [...prevState.widgets, response.data] }));
@@ -45,14 +44,12 @@ class Index extends Component {
 		}
 	}
 
-	async deleteWidget(id) {
+	async handleDeleteWidget(id) {
 		const { widgets } = this.state;
 
-		const response = await deleteWidget(widgets[widgets.length - 1]._id);
+		const response = await deleteWidget(id);
 
 		if (response.status < 400) {
-			const { widgets } = this.state;
-
 			const updatedWidgets = widgets.filter(w => w._id !== response.data._id);
 
 			this.setState({ widgets: updatedWidgets });
@@ -61,6 +58,14 @@ class Index extends Component {
 		} else {
 			toast.error(response.message);
 		}
+	}
+
+	handleWidgetDetailOpen() {
+		this.setState({ openWidgetDetail: true });
+	}
+
+	handleWidgetDetailClose() {
+		this.setState({ openWidgetDetail: false });
 	}
 
 	renderWidgets() {
@@ -97,12 +102,19 @@ class Index extends Component {
 	}
 
 	renderDashboard() {
+		const { openWidgetDetail } = this.state;
+
 		return (
 			<div className="Index" >
-				<IconButton onClick={this.addWidget}>
+				<WidgetDetail
+					open={openWidgetDetail}
+					onClose={this.handleWidgetDetailClose}
+					onAddWidget={this.handleAddWidget}
+				/>
+				<IconButton onClick={this.handleWidgetDetailOpen}>
 					<i className="icofont-ui-add" />
 				</IconButton>
-				<IconButton onClick={this.deleteWidget}>
+				<IconButton onClick={this.handleDeleteWidget}>
 					<i className="icofont-ui-delete" />
 				</IconButton>
 				<Grid container spacing={2}>
