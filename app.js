@@ -8,6 +8,7 @@ const cron = require("node-cron");
 
 const { initialize } = require("./server/database");
 const auth = require("./server/auth");
+const widgets = require("./server/widgets");
 const notifications = require("./server/notifications");
 const reddit = require("./server/reddit");
 /*
@@ -44,6 +45,12 @@ app.get("/api/auth/apps", auth.getApps);
 app.post("/api/auth/apps", auth.addApp);
 
 app.delete("/api/auth/apps/:app", auth.deleteApp);
+
+app.get("/api/widgets", widgets.getWidgets);
+
+app.post("/api/widgets", widgets.addWidget);
+
+app.delete("/api/widgets/:id", widgets.deleteWidget);
 
 app.get("/api/notifications", notifications.getNotifications);
 

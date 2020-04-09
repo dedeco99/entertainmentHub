@@ -6,9 +6,32 @@ const Widget = require("./models/widget");
 async function getWidgets(event) {
 	const { user } = event;
 
-	const widgets = await Notification.find({ user: user._id }).lean();
+	const widgets = await Widget.find({ user: user._id }).lean();
 
 	return response(200, "Widgets found", widgets);
+}
+
+async function addWidget(event) {
+	const { body, user } = event;
+	const { type, info } = body;
+
+	switch (type) {
+		case "reddit":
+			if (!info.subreddit) return errors.requiredFieldsMissing;
+			break;
+		default:
+			break;
+	}
+
+	const widget = new Widget({
+		user: user._id,
+		type,
+		info,
+	});
+
+	await widget.save();
+
+	return response(200, "Widget created", widget);
 }
 
 async function deleteWidget(event) {
@@ -19,15 +42,16 @@ async function deleteWidget(event) {
 	try {
 		widget = await Widget.findOneAndDelete({ _id: id });
 	} catch (e) {
-		throw errors.notFound;
+		return errors.notFound;
 	}
 
-	if (!widget) throw errors.notFound;
+	if (!widget) return errors.notFound;
 
 	return response(200, "Widget deleted", widget);
 }
 
 module.exports = {
 	getWidgets: (req, res) => middleware(req, res, getWidgets, ["token"]),
+	addWidget: (req, res) => middleware(req, res, addWidget, ["token"]),
 	deleteWidget: (req, res) => middleware(req, res, deleteWidget, ["token"]),
 };

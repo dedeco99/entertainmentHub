@@ -1,18 +1,8 @@
+const { response } = require("./utils");
+
 module.exports = {
-	notFound: {
-		status: 404,
-		message: "Not Found",
-	},
-	redditRefreshToken: {
-		status: 400,
-		message: "Reddit refresh token is invalid",
-	},
-	redditForbidden: {
-		status: 403,
-		message: "Reddit API is down",
-	},
-	redditNotFound: {
-		status: 404,
-		message: "Subreddit not found",
-	},
+	notFound: response(404, "Not Found"),
+	redditRefreshToken: response(400, "Reddit refresh token is invalid"),
+	redditForbidden: response(403, "Reddit API is down"),
+	redditNotFound: response(404, "Subreddit not found"),
 };

@@ -69,7 +69,9 @@ class Post extends Component {
 	}
 
 	async componentDidMount() {
-		const response = await getPosts();
+		const { subreddit } = this.props;
+
+		const response = await getPosts(subreddit);
 
 		response.data = response.data.filter(post => post.thumbnail !== "self");
 
@@ -221,6 +223,7 @@ class Post extends Component {
 
 Post.propTypes = {
 	classes: PropTypes.object,
+	subreddit: PropTypes.string,
 };
 
 export default withStyles(styles)(Post);
