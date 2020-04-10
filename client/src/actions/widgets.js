@@ -12,8 +12,8 @@ async function addWidget(widget) {
 	return res;
 }
 
-async function editWidget(id, widget) {
-	const res = await put(`api/widgets/${id}`, widget);
+async function editWidget(widget) {
+	const res = await put(`api/widgets/${widget._id}`, widget);
 
 	return res;
 }

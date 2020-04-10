@@ -25,6 +25,7 @@ class Index extends Component {
 		};
 
 		this.handleAddWidget = this.handleAddWidget.bind(this);
+		this.handleEditWidget = this.handleEditWidget.bind(this);
 		this.handleDeleteWidget = this.handleDeleteWidget.bind(this);
 
 		this.handleWidgetDetailOpen = this.handleWidgetDetailOpen.bind(this);
@@ -50,11 +51,21 @@ class Index extends Component {
 		}
 	}
 
-	async handleEditWidget(widget) {
-		const response = await editWidget(widget);
+	async handleEditWidget(widgetArray, oldWidget, updatedWidget) {
+		const { widgets } = this.state;
+		const widgetToUpdate = widgets.find(w => w._id === updatedWidget.i);
+
+		widgetToUpdate.x = updatedWidget.x;
+		widgetToUpdate.y = updatedWidget.y;
+		widgetToUpdate.width = updatedWidget.w;
+		widgetToUpdate.height = updatedWidget.h;
+
+		const response = await editWidget(widgetToUpdate);
 
 		if (response.status < 400) {
-			this.setState(prevState => ({ widgets: [...prevState.widgets, response.data] }));
+			this.setState(prevState => ({
+				widgets: [...prevState.widgets.filter(w => w._id !== response.data._id), response.data],
+			}));
 
 			toast.success(response.message);
 		} else {
@@ -99,7 +110,15 @@ class Index extends Component {
 				switch (widget.type) {
 					case "notifications":
 						return (
-							<div key={widget._id} data-grid={{ x: 0, y: 0, w: 1, h: 4 }}>
+							<div
+								key={widget._id}
+								data-grid={{
+									x: widget.x || 0,
+									y: widget.y || 0,
+									w: widget.width || 1,
+									h: widget.height || 4,
+								}}
+							>
 								<Widget
 									id={widget._id}
 									content={<Notifications height="100%" />}
@@ -112,7 +131,15 @@ class Index extends Component {
 						);
 					case "reddit":
 						return (
-							<div key={widget._id} data-grid={{ x: 0, y: 0, w: 1, h: 2 }}>
+							<div
+								key={widget._id}
+								data-grid={{
+									x: widget.x || 0,
+									y: widget.y || 0,
+									w: widget.width || 1,
+									h: widget.height || 2,
+								}}
+							>
 								<Widget
 									id={widget._id}
 									content={<Posts subreddit={widget.info.subreddit} />}
@@ -158,6 +185,8 @@ class Index extends Component {
 						isDraggable={editMode}
 						isResizable={editMode}
 						containerPadding={[10, 0]}
+						onDragStop={this.handleEditWidget}
+						onResizeStop={this.handleEditWidget}
 					>
 						{widgets}
 					</ResponsiveGridLayout>

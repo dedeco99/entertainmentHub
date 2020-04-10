@@ -36,6 +36,24 @@ async function addWidget(event) {
 	return response(200, "Widget created", widget);
 }
 
+async function editWidget(event) {
+	const { params, body } = event;
+	const { id } = params;
+	const { x, y, width, height } = body;
+
+	const widgetExists = await Widget.findOne({ _id: id }).lean();
+
+	if (!widgetExists) return response(404, "Widget doesn't exist");
+
+	const widget = await Widget.findOneAndUpdate(
+		{ _id: id },
+		{ x, y, width, height },
+		{ new: true },
+	).lean();
+
+	return response(200, "Widget has been updated", widget);
+}
+
 async function deleteWidget(event) {
 	const { params } = event;
 	const { id } = params;
@@ -55,5 +73,6 @@ async function deleteWidget(event) {
 module.exports = {
 	getWidgets: (req, res) => middleware(req, res, getWidgets, ["token"]),
 	addWidget: (req, res) => middleware(req, res, addWidget, ["token"]),
+	editWidget: (req, res) => middleware(req, res, editWidget, ["token"]),
 	deleteWidget: (req, res) => middleware(req, res, deleteWidget, ["token"]),
 };

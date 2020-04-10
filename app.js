@@ -50,6 +50,8 @@ app.get("/api/widgets", widgets.getWidgets);
 
 app.post("/api/widgets", widgets.addWidget);
 
+app.put("/api/widgets/:id", widgets.editWidget);
+
 app.delete("/api/widgets/:id", widgets.deleteWidget);
 
 app.get("/api/notifications", notifications.getNotifications);
