@@ -4,7 +4,6 @@ import { withStyles } from "@material-ui/styles";
 import Zoom from "@material-ui/core/Zoom";
 import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
-import CardActionArea from "@material-ui/core/CardActionArea";
 
 import { getPosts } from "../../actions/reddit";
 import { formatDate } from "../../utils/utils";
@@ -13,7 +12,13 @@ import placeholder from "../../img/noimage.png";
 
 const styles = () => ({
 	root: {
-		backgroundColor: "#212121dd",
+		position: "relative",
+		backgroundColor: "#212121",
+		height: "100%",
+	},
+	media: {
+		width: "100%",
+		height: "100%",
 	},
 	overlay: {
 		position: "absolute",
@@ -32,12 +37,12 @@ const styles = () => ({
 	},
 	previous: {
 		fontSize: "2em",
-		top: "35px",
+		top: "50%",
 		left: "5px",
 	},
 	next: {
 		fontSize: "2em",
-		top: "35px",
+		top: "50%",
 		right: "5px",
 	},
 	score: {
@@ -69,7 +74,9 @@ class Post extends Component {
 	}
 
 	async componentDidMount() {
-		const response = await getPosts();
+		const { subreddit } = this.props;
+
+		const response = await getPosts(subreddit);
 
 		response.data = response.data.filter(post => post.thumbnail !== "self");
 
@@ -104,15 +111,21 @@ class Post extends Component {
 		let content = null;
 
 		if (imgTypes.includes(post.url.substr(post.url.lastIndexOf(".") + 1))) {
-			content = <CardMedia component="img" src={post.url} width="100%" />;
+			content = (
+				<CardMedia
+					component="img"
+					src={post.url}
+					className={classes.media}
+				/>
+			);
 		} else if (post.domain === "gfycat.com") {
 			content = (
 				<CardMedia
 					component="iframe"
 					src={`https://gfycat.com/ifr/${post.url.substr(post.url.lastIndexOf("/") + 1)}?autoplay=0&hd=1`}
-					height="400px"
 					frameBorder={0}
 					allowFullScreen
+					className={classes.media}
 				/>
 			);
 		} else if (post.domain === "imgur.com") {
@@ -126,7 +139,7 @@ class Post extends Component {
 				<CardMedia
 					component="iframe"
 					src={imgurLink}
-					height="400px"
+					className={classes.media}
 					frameBorder={0}
 					allowFullScreen
 				/>
@@ -136,7 +149,7 @@ class Post extends Component {
 				<CardMedia
 					component="video"
 					src={`${post.url.slice(0, -5)}.mp4`}
-					height="400px"
+					className={classes.media}
 					controls
 				/>
 			);
@@ -145,7 +158,7 @@ class Post extends Component {
 				<CardMedia
 					component="video"
 					src={post.redditVideo}
-					height="400px"
+					className={classes.media}
 					controls
 				/>
 			);
@@ -159,13 +172,13 @@ class Post extends Component {
 				<CardMedia
 					component="iframe"
 					src={`https://www.youtube.com/embed/${videoId}`}
-					height="400px"
+					className={classes.media}
 					frameBorder={0}
 					allowFullScreen
 				/>
 			);
 		} else {
-			content = <CardMedia component="img" src={placeholder} height="400px" />;
+			content = <CardMedia component="img" src={placeholder} className={classes.media} />;
 			// content = <div style={{ padding: "40px 10px 20px 10px" }} dangerouslySetInnerHTML={{ __html: this.htmlEscape(post.text) }} />
 		}
 
@@ -209,10 +222,8 @@ class Post extends Component {
 					onMouseEnter={this.hideInfo}
 					onMouseLeave={this.showInfo}
 				>
-					<CardActionArea>
-						{content}
-						{info}
-					</CardActionArea>
+					{info}
+					{content}
 				</Card>
 			</Zoom>
 		);
@@ -221,6 +232,7 @@ class Post extends Component {
 
 Post.propTypes = {
 	classes: PropTypes.object,
+	subreddit: PropTypes.string,
 };
 
 export default withStyles(styles)(Post);
