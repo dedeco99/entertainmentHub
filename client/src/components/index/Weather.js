@@ -13,7 +13,11 @@ import { getWeather } from "../../actions/weather";
 
 const styles = () => ({
 	root: {
+		display: "flex",
+		flexDirection: "column",
 		backgroundColor: "#212121dd",
+		height: "100%",
+		boxSizing: "border-box",
 	},
 	content: {
 		padding: 16,
@@ -36,7 +40,7 @@ const styles = () => ({
 		"& div": {
 			"borderTop": "1px solid #121212",
 			"borderRight": "1px solid #121212",
-			"padding": 10,
+			"padding": "5px 2px 5px 2px",
 			"& img": {
 				width: 40,
 				height: 40,
@@ -133,7 +137,7 @@ class Weather extends Component {
 		return (
 			<Zoom in={loaded}>
 				<Card variant="outlined" className={classes.root}>
-					<div className={classes.content}>
+					<Box display="flex" flexDirection="column" flexGrow={1} className={classes.content}>
 						<Box display="flex">
 							<Box display="flex" flexDirection="column" justifyContent="center" flexGrow={1}>
 								<Typography variant="h6">
@@ -156,7 +160,7 @@ class Weather extends Component {
 								{weather && this.showFeelsLike()}
 							</Box>
 						</Box>
-						<Box display="flex">
+						<Box display="flex" flexGrow={1}>
 							<Box display="flex" flexDirection="column" justifyContent="center" flexGrow={1}>
 								<Typography variant="caption" className={classes.info}>
 									<Tooltip title="Clouds">
@@ -169,7 +173,7 @@ class Weather extends Component {
 									{weather && `${Math.round(weather.current.windSpeed)} m/s`}
 								</Typography>
 							</Box>
-							<Box>
+							<Box display="flex" justifyContent="center" alignItems="center">
 								{weather && <img src={weather.current.forecast.image} />}
 							</Box>
 							<Box display="flex" flexDirection="column" justifyContent="center" alignItems="flex-end" flexGrow={1}>
@@ -187,7 +191,7 @@ class Weather extends Component {
 								</Typography>
 							</Box>
 						</Box>
-					</div>
+					</Box>
 					<Box display="flex" className={classes.nextDays}>
 						{weather && this.renderNextDays()}
 					</Box>
