@@ -419,7 +419,7 @@
 		],
 		"react/jsx-key": "error", // recommended
 		"react/jsx-max-depth": [
-			"error",
+			"warn",
 			{
 				"max": 5
 			}

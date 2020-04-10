@@ -19,12 +19,16 @@ const styles = () => ({
 		padding: 16,
 		paddingBottom: 0,
 	},
+	description: {
+		textTransform: "capitalize",
+	},
 	info: {
 		"display": "flex",
 		"alignItems": "center",
 		"& i": {
 			fontSize: "1.5rem",
-			paddingRight: 4,
+			marginRight: 4,
+			marginBottom: 5,
 			display: "inline-block",
 		},
 	},
@@ -41,9 +45,6 @@ const styles = () => ({
 	},
 	lastDay: {
 		borderRight: "none !important",
-	},
-	nextDaysTemps: {
-		fontSize: "0.60rem",
 	},
 });
 
@@ -72,7 +73,7 @@ class Weather extends Component {
 		if (Math.round(weather.current.feelsLike) !== Math.round(weather.current.temp)) {
 			return (
 				<Typography variant="caption">
-					{weather && `Feels Like ${Math.round(weather.current.feelsLike)}º`}
+					{weather && `Feels Like ${Math.round(weather.current.feelsLike)}°`}
 				</Typography>
 			);
 		}
@@ -111,11 +112,11 @@ class Weather extends Component {
 				<Tooltip title={day.forecast.description} placement="top">
 					{weather && <img src={day.forecast.image} />}
 				</Tooltip>
-				<Typography variant="caption" className={classes.nextDaysTemps}>
+				<Typography variant="caption">
 					<i className="icofont-caret-up" />
-					{weather && `${Math.round(day.maxTemp)}º `}
+					{weather && `${Math.round(day.maxTemp)}° `}
 					<i className="icofont-caret-down" />
-					{weather && `${Math.round(day.minTemp)}º`}
+					{weather && `${Math.round(day.minTemp)}°`}
 				</Typography>
 			</Box>
 		));
@@ -136,19 +137,19 @@ class Weather extends Component {
 								<Typography variant="h6">
 									{"Amora, Portugal"}
 								</Typography>
-								<Typography variant="subtitle1">
+								<Typography variant="subtitle1" className={classes.description}>
 									{weather && weather.current.forecast.description}
 								</Typography>
 							</Box>
 							<Box display="flex" flexDirection="column" alignItems="flex-end">
 								<Typography variant="h4">
-									{weather && `${Math.round(weather.current.temp)}º`}
+									{weather && `${Math.round(weather.current.temp)}°`}
 								</Typography>
 								<Typography variant="caption">
 									<i className="icofont-caret-up" />
-									{weather && `${Math.round(weather.current.maxTemp)}º `}
+									{weather && `${Math.round(weather.current.maxTemp)}° `}
 									<i className="icofont-caret-down" />
-									{weather && `${Math.round(weather.current.minTemp)}º`}
+									{weather && `${Math.round(weather.current.minTemp)}°`}
 								</Typography>
 								{weather && this.showFeelsLike()}
 							</Box>
