@@ -21,6 +21,10 @@ const useStyles = makeStyles({
 		top: "5px",
 		left: "5px",
 	},
+	seriesName: {
+		top: "30px",
+		left: "5px",
+	},
 	date: {
 		bottom: "5px",
 		right: "5px",
@@ -44,6 +48,9 @@ function Episode({ episode }) {
 				<CardMedia component="img" height="150" image={image} />
 				<div className={`${classes.overlay} ${classes.title}`}>
 					{episode.title}
+				</div>
+				<div className={`${classes.overlay} ${classes.seriesName}`}>
+					{episode.seriesId.displayName}
 				</div>
 				<div className={`${classes.overlay} ${classes.season}`}>
 					{seasonLabel + episodeLabel}
