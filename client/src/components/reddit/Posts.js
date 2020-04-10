@@ -4,7 +4,6 @@ import { withStyles } from "@material-ui/styles";
 import Zoom from "@material-ui/core/Zoom";
 import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
-import CardActionArea from "@material-ui/core/CardActionArea";
 
 import { getPosts } from "../../actions/reddit";
 import { formatDate } from "../../utils/utils";

@@ -1,13 +1,14 @@
 import React, { Component } from "react";
 import { toast } from "react-toastify";
-import Grid from "@material-ui/core/Grid";
 import IconButton from "@material-ui/core/IconButton";
 
 import WidgetDetail from "./WidgetDetail";
 import Notifications from "./Notifications";
 import Posts from "../reddit/Posts";
 
-import { Responsive, WidthProvider } from 'react-grid-layout';
+import Widget from "./Widget";
+
+import { Responsive, WidthProvider } from "react-grid-layout";
 
 import { getWidgets, addWidget, deleteWidget } from "../../actions/widgets";
 
@@ -21,6 +22,7 @@ class Index extends Component {
 			widgets: [],
 
 			openWidgetDetail: false,
+			editMode: false,
 		};
 
 		this.handleAddWidget = this.handleAddWidget.bind(this);
@@ -28,6 +30,8 @@ class Index extends Component {
 
 		this.handleWidgetDetailOpen = this.handleWidgetDetailOpen.bind(this);
 		this.handleWidgetDetailClose = this.handleWidgetDetailClose.bind(this);
+
+		this.toggleEdit = this.toggleEdit.bind(this);
 	}
 
 	async componentDidMount() {
@@ -72,22 +76,37 @@ class Index extends Component {
 		this.setState({ openWidgetDetail: false });
 	}
 
+	toggleEdit() {
+		const { editMode } = this.state;
+		this.setState({ editMode: !editMode });
+	}
+
 	renderWidgets() {
-		const { widgets } = this.state;
+		const { widgets, editMode } = this.state;
 
 		if (widgets && widgets.length) {
 			return widgets.map(widget => {
 				switch (widget.type) {
 					case "notifications":
 						return (
-							<div style={{ backgroundColor: "orange" }} key={widget._id} data-grid={{ x: 0, y: 0, w: 3, h: 2 }}>
-								<Notifications height="100%" />
+							<div key={widget._id} data-grid={{ x: 0, y: 0, w: 3, h: 2 }}>
+								<Widget
+									editMode={editMode}
+									editText={"Notifications"}
+									editIcon={"icofont-alarm"}
+									content={<Notifications height="100%" />}
+								/>
 							</div>
 						);
 					case "reddit":
 						return (
-							<div style={{ backgroundColor: "orange" }} key={widget._id} data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
-								<Posts subreddit={widget.info.subreddit} />
+							<div key={widget._id} data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
+								<Widget
+									editMode={editMode}
+									editText={`r/${widget.info.subreddit}`}
+									editIcon={"icofont-reddit"}
+									content={<Posts subreddit={widget.info.subreddit} />}
+								/>
 							</div>
 						);
 					default: return null;
@@ -99,7 +118,7 @@ class Index extends Component {
 	}
 
 	renderDashboard() {
-		const { openWidgetDetail } = this.state;
+		const { openWidgetDetail, editMode } = this.state;
 		const widgets = this.renderWidgets();
 
 		return (
@@ -115,12 +134,18 @@ class Index extends Component {
 				<IconButton onClick={this.handleDeleteWidget}>
 					<i className="icofont-ui-delete" />
 				</IconButton>
+				<IconButton onClick={this.toggleEdit}>
+					<i className="icofont-ui-edit" />
+				</IconButton>
 				{ widgets ? (
 					<ResponsiveGridLayout
 						className="layout"
 						breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
 						cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
-						verticalCompact={true}
+						verticalCompact={false}
+						preventCollision={true}
+						isDraggable={editMode}
+						isResizable={editMode}
 						containerPadding={[10, 10]}
 						style={{ backgroundColor: "lightgrey" }}
 					>

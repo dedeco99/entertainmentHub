@@ -113,11 +113,9 @@ class Notifications extends Component {
 		this.setState({ anchorEl: null });
 	}
 
-	render() {
-		const { notifications, height } = this.props;
-		const { history, anchorEl, selectedIndex, open } = this.state;
-
-		const options = ["All", "TV", "Reddit", "Twitch"];
+	renderNotificationList() {
+		const { notifications } = this.props;
+		const { history } = this.state;
 
 		const notificationList = notifications.map(notification => {
 			const notificationText = this.renderNotificationMessage(notification);
@@ -145,6 +143,15 @@ class Notifications extends Component {
 				</ListItem >
 			);
 		});
+
+		return notificationList;
+	}
+
+	render() {
+		const { height } = this.props;
+		const { history, anchorEl, selectedIndex, open } = this.state;
+
+		const options = ["All", "TV", "Reddit", "Twitch"];
 
 		return (
 			<Zoom in={open}>
@@ -198,7 +205,7 @@ class Notifications extends Component {
 							))}
 						</Menu>
 					</ListSubheader>
-					{notificationList}
+					{this.renderNotificationList()}
 				</List>
 			</Zoom >
 		);
