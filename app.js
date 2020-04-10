@@ -10,6 +10,7 @@ const { initialize } = require("./server/database");
 const auth = require("./server/auth");
 const widgets = require("./server/widgets");
 const notifications = require("./server/notifications");
+const weather = require("./server/weather");
 const reddit = require("./server/reddit");
 /*
 const youtube = require("./server/youtube");
@@ -59,6 +60,8 @@ app.get("/api/notifications", notifications.getNotifications);
 app.patch("/api/notifications/:id", notifications.patchNotification);
 
 app.delete("/api/notifications/:id", notifications.deleteNotification);
+
+app.get("/api/weather/:lat/:lon", weather.getWeather);
 
 app.get("/api/reddit/subreddits/", reddit.getSubreddits);
 
