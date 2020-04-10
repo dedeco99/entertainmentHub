@@ -3,6 +3,7 @@ import Grid from "@material-ui/core/Grid";
 
 import Notifications from "./Notifications";
 import Posts from "../reddit/Posts";
+import Weather from "./Weather";
 
 class Index extends Component {
 	renderDashboard() {
@@ -14,6 +15,8 @@ class Index extends Component {
 					</Grid>
 					<Grid item xs={12} sm={6} md={4} lg={3} xl={2}>
 						<Posts />
+						<br /><br />
+						<Weather />
 					</Grid>
 				</Grid>
 			</div>
