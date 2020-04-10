@@ -37,10 +37,10 @@ class WidgetDetail extends Component {
 	}
 
 	async handleSubmit() {
-		const { onAddWidget } = this.props;
+		const { onAdd } = this.props;
 		const { type, info } = this.state;
 
-		await onAddWidget({ type, info });
+		await onAdd({ type, info });
 	}
 
 	handleKeyPress(event) {
@@ -115,7 +115,7 @@ class WidgetDetail extends Component {
 WidgetDetail.propTypes = {
 	open: PropTypes.bool.isRequired,
 	onClose: PropTypes.func.isRequired,
-	onAddWidget: PropTypes.func.isRequired,
+	onAdd: PropTypes.func.isRequired,
 };
 
 export default WidgetDetail;

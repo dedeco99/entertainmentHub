@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import { toast } from "react-toastify";
+import { Responsive, WidthProvider } from "react-grid-layout";
 import IconButton from "@material-ui/core/IconButton";
 
 import WidgetDetail from "./WidgetDetail";
@@ -8,9 +9,7 @@ import Posts from "../reddit/Posts";
 
 import Widget from "./Widget";
 
-import { Responsive, WidthProvider } from "react-grid-layout";
-
-import { getWidgets, addWidget, deleteWidget } from "../../actions/widgets";
+import { getWidgets, addWidget, editWidget, deleteWidget } from "../../actions/widgets";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -30,8 +29,7 @@ class Index extends Component {
 
 		this.handleWidgetDetailOpen = this.handleWidgetDetailOpen.bind(this);
 		this.handleWidgetDetailClose = this.handleWidgetDetailClose.bind(this);
-
-		this.toggleEdit = this.toggleEdit.bind(this);
+		this.handleToggleEdit = this.handleToggleEdit.bind(this);
 	}
 
 	async componentDidMount() {
@@ -42,6 +40,18 @@ class Index extends Component {
 
 	async handleAddWidget(widget) {
 		const response = await addWidget(widget);
+
+		if (response.status < 400) {
+			this.setState(prevState => ({ widgets: [...prevState.widgets, response.data] }));
+
+			toast.success(response.message);
+		} else {
+			toast.error(response.message);
+		}
+	}
+
+	async handleEditWidget(widget) {
+		const response = await editWidget(widget);
 
 		if (response.status < 400) {
 			this.setState(prevState => ({ widgets: [...prevState.widgets, response.data] }));
@@ -76,7 +86,7 @@ class Index extends Component {
 		this.setState({ openWidgetDetail: false });
 	}
 
-	toggleEdit() {
+	handleToggleEdit() {
 		const { editMode } = this.state;
 		this.setState({ editMode: !editMode });
 	}
@@ -89,23 +99,27 @@ class Index extends Component {
 				switch (widget.type) {
 					case "notifications":
 						return (
-							<div key={widget._id} data-grid={{ x: 0, y: 0, w: 3, h: 2 }}>
+							<div key={widget._id} data-grid={{ x: 0, y: 0, w: 1, h: 4 }}>
 								<Widget
+									id={widget._id}
+									content={<Notifications height="100%" />}
 									editMode={editMode}
 									editText={"Notifications"}
 									editIcon={"icofont-alarm"}
-									content={<Notifications height="100%" />}
+									onDelete={this.handleDeleteWidget}
 								/>
 							</div>
 						);
 					case "reddit":
 						return (
-							<div key={widget._id} data-grid={{ x: 0, y: 0, w: 2, h: 2 }}>
+							<div key={widget._id} data-grid={{ x: 0, y: 0, w: 1, h: 2 }}>
 								<Widget
+									id={widget._id}
+									content={<Posts subreddit={widget.info.subreddit} />}
 									editMode={editMode}
 									editText={`r/${widget.info.subreddit}`}
 									editIcon={"icofont-reddit"}
-									content={<Posts subreddit={widget.info.subreddit} />}
+									onDelete={this.handleDeleteWidget}
 								/>
 							</div>
 						);
@@ -126,30 +140,26 @@ class Index extends Component {
 				<WidgetDetail
 					open={openWidgetDetail}
 					onClose={this.handleWidgetDetailClose}
-					onAddWidget={this.handleAddWidget}
+					onAdd={this.handleAddWidget}
 				/>
 				<IconButton onClick={this.handleWidgetDetailOpen}>
 					<i className="icofont-ui-add" />
 				</IconButton>
-				<IconButton onClick={this.handleDeleteWidget}>
-					<i className="icofont-ui-delete" />
-				</IconButton>
-				<IconButton onClick={this.toggleEdit}>
+				<IconButton onClick={this.handleToggleEdit}>
 					<i className="icofont-ui-edit" />
 				</IconButton>
-				{ widgets ? (
+				{widgets ? (
 					<ResponsiveGridLayout
 						className="layout"
 						breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-						cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
-						verticalCompact={false}
-						preventCollision={true}
+						cols={{ xl: 12, lg: 4, md: 3, sm: 2, xs: 1, xxs: 1 }}
+						compactType={"horizontal"}
+						preventCollision
 						isDraggable={editMode}
 						isResizable={editMode}
-						containerPadding={[10, 10]}
-						style={{ backgroundColor: "lightgrey" }}
+						containerPadding={[10, 0]}
 					>
-						{ widgets }
+						{widgets}
 					</ResponsiveGridLayout>
 				) : "No widgets"}
 			</div>

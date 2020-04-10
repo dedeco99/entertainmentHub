@@ -1,4 +1,4 @@
-import { get, post, remove } from "../utils/request";
+import { get, post, put, remove } from "../utils/request";
 
 async function getWidgets() {
 	const res = await get("api/widgets");
@@ -12,6 +12,12 @@ async function addWidget(widget) {
 	return res;
 }
 
+async function editWidget(id, widget) {
+	const res = await put(`api/widgets/${id}`, widget);
+
+	return res;
+}
+
 async function deleteWidget(id) {
 	const res = await remove(`api/widgets/${id}`);
 
@@ -21,5 +27,6 @@ async function deleteWidget(id) {
 export {
 	getWidgets,
 	addWidget,
+	editWidget,
 	deleteWidget,
 };
