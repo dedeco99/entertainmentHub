@@ -62,7 +62,9 @@ class Weather extends Component {
 	}
 
 	async getWeather() {
-		const response = await getWeather(38.5767759, -9.1566862);
+		const { lat, lon } = this.props;
+
+		const response = await getWeather(lat, lon);
 
 		this.setState({ loaded: true, weather: response.data });
 	}
@@ -197,6 +199,8 @@ class Weather extends Component {
 
 Weather.propTypes = {
 	classes: PropTypes.object,
+	lat: PropTypes.number.isRequired,
+	lon: PropTypes.number.isRequired,
 };
 
 export default withStyles(styles)(Weather);

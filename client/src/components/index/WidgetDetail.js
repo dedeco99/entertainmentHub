@@ -18,6 +18,9 @@ class WidgetDetail extends Component {
 			type: "",
 			info: {
 				subreddit: "",
+
+				lat: 0,
+				lon: 0,
 			},
 		};
 
@@ -66,6 +69,35 @@ class WidgetDetail extends Component {
 						required
 					/>
 				);
+			case "weather":
+				return (
+					<div>
+						<Input
+							id="info.lat"
+							type="text"
+							label="Latitude"
+							value={info.lat}
+							onChange={this.handleChange}
+							onKeyPress={this.handleKeyPress}
+							margin="normal"
+							variant="outlined"
+							fullWidth
+							required
+						/>
+						<Input
+							id="info.lon"
+							type="text"
+							label="Longitude"
+							value={info.lon}
+							onChange={this.handleChange}
+							onKeyPress={this.handleKeyPress}
+							margin="normal"
+							variant="outlined"
+							fullWidth
+							required
+						/>
+					</div>
+				);
 			default: return null;
 		}
 	}
@@ -93,8 +125,9 @@ class WidgetDetail extends Component {
 							fullWidth
 							required
 						>
-							<option value="notifications">{"notifications"}</option>
-							<option value="reddit">{"reddit"}</option>
+							<option value="notifications">{"Notifications"}</option>
+							<option value="reddit">{"Reddit"}</option>
+							<option value="weather">{"Weather"}</option>
 						</Select>
 					</FormControl>
 					{this.renderFields()}

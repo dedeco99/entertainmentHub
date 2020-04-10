@@ -21,6 +21,9 @@ async function addWidget(event) {
 		case "reddit":
 			if (!info.subreddit) return errors.requiredFieldsMissing;
 			break;
+		case "weather":
+			if (!info.lat || !info.lon) return errors.requiredFieldsMissing;
+			break;
 		default:
 			break;
 	}

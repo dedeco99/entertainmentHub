@@ -52,25 +52,35 @@ class Index extends Component {
 		}
 	}
 
-	async handleEditWidget(widgetArray, oldWidget, updatedWidget) {
+	async handleEditWidget(updatedWidgets) {
 		const { widgets } = this.state;
-		const widgetToUpdate = widgets.find(w => w._id === updatedWidget.i);
 
-		widgetToUpdate.x = updatedWidget.x;
-		widgetToUpdate.y = updatedWidget.y;
-		widgetToUpdate.width = updatedWidget.w;
-		widgetToUpdate.height = updatedWidget.h;
+		for (const updatedWidget of updatedWidgets) {
+			const widgetToUpdate = widgets.find(w => w._id === updatedWidget.i);
 
-		const response = await editWidget(widgetToUpdate);
+			if (
+				widgetToUpdate.x !== updatedWidget.x ||
+				widgetToUpdate.y !== updatedWidget.y ||
+				widgetToUpdate.width !== updatedWidget.w ||
+				widgetToUpdate.height !== updatedWidget.h
+			) {
+				widgetToUpdate.x = updatedWidget.x;
+				widgetToUpdate.y = updatedWidget.y;
+				widgetToUpdate.width = updatedWidget.w;
+				widgetToUpdate.height = updatedWidget.h;
 
-		if (response.status < 400) {
-			this.setState(prevState => ({
-				widgets: [...prevState.widgets.filter(w => w._id !== response.data._id), response.data],
-			}));
+				const response = await editWidget(widgetToUpdate);
 
-			toast.success(response.message);
-		} else {
-			toast.error(response.message);
+				if (response.status < 400) {
+					this.setState(prevState => ({
+						widgets: [...prevState.widgets.filter(w => w._id !== response.data._id), response.data],
+					}));
+
+					toast.success(response.message);
+				} else {
+					toast.error(response.message);
+				}
+			}
 		}
 	}
 
@@ -108,51 +118,49 @@ class Index extends Component {
 
 		if (widgets && widgets.length) {
 			return widgets.map(widget => {
+				let content = null;
+				let editText = null;
+				let editIcon = null;
+
 				switch (widget.type) {
 					case "notifications":
-						return (
-							<div
-								key={widget._id}
-								data-grid={{
-									x: widget.x || 0,
-									y: widget.y || 0,
-									w: widget.width || 1,
-									h: widget.height || 4,
-								}}
-							>
-								<Widget
-									id={widget._id}
-									content={<Notifications height="100%" />}
-									editMode={editMode}
-									editText={"Notifications"}
-									editIcon={"icofont-alarm"}
-									onDelete={this.handleDeleteWidget}
-								/>
-							</div>
-						);
+						content = <Notifications height="100%" />;
+						editText = "Notifications";
+						editIcon = "icofont-alarm";
+						break;
 					case "reddit":
-						return (
-							<div
-								key={widget._id}
-								data-grid={{
-									x: widget.x || 0,
-									y: widget.y || 0,
-									w: widget.width || 1,
-									h: widget.height || 2,
-								}}
-							>
-								<Widget
-									id={widget._id}
-									content={<Posts subreddit={widget.info.subreddit} />}
-									editMode={editMode}
-									editText={`r/${widget.info.subreddit}`}
-									editIcon={"icofont-reddit"}
-									onDelete={this.handleDeleteWidget}
-								/>
-							</div>
-						);
+						content = <Posts subreddit={widget.info.subreddit} />;
+						editText = `r/${widget.info.subreddit}`;
+						editIcon = "icofont-reddit";
+						break;
+					case "weather":
+						content = <Weather lat={widget.info.lat} lon={widget.info.lon} />;
+						editText = "Weather";
+						editIcon = "icofont-cloud";
+						break;
 					default: return null;
 				}
+
+				return (
+					<div
+						key={widget._id}
+						data-grid={{
+							x: widget.x || 0,
+							y: widget.y || 0,
+							w: widget.width || 1,
+							h: widget.height || 4,
+						}}
+					>
+						<Widget
+							id={widget._id}
+							content={content}
+							editMode={editMode}
+							editText={editText}
+							editIcon={editIcon}
+							onDelete={this.handleDeleteWidget}
+						/>
+					</div>
+				);
 			});
 		}
 
@@ -181,11 +189,9 @@ class Index extends Component {
 						className="layout"
 						breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
 						cols={{ xl: 12, lg: 4, md: 3, sm: 2, xs: 1, xxs: 1 }}
-						compactType={"horizontal"}
-						preventCollision
+						containerPadding={[10, 0]}
 						isDraggable={editMode}
 						isResizable={editMode}
-						containerPadding={[10, 0]}
 						onDragStop={this.handleEditWidget}
 						onResizeStop={this.handleEditWidget}
 					>
