@@ -1,4 +1,3 @@
-/* eslint-disable react/no-multi-comp */
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/styles";
@@ -7,11 +6,12 @@ import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
 import Paper from "@material-ui/core/Paper";
 import Zoom from "@material-ui/core/Zoom";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
+
+import CustomScrollbar from "../.partials/CustomScrollbar";
 
 import { getSeasons, getPopular } from "../../actions/tv";
 
@@ -23,6 +23,9 @@ const styles = () => ({
 		flexGrow: 1,
 		backgroundColor: "#212121",
 		height: "100%",
+	},
+	indicator: {
+		backgroundColor: "white",
 	},
 	tab: {
 		minWidth: 50,
@@ -49,10 +52,13 @@ class TVWidget extends Component {
 			allEpisodes: [],
 			popular: [],
 			future: [],
+			entered: false,
 		};
 
 		this.handleChange = this.handleChange.bind(this);
 		this.handleChangeIndex = this.handleChangeIndex.bind(this);
+		this.handleEntered = this.handleEntered.bind(this);
+		this.handleExit = this.handleExit.bind(this);
 	}
 
 	async componentDidMount() {
@@ -83,7 +89,7 @@ class TVWidget extends Component {
 			</ListItem >
 		));
 
-		return <List> {popularList} </List>;
+		return <CustomScrollbar> <List> {popularList} </List> </CustomScrollbar>;
 	}
 
 	renderEpisodeList(episodes) {
@@ -104,7 +110,7 @@ class TVWidget extends Component {
 			);
 		});
 
-		return <List> {episodeList} </List>;
+		return <CustomScrollbar> <List component="div"> {episodeList} </List> </CustomScrollbar>;
 	}
 
 	a11yTabProps(index) {
@@ -121,15 +127,23 @@ class TVWidget extends Component {
 		};
 	}
 
+	handleEntered() {
+		this.setState({ entered: true });
+	}
+
+	handleExit() {
+		this.setState({ entered: false });
+	}
+
 	render() {
-		const { tabIndex, loaded, allEpisodes, future } = this.state;
+		const { tabIndex, loaded, allEpisodes, future, entered } = this.state;
 		const { classes } = this.props;
 
 		return (
-			<Zoom in={loaded}>
+			<Zoom in={loaded} onEntered={this.handleEntered} onExit={this.handleExit}>
 				<div className={classes.root}>
 					<Paper square>
-						<Tabs value={tabIndex} onChange={this.handleChange} variant="fullWidth">
+						<Tabs value={entered ? tabIndex : false} onChange={this.handleChange} variant="fullWidth" classes={{ indicator: classes.indicator }}>
 							<Tab label="All" className={classes.tab} {...this.a11yTabProps(0)} />
 							<Tab label="Popular" className={classes.tab} {...this.a11yTabProps(1)} />
 							<Tab label="Future" className={classes.tab} {...this.a11yTabProps(2)} />
