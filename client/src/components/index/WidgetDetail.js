@@ -128,6 +128,7 @@ class WidgetDetail extends Component {
 							<option value="notifications">{"Notifications"}</option>
 							<option value="reddit">{"Reddit"}</option>
 							<option value="weather">{"Weather"}</option>
+							<option value="tv">{"TV"}</option>
 						</Select>
 					</FormControl>
 					{this.renderFields()}

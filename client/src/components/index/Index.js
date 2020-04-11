@@ -7,10 +7,12 @@ import WidgetDetail from "./WidgetDetail";
 import Notifications from "./Notifications";
 import Posts from "../reddit/Posts";
 import Weather from "./Weather";
+import TVWidget from "./TVWidget";
 
 import Widget from "./Widget";
 
 import { getWidgets, addWidget, editWidget, deleteWidget } from "../../actions/widgets";
+import { isValidObjectId } from "mongoose";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -137,6 +139,11 @@ class Index extends Component {
 						content = <Weather lat={widget.info.lat} lon={widget.info.lon} />;
 						editText = "Weather";
 						editIcon = "icofont-cloud";
+						break;
+					case "tv":
+						content = <TVWidget />;
+						editText = "TV";
+						editIcon = "icofont-contrast";
 						break;
 					default: return null;
 				}
