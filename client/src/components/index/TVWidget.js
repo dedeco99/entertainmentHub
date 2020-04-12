@@ -63,7 +63,7 @@ class TVWidget extends Component {
 
 	async componentDidMount() {
 		const response = await Promise.all([
-			getSeasons("all", 0, "all"),
+			getSeasons("all", 0, "passed"),
 			getPopular(0),
 			getSeasons("all", 0, "future"),
 		]);
