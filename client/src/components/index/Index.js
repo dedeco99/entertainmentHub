@@ -144,7 +144,7 @@ class Index extends Component {
 						editText = "TV";
 						editIcon = "icofont-contrast";
 						break;
-					default: return null;
+					default: return <div />;
 				}
 
 				return (
