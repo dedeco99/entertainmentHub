@@ -1,6 +1,6 @@
 const { get } = require("./request");
 
-const { middleware, response } = require("./utils");
+const { middleware, response, toObjectId } = require("./utils");
 const { addNotifications } = require("./notifications");
 
 const Series = require("./models/series");
@@ -252,7 +252,6 @@ async function getEpisodes(event) {
 		sortQuery.date = 1;
 	}
 
-
 	let episodes = [];
 	if (series === "all") {
 		episodes = await Episode.aggregate([
@@ -262,8 +261,19 @@ async function getEpisodes(event) {
 			{
 				$lookup: {
 					from: "series",
-					localField: "seriesId",
-					foreignField: "seriesId",
+					let: { seriesId: "$seriesId" },
+					pipeline: [
+						{
+							$match: {
+								$expr: {
+									$and: [
+										{ $eq: ["$seriesId", "$$seriesId"] },
+										{ $eq: ["$user", toObjectId(user._id)] },
+									],
+								},
+							},
+						},
+					],
 					as: "seriesId",
 				},
 			},

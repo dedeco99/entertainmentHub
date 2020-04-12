@@ -1,5 +1,11 @@
+const mongoose = require("mongoose");
+
 const User = require("./models/user");
 const Token = require("./models/token");
+
+function toObjectId(id) {
+	return mongoose.Types.ObjectId(id);
+}
 
 function response(status, message, data) {
 	return {
@@ -60,6 +66,7 @@ async function middleware(req, res, fn, options) {
 }
 
 module.exports = {
+	toObjectId,
 	response,
 	error,
 	middleware,
