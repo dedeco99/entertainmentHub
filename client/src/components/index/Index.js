@@ -7,6 +7,7 @@ import WidgetDetail from "./WidgetDetail";
 import Notifications from "./Notifications";
 import Posts from "../reddit/Posts";
 import Weather from "./Weather";
+import TVWidget from "./TVWidget";
 
 import Widget from "./Widget";
 
@@ -138,7 +139,12 @@ class Index extends Component {
 						editText = "Weather";
 						editIcon = "icofont-cloud";
 						break;
-					default: return null;
+					case "tv":
+						content = <TVWidget />;
+						editText = "TV";
+						editIcon = "icofont-contrast";
+						break;
+					default: return <div />;
 				}
 
 				return (

@@ -116,7 +116,7 @@ class Weather extends Component {
 					{weather && moment(day.date, "DD/MM/YYYY").format("ddd")}
 				</Typography>
 				<Tooltip title={day.forecast.description} placement="top">
-					{weather && <img src={day.forecast.image} />}
+					{weather && <img src={day.forecast.image} alt="Forecast" />}
 				</Tooltip>
 				<Typography variant="caption">
 					<i className="icofont-caret-up" />
@@ -174,7 +174,7 @@ class Weather extends Component {
 								</Typography>
 							</Box>
 							<Box display="flex" justifyContent="center" alignItems="center">
-								{weather && <img src={weather.current.forecast.image} />}
+								{weather && <img src={weather.current.forecast.image} alt="Forecast" />}
 							</Box>
 							<Box display="flex" flexDirection="column" justifyContent="center" alignItems="flex-end" flexGrow={1}>
 								<Typography variant="caption" className={classes.info}>
