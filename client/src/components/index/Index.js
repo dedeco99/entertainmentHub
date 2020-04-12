@@ -12,7 +12,6 @@ import TVWidget from "./TVWidget";
 import Widget from "./Widget";
 
 import { getWidgets, addWidget, editWidget, deleteWidget } from "../../actions/widgets";
-import { isValidObjectId } from "mongoose";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 

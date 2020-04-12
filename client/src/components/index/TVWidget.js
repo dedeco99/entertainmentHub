@@ -68,7 +68,12 @@ class TVWidget extends Component {
 			getSeasons("all", 0, "future"),
 		]);
 
-		this.setState({ loaded: true, allEpisodes: response[0].data, popular: response[1].data, future: response[2].data });
+		this.setState({
+			loaded: true,
+			allEpisodes: response[0].data,
+			popular: response[1].data,
+			future: response[2].data,
+		});
 	}
 
 	handleChange(event, newValue) {
@@ -84,7 +89,7 @@ class TVWidget extends Component {
 
 		const popularList = popular.map(serie => (
 			<ListItem key={serie.id} button divider>
-				<img src={serie.image} height="100x" />
+				<img src={serie.image} height="100x" alt="Series" />
 				<Typography variant="body1" style={{ paddingLeft: 10 }}> {serie.displayName} </Typography>
 			</ListItem >
 		));
