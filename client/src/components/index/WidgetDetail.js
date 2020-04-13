@@ -11,6 +11,33 @@ import Select from "@material-ui/core/Select";
 
 import Input from "../.partials/Input";
 
+import TextField from "@material-ui/core/TextField";
+import Autocomplete from "@material-ui/lab/Autocomplete";
+
+const cities = [
+	{ name: "Albuquerque" },
+	{ name: "1" },
+	{ name: "2" },
+	{ name: "3" },
+	{ name: "4" },
+	{ name: "5" },
+	{ name: "6" },
+	{ name: "7" },
+	{ name: "8" },
+	{ name: "9" },
+	{ name: "10" },
+	{ name: "11" },
+	{ name: "12" },
+	{ name: "13" },
+	{ name: "14" },
+	{ name: "15" },
+	{ name: "16" },
+	{ name: "17" },
+	{ name: "18" },
+	{ name: "19" },
+	{ name: "20" },
+];
+
 class WidgetDetail extends Component {
 	constructor() {
 		super();
@@ -50,6 +77,13 @@ class WidgetDetail extends Component {
 		if (event.key === "Enter") this.handleSubmit();
 	}
 
+	filterOptions(options, state) {
+		if (state.inputValue === "") {
+			return options.slice(0, 10);
+		}
+		return options.filter(o => o.name.includes(state.inputValue)).slice(0, 10);
+	}
+
 	renderFields() {
 		const { type, info } = this.state;
 
@@ -71,32 +105,13 @@ class WidgetDetail extends Component {
 				);
 			case "weather":
 				return (
-					<div>
-						<Input
-							id="info.lat"
-							type="text"
-							label="Latitude"
-							value={info.lat}
-							onChange={this.handleChange}
-							onKeyPress={this.handleKeyPress}
-							margin="normal"
-							variant="outlined"
-							fullWidth
-							required
-						/>
-						<Input
-							id="info.lon"
-							type="text"
-							label="Longitude"
-							value={info.lon}
-							onChange={this.handleChange}
-							onKeyPress={this.handleKeyPress}
-							margin="normal"
-							variant="outlined"
-							fullWidth
-							required
-						/>
-					</div>
+					<Autocomplete
+						style={{ width: 300 }}
+						options={cities}
+						filterOptions={this.filterOptions}
+						getOptionLabel={option => option.name}
+						renderInput={params => <TextField {...params} label="Cidade" variant="outlined" fullWidth margin="normal" />}
+					/>
 				);
 			default: return null;
 		}
