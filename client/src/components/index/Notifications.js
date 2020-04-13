@@ -1,23 +1,40 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
+import { withStyles } from "@material-ui/styles";
+
 import { connect } from "react-redux";
+
 import Zoom from "@material-ui/core/Zoom";
 import List from "@material-ui/core/List";
-import ListSubheader from "@material-ui/core/ListSubheader";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import ListItemText from "@material-ui/core/ListItemText";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import IconButton from "@material-ui/core/IconButton";
 import Avatar from "@material-ui/core/Avatar";
-
 import Button from "@material-ui/core/Button";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
+import Box from "@material-ui/core/Box";
+
+import CustomScrollbar from "../.partials/CustomScrollbar";
 
 import { formatDate } from "../../utils/utils";
 
 import { getNotifications, patchNotifications, deleteNotifications } from "../../actions/notifications";
+import { Typography } from "@material-ui/core";
+
+const styles = () => ({
+	root: {
+		backgroundColor: "#212121",
+	},
+	header: {
+		backgroundColor: "#424242",
+		padding: 5,
+		paddingLeft: 16,
+		paddingRight: 8,
+	},
+});
 
 class Notifications extends Component {
 	constructor() {
@@ -136,7 +153,7 @@ class Notifications extends Component {
 					<ListItemSecondaryAction
 						onClick={() => this.hideNotification(notification._id)}
 					>
-						<IconButton edge="end">
+						<IconButton>
 							<i className="material-icons">{history ? "delete" : "check_circle"}</i>
 						</IconButton>
 					</ListItemSecondaryAction>
@@ -148,65 +165,65 @@ class Notifications extends Component {
 	}
 
 	render() {
-		const { height } = this.props;
+		const { height, classes } = this.props;
 		const { history, anchorEl, selectedIndex, open } = this.state;
 
 		const options = ["All", "TV", "Reddit", "Twitch"];
 
 		return (
 			<Zoom in={open}>
-				<List
-					style={{
-						backgroundColor: "#222",
-						height: height ? height : "calc( 100vh - 200px )",
-						overflow: "auto",
-						padding: 0,
-					}}
-				>
-					<ListSubheader
-						style={{ top: "-8px", paddingTop: "5px", height: "35px" }}
-					>
-						{"Notifications"}
+				<Box display="flex" flexDirection="column" className={classes.root} style={{ height: height ? height : "calc( 100vh - 200px )" }}>
+					<Box display="flex" alignItems="center" className={classes.header}>
+						<Box display="flex" flexGrow={1}>
+							<Typography variant="subtitle1">
+								{"Notifications"}
+							</Typography>
+						</Box>
+						<Box display="flex" justifyContent="flex-end">
+							<Button
+								size="small"
+								aria-controls="filter-menu"
+								aria-haspopup="true"
+								onClick={this.handleClickListItem}
+								endIcon={<i className="material-icons"> {"filter_list"} </i>}
+							>
+								{options[selectedIndex]}
+							</Button>
+							<Menu
+								id="filter-menu"
+								anchorEl={anchorEl}
+								keepMounted
+								open={Boolean(anchorEl)}
+								onClose={this.handleClose}
+								getContentAnchorEl={null}
+								anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+								transformOrigin={{ vertical: "top", horizontal: "right" }}
+							>
+								{options.map((option, index) => (
+									<MenuItem
+										key={option}
+										id={`filter-${option.toLowerCase()}`}
+										selected={index === selectedIndex}
+										onClick={event => this.handleMenuItemClick(event, index)}
+									>
+										{option}
+									</MenuItem>
+								))}
+							</Menu>
 
-						<IconButton edge="end" style={{ float: "right" }} onClick={this.toggleHistory}>
-							<i className="material-icons">
-								{history ? "notifications" : "history"}
-							</i>
-						</IconButton>
-
-						<Button
-							style={{ float: "right", padding: "12px" }}
-							aria-controls="filter-menu"
-							aria-haspopup="true"
-							onClick={this.handleClickListItem}
-							endIcon={<i className="material-icons"> {"filter_list"} </i>}
-						>
-							{options[selectedIndex]}
-						</Button>
-						<Menu
-							id="filter-menu"
-							anchorEl={anchorEl}
-							keepMounted
-							open={Boolean(anchorEl)}
-							onClose={this.handleClose}
-							getContentAnchorEl={null}
-							anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-							transformOrigin={{ vertical: "top", horizontal: "right" }}
-						>
-							{options.map((option, index) => (
-								<MenuItem
-									key={option}
-									id={`filter-${option.toLowerCase()}`}
-									selected={index === selectedIndex}
-									onClick={event => this.handleMenuItemClick(event, index)}
-								>
-									{option}
-								</MenuItem>
-							))}
-						</Menu>
-					</ListSubheader>
-					{this.renderNotificationList()}
-				</List>
+							<IconButton onClick={this.toggleHistory}>
+								<i className="material-icons">
+									{history ? "notifications" : "history"}
+								</i>
+							</IconButton>
+						</Box>
+					</Box>
+					<Box display="flex" flexGrow={1}>
+						<CustomScrollbar>
+							<List> {this.renderNotificationList()} </List>
+						</CustomScrollbar>
+					</Box>
+				</Box>
 			</Zoom >
 		);
 	}
@@ -217,6 +234,7 @@ Notifications.propTypes = {
 	addNotification: PropTypes.func,
 	deleteNotification: PropTypes.func,
 	height: PropTypes.string,
+	classes: PropTypes.object,
 };
 
 const mapStateToProps = state => ({
@@ -229,4 +247,4 @@ const mapDispatchToProps = dispatch => ({
 });
 
 
-export default connect(mapStateToProps, mapDispatchToProps)(Notifications);
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Notifications));
