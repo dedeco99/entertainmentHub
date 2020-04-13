@@ -15,7 +15,7 @@ class WidgetDetail extends Component {
 	constructor() {
 		super();
 		this.state = {
-			type: "",
+			type: "notifications",
 			info: {
 				subreddit: "",
 
