@@ -7,8 +7,8 @@ const WidgetSchema = new Schema({
 	type: { type: String, default: "" },
 	x: { type: Number, default: 0 },
 	y: { type: Number, default: 0 },
-	width: { type: Number, default: 1 },
-	height: { type: Number, default: 1 },
+	width: { type: Number, default: null },
+	height: { type: Number, default: null },
 	info: {
 		// Reddit
 		subreddit: { type: String },
