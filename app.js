@@ -63,6 +63,8 @@ app.delete("/api/notifications/:id", notifications.deleteNotification);
 
 app.get("/api/weather/:lat/:lon", weather.getWeather);
 
+app.get("/api/weather/cities", weather.getCities);
+
 app.get("/api/reddit/subreddits/", reddit.getSubreddits);
 
 app.get("/api/reddit/subreddits/:subreddit/:category/", reddit.getPosts);
