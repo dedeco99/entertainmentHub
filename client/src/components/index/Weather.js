@@ -131,7 +131,7 @@ class Weather extends Component {
 	}
 
 	render() {
-		const { classes } = this.props;
+		const { classes, city, country } = this.props;
 		const { weather, loaded } = this.state;
 
 		return (
@@ -141,7 +141,7 @@ class Weather extends Component {
 						<Box display="flex">
 							<Box display="flex" flexDirection="column" justifyContent="center" flexGrow={1}>
 								<Typography variant="h6">
-									{"Amora, Portugal"}
+									{`${city}, ${country}`}
 								</Typography>
 								<Typography variant="subtitle1" className={classes.description}>
 									{weather && weather.current.forecast.description}
@@ -203,6 +203,8 @@ class Weather extends Component {
 
 Weather.propTypes = {
 	classes: PropTypes.object,
+	city: PropTypes.string.isRequired,
+	country: PropTypes.string.isRequired,
 	lat: PropTypes.number.isRequired,
 	lon: PropTypes.number.isRequired,
 };

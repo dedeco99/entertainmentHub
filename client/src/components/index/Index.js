@@ -135,7 +135,14 @@ class Index extends Component {
 						editIcon = "icofont-reddit";
 						break;
 					case "weather":
-						content = <Weather lat={widget.info.lat} lon={widget.info.lon} />;
+						content = (
+							<Weather
+								city={widget.info.city}
+								country={widget.info.country}
+								lat={widget.info.lat}
+								lon={widget.info.lon}
+							/>
+						)
 						editText = "Weather";
 						editIcon = "icofont-cloud";
 						break;

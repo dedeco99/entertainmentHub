@@ -2,6 +2,7 @@ const { middleware, response } = require("./utils");
 const { get } = require("./request");
 
 const moment = require("moment");
+const allTheCities = require("all-the-cities");
 
 async function getWeather(event) {
 	const { params } = event;
@@ -85,6 +86,26 @@ async function getWeather(event) {
 	return response(200, "Weather found", weather);
 }
 
+function getCities(event) {
+	const { query } = event;
+	const { filter } = query;
+
+	const cities = allTheCities
+		.filter(city => city.name.toLowerCase().includes(filter.toLowerCase()))
+		.slice(0, 50)
+		.map(city => ({
+			name: city.name,
+			country: city.country,
+			population: city.population,
+			lat: city.loc.coordinates[0],
+			lon: city.loc.coordinates[1],
+		}))
+		.sort((a, b) => a.name <= b.name ? -1 : 1);
+
+	return response(200, "Cities found", cities);
+}
+
 module.exports = {
 	getWeather: (req, res) => middleware(req, res, getWeather, ["token"]),
+	getCities: (req, res) => middleware(req, res, getCities, ["token"]),
 };

@@ -14,29 +14,7 @@ import Input from "../.partials/Input";
 import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 
-const cities = [
-	{ name: "Albuquerque" },
-	{ name: "1" },
-	{ name: "2" },
-	{ name: "3" },
-	{ name: "4" },
-	{ name: "5" },
-	{ name: "6" },
-	{ name: "7" },
-	{ name: "8" },
-	{ name: "9" },
-	{ name: "10" },
-	{ name: "11" },
-	{ name: "12" },
-	{ name: "13" },
-	{ name: "14" },
-	{ name: "15" },
-	{ name: "16" },
-	{ name: "17" },
-	{ name: "18" },
-	{ name: "19" },
-	{ name: "20" },
-];
+import { getCities } from "../../actions/weather";
 
 class WidgetDetail extends Component {
 	constructor() {
@@ -46,14 +24,57 @@ class WidgetDetail extends Component {
 			info: {
 				subreddit: "",
 
+				city: "",
+				country: "",
 				lat: 0,
 				lon: 0,
 			},
+
+			filter: "",
+			typingTimeout: null,
+			cities: [],
 		};
 
 		this.handleChange = this.handleChange.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleKeyPress = this.handleKeyPress.bind(this);
+
+		this.getCities = this.getCities.bind(this);
+		this.selectCity = this.selectCity.bind(this);
+	}
+
+	getCities(e, filter) {
+		const { typingTimeout } = this.state;
+
+		if (!filter) return;
+
+		this.setState({ filter });
+
+		if (typingTimeout) clearTimeout(typingTimeout);
+
+		const timeout = setTimeout(async () => {
+			const response = await getCities(filter);
+
+			if (response.data) {
+				this.setState({ cities: response.data });
+			}
+		}, 500);
+
+		this.setState({ typingTimeout: timeout });
+	}
+
+	selectCity(e, city) {
+		const { info } = this.state;
+
+		this.setState({
+			info: {
+				...info,
+				city: city.name,
+				country: city.country,
+				lat: city.lat,
+				lon: city.lon
+			}
+		});
 	}
 
 	handleChange(e) {
@@ -77,15 +98,8 @@ class WidgetDetail extends Component {
 		if (event.key === "Enter") this.handleSubmit();
 	}
 
-	filterOptions(options, state) {
-		if (state.inputValue === "") {
-			return options.slice(0, 10);
-		}
-		return options.filter(o => o.name.includes(state.inputValue)).slice(0, 10);
-	}
-
 	renderFields() {
-		const { type, info } = this.state;
+		const { type, info, filter, cities } = this.state;
 
 		switch (type) {
 			case "reddit":
@@ -106,9 +120,10 @@ class WidgetDetail extends Component {
 			case "weather":
 				return (
 					<Autocomplete
-						style={{ width: 300 }}
 						options={cities}
-						filterOptions={this.filterOptions}
+						onInputChange={this.getCities}
+						onChange={this.selectCity}
+						style={{ width: 300 }}
 						getOptionLabel={option => option.name}
 						renderInput={params => <TextField {...params} label="Cidade" variant="outlined" fullWidth margin="normal" />}
 					/>
