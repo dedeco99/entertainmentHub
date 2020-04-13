@@ -11,6 +11,11 @@ import Select from "@material-ui/core/Select";
 
 import Input from "../.partials/Input";
 
+import TextField from "@material-ui/core/TextField";
+import Autocomplete from "@material-ui/lab/Autocomplete";
+
+import { getCities } from "../../actions/weather";
+
 class WidgetDetail extends Component {
 	constructor() {
 		super();
@@ -19,14 +24,57 @@ class WidgetDetail extends Component {
 			info: {
 				subreddit: "",
 
+				city: "",
+				country: "",
 				lat: 0,
 				lon: 0,
 			},
+
+			filter: "",
+			typingTimeout: null,
+			cities: [],
 		};
 
 		this.handleChange = this.handleChange.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleKeyPress = this.handleKeyPress.bind(this);
+
+		this.getCities = this.getCities.bind(this);
+		this.selectCity = this.selectCity.bind(this);
+	}
+
+	getCities(e, filter) {
+		const { typingTimeout } = this.state;
+
+		if (!filter) return;
+
+		this.setState({ filter });
+
+		if (typingTimeout) clearTimeout(typingTimeout);
+
+		const timeout = setTimeout(async () => {
+			const response = await getCities(filter);
+
+			if (response.data) {
+				this.setState({ cities: response.data });
+			}
+		}, 500);
+
+		this.setState({ typingTimeout: timeout });
+	}
+
+	selectCity(e, city) {
+		const { info } = this.state;
+
+		this.setState({
+			info: {
+				...info,
+				city: city.name,
+				country: city.country,
+				lat: city.lat,
+				lon: city.lon
+			}
+		});
 	}
 
 	handleChange(e) {
@@ -51,7 +99,7 @@ class WidgetDetail extends Component {
 	}
 
 	renderFields() {
-		const { type, info } = this.state;
+		const { type, info, filter, cities } = this.state;
 
 		switch (type) {
 			case "reddit":
@@ -71,32 +119,14 @@ class WidgetDetail extends Component {
 				);
 			case "weather":
 				return (
-					<div>
-						<Input
-							id="info.lat"
-							type="text"
-							label="Latitude"
-							value={info.lat}
-							onChange={this.handleChange}
-							onKeyPress={this.handleKeyPress}
-							margin="normal"
-							variant="outlined"
-							fullWidth
-							required
-						/>
-						<Input
-							id="info.lon"
-							type="text"
-							label="Longitude"
-							value={info.lon}
-							onChange={this.handleChange}
-							onKeyPress={this.handleKeyPress}
-							margin="normal"
-							variant="outlined"
-							fullWidth
-							required
-						/>
-					</div>
+					<Autocomplete
+						options={cities}
+						onInputChange={this.getCities}
+						onChange={this.selectCity}
+						style={{ width: 300 }}
+						getOptionLabel={option => option.name}
+						renderInput={params => <TextField {...params} label="Cidade" variant="outlined" fullWidth margin="normal" />}
+					/>
 				);
 			default: return null;
 		}

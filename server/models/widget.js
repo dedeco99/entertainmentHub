@@ -14,6 +14,8 @@ const WidgetSchema = new Schema({
 		subreddit: { type: String },
 
 		// Weather
+		city: { type: String },
+		country: { type: String },
 		lat: { type: Number },
 		lon: { type: Number },
 	},
