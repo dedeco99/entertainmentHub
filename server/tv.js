@@ -1,5 +1,5 @@
 const { get } = require("./request");
-
+const errors = require("./errors");
 const { middleware, response } = require("./middleware");
 const { toObjectId } = require("./utils");
 const { addNotifications } = require("./notifications");
@@ -201,9 +201,7 @@ async function addSeries(event) {
 		});
 	}
 
-	const series = await Series.find({ user: user._id }).sort({ displayName: 1 }).lean();
-
-	return response(201, "Series has been added", series);
+	return response(201, "Series has been added", newSeries);
 }
 
 async function editSeries(event) {
@@ -211,26 +209,29 @@ async function editSeries(event) {
 	const { id } = params;
 	const { displayName } = body;
 
-	const seriesExists = await Series.findOne({ user: user._id, seriesId: id }).lean();
+	const seriesExists = await Series.findOne({ _id: id }).lean();
 
-	if (!seriesExists) return response(404, "Series doesn't exist");
+	if (!seriesExists) return errors.notFound;
 
-	await Series.updateOne({ user: user._id, seriesId: id }, { displayName }).lean();
+	const series = await Series.findOneAndUpdate({ _id: id }, { displayName }, { new: true }).lean();
 
-	const series = await Series.find({ user: user._id }).sort({ displayName: 1 }).lean();
+	if (!series) return errors.notFound;
 
 	return response(200, "Series has been updated", series);
 }
 
 async function deleteSeries(event) {
-	const { params, user } = event;
+	const { params } = event;
 	const { id } = params;
 
-	const seriesExists = await Series.findOneAndDelete({ user: user._id, seriesId: id });
+	let series = null;
+	try {
+		series = await Series.findOneAndDelete({ _id: id });
+	} catch (e) {
+		return errors.notFound;
+	}
 
-	if (!seriesExists) return response(404, "Series not found");
-
-	const series = await Series.find({ user: user._id }).sort({ displayName: 1 }).lean();
+	if (!series) return errors.notFound;
 
 	return response(200, "Series has been deleted", series);
 }
@@ -292,9 +293,11 @@ async function getEpisodes(event) {
 			},
 		]);
 	} else {
+		const seriesFound = userSeries.find(s => s._id.toString() === series.toString());
+
 		episodes = await Episode.aggregate([
 			{
-				$match: { seriesId: series },
+				$match: { seriesId: seriesFound.seriesId },
 			},
 			{
 				$sort: { number: -1 },

@@ -95,9 +95,11 @@ class TV extends Component {
 	async getSeasons(series) {
 		const response = await getSeasons(series);
 
-		this.setState({ seasons: response.data, currentSeries: series, allPage: 0 });
+		if (response.data.length) {
+			this.setState({ seasons: response.data, currentSeries: series, allPage: 0 });
 
-		this.getEpisodes(response.data[response.data.length - 1]._id);
+			this.getEpisodes(response.data[response.data.length - 1]._id);
+		}
 	}
 
 	getEpisodes(season) {
@@ -141,7 +143,11 @@ class TV extends Component {
 		const response = await addSeries(series);
 
 		if (response.status < 400) {
-			this.setState({ series: response.data });
+			this.setState(prevState => ({
+				series: [...prevState.series, response.data].sort((a, b) => (
+					a.displayName <= b.displayName ? -1 : 1
+				)),
+			}));
 
 			toast.success(response.message);
 		} else {
@@ -153,7 +159,11 @@ class TV extends Component {
 		const response = await editSeries(id, series);
 
 		if (response.status < 400) {
-			this.setState({ series: response.data });
+			this.setState(prevState => ({
+				series: [...prevState.series.filter(s => s._id !== response.data._id), response.data].sort((a, b) => (
+					a.displayName <= b.displayName ? -1 : 1
+				)),
+			}));
 
 			toast.success(response.message);
 		} else {
@@ -163,10 +173,14 @@ class TV extends Component {
 
 
 	async deleteSeries(e) {
+		const { series } = this.state;
+
 		const response = await deleteSeries(e.target.id);
 
 		if (response.status < 400) {
-			this.setState({ series: response.data });
+			const updatedSeries = series.filter(s => s._id !== response.data._id);
+
+			this.setState({ series: updatedSeries });
 
 			toast.success(response.message);
 		} else {
@@ -205,7 +219,7 @@ class TV extends Component {
 
 		if (type === "edit") {
 			this.setState({
-				currentSeries: series.find(s => s.seriesId === e.target.id),
+				currentSeries: series.find(s => s._id === e.target.id),
 				showModal: true,
 			});
 		} else {
@@ -327,7 +341,7 @@ class TV extends Component {
 					{this.renderButtons()}
 					<Sidebar
 						options={series}
-						idField="seriesId"
+						idField="_id"
 						action={this.getSeasons}
 						menu={menuOptions}
 						loading={loadingSeries}
@@ -342,7 +356,7 @@ class TV extends Component {
 					onClose={this.hideModal}
 				>
 					<SeriesDetail
-						series={currentSeries.seriesId ? currentSeries : {}}
+						series={currentSeries._id ? currentSeries : {}}
 						editSeries={this.editSeries}
 					/>
 				</Modal>
