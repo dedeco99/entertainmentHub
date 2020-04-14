@@ -34,12 +34,18 @@ const styles = () => ({
 		height: "calc(100% - 48px)",
 		overflow: "auto",
 	},
+	episodeList: {
+		flexDirection: "column",
+	},
 	episodeName: {
 		display: "flex",
 		flexGrow: 1,
 	},
 	episodeDate: {
 		display: "flex",
+	},
+	popularText: {
+		paddingLeft: 10,
 	},
 });
 
@@ -85,12 +91,13 @@ class TVWidget extends Component {
 	}
 
 	renderPopularList() {
+		const { classes } = this.props;
 		const { popular } = this.state;
 
 		const popularList = popular.map(serie => (
 			<ListItem key={serie.id} button divider>
 				<img src={serie.image} height="100x" alt="Series" />
-				<Typography variant="body1" style={{ paddingLeft: 10 }}> {serie.displayName} </Typography>
+				<Typography variant="body1" className={classes.popularText}> {serie.displayName} </Typography>
 			</ListItem >
 		));
 
@@ -105,7 +112,7 @@ class TVWidget extends Component {
 			const episodeLabel = episode.number > 9 ? `E${episode.number}` : `E0${episode.number}`;
 
 			return (
-				<ListItem style={{ flexDirection: "column" }} alignItems="flex-start" key={episode._id} button divider>
+				<ListItem className={classes.episodeList} alignItems="flex-start" key={episode._id} button divider>
 					<Box display="flex" width="100%">
 						<Typography className={classes.episodeName} variant="body1"> {episode.seriesId.displayName} </Typography>
 						<Typography className={classes.episodeDate} variant="caption"> {formatDate(episode.date, "DD-MM-YYYY")} </Typography>

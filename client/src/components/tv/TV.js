@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import { withStyles } from "@material-ui/styles";
+import PropTypes from "prop-types";
 import Grid from "@material-ui/core/Grid";
 import Fab from "@material-ui/core/Fab";
 import Button from "@material-ui/core/Button";
@@ -13,6 +15,17 @@ import Search from "./Search";
 import Banners from "./Banners";
 
 import loadingGif from "../../img/loading3.gif";
+
+const styles = () => ({
+	searchBtn: {
+		width: "100% !important",
+		backgroundColor: "#222",
+	},
+	outlinedBtn: {
+		marginTop: 10,
+		marginBottom: 10,
+	},
+});
 
 class TV extends Component {
 	constructor() {
@@ -229,6 +242,7 @@ class TV extends Component {
 	}
 
 	renderButtons() {
+		const { classes } = this.props;
 		const { loadingPopular, loadingAll } = this.state;
 
 		return (
@@ -237,15 +251,14 @@ class TV extends Component {
 					onClick={this.showSearchBlock}
 					variant="extended"
 					size="medium"
-					style={{ width: "100%", backgroundColor: "#222" }}
+					className={classes.searchBtn}
 				>
 					<i className="material-icons">{"search"}</i>
 					{"Search"}
 				</Fab>
 				<Button
 					onClick={this.showPopularBlock}
-					className="outlined-button"
-					style={{ marginTop: 10, marginBottom: 10 }}
+					className={`outlined-button ${classes.outlinedBtn}`}
 					variant="outlined"
 					fullWidth
 				>
@@ -253,8 +266,7 @@ class TV extends Component {
 				</Button>
 				<Button
 					onClick={this.showAllBlock}
-					className="outlined-button"
-					style={{ marginTop: 10, marginBottom: 10 }}
+					className={`outlined-button ${classes.outlinedBtn}`}
 					variant="outlined"
 					fullWidth
 				>
@@ -350,4 +362,8 @@ class TV extends Component {
 	}
 }
 
-export default TV;
+TV.propTypes = {
+	classes: PropTypes.object.isRequired,
+};
+
+export default withStyles(styles)(TV);

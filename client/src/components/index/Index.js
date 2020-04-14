@@ -109,17 +109,23 @@ class Index extends Component {
 				let content = null;
 				let editText = null;
 				let editIcon = null;
+				let dimensions = null;
+				let restrictions = null;
 
 				switch (widget.type) {
 					case "notifications":
 						content = <Notifications height="100%" />;
 						editText = "Notifications";
 						editIcon = "icofont-alarm";
+						dimensions = { w: widget.width || 1, h: widget.height || 4}
+						restrictions = { minW: 1, minH: 4, maxW: 1, maxH: 8};
 						break;
 					case "reddit":
 						content = <Posts subreddit={widget.info.subreddit} />;
 						editText = `r/${widget.info.subreddit}`;
 						editIcon = "icofont-reddit";
+						dimensions = { w: widget.width || 1, h: widget.height || 2}
+						restrictions = { minW: 1, minH: 2, maxW: 3, maxH: 6};
 						break;
 					case "weather":
 						content = (
@@ -132,11 +138,15 @@ class Index extends Component {
 						)
 						editText = "Weather";
 						editIcon = "icofont-cloud";
+						dimensions = { w: widget.width || 1, h: widget.height || 2}
+						restrictions = { minW: 1, minH: 2, maxW: 3, maxH: 6};
 						break;
 					case "tv":
 						content = <TVWidget />;
 						editText = "TV";
 						editIcon = "icofont-contrast";
+						dimensions = { w: widget.width || 1, h: widget.height || 4}
+						restrictions = { minW: 1, minH: 4, maxW: 1, maxH: 8};
 						break;
 					default: return <div />;
 				}
@@ -145,10 +155,10 @@ class Index extends Component {
 					<div
 						key={widget._id}
 						data-grid={{
-							x: widget.x || 0,
-							y: widget.y || 0,
-							w: widget.width || 1,
-							h: widget.height || 4,
+							x: widget.x,
+							y: widget.y,
+							...dimensions,
+							...restrictions,
 						}}
 					>
 						<Widget

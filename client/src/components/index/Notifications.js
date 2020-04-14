@@ -34,6 +34,9 @@ const styles = () => ({
 		paddingLeft: 16,
 		paddingRight: 8,
 	},
+	avatar: {
+		backgroundColor: "#444",
+	}
 });
 
 class Notifications extends Component {
@@ -131,7 +134,7 @@ class Notifications extends Component {
 	}
 
 	renderNotificationList() {
-		const { notifications } = this.props;
+		const { notifications, classes } = this.props;
 		const { history } = this.state;
 
 		const notificationList = notifications.map(notification => {
@@ -140,7 +143,7 @@ class Notifications extends Component {
 			return (
 				<ListItem key={notification._id} button divider>
 					<ListItemAvatar>
-						<Avatar style={{ backgroundColor: "#444" }}>
+						<Avatar className={classes.avatar}>
 							{this.renderNotificationType(notification.type)}
 						</Avatar>
 					</ListItemAvatar>

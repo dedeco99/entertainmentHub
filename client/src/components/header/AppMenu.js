@@ -1,9 +1,17 @@
 import React, { Component } from "react";
+import { withStyles } from "@material-ui/styles";
+import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 
 import { getApps } from "../../api/auth";
+
+const styles = () => ({
+	appItem: {
+		paddingLeft: 10,
+	},
+});
 
 class AppMenu extends Component {
 	constructor() {
@@ -59,6 +67,7 @@ class AppMenu extends Component {
 	}
 
 	renderAppList() {
+		const { classes } = this.props;
 		const { apps, selectedMenu } = this.state;
 
 		return apps.map(app => (
@@ -71,7 +80,7 @@ class AppMenu extends Component {
 				<ListItem
 					button
 					selected={selectedMenu === app.platform}
-					style={{ paddingLeft: 10 }}
+					className={classes.appItem}
 				>
 					<i className={app.icon} />
 				</ListItem >
@@ -116,4 +125,8 @@ class AppMenu extends Component {
 	}
 }
 
-export default AppMenu;
+AppMenu.propTypes = {
+	classes: PropTypes.object.isRequired,
+};
+
+export default withStyles(styles)(AppMenu);
