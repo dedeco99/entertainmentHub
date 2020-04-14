@@ -4,6 +4,7 @@ import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { connect } from "react-redux";
 import socketio from "socket.io-client";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import PrivateRoute from "./auth/PrivateRoute";
 import Header from "./header/Header";
