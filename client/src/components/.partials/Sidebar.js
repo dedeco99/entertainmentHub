@@ -57,7 +57,7 @@ class Sidebar extends Component {
 		const { selectedMenu, anchorEl, currentId } = this.state;
 
 		let optionsList = this.renderLoading();
-		if (options && options.length > 0) {
+		if (options && options.length) {
 			optionsList = options.map(option => {
 				return (
 					<ListItem

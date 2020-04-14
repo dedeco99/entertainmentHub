@@ -30,7 +30,7 @@ class Episodes extends Component {
 	renderEpisodes() {
 		const { episodes } = this.props;
 
-		if (episodes && episodes.length > 0) {
+		if (episodes && episodes.length) {
 			return episodes.map(episode => (
 				<Grid
 					item xs={12} sm={6} md={4} lg={3} xl={2}

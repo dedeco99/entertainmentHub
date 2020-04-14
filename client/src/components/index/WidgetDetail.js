@@ -99,7 +99,7 @@ class WidgetDetail extends Component {
 	}
 
 	renderFields() {
-		const { type, info, filter, cities } = this.state;
+		const { type, info, cities } = this.state;
 
 		switch (type) {
 			case "reddit":
