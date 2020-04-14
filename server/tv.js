@@ -1,6 +1,7 @@
 const { get } = require("./request");
 
-const { middleware, response, toObjectId } = require("./utils");
+const { middleware, response } = require("./middleware");
+const { toObjectId } = require("./utils");
 const { addNotifications } = require("./notifications");
 
 const Series = require("./models/series");

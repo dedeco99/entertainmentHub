@@ -1,6 +1,6 @@
 const sanitizeHtml = require("sanitize-html");
 
-const { middleware, response } = require("./utils");
+const { middleware, response } = require("./middleware");
 const errors = require("./errors");
 const { get, post } = require("./request");
 

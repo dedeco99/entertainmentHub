@@ -2,7 +2,7 @@
 
 const moment = require("moment");
 
-const { middleware, response } = require("./utils");
+const { middleware, response } = require("./middleware");
 const errors = require("./errors");
 
 const Notification = require("./models/notification");

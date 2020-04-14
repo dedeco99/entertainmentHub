@@ -1,4 +1,4 @@
-const { middleware, response } = require("./utils");
+const { middleware, response } = require("./middleware");
 const { get } = require("./request");
 
 const moment = require("moment");
