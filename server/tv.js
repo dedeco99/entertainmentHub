@@ -244,7 +244,7 @@ async function getEpisodes(event) {
 	const seriesIds = userSeries.map(s => s.seriesId);
 
 	const episodeQuery = { seriesId: { $in: seriesIds } };
-	const sortQuery = { date: -1, number: -1 };
+	const sortQuery = { date: -1, seriesId: -1, number: -1 };
 	if (filter === "passed") {
 		episodeQuery.date = { $lte: new Date() };
 	} else if (filter === "future") {
