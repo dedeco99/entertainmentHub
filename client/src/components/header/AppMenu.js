@@ -29,6 +29,7 @@ class AppMenu extends Component {
 			{ platform: "youtube", name: "Youtube", icon: "icofont-youtube-play icofont-2x", endpoint: "/youtube" },
 			{ platform: "twitch", name: "Twitch", icon: "icofont-twitch icofont-2x", endpoint: "/twitch" },
 			{ platform: "tv", name: "TV Series", icon: "icofont-monitor icofont-2x", endpoint: "/tv" },
+			{ platform: "apps", name: "Apps", icon: "icofont-add icofont-2x", endpoint: "/settings" },
 		];
 		const redirected = localStorage.getItem("redirected");
 
@@ -40,7 +41,7 @@ class AppMenu extends Component {
 				return response.data.find(appR => appR.platform === app.platform);
 			});
 
-			const currentApp = userApps.find(app => app.endpoint === window.location.pathname);
+			const currentApp = apps.find(app => app.endpoint === window.location.pathname);
 
 			this.setState({
 				apps: userApps,
@@ -78,6 +79,8 @@ class AppMenu extends Component {
 	}
 
 	render() {
+		const { selectedMenu } = this.state;
+
 		const user = localStorage.getItem("user");
 		const token = localStorage.getItem("token");
 
@@ -86,6 +89,20 @@ class AppMenu extends Component {
 				<div className="appMenu">
 					<List className="list-menu" >
 						{this.getAppList()}
+						<NavLink
+							className="nav-item"
+							key={"apps"}
+							to={"/settings"}
+							onClick={() => this.handleAppClick("apps")}
+						>
+							<ListItem
+								button
+								selected={selectedMenu === "apps"}
+								style={{ paddingLeft: 10 }}
+							>
+								<i className="icofont-plus-circle icofont-2x" />
+							</ListItem >
+						</NavLink>
 					</List>
 				</div>
 			);
