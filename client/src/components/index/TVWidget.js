@@ -13,7 +13,7 @@ import Box from "@material-ui/core/Box";
 
 import CustomScrollbar from "../.partials/CustomScrollbar";
 
-import { getSeasons, getPopular } from "../../actions/tv";
+import { getSeasons, getPopular } from "../../api/tv";
 
 import { formatDate } from "../../utils/utils";
 
@@ -177,7 +177,7 @@ class TVWidget extends Component {
 }
 
 TVWidget.propTypes = {
-	classes: PropTypes.object,
+	classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(TVWidget);

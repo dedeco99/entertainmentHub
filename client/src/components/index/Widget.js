@@ -54,7 +54,7 @@ class Widget extends Component {
 }
 
 Widget.propTypes = {
-	classes: PropTypes.object,
+	classes: PropTypes.object.isRequired,
 	id: PropTypes.string.isRequired,
 	content: PropTypes.node.isRequired,
 	editMode: PropTypes.bool.isRequired,

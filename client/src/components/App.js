@@ -4,6 +4,7 @@ import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { connect } from "react-redux";
 import socketio from "socket.io-client";
 import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 import PrivateRoute from "./auth/PrivateRoute";
 import Header from "./header/Header";
@@ -20,7 +21,7 @@ import Twitch from "./twitch/Twitch";
 import TV from "./tv/TV";
 import Settings from "./settings/Settings";
 
-import "../css/App.css";
+import "../styles/App.css";
 
 import goBackUp from "../img/go_back_up.png";
 
@@ -131,7 +132,7 @@ class App extends Component {
 }
 
 App.propTypes = {
-	addNotification: PropTypes.func,
+	addNotification: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = dispatch => ({

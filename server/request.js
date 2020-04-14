@@ -2,35 +2,13 @@ const axios = require("axios");
 
 const log = require("./log");
 
-async function get(url, headers = {}) {
-	const config = { headers };
-
+async function api({ method, url, data, headers = {} }) {
 	try {
-		const response = await axios.get(url, config);
+		const res = await axios.request({ method, url, data, headers });
 
 		return {
-			status: response.status,
-			data: response.data,
-		};
-	} catch (error) {
-		log.error(error.stack);
-
-		return {
-			status: error.response.status,
-			data: error.response.data,
-		};
-	}
-}
-
-async function post(url, body, headers = {}) {
-	const config = { headers };
-
-	try {
-		const response = await axios.post(url, body, config);
-
-		return {
-			status: response.status,
-			data: response.data,
+			status: res.status,
+			data: res.data,
 		};
 	} catch (error) {
 		log.error(error.stack);
@@ -43,6 +21,5 @@ async function post(url, body, headers = {}) {
 }
 
 module.exports = {
-	get,
-	post,
+	api,
 };

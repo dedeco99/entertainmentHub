@@ -65,7 +65,7 @@ class Sidebar extends Component {
 		const { selectedMenu, anchorEl, currentId } = this.state;
 
 		let optionsList = this.renderLoading();
-		if (options && options.length > 0) {
+		if (options && options.length) {
 			optionsList = options.map(option => {
 				return (
 					<ListItem
@@ -115,7 +115,7 @@ class Sidebar extends Component {
 }
 
 Sidebar.propTypes = {
-	classes: PropTypes.object,
+	classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(Sidebar);

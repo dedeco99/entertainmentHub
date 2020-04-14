@@ -21,7 +21,7 @@ import CustomScrollbar from "../.partials/CustomScrollbar";
 
 import { formatDate } from "../../utils/utils";
 
-import { getNotifications, patchNotifications, deleteNotifications } from "../../actions/notifications";
+import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
 import { Typography } from "@material-ui/core";
 
 const styles = () => ({
@@ -233,11 +233,11 @@ class Notifications extends Component {
 }
 
 Notifications.propTypes = {
-	notifications: PropTypes.array,
-	addNotification: PropTypes.func,
-	deleteNotification: PropTypes.func,
+	classes: PropTypes.object.isRequired,
+	notifications: PropTypes.array.isRequired,
+	addNotification: PropTypes.func.isRequired,
+	deleteNotification: PropTypes.func.isRequired,
 	height: PropTypes.string,
-	classes: PropTypes.object,
 };
 
 const mapStateToProps = state => ({

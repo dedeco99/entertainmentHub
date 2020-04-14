@@ -5,58 +5,12 @@ import Zoom from "@material-ui/core/Zoom";
 import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
 
-import { getPosts } from "../../actions/reddit";
+import { getPosts } from "../../api/reddit";
 import { formatDate } from "../../utils/utils";
 
 import placeholder from "../../img/noimage.png";
 
-const styles = () => ({
-	root: {
-		position: "relative",
-		backgroundColor: "#212121",
-		height: "100%",
-	},
-	media: {
-		width: "100%",
-		height: "100%",
-	},
-	overlay: {
-		position: "absolute",
-		color: "white",
-		backgroundColor: "#212121dd",
-		padding: "3px",
-		borderRadius: "3px",
-	},
-	title: {
-		top: "5px",
-		left: "5px",
-		maxWidth: "95%",
-		whiteSpace: "nowrap",
-		overflow: "hidden",
-		textOverflow: "ellipsis",
-	},
-	previous: {
-		fontSize: "2em",
-		top: "50%",
-		left: "5px",
-	},
-	next: {
-		fontSize: "2em",
-		top: "50%",
-		right: "5px",
-	},
-	score: {
-		bottom: "5px",
-		left: "5px",
-	},
-	date: {
-		bottom: "5px",
-		right: "5px",
-	},
-	hide: {
-		display: "none",
-	},
-});
+import styles from "../../styles/Reddit";
 
 class Post extends Component {
 	constructor() {
@@ -78,9 +32,11 @@ class Post extends Component {
 
 		const response = await getPosts(subreddit);
 
-		response.data = response.data.filter(post => post.thumbnail !== "self");
+		if (response.data) {
+			response.data = response.data.filter(post => post.thumbnail !== "self");
 
-		this.setState({ posts: response.data, open: true });
+			this.setState({ posts: response.data, open: true });
+		}
 	}
 
 	htmlEscape(str) {
@@ -231,8 +187,8 @@ class Post extends Component {
 }
 
 Post.propTypes = {
-	classes: PropTypes.object,
-	subreddit: PropTypes.string,
+	classes: PropTypes.object.isRequired,
+	subreddit: PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(Post);

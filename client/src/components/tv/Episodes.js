@@ -44,7 +44,7 @@ class Episodes extends Component {
 	renderEpisodes() {
 		const { classes, episodes } = this.props;
 
-		if (episodes && episodes.length > 0) {
+		if (episodes && episodes.length) {
 			return episodes.map(episode => (
 				<Grid
 					item xs={12} sm={6} md={4} lg={3} xl={2}
@@ -135,14 +135,14 @@ class Episodes extends Component {
 }
 
 Episodes.propTypes = {
-	classes: PropTypes.object,
-	currentSeries: PropTypes.string,
-	seasons: PropTypes.array,
-	episodes: PropTypes.array,
-	getEpisodes: PropTypes.func,
-	getAll: PropTypes.func,
-	allHasMore: PropTypes.bool,
-	filterEpisodes: PropTypes.func,
+	classes: PropTypes.object.isRequired,
+	currentSeries: PropTypes.string.isRequired,
+	seasons: PropTypes.array.isRequired,
+	episodes: PropTypes.array.isRequired,
+	getEpisodes: PropTypes.func.isRequired,
+	getAll: PropTypes.func.isRequired,
+	allHasMore: PropTypes.bool.isRequired,
+	filterEpisodes: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(Episodes);

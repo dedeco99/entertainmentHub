@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import InputAdornment from "@material-ui/core/InputAdornment";
 
-import { getSearch } from "../../actions/tv";
+import { getSearch } from "../../api/tv";
 
 import Input from "../.partials/Input";
 import Banners from "./Banners";
@@ -92,8 +92,8 @@ class Search extends Component {
 }
 
 Search.propTypes = {
-	allSeries: PropTypes.array,
-	addSeries: PropTypes.func,
+	allSeries: PropTypes.array.isRequired,
+	addSeries: PropTypes.func.isRequired,
 };
 
 export default Search;

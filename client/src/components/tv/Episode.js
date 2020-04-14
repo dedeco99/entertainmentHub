@@ -62,8 +62,8 @@ function Episode({ episode, classes }) {
 }
 
 Episode.propTypes = {
-	episode: PropTypes.object,
-	classes: PropTypes.object,
+	classes: PropTypes.object.isRequired,
+	episode: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(Episode);

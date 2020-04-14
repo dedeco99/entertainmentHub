@@ -31,7 +31,7 @@ class SeriesDetail extends Component {
 		const { series, editSeries } = this.props;
 		const { title } = this.state;
 
-		await editSeries(series.seriesId, { displayName: title });
+		await editSeries(series._id, { displayName: title });
 	}
 
 	handleKeyPress(event) {
@@ -63,7 +63,7 @@ class SeriesDetail extends Component {
 					variant="outlined"
 					fullWidth
 				>
-					{"Add"}
+					{"Edit"}
 				</Button>
 			</Container>
 		);
@@ -71,8 +71,8 @@ class SeriesDetail extends Component {
 }
 
 SeriesDetail.propTypes = {
-	series: PropTypes.object,
-	editSeries: PropTypes.func,
+	series: PropTypes.object.isRequired,
+	editSeries: PropTypes.func.isRequired,
 };
 
 export default SeriesDetail;

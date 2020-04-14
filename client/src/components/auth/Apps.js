@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-import { addApp } from "../../actions/auth";
+import { addApp } from "../../api/auth";
 
 class Apps extends Component {
 	componentDidMount() {
@@ -20,7 +20,7 @@ class Apps extends Component {
 }
 
 Apps.propTypes = {
-	history: PropTypes.object,
+	history: PropTypes.object.isRequired,
 };
 
 export default Apps;

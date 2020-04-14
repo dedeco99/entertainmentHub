@@ -7,7 +7,7 @@ import IconButton from "@material-ui/core/IconButton";
 
 import NotificationDropdown from "./NotificationDropdown";
 
-import { logout } from "../../actions/auth";
+import { logout } from "../../api/auth";
 
 const styles = () => ({
 	navBtn: {
@@ -32,7 +32,7 @@ function LoggedInLinks({ classes }) {
 }
 
 LoggedInLinks.propTypes = {
-	classes: PropTypes.object,
+	classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(LoggedInLinks);

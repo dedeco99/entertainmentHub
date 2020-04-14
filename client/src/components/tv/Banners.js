@@ -55,31 +55,29 @@ class Banners extends Component {
 	}
 
 	renderSeriesBlock(series) {
-		if (series && series.length > 0) {
-			return (
-				<Grid container spacing={2}>
-					{
-						series.map(s => (
-							<Grid
-								item xs={6} sm={4} md={3} lg={2} xl={1}
-								key={s.id}
-							>
-								<div className="add-series-container">
-									{this.renderAddIcon(s)}
-									<img
-										src={s.image.substr(s.image.length - 4) === "null" ? placeholder : s.image}
-										width="100%"
-										alt={s.displayName}
-									/>
-								</div>
-							</Grid>
-						))
-					}
-				</Grid>
-			);
-		}
+		if (!series || !series.length) return <div />;
 
-		return <div />;
+		return (
+			<Grid container spacing={2}>
+				{
+					series.map(s => (
+						<Grid
+							item xs={6} sm={4} md={3} lg={2} xl={1}
+							key={s.id}
+						>
+							<div className="add-series-container">
+								{this.renderAddIcon(s)}
+								<img
+									src={s.image.substr(s.image.length - 4) === "null" ? placeholder : s.image}
+									width="100%"
+									alt={s.displayName}
+								/>
+							</div>
+						</Grid>
+					))
+				}
+			</Grid>
+		);
 	}
 
 	render() {
@@ -98,11 +96,11 @@ class Banners extends Component {
 }
 
 Banners.propTypes = {
-	series: PropTypes.array,
-	getMore: PropTypes.func,
-	hasMore: PropTypes.bool,
-	allSeries: PropTypes.array,
-	addSeries: PropTypes.func,
+	series: PropTypes.array.isRequired,
+	getMore: PropTypes.func.isRequired,
+	hasMore: PropTypes.bool.isRequired,
+	allSeries: PropTypes.array.isRequired,
+	addSeries: PropTypes.func.isRequired,
 };
 
 export default Banners;

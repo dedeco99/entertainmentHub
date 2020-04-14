@@ -15,7 +15,7 @@ import Input from "../.partials/Input";
 import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 
-import { getCities } from "../../actions/weather";
+import { getCities } from "../../api/weather";
 
 const styles = () => ({
 	autocomplete: {
@@ -27,7 +27,7 @@ class WidgetDetail extends Component {
 	constructor() {
 		super();
 		this.state = {
-			type: "",
+			type: "notifications",
 			info: {
 				subreddit: "",
 
@@ -107,7 +107,7 @@ class WidgetDetail extends Component {
 
 	renderFields() {
 		const { classes } = this.props;
-		const { type, info, filter, cities } = this.state;
+		const { type, info, cities } = this.state;
 
 		switch (type) {
 			case "reddit":
@@ -188,7 +188,7 @@ WidgetDetail.propTypes = {
 	open: PropTypes.bool.isRequired,
 	onClose: PropTypes.func.isRequired,
 	onAdd: PropTypes.func.isRequired,
-	classes: PropTypes.object,
+	classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(WidgetDetail);

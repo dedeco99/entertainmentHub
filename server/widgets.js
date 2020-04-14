@@ -1,4 +1,4 @@
-const { middleware, response } = require("./utils");
+const { middleware, response } = require("./middleware");
 const errors = require("./errors");
 
 const Widget = require("./models/widget");

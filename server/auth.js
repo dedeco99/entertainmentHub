@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 
-const { post } = require("./request");
-const { middleware, response } = require("./utils");
+const { api } = require("./request");
+const { middleware, response } = require("./middleware");
 
 const User = require("./models/user");
 const Token = require("./models/token");
@@ -90,21 +90,21 @@ async function addApp(event) {
 				"Authorization": auth,
 			};
 
-			const res = await post(url, null, headers);
+			const res = await api({ method: "post", url, headers });
 			json = res.data;
 			break;
 		}
 		case "twitch": {
 			const url = `https://api.twitch.tv/kraken/oauth2/token?client_id=${process.env.twitchClientId}&client_secret=${process.env.twitchSecret}&code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/twitch`;
 
-			const res = await post(url);
+			const res = await api({ method: "post", url });
 			json = res.data;
 			break;
 		}
 		case "youtube": {
 			const url = `https://www.googleapis.com/oauth2/v4/token?client_id=${process.env.googleClientId}&client_secret=${process.env.googleSecret}&code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/google`;
 
-			const res = await post(url);
+			const res = await api({ method: "post", url });
 			json = res.data;
 			break;
 		}

@@ -80,7 +80,7 @@ class NotificationDropdown extends Component {
 
 NotificationDropdown.propTypes = {
 	classes: PropTypes.object.isRequired,
-	notifications: PropTypes.array,
+	notifications: PropTypes.array.isRequired,
 };
 
 const mapStateToProps = state => ({

@@ -5,7 +5,7 @@ import { NavLink } from "react-router-dom";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 
-import { getApps } from "../../actions/auth";
+import { getApps } from "../../api/auth";
 
 const styles = () => ({
 	appItem: {
@@ -19,11 +19,17 @@ class AppMenu extends Component {
 		this.state = {
 			apps: [],
 
+			allApps: [
+				{ platform: "reddit", name: "Reddit", icon: "icofont-reddit icofont-2x", endpoint: "/reddit" },
+				{ platform: "youtube", name: "Youtube", icon: "icofont-youtube-play icofont-2x", endpoint: "/youtube" },
+				{ platform: "twitch", name: "Twitch", icon: "icofont-twitch icofont-2x", endpoint: "/twitch" },
+				{ platform: "tv", name: "TV Series", icon: "icofont-monitor icofont-2x", endpoint: "/tv" },
+			],
+
 			selectedMenu: null,
 		};
 
 		this.getApps = this.getApps.bind(this);
-		this.getAppList = this.getAppList.bind(this);
 		this.handleAppClick = this.handleAppClick.bind(this);
 	}
 
@@ -32,23 +38,19 @@ class AppMenu extends Component {
 	}
 
 	async getApps() {
-		const apps = [
-			{ platform: "reddit", name: "Reddit", icon: "icofont-reddit icofont-2x", endpoint: "/reddit" },
-			{ platform: "youtube", name: "Youtube", icon: "icofont-youtube-play icofont-2x", endpoint: "/youtube" },
-			{ platform: "twitch", name: "Twitch", icon: "icofont-twitch icofont-2x", endpoint: "/twitch" },
-			{ platform: "tv", name: "TV Series", icon: "icofont-monitor icofont-2x", endpoint: "/tv" },
-		];
+		const { allApps } = this.state;
+
 		const redirected = localStorage.getItem("redirected");
 
 		const response = await getApps();
 
 		if (response.data && response.data.length) {
 			// eslint-disable-next-line arrow-body-style
-			const userApps = apps.filter(app => {
+			const userApps = allApps.filter(app => {
 				return response.data.find(appR => appR.platform === app.platform);
 			});
 
-			const currentApp = userApps.find(app => app.endpoint === window.location.pathname);
+			const currentApp = allApps.find(app => app.endpoint === window.location.pathname);
 
 			this.setState({
 				apps: userApps,
@@ -64,7 +66,7 @@ class AppMenu extends Component {
 		this.setState({ selectedMenu: id });
 	}
 
-	getAppList() {
+	renderAppList() {
 		const { classes } = this.props;
 		const { apps, selectedMenu } = this.state;
 
@@ -86,6 +88,24 @@ class AppMenu extends Component {
 		));
 	}
 
+	renderAddMoreApps() {
+		const { apps, allApps } = this.state;
+
+		if (apps.length === allApps.length) return null;
+
+		return (
+			<NavLink
+				className="nav-item"
+				to={"/settings"}
+				onClick={() => this.handleAppClick("settings")}
+			>
+				<ListItem button style={{ paddingLeft: 10 }}>
+					<i className="icofont-plus-circle icofont-2x" />
+				</ListItem >
+			</NavLink>
+		);
+	}
+
 	render() {
 		const user = localStorage.getItem("user");
 		const token = localStorage.getItem("token");
@@ -94,7 +114,8 @@ class AppMenu extends Component {
 			return (
 				<div className="appMenu">
 					<List className="list-menu" >
-						{this.getAppList()}
+						{this.renderAppList()}
+						{this.renderAddMoreApps()}
 					</List>
 				</div>
 			);
@@ -105,7 +126,7 @@ class AppMenu extends Component {
 }
 
 AppMenu.propTypes = {
-	classes: PropTypes.object,
+	classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(AppMenu);

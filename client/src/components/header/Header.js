@@ -9,12 +9,11 @@ import Typography from "@material-ui/core/Typography";
 import LoggedInLinks from "./LoggedInLinks";
 import LoggedOutLinks from "./LoggedOutLinks";
 
-import "../../css/Header.css";
 import logo from "../../img/logo.png";
 
 const styles = () => ({
 	appBar: {
-		backgroundColor: "#222", 
+		backgroundColor: "#222",
 		marginBottom: 20,
 	},
 	title: {
@@ -45,7 +44,7 @@ function Header({ classes }) {
 }
 
 Header.propTypes = {
-	classes: PropTypes.object,
+	classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(Header);

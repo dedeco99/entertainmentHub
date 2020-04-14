@@ -9,7 +9,7 @@ import Tooltip from "@material-ui/core/Tooltip";
 
 import moment from "moment";
 
-import { getWeather } from "../../actions/weather";
+import { getWeather } from "../../api/weather";
 
 const styles = () => ({
 	root: {
@@ -202,7 +202,7 @@ class Weather extends Component {
 }
 
 Weather.propTypes = {
-	classes: PropTypes.object,
+	classes: PropTypes.object.isRequired,
 	city: PropTypes.string.isRequired,
 	country: PropTypes.string.isRequired,
 	lat: PropTypes.number.isRequired,

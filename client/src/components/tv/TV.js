@@ -1,14 +1,12 @@
 import React, { Component } from "react";
 import { withStyles } from "@material-ui/styles";
 import PropTypes from "prop-types";
-import { toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Grid from "@material-ui/core/Grid";
 import Fab from "@material-ui/core/Fab";
 import Button from "@material-ui/core/Button";
 import Modal from "@material-ui/core/Modal";
 
-import { getSeries, getSeasons, getPopular, addSeries, editSeries, deleteSeries } from "../../actions/tv";
+import { getSeries, getSeasons, getPopular, addSeries, editSeries, deleteSeries } from "../../api/tv";
 
 import Sidebar from "../.partials/Sidebar";
 import SeriesDetail from "./SeriesDetail";
@@ -16,17 +14,15 @@ import Episodes from "./Episodes";
 import Search from "./Search";
 import Banners from "./Banners";
 
-import "../../css/TV.css";
-
 import loadingGif from "../../img/loading3.gif";
 
 const styles = () => ({
 	searchBtn: {
-		width: "100% !important", 
+		width: "100% !important",
 		backgroundColor: "#222",
 	},
 	outlinedBtn: {
-		marginTop: 10, 
+		marginTop: 10,
 		marginBottom: 10,
 	},
 });
@@ -109,9 +105,11 @@ class TV extends Component {
 	async getSeasons(series) {
 		const response = await getSeasons(series);
 
-		this.setState({ seasons: response.data, currentSeries: series, allPage: 0 });
+		if (response.data.length) {
+			this.setState({ seasons: response.data, currentSeries: series, allPage: 0 });
 
-		this.getEpisodes(response.data[response.data.length - 1]._id);
+			this.getEpisodes(response.data[response.data.length - 1]._id);
+		}
 	}
 
 	getEpisodes(season) {
@@ -155,11 +153,11 @@ class TV extends Component {
 		const response = await addSeries(series);
 
 		if (response.status < 400) {
-			this.setState({ series: response.data });
-
-			toast.success(response.message);
-		} else {
-			toast.error(response.message);
+			this.setState(prevState => ({
+				series: [...prevState.series, response.data].sort((a, b) => (
+					a.displayName <= b.displayName ? -1 : 1
+				)),
+			}));
 		}
 	}
 
@@ -167,24 +165,24 @@ class TV extends Component {
 		const response = await editSeries(id, series);
 
 		if (response.status < 400) {
-			this.setState({ series: response.data });
-
-			toast.success(response.message);
-		} else {
-			toast.error(response.message);
+			this.setState(prevState => ({
+				series: [...prevState.series.filter(s => s._id !== response.data._id), response.data].sort((a, b) => (
+					a.displayName <= b.displayName ? -1 : 1
+				)),
+			}));
 		}
 	}
 
 
 	async deleteSeries(e) {
+		const { series } = this.state;
+
 		const response = await deleteSeries(e.target.id);
 
 		if (response.status < 400) {
-			this.setState({ series: response.data });
+			const updatedSeries = series.filter(s => s._id !== response.data._id);
 
-			toast.success(response.message);
-		} else {
-			toast.error(response.message);
+			this.setState({ series: updatedSeries });
 		}
 	}
 
@@ -219,7 +217,7 @@ class TV extends Component {
 
 		if (type === "edit") {
 			this.setState({
-				currentSeries: series.find(s => s.seriesId === e.target.id),
+				currentSeries: series.find(s => s._id === e.target.id),
 				showModal: true,
 			});
 		} else {
@@ -340,7 +338,7 @@ class TV extends Component {
 					{this.renderButtons()}
 					<Sidebar
 						options={series}
-						idField="seriesId"
+						idField="_id"
 						action={this.getSeasons}
 						menu={menuOptions}
 						loading={loadingSeries}
@@ -355,7 +353,7 @@ class TV extends Component {
 					onClose={this.hideModal}
 				>
 					<SeriesDetail
-						series={currentSeries.seriesId ? currentSeries : {}}
+						series={currentSeries._id ? currentSeries : {}}
 						editSeries={this.editSeries}
 					/>
 				</Modal>
@@ -365,7 +363,7 @@ class TV extends Component {
 }
 
 TV.propTypes = {
-	classes: PropTypes.object,
+	classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(TV);

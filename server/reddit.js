@@ -1,8 +1,8 @@
 const sanitizeHtml = require("sanitize-html");
 
-const { middleware, response } = require("./utils");
+const { middleware, response } = require("./middleware");
 const errors = require("./errors");
-const { get, post } = require("./request");
+const { api } = require("./request");
 
 const App = require("./models/app");
 
@@ -18,7 +18,7 @@ async function getAccessToken(user) {
 		"Authorization": auth,
 	};
 
-	const res = await post(url, null, headers);
+	const res = await api({ method: "post", url, headers });
 
 	if (res.status === 400) {
 		await App.deleteOne({ user: user._id, platform: "reddit" });
@@ -86,7 +86,7 @@ async function getSubreddits(req, res) {
 	};
 
 	try {
-		const request = await get(url, headers);
+		const request = await api({ method: "get", url, headers });
 		const json = JSON.parse(request);
 
 		const subreddits = [];
@@ -140,7 +140,7 @@ async function getPosts(event) {
 		"Authorization": `bearer ${accessToken}`,
 	};
 
-	const res = await get(url, headers);
+	const res = await api({ method: "get", url, headers });
 
 	if (res.status === 403) throw errors.redditForbidden;
 	if (res.status === 404) throw errors.redditNotFound;

@@ -55,7 +55,7 @@ class Categories extends Component {
 }
 
 Categories.propTypes = {
-	classes: PropTypes.object,
+	classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(Categories);

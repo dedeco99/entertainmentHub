@@ -8,7 +8,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 
-import { getApps, deleteApp } from "../../actions/auth";
+import { getApps, deleteApp } from "../../api/auth";
 
 import reddit from "../../img/reddit.png";
 import twitch from "../../img/twitch.png";
@@ -20,7 +20,7 @@ const styles = () => ({
 		position: "relative",
 	},
 	appIcon: {
-		color: "white", 
+		color: "white",
 		fontSize: "2em",
 	},
 });
@@ -167,7 +167,7 @@ class Settings extends Component {
 }
 
 Settings.propTypes = {
-	classes: PropTypes.object,
+	classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(Settings);
