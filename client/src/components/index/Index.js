@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-import { toast } from "react-toastify";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import IconButton from "@material-ui/core/IconButton";
 
@@ -11,7 +10,7 @@ import TVWidget from "./TVWidget";
 
 import Widget from "./Widget";
 
-import { getWidgets, addWidget, editWidget, deleteWidget } from "../../actions/widgets";
+import { getWidgets, addWidget, editWidget, deleteWidget } from "../../api/widgets";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -46,10 +45,6 @@ class Index extends Component {
 
 		if (response.status < 400) {
 			this.setState(prevState => ({ widgets: [...prevState.widgets, response.data] }));
-
-			toast.success(response.message);
-		} else {
-			toast.error(response.message);
 		}
 	}
 
@@ -76,10 +71,6 @@ class Index extends Component {
 					this.setState(prevState => ({
 						widgets: [...prevState.widgets.filter(w => w._id !== response.data._id), response.data],
 					}));
-
-					toast.success(response.message);
-				} else {
-					toast.error(response.message);
 				}
 			}
 		}
@@ -94,10 +85,6 @@ class Index extends Component {
 			const updatedWidgets = widgets.filter(w => w._id !== response.data._id);
 
 			this.setState({ widgets: updatedWidgets });
-
-			toast.success(response.message);
-		} else {
-			toast.error(response.message);
 		}
 	}
 

@@ -1,7 +1,11 @@
-import { get, post, remove } from "../utils/request";
+import { api } from "../utils/request";
 
 async function register(user) {
-	const res = await post("/api/auth/register", user);
+	const res = await api({
+		method: "post",
+		url: "/api/auth/register",
+		data: user,
+	});
 
 	if (res.status === 201) window.location.replace("/login");
 
@@ -9,7 +13,11 @@ async function register(user) {
 }
 
 async function login(user) {
-	const res = await post("/api/auth/login", user);
+	const res = await api({
+		method: "post",
+		url: "/api/auth/login",
+		data: user,
+	});
 
 	return res;
 }
@@ -21,19 +29,31 @@ function logout() {
 }
 
 async function getApps() {
-	const res = await get("/api/auth/apps");
+	const res = await api({
+		method: "get",
+		url: "/api/auth/apps",
+	});
 
 	return res;
 }
 
 async function addApp(platform, code) {
-	await post("/api/auth/apps", { platform, code });
+	await api({
+		method: "post",
+		url: "/api/auth/apps",
+		data: { platform, code },
+		message: true,
+	});
 
 	window.location.replace("/settings");
 }
 
 async function deleteApp(app) {
-	await remove(`/api/auth/apps/${app}`);
+	await api({
+		method: "delete",
+		url: `/api/auth/apps/${app}`,
+		message: true,
+	});
 
 	window.location.replace("/settings");
 }

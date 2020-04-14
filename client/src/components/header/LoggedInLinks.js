@@ -5,7 +5,7 @@ import IconButton from "@material-ui/core/IconButton";
 
 import NotificationDropdown from "./NotificationDropdown";
 
-import { logout } from "../../actions/auth";
+import { logout } from "../../api/auth";
 
 function LoggedInLinks() {
 	return (

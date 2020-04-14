@@ -1,5 +1,5 @@
 const { middleware, response } = require("./middleware");
-const { get } = require("./request");
+const { api } = require("./request");
 
 const moment = require("moment");
 const allTheCities = require("all-the-cities");
@@ -10,7 +10,7 @@ async function getWeather(event) {
 
 	const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&units=metric&appid=${process.env.openWeatherMapKey}`;
 
-	const res = await get(url);
+	const res = await api({ method: "get", url });
 	const json = res.data;
 
 	const minTemp = json.daily[0].temp.min;

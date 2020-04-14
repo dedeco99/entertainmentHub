@@ -13,7 +13,7 @@ import Box from "@material-ui/core/Box";
 
 import CustomScrollbar from "../.partials/CustomScrollbar";
 
-import { getSeasons, getPopular } from "../../actions/tv";
+import { getSeasons, getPopular } from "../../api/tv";
 
 import { formatDate } from "../../utils/utils";
 

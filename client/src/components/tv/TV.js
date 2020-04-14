@@ -1,11 +1,10 @@
 import React, { Component } from "react";
-import { toast } from "react-toastify";
 import Grid from "@material-ui/core/Grid";
 import Fab from "@material-ui/core/Fab";
 import Button from "@material-ui/core/Button";
 import Modal from "@material-ui/core/Modal";
 
-import { getSeries, getSeasons, getPopular, addSeries, editSeries, deleteSeries } from "../../actions/tv";
+import { getSeries, getSeasons, getPopular, addSeries, editSeries, deleteSeries } from "../../api/tv";
 
 import Sidebar from "../.partials/Sidebar";
 import SeriesDetail from "./SeriesDetail";
@@ -146,10 +145,6 @@ class TV extends Component {
 					a.displayName <= b.displayName ? -1 : 1
 				)),
 			}));
-
-			toast.success(response.message);
-		} else {
-			toast.error(response.message);
 		}
 	}
 
@@ -162,10 +157,6 @@ class TV extends Component {
 					a.displayName <= b.displayName ? -1 : 1
 				)),
 			}));
-
-			toast.success(response.message);
-		} else {
-			toast.error(response.message);
 		}
 	}
 
@@ -179,10 +170,6 @@ class TV extends Component {
 			const updatedSeries = series.filter(s => s._id !== response.data._id);
 
 			this.setState({ series: updatedSeries });
-
-			toast.success(response.message);
-		} else {
-			toast.error(response.message);
 		}
 	}
 

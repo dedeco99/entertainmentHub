@@ -1,11 +1,10 @@
 import React, { Component } from "react";
-import { toast } from "react-toastify";
 import Container from "@material-ui/core/Container";
 import Button from "@material-ui/core/Button";
 
 import Input from "../.partials/Input";
 
-import { register } from "../../actions/auth";
+import { register } from "../../api/auth";
 
 class Register extends Component {
 	constructor() {
@@ -30,8 +29,6 @@ class Register extends Component {
 
 		if (response.status < 400) {
 			window.location.replace("/login");
-		} else {
-			toast.error(response.message);
 		}
 	}
 

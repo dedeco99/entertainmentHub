@@ -5,7 +5,7 @@ import Zoom from "@material-ui/core/Zoom";
 import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
 
-import { getPosts } from "../../actions/reddit";
+import { getPosts } from "../../api/reddit";
 import { formatDate } from "../../utils/utils";
 
 import placeholder from "../../img/noimage.png";
@@ -32,9 +32,11 @@ class Post extends Component {
 
 		const response = await getPosts(subreddit);
 
-		response.data = response.data.filter(post => post.thumbnail !== "self");
+		if (response.data) {
+			response.data = response.data.filter(post => post.thumbnail !== "self");
 
-		this.setState({ posts: response.data, open: true });
+			this.setState({ posts: response.data, open: true });
+		}
 	}
 
 	htmlEscape(str) {

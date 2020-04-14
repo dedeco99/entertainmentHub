@@ -1,107 +1,22 @@
 import axios from "axios";
+import { toast } from "react-toastify";
 
-async function get(url, headers = {}) {
+async function api({ method, url, data, headers = {}, message = false }) {
 	headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
 
-	const config = { headers };
-
 	try {
-		const response = await axios.get(url, config);
+		const res = await axios.request({ method, url, data, headers });
+
+		if (message) toast.success(res.data.message);
 
 		return {
-			status: response.request.status,
-			message: response.data.message,
-			data: response.data.data,
+			status: res.request.status,
+			message: res.data.message,
+			data: res.data.data,
 		};
 	} catch (error) {
-		return {
-			status: error.request.status,
-			message: error.response.data.message,
-			data: error.response.data.data,
-		};
-	}
-}
+		toast.error(error.response.data.message);
 
-async function post(url, body, headers = {}) {
-	headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
-
-	const config = { headers };
-
-	try {
-		const response = await axios.post(url, body, config);
-
-		return {
-			status: response.request.status,
-			message: response.data.message,
-			data: response.data.data,
-		};
-	} catch (error) {
-		return {
-			status: error.request.status,
-			message: error.response.data.message,
-			data: error.response.data.data,
-		};
-	}
-}
-
-async function put(url, body, headers = {}) {
-	headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
-
-	const config = { headers };
-
-	try {
-		const response = await axios.put(url, body, config);
-
-		return {
-			status: response.request.status,
-			message: response.data.message,
-			data: response.data.data,
-		};
-	} catch (error) {
-		return {
-			status: error.request.status,
-			message: error.response.data.message,
-			data: error.response.data.data,
-		};
-	}
-}
-
-async function patch(url, body, headers = {}) {
-	headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
-
-	const config = { headers };
-
-	try {
-		const response = await axios.patch(url, body, config);
-
-		return {
-			status: response.request.status,
-			message: response.data.message,
-			data: response.data.data,
-		};
-	} catch (error) {
-		return {
-			status: error.request.status,
-			message: error.response.data.message,
-			data: error.response.data.data,
-		};
-	}
-}
-
-async function remove(url, headers = {}) {
-	headers.Authorization = `Bearer ${localStorage.getItem("token")}`;
-
-	const config = { headers };
-
-	try {
-		const response = await axios.delete(url, config);
-
-		return {
-			status: response.request.status,
-			message: response.data.message,
-			data: response.data.data,
-		};
-	} catch (error) {
 		return {
 			status: error.request.status,
 			message: error.response.data.message,
@@ -111,9 +26,5 @@ async function remove(url, headers = {}) {
 }
 
 export {
-	get,
-	post,
-	put,
-	patch,
-	remove,
+	api,
 };

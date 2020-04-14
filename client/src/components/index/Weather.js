@@ -9,7 +9,7 @@ import Tooltip from "@material-ui/core/Tooltip";
 
 import moment from "moment";
 
-import { getWeather } from "../../actions/weather";
+import { getWeather } from "../../api/weather";
 
 const styles = () => ({
 	root: {

@@ -5,7 +5,7 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 
-import { getApps, deleteApp } from "../../actions/auth";
+import { getApps, deleteApp } from "../../api/auth";
 
 import reddit from "../../img/reddit.png";
 import twitch from "../../img/twitch.png";

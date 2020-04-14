@@ -1,11 +1,10 @@
 import React, { Component } from "react";
-import { toast } from "react-toastify";
 import Container from "@material-ui/core/Container";
 import Button from "@material-ui/core/Button";
 
 import Input from "../.partials/Input";
 
-import { login } from "../../actions/auth";
+import { login } from "../../api/auth";
 
 class Login extends Component {
 	constructor() {
@@ -33,8 +32,6 @@ class Login extends Component {
 			localStorage.setItem("token", response.data.token);
 
 			window.location.replace("/");
-		} else {
-			toast.error(response.message);
 		}
 	}
 

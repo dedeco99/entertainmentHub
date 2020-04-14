@@ -1,6 +1,6 @@
-const { get } = require("./request");
-const errors = require("./errors");
 const { middleware, response } = require("./middleware");
+const errors = require("./errors");
+const { api } = require("./request");
 const { toObjectId } = require("./utils");
 const { addNotifications } = require("./notifications");
 
@@ -24,7 +24,7 @@ async function getSearch(event) {
 
 	const url = `https://api.themoviedb.org/3/search/tv?query=${search}${`&page=${Number(page) + 1}`}&api_key=${process.env.tmdbKey}`;
 
-	const res = await get(url);
+	const res = await api({ method: "get", url });
 	const json = res.data;
 
 	const series = json.results.map(s => ({
@@ -44,7 +44,7 @@ async function getPopular(event) {
 
 	const url = `https://api.themoviedb.org/3/tv/popular?${`page=${Number(page) + 1}`}&api_key=${process.env.tmdbKey}`;
 
-	const res = await get(url);
+	const res = await api({ method: "get", url });
 	const json = res.data;
 
 	const series = json.results.map(s => ({
@@ -64,7 +64,7 @@ async function fetchEpisodes(series) {
 
 	let url = `https://api.themoviedb.org/3/tv/${series._id}?api_key=${process.env.tmdbKey}`;
 
-	const res = await get(url);
+	const res = await api({ method: "get", url });
 	let json = res.data;
 
 	console.log(`${series.displayNames[0]} - ${res.status} started`);
@@ -78,7 +78,7 @@ async function fetchEpisodes(series) {
 	for (const season of seasons) {
 		url = `https://api.themoviedb.org/3/tv/${series._id}/season/${season}?api_key=${process.env.tmdbKey}`;
 
-		seasonsPromises.push(get(url));
+		seasonsPromises.push(api({ method: "get", url }));
 	}
 
 	seasons = await Promise.all(seasonsPromises);
@@ -205,7 +205,7 @@ async function addSeries(event) {
 }
 
 async function editSeries(event) {
-	const { params, body, user } = event;
+	const { params, body } = event;
 	const { id } = params;
 	const { displayName } = body;
 

@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import InputAdornment from "@material-ui/core/InputAdornment";
 
-import { getSearch } from "../../actions/tv";
+import { getSearch } from "../../api/tv";
 
 import Input from "../.partials/Input";
 import Banners from "./Banners";

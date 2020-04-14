@@ -21,7 +21,7 @@ import CustomScrollbar from "../.partials/CustomScrollbar";
 
 import { formatDate } from "../../utils/utils";
 
-import { getNotifications, patchNotifications, deleteNotifications } from "../../actions/notifications";
+import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
 import { Typography } from "@material-ui/core";
 
 const styles = () => ({

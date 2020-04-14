@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 
-import { getApps } from "../../actions/auth";
+import { getApps } from "../../api/auth";
 
 class AppMenu extends Component {
 	constructor() {

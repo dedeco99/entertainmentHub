@@ -14,7 +14,7 @@ import Input from "../.partials/Input";
 import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 
-import { getCities } from "../../actions/weather";
+import { getCities } from "../../api/weather";
 
 class WidgetDetail extends Component {
 	constructor() {
