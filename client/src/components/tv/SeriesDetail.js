@@ -71,8 +71,8 @@ class SeriesDetail extends Component {
 }
 
 SeriesDetail.propTypes = {
-	series: PropTypes.object,
-	editSeries: PropTypes.func,
+	series: PropTypes.object.isRequired,
+	editSeries: PropTypes.func.isRequired,
 };
 
 export default SeriesDetail;

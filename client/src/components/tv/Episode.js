@@ -64,7 +64,7 @@ function Episode({ episode }) {
 }
 
 Episode.propTypes = {
-	episode: PropTypes.object,
+	episode: PropTypes.object.isRequired,
 };
 
 export default Episode;

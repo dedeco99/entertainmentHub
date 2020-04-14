@@ -123,13 +123,13 @@ class Episodes extends Component {
 }
 
 Episodes.propTypes = {
-	currentSeries: PropTypes.string,
-	seasons: PropTypes.array,
-	episodes: PropTypes.array,
-	getEpisodes: PropTypes.func,
-	getAll: PropTypes.func,
-	allHasMore: PropTypes.bool,
-	filterEpisodes: PropTypes.func,
+	currentSeries: PropTypes.string.isRequired,
+	seasons: PropTypes.array.isRequired,
+	episodes: PropTypes.array.isRequired,
+	getEpisodes: PropTypes.func.isRequired,
+	getAll: PropTypes.func.isRequired,
+	allHasMore: PropTypes.bool.isRequired,
+	filterEpisodes: PropTypes.func.isRequired,
 };
 
 export default Episodes;

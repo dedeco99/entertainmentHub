@@ -96,11 +96,11 @@ class Banners extends Component {
 }
 
 Banners.propTypes = {
-	series: PropTypes.array,
-	getMore: PropTypes.func,
-	hasMore: PropTypes.bool,
-	allSeries: PropTypes.array,
-	addSeries: PropTypes.func,
+	series: PropTypes.array.isRequired,
+	getMore: PropTypes.func.isRequired,
+	hasMore: PropTypes.bool.isRequired,
+	allSeries: PropTypes.array.isRequired,
+	addSeries: PropTypes.func.isRequired,
 };
 
 export default Banners;

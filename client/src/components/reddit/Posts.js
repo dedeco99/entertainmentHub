@@ -231,8 +231,8 @@ class Post extends Component {
 }
 
 Post.propTypes = {
-	classes: PropTypes.object,
-	subreddit: PropTypes.string,
+	classes: PropTypes.object.isRequired,
+	subreddit: PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(Post);

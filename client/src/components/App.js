@@ -132,7 +132,7 @@ class App extends Component {
 }
 
 App.propTypes = {
-	addNotification: PropTypes.func,
+	addNotification: PropTypes.func.isRequired,
 };
 
 const mapDispatchToProps = dispatch => ({

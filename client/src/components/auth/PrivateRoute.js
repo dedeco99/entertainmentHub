@@ -22,7 +22,7 @@ function PrivateRoute({ component: Component, ...rest }) {
 }
 
 PrivateRoute.propTypes = {
-	component: PropTypes.elementType,
+	component: PropTypes.elementType.isRequired,
 	location: PropTypes.object,
 };
 

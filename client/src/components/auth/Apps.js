@@ -20,7 +20,7 @@ class Apps extends Component {
 }
 
 Apps.propTypes = {
-	history: PropTypes.object,
+	history: PropTypes.object.isRequired,
 };
 
 export default Apps;

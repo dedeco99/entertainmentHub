@@ -202,7 +202,7 @@ class Weather extends Component {
 }
 
 Weather.propTypes = {
-	classes: PropTypes.object,
+	classes: PropTypes.object.isRequired,
 	city: PropTypes.string.isRequired,
 	country: PropTypes.string.isRequired,
 	lat: PropTypes.number.isRequired,

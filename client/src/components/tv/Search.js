@@ -92,8 +92,8 @@ class Search extends Component {
 }
 
 Search.propTypes = {
-	allSeries: PropTypes.array,
-	addSeries: PropTypes.func,
+	allSeries: PropTypes.array.isRequired,
+	addSeries: PropTypes.func.isRequired,
 };
 
 export default Search;

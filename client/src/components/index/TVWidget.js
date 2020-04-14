@@ -170,7 +170,7 @@ class TVWidget extends Component {
 }
 
 TVWidget.propTypes = {
-	classes: PropTypes.object,
+	classes: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(TVWidget);
