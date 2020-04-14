@@ -1,4 +1,7 @@
 import React, { Component } from "react";
+import { withStyles } from "@material-ui/styles";
+import PropTypes from "prop-types";
+
 import Grid from "@material-ui/core/Grid";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -11,6 +14,16 @@ import reddit from "../../img/reddit.png";
 import twitch from "../../img/twitch.png";
 import youtube from "../../img/youtube.png";
 import tv from "../../img/tv.png";
+
+const styles = () => ({
+	appsContainer: {
+		position: "relative",
+	},
+	appIcon: {
+		color: "white", 
+		fontSize: "2em",
+	},
+});
 
 class Settings extends Component {
 	constructor() {
@@ -93,6 +106,7 @@ class Settings extends Component {
 	}
 
 	renderApp(app) {
+		const { classes } = this.props;
 		const images = {
 			reddit,
 			twitch,
@@ -103,7 +117,7 @@ class Settings extends Component {
 		if (app.active) {
 			return (
 				<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={app.key}>
-					<div style={{ position: "relative" }}>
+					<div className={classes.appsContainer}>
 						<img src={images[app.key]} width="100%" alt={app.displayName} />
 						<i className="delete material-icons" id={app.id} onClick={this.deleteApp}>
 							{"delete"}
@@ -123,6 +137,7 @@ class Settings extends Component {
 	}
 
 	render() {
+		const { classes } = this.props;
 		const { apps, selectedMenu } = this.state;
 
 		return (
@@ -135,7 +150,7 @@ class Settings extends Component {
 							onClick={this.handleSettingsClick}
 						>
 							<ListItemIcon>
-								<i className="material-icons" style={{ color: "white", fontSize: "2em" }}>{"apps"}</i>
+								<i className={`material-icons ${classes.appIcon}`}>{"apps"}</i>
 							</ListItemIcon>
 							<ListItemText primary="Apps" />
 						</ListItem>
@@ -151,4 +166,8 @@ class Settings extends Component {
 	}
 }
 
-export default Settings;
+Settings.propTypes = {
+	classes: PropTypes.object,
+};
+
+export default withStyles(styles)(Settings);

@@ -1,7 +1,15 @@
 import React, { Component } from "react";
+import { withStyles } from "@material-ui/styles";
+import PropTypes from "prop-types";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
+
+const styles = () => ({
+	menuOption: {
+		textAlign: "center",
+	},
+});
 
 class Categories extends Component {
 	constructor() {
@@ -20,7 +28,7 @@ class Categories extends Component {
 	};
 
 	render() {
-		const { options, idField, nameField } = this.props;
+		const { classes, options, idField, nameField } = this.props;
 		const { selectedMenu } = this.state;
 
 		const optionsList = options.map(option => {
@@ -31,7 +39,7 @@ class Categories extends Component {
 					onClick={() => this.handleClick(option[idField])}
 					key={option[idField]}
 					id={option[idField]}
-					style={{ textAlign: "center" }}
+					className={classes.menuOption}
 				>
 					<ListItemText primary={option[nameField]} />
 				</ListItem >
@@ -46,4 +54,8 @@ class Categories extends Component {
 	}
 }
 
-export default Categories;
+Categories.propTypes = {
+	classes: PropTypes.object,
+};
+
+export default withStyles(styles)(Categories);

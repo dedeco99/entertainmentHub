@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import { withStyles } from "@material-ui/styles";
+import PropTypes from "prop-types";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
@@ -9,6 +11,12 @@ import Menu from "@material-ui/core/Menu";
 import { StyledMenu, StyledMenuItem } from "../.partials/Menu";
 
 import loadingGif from "../../img/loading2.gif";
+
+const styles = () => ({
+	noResults: {
+		textAlign: "center",
+	},
+});
 
 class Sidebar extends Component {
 	constructor() {
@@ -39,7 +47,7 @@ class Sidebar extends Component {
 	}
 
 	renderLoading() {
-		const { loading, noResultsMessage } = this.props;
+		const { classes, loading, noResultsMessage } = this.props;
 
 		if (loading) {
 			return (
@@ -47,7 +55,7 @@ class Sidebar extends Component {
 			);
 		} else {
 			return (
-				<div style={{ textAlign: "center" }}>{noResultsMessage}</div>
+				<div className={classes.noResults}>{noResultsMessage}</div>
 			)
 		}
 	}
@@ -106,4 +114,8 @@ class Sidebar extends Component {
 	}
 }
 
-export default Sidebar;
+Sidebar.propTypes = {
+	classes: PropTypes.object,
+};
+
+export default withStyles(styles)(Sidebar);

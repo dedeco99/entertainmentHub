@@ -1,4 +1,6 @@
 import React from "react";
+import { withStyles } from "@material-ui/styles";
+import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
@@ -7,11 +9,17 @@ import NotificationDropdown from "./NotificationDropdown";
 
 import { logout } from "../../actions/auth";
 
-function LoggedInLinks() {
+const styles = () => ({
+	navBtn: {
+		marginRight: 20,
+	},
+});
+
+function LoggedInLinks({ classes }) {
 	return (
 		<div>
 			<NotificationDropdown />
-			<NavLink className="nav-item" to="/settings" style={{ marginRight: 20 }}>
+			<NavLink className={`nav-item ${classes.navBtn}`} to="/settings">
 				<IconButton>
 					<i className="icofont-ui-user" />
 				</IconButton>
@@ -23,4 +31,8 @@ function LoggedInLinks() {
 	);
 }
 
-export default LoggedInLinks;
+LoggedInLinks.propTypes = {
+	classes: PropTypes.object,
+};
+
+export default withStyles(styles)(LoggedInLinks);

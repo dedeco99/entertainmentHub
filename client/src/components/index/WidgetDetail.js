@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { withStyles } from "@material-ui/styles";
 import PropTypes from "prop-types";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
@@ -15,6 +16,12 @@ import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 
 import { getCities } from "../../actions/weather";
+
+const styles = () => ({
+	autocomplete: {
+		width: 300,
+	},
+});
 
 class WidgetDetail extends Component {
 	constructor() {
@@ -99,6 +106,7 @@ class WidgetDetail extends Component {
 	}
 
 	renderFields() {
+		const { classes } = this.props;
 		const { type, info, filter, cities } = this.state;
 
 		switch (type) {
@@ -123,7 +131,7 @@ class WidgetDetail extends Component {
 						options={cities}
 						onInputChange={this.getCities}
 						onChange={this.selectCity}
-						style={{ width: 300 }}
+						className={classes.autocomplete}
 						getOptionLabel={option => option.name}
 						renderInput={params => <TextField {...params} label="Cidade" variant="outlined" fullWidth margin="normal" />}
 					/>
@@ -180,6 +188,7 @@ WidgetDetail.propTypes = {
 	open: PropTypes.bool.isRequired,
 	onClose: PropTypes.func.isRequired,
 	onAdd: PropTypes.func.isRequired,
+	classes: PropTypes.object,
 };
 
-export default WidgetDetail;
+export default withStyles(styles)(WidgetDetail);
