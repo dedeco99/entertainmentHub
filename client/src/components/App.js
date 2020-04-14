@@ -21,7 +21,7 @@ import Twitch from "./twitch/Twitch";
 import TV from "./tv/TV";
 import Settings from "./settings/Settings";
 
-import "../css/App.css";
+import "../styles/App.css";
 
 import goBackUp from "../img/go_back_up.png";
 

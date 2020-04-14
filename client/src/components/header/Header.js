@@ -7,7 +7,6 @@ import Typography from "@material-ui/core/Typography";
 import LoggedInLinks from "./LoggedInLinks";
 import LoggedOutLinks from "./LoggedOutLinks";
 
-import "../../css/Header.css";
 import logo from "../../img/logo.png";
 
 function Header() {

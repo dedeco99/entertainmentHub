@@ -65,3 +65,32 @@ li {
 	right: 25px;
 	position: fixed;
 }
+
+.navbar-brand {
+	left: 0px;
+	bottom: -3px;
+	position: absolute;
+}
+
+.appMenu {
+	background-color: #222;
+	width: 50px;
+	height: 100%;
+	top: 0px;
+	margin-top: 64px;
+	position: fixed;
+}
+
+.add-series-container {
+	position: relative;
+	display: inline-block;
+	text-align: center;
+}
+
+.add-series-icon {
+	position: absolute;
+	bottom: 50%;
+	right: 50%;
+	margin: 0px -25px -15px 0px;
+	cursor: pointer;
+}

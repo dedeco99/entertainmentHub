@@ -13,8 +13,6 @@ import Episodes from "./Episodes";
 import Search from "./Search";
 import Banners from "./Banners";
 
-import "../../css/TV.css";
-
 import loadingGif from "../../img/loading3.gif";
 
 class TV extends Component {
