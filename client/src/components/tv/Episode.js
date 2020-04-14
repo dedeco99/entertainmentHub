@@ -1,6 +1,6 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { makeStyles } from "@material-ui/core/styles";
+import { withStyles } from "@material-ui/styles";
 import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
 import CardActionArea from "@material-ui/core/CardActionArea";
@@ -9,7 +9,7 @@ import { formatDate } from "../../utils/utils";
 
 import noimage from "../../img/noimage.png";
 
-const useStyles = makeStyles({
+const styles = () => ({
 	overlay: {
 		position: "absolute",
 		color: "white",
@@ -35,12 +35,10 @@ const useStyles = makeStyles({
 	},
 });
 
-function Episode({ episode }) {
+function Episode({ episode, classes }) {
 	const seasonLabel = episode.season > 9 ? `S${episode.season}` : `S0${episode.season}`;
 	const episodeLabel = episode.number > 9 ? `E${episode.number}` : `E0${episode.number}`;
 	const image = episode.image ? episode.image : noimage;
-
-	const classes = useStyles();
 
 	return (
 		<Card className={classes.root}>
@@ -65,6 +63,7 @@ function Episode({ episode }) {
 
 Episode.propTypes = {
 	episode: PropTypes.object,
+	classes: PropTypes.object,
 };
 
-export default Episode;
+export default withStyles(styles)(Episode);

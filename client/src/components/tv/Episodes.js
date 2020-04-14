@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { withStyles } from "@material-ui/styles";
 import PropTypes from "prop-types";
 import Grid from "@material-ui/core/Grid";
 import Button from "@material-ui/core/Button";
@@ -6,6 +7,19 @@ import InfiniteScroll from "react-infinite-scroller";
 
 import Categories from "../.partials/Categories";
 import Episode from "./Episode";
+
+const styles = () => ({
+	episodeListContainer: {
+		width: "100%",
+	},
+	episodeBtn: {
+		marginTop: 10,
+		marginBottom: 10,
+	},
+	noEpisodes: {
+		textAlign: "center",
+	}
+});
 
 class Episodes extends Component {
 	constructor() {
@@ -28,7 +42,7 @@ class Episodes extends Component {
 	}
 
 	renderEpisodes() {
-		const { episodes } = this.props;
+		const { classes, episodes } = this.props;
 
 		if (episodes && episodes.length > 0) {
 			return episodes.map(episode => (
@@ -46,21 +60,20 @@ class Episodes extends Component {
 				item xs={12}
 				key={1}
 			>
-				<div style={{ textAlign: "center" }}>{"No episodes"}</div>
+				<div className={classes.noEpisodes}>{"No episodes"}</div>
 			</Grid>
 		);
 	}
 
 	renderAllEpisodes(episodeList) {
-		const { getAll, allHasMore } = this.props;
+		const { classes, getAll, allHasMore } = this.props;
 
 		return (
 			<Grid container spacing={2}>
 				<Grid item sm={3} md={2}>
 					<Button
 						onClick={this.getPassedEpisodes}
-						className="outlined-button"
-						style={{ marginTop: 10, marginBottom: 10 }}
+						className={`outlined-button ${classes.episodesBtn}`}
 						variant="outlined"
 						fullWidth
 					>
@@ -70,8 +83,7 @@ class Episodes extends Component {
 				<Grid item sm={3} md={2}>
 					<Button
 						onClick={this.getFutureEpisodes}
-						className="outlined-button"
-						style={{ marginTop: 10, marginBottom: 10 }}
+						className={`outlined-button ${classes.episodesBtn}`}
 						variant="outlined"
 						fullWidth
 					>
@@ -94,7 +106,7 @@ class Episodes extends Component {
 	}
 
 	renderSeasons(episodeList) {
-		const { seasons, getEpisodes } = this.props;
+		const { classes, seasons, getEpisodes } = this.props;
 
 		return (
 			<div>
@@ -105,7 +117,7 @@ class Episodes extends Component {
 					action={getEpisodes}
 				/>
 				<br />
-				<Grid container spacing={2} style={{ width: "100%" }}>
+				<Grid container spacing={2} className={classes.episodeListContainer}>
 					{episodeList}
 				</Grid>
 			</div>
@@ -123,6 +135,7 @@ class Episodes extends Component {
 }
 
 Episodes.propTypes = {
+	classes: PropTypes.object,
 	currentSeries: PropTypes.string,
 	seasons: PropTypes.array,
 	episodes: PropTypes.array,
@@ -132,4 +145,4 @@ Episodes.propTypes = {
 	filterEpisodes: PropTypes.func,
 };
 
-export default Episodes;
+export default withStyles(styles)(Episodes);
