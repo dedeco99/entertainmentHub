@@ -14,6 +14,7 @@ import Input from "../.partials/Input";
 
 import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
+import Chip from "@material-ui/core/Chip";
 
 import { getCities } from "../../api/weather";
 import { getCoins } from "../../api/crypto";
@@ -103,13 +104,13 @@ class WidgetDetail extends Component {
 		this.setState({ typingTimeout: timeout });
 	}
 
-	selectCoin(e, coin) {
+	selectCoin(e, coins) {
 		const { info } = this.state;
 
 		this.setState({
 			info: {
 				...info,
-				coins: info.coins ? `${info.coins},${coin.symbol}` : coin.symbol,
+				coins: coins.map(coin => coin.symbol).join(","),
 			},
 		});
 	}
@@ -169,6 +170,13 @@ class WidgetDetail extends Component {
 			case "crypto":
 				return (
 					<Autocomplete
+						multiple
+						limitTags={2}
+						renderTags={(value, getTagProps) =>
+							value.map((option, index) => (
+								<Chip label={option.symbol} {...getTagProps({ index })} />
+							))
+						}
 						options={coins}
 						onInputChange={this.getCoins}
 						onChange={this.selectCoin}

@@ -56,7 +56,7 @@ class CryptoWidget extends Component {
 	async componentDidMount() {
 		const { coins } = this.props;
 
-		const response = await getCrypto("ETH");
+		const response = await getCrypto(coins);
 
 		this.setState({
 			loaded: true,
@@ -65,7 +65,6 @@ class CryptoWidget extends Component {
 	}
 
 	simplifyNumber(number) {
-		console.log("number", number);
 		let prefix = "";
 		if (number >= 1000000000) {
 			number /= 1000000000;
@@ -91,8 +90,6 @@ class CryptoWidget extends Component {
 		const { loaded, cryptos } = this.state;
 
 		if (loaded) {
-			console.log(cryptos);
-
 			if (cryptos.length) {
 				return (
 					<Zoom in={loaded}>
