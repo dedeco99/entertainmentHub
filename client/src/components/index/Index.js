@@ -7,12 +7,11 @@ import Notifications from "./Notifications";
 import Posts from "../reddit/Posts";
 import Weather from "./Weather";
 import TVWidget from "./TVWidget";
+import CryptoWidget from "../crypto/CryptoWidget";
 
 import Widget from "./Widget";
 
 import { getWidgets, addWidget, editWidget, deleteWidget } from "../../api/widgets";
-
-import CryptoWidget from "../crypto/CryptoWidget";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -150,6 +149,13 @@ class Index extends Component {
 						dimensions = { w: widget.width || 1, h: widget.height || 4 };
 						restrictions = { minW: 1, minH: 4, maxW: 1, maxH: 8 };
 						break;
+					case "crypto":
+						content = <CryptoWidget coins={widget.info.coins} />;
+						editText = "Crypto";
+						editIcon = "icofont-bitcoin";
+						dimensions = { w: widget.width || 1, h: widget.height || 2 };
+						restrictions = { minW: 1, minH: 2, maxW: 3, maxH: 6 };
+						break;
 					default: return <div />;
 				}
 
@@ -207,9 +213,6 @@ class Index extends Component {
 						onDragStop={this.handleEditWidget}
 						onResizeStop={this.handleEditWidget}
 					>
-						<div key={123} data-grid={{ x: 0, y: 0, w: 1, h: 2 }}>
-							<CryptoWidget />
-						</div>
 						{widgets}
 					</ResponsiveGridLayout>
 				) : "No widgets"}

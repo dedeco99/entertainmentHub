@@ -18,6 +18,9 @@ const WidgetSchema = new Schema({
 		country: { type: String },
 		lat: { type: Number },
 		lon: { type: Number },
+
+		// Crypto
+		coins: { type: String },
 	},
 }, { timestamps: { createdAt: "_created", updatedAt: "_modified" } });
 

@@ -44,7 +44,9 @@ class CryptoWidget extends Component {
 	}
 
 	async componentDidMount() {
-		const response = await getCrypto("ETH,BTC");
+		const { coins } = this.props;
+
+		const response = await getCrypto(coins);
 
 		this.setState({
 			loaded: true,
@@ -117,6 +119,7 @@ class CryptoWidget extends Component {
 
 CryptoWidget.propTypes = {
 	classes: PropTypes.object.isRequired,
+	coins: PropTypes.string.isRequired,
 };
 
 export default withStyles(styles)(CryptoWidget);

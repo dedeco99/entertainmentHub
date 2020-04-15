@@ -21,8 +21,9 @@ async function getCoins(event) {
 		.map(coin => ({
 			symbol: coin.symbol,
 			name: coin.name,
+			created: coin.first_historical_data,
 		}))
-		.sort((a, b) => a.name <= b.name ? -1 : 1);
+		.sort((a, b) => a.created <= b.created ? -1 : 1);
 
 	return response(200, "Coins found", coins);
 }
