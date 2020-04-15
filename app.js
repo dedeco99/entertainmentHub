@@ -11,6 +11,7 @@ const auth = require("./server/auth");
 const widgets = require("./server/widgets");
 const notifications = require("./server/notifications");
 const weather = require("./server/weather");
+const crypto = require("./server/crypto");
 const reddit = require("./server/reddit");
 /*
 const youtube = require("./server/youtube");
@@ -64,6 +65,8 @@ app.delete("/api/notifications/:id", notifications.deleteNotification);
 app.get("/api/weather/:lat/:lon", weather.getWeather);
 
 app.get("/api/weather/cities", weather.getCities);
+
+app.get("/api/crypto/:coin", crypto.getCoin);
 
 app.get("/api/reddit/subreddits/", reddit.getSubreddits);
 

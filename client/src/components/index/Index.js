@@ -11,6 +11,7 @@ import TVWidget from "./TVWidget";
 import Widget from "./Widget";
 
 import { getWidgets, addWidget, editWidget, deleteWidget } from "../../api/widgets";
+import { getCrypto } from "../../api/crypto";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -38,6 +39,10 @@ class Index extends Component {
 		const response = await getWidgets();
 
 		this.setState({ widgets: response.data });
+
+		const response2 = await getCrypto("ETH");
+
+		console.log(response2);
 	}
 
 	async handleAddWidget(widget) {
@@ -117,15 +122,15 @@ class Index extends Component {
 						content = <Notifications height="100%" />;
 						editText = "Notifications";
 						editIcon = "icofont-alarm";
-						dimensions = { w: widget.width || 1, h: widget.height || 4}
-						restrictions = { minW: 1, minH: 4, maxW: 1, maxH: 8};
+						dimensions = { w: widget.width || 1, h: widget.height || 4 }
+						restrictions = { minW: 1, minH: 4, maxW: 1, maxH: 8 };
 						break;
 					case "reddit":
 						content = <Posts subreddit={widget.info.subreddit} />;
 						editText = `r/${widget.info.subreddit}`;
 						editIcon = "icofont-reddit";
-						dimensions = { w: widget.width || 1, h: widget.height || 2}
-						restrictions = { minW: 1, minH: 2, maxW: 3, maxH: 6};
+						dimensions = { w: widget.width || 1, h: widget.height || 2 }
+						restrictions = { minW: 1, minH: 2, maxW: 3, maxH: 6 };
 						break;
 					case "weather":
 						content = (
@@ -138,15 +143,15 @@ class Index extends Component {
 						)
 						editText = "Weather";
 						editIcon = "icofont-cloud";
-						dimensions = { w: widget.width || 1, h: widget.height || 2}
-						restrictions = { minW: 1, minH: 2, maxW: 3, maxH: 6};
+						dimensions = { w: widget.width || 1, h: widget.height || 2 }
+						restrictions = { minW: 1, minH: 2, maxW: 3, maxH: 6 };
 						break;
 					case "tv":
 						content = <TVWidget />;
 						editText = "TV";
 						editIcon = "icofont-contrast";
-						dimensions = { w: widget.width || 1, h: widget.height || 4}
-						restrictions = { minW: 1, minH: 4, maxW: 1, maxH: 8};
+						dimensions = { w: widget.width || 1, h: widget.height || 4 }
+						restrictions = { minW: 1, minH: 4, maxW: 1, maxH: 8 };
 						break;
 					default: return <div />;
 				}
