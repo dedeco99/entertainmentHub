@@ -74,7 +74,7 @@ async function getPrices(event) {
 	}
 
 	const coinsInfo = [];
-	for (const symbol in data) {
+	for (const symbol of coins.split(",")) {
 		const coin = data[symbol];
 
 		coin.lastUpdate = Date.now();
