@@ -11,7 +11,8 @@ import TVWidget from "./TVWidget";
 import Widget from "./Widget";
 
 import { getWidgets, addWidget, editWidget, deleteWidget } from "../../api/widgets";
-import { getCrypto } from "../../api/crypto";
+
+import CryptoWidget from "../crypto/CryptoWidget";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -39,10 +40,6 @@ class Index extends Component {
 		const response = await getWidgets();
 
 		this.setState({ widgets: response.data });
-
-		const response2 = await getCrypto("ETH,BAT,BTC");
-
-		console.log(response2);
 	}
 
 	async handleAddWidget(widget) {
@@ -122,14 +119,14 @@ class Index extends Component {
 						content = <Notifications height="100%" />;
 						editText = "Notifications";
 						editIcon = "icofont-alarm";
-						dimensions = { w: widget.width || 1, h: widget.height || 4 }
+						dimensions = { w: widget.width || 1, h: widget.height || 4 };
 						restrictions = { minW: 1, minH: 4, maxW: 1, maxH: 8 };
 						break;
 					case "reddit":
 						content = <Posts subreddit={widget.info.subreddit} />;
 						editText = `r/${widget.info.subreddit}`;
 						editIcon = "icofont-reddit";
-						dimensions = { w: widget.width || 1, h: widget.height || 2 }
+						dimensions = { w: widget.width || 1, h: widget.height || 2 };
 						restrictions = { minW: 1, minH: 2, maxW: 3, maxH: 6 };
 						break;
 					case "weather":
@@ -140,17 +137,17 @@ class Index extends Component {
 								lat={widget.info.lat}
 								lon={widget.info.lon}
 							/>
-						)
+						);
 						editText = "Weather";
 						editIcon = "icofont-cloud";
-						dimensions = { w: widget.width || 1, h: widget.height || 2 }
+						dimensions = { w: widget.width || 1, h: widget.height || 2 };
 						restrictions = { minW: 1, minH: 2, maxW: 3, maxH: 6 };
 						break;
 					case "tv":
 						content = <TVWidget />;
 						editText = "TV";
 						editIcon = "icofont-contrast";
-						dimensions = { w: widget.width || 1, h: widget.height || 4 }
+						dimensions = { w: widget.width || 1, h: widget.height || 4 };
 						restrictions = { minW: 1, minH: 4, maxW: 1, maxH: 8 };
 						break;
 					default: return <div />;
@@ -210,6 +207,9 @@ class Index extends Component {
 						onDragStop={this.handleEditWidget}
 						onResizeStop={this.handleEditWidget}
 					>
+						<div key={123} data-grid={{ x: 0, y: 0, w: 1, h: 2 }}>
+							<CryptoWidget />
+						</div>
 						{widgets}
 					</ResponsiveGridLayout>
 				) : "No widgets"}
