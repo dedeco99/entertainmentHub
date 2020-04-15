@@ -66,7 +66,9 @@ app.get("/api/weather/:lat/:lon", weather.getWeather);
 
 app.get("/api/weather/cities", weather.getCities);
 
-app.get("/api/crypto/:coin", crypto.getCoin);
+app.get("/api/crypto", crypto.getCoins);
+
+app.get("/api/crypto/:coins", crypto.getPrices);
 
 app.get("/api/reddit/subreddits/", reddit.getSubreddits);
 

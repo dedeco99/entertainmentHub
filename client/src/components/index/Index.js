@@ -40,7 +40,7 @@ class Index extends Component {
 
 		this.setState({ widgets: response.data });
 
-		const response2 = await getCrypto("ETH");
+		const response2 = await getCrypto("ETH,BAT,BTC");
 
 		console.log(response2);
 	}

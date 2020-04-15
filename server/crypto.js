@@ -2,53 +2,70 @@ const { middleware, response } = require("./middleware");
 const errors = require("./errors");
 const { api } = require("./request");
 
-async function getCoin(event) {
-	const { params } = event;
-	const { coin } = params;
+async function getCoins(event) {
+	const { query } = event;
+	const { filter } = query;
 
-	let url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/map";
+	const url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/map";
 	const headers = { "X-CMC_PRO_API_KEY": process.env.coinmarketcapKey };
 
-	let res = await api({ method: "get", url, headers });
-	let json = res.data;
+	const res = await api({ method: "get", url, headers });
+	const json = res.data;
 
-	let coinId = null;
-	for (const coinInfo of json.data) {
-		if (
-			coin.charAt(0).toUpperCase() + coin.slice(1) === coinInfo.name ||
-			coin.toUpperCase() === coinInfo.symbol
-		) {
-			coinId = coinInfo.id;
-			break;
-		}
-	}
+	const coins = json.data
+		.filter(coin => (
+			coin.name.toLowerCase().includes(filter.toLowerCase()) ||
+			coin.symbol.toLowerCase().includes(filter.toLowerCase())
+		))
+		.slice(0, 50)
+		.map(coin => ({
+			symbol: coin.symbol,
+			name: coin.name,
+		}))
+		.sort((a, b) => a.name <= b.name ? -1 : 1);
 
-	if (!coinId) return errors.notFound;
+	return response(200, "Coins found", coins);
+}
 
-	url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?id=${coinId}&&convert=EUR`;
+async function getPrices(event) {
+	const { params } = event;
+	const { coins } = params;
 
-	res = await api({ method: "get", url, headers });
-	json = res.data;
+	const headers = { "X-CMC_PRO_API_KEY": process.env.coinmarketcapKey };
+
+	const url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${coins}&&convert=EUR`;
+
+	const res = await api({ method: "get", url, headers });
+	const json = res.data;
 
 	if (json.error) return errors.coinmarketcapForbidden;
 
-	const coinInfo = {
-		availableSupply: json.data[coinId].total_supply,
-		change1h: json.data[coinId].quote.EUR.percent_change_1h,
-		change24h: json.data[coinId].quote.EUR.percent_change_24h,
-		change7d: json.data[coinId].quote.EUR.percent_change_7d,
-		marketcapEur: json.data[coinId].quote.EUR.market_cap,
-		name: json.data[coinId].name,
-		priceEur: json.data[coinId].quote.EUR.price,
-		rank: json.data[coinId].cmc_rank,
-		symbol: json.data[coinId].symbol,
-		totalSupply: json.data[coinId].max_supply,
-		volumeEur: json.data[coinId].quote.EUR.volume_24h,
-	};
+	const coinsInfo = [];
+	for (const symbol in json.data) {
+		const coin = json.data[symbol];
 
-	return response(200, "Coin found", coinInfo);
+		coinsInfo.push({
+			id: coin.id,
+			name: coin.name,
+			symbol: coin.symbol,
+			rank: coin.cmc_rank,
+			dateAdded: coin.date_added,
+			circulatingSupply: coin.circulating_supply,
+			totalSupply: coin.total_supply,
+			maxSupply: coin.max_supply,
+			price: coin.quote.EUR.price,
+			marketCap: coin.quote.EUR.market_cap,
+			volume: coin.quote.EUR.volume_24h,
+			change1h: coin.quote.EUR.percent_change_1h,
+			change24h: coin.quote.EUR.percent_change_24h,
+			change7d: coin.quote.EUR.percent_change_7d,
+		});
+	}
+
+	return response(200, "Coin found", coinsInfo.length === 1 ? coinsInfo[0] : coinsInfo);
 }
 
 module.exports = {
-	getCoin: (req, res) => middleware(req, res, getCoin, ["token"]),
+	getCoins: (req, res) => middleware(req, res, getCoins, ["token"]),
+	getPrices: (req, res) => middleware(req, res, getPrices, ["token"]),
 };
