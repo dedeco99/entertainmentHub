@@ -8,13 +8,25 @@ async function getCoins(event) {
 	const { query } = event;
 	const { filter } = query;
 
-	const url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/map";
-	const headers = { "X-CMC_PRO_API_KEY": process.env.coinmarketcapKey };
+	let useCache = true;
+	let data = global.cache.crypto.coins;
 
-	const res = await api({ method: "get", url, headers });
-	const json = res.data;
+	if (!data.length || moment(global.cache.crypto.lastUpdate).diff(moment(), "hours") > 24) {
+		useCache = false;
+	}
 
-	const coins = json.data
+	if (!useCache) {
+		const url = "https://pro-api.coinmarketcap.com/v1/cryptocurrency/map";
+		const headers = { "X-CMC_PRO_API_KEY": process.env.coinmarketcapKey };
+
+		const res = await api({ method: "get", url, headers });
+		const json = res.data;
+
+		data = json.data;
+		global.cache.crypto.coins = json.data;
+	}
+
+	const coins = data
 		.filter(coin => (
 			coin.name.toLowerCase().includes(filter.toLowerCase()) ||
 			coin.symbol.toLowerCase().includes(filter.toLowerCase())

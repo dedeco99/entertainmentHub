@@ -23,6 +23,7 @@ global.sockets = [];
 global.cache = {
 	crypto: {
 		data: {},
+		coins: [],
 		lastUpdate: Date.now(),
 	},
 };
