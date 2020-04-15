@@ -32,6 +32,16 @@ const styles = () => ({
 		backgroundColor: "#212121",
 		padding: 16,
 	},
+	headersingle: {
+		paddingBottom: 5,
+		borderBottom: "1px solid #424242",
+	},
+	green: {
+		color: "#43a047 !important",
+	},
+	red: {
+		color: "#f4511e !important",
+	},
 });
 
 class CryptoWidget extends Component {
@@ -46,7 +56,7 @@ class CryptoWidget extends Component {
 	async componentDidMount() {
 		const { coins } = this.props;
 
-		const response = await getCrypto(coins);
+		const response = await getCrypto("ETH");
 
 		this.setState({
 			loaded: true,
@@ -65,6 +75,15 @@ class CryptoWidget extends Component {
 			prefix = "M";
 		}
 		return `${number.toFixed(2)} ${prefix}`;
+	}
+
+	renderPercentages(variant, percentage) {
+		const { classes } = this.props;
+		return (
+			<Typography variant={variant} className={percentage > 0 ? classes.green : classes.red}>
+				{`${percentage.toFixed(2)}%`}
+			</Typography>
+		);
 	}
 
 	render() {
@@ -99,9 +118,9 @@ class CryptoWidget extends Component {
 											</TableCell>
 											<TableCell className={classes.cell}>
 												<Box display="flex" flexDirection="column" alignItems="flex-end">
-													<Typography variant="caption">{`${crypto.change1h.toFixed(2)}%`}</Typography>
-													<Typography variant="caption">{`${crypto.change24h.toFixed(2)}%`}</Typography>
-													<Typography variant="caption">{`${crypto.change7d.toFixed(2)}%`}</Typography>
+													{this.renderPercentages("caption", crypto.change1h)}
+													{this.renderPercentages("caption", crypto.change24h)}
+													{this.renderPercentages("caption", crypto.change7d)}
 												</Box>
 											</TableCell>
 										</TableRow>
@@ -112,6 +131,45 @@ class CryptoWidget extends Component {
 					</Zoom>
 				);
 			}
+
+			return (
+				<Zoom in={loaded}>
+					<Box component={Paper} display="flex" flexDirection="column" className={classes.single}>
+						<Box display="flex" flexDirection="column" className={classes.headersingle}>
+							<Typography variant="h5">{cryptos.symbol}</Typography>
+							<Typography variant="subtitle1">{cryptos.name}</Typography>
+						</Box>
+						<Box display="flex" flexGrow={1} justifyContent="center">
+							<Box display="flex" flexDirection="column" flex="1" justifyContent="center" alignItems="center">
+								<Typography align="center" variant="caption">{"Market Cap"}</Typography>
+								<Typography variant="subtitle1">{`€${this.simplifyNumber(cryptos.marketCap)}`}</Typography>
+							</Box>
+							<Box display="flex" flexDirection="column" flex="1" justifyContent="center" alignItems="center">
+								<Typography align="center" variant="caption">{"Volume (24h)"}</Typography>
+								<Typography variant="subtitle1">{`€${this.simplifyNumber(cryptos.volume)}`}</Typography>
+							</Box>
+							<Box display="flex" flexDirection="column" flex="1" justifyContent="center" alignItems="center">
+								<Typography align="center" variant="caption">{"Circulating Supply"}</Typography>
+								<Typography variant="subtitle1">{`${this.simplifyNumber(cryptos.circulatingSupply)}`}</Typography>
+							</Box>
+						</Box>
+						<Box display="flex" flexGrow={1}>
+							<Box display="flex" flexDirection="column" flex="1" justifyContent="center" alignItems="center">
+								<Typography variant="caption">{"% 1h"}</Typography>
+								{this.renderPercentages("subtitle1", cryptos.change1h)}
+							</Box>
+							<Box display="flex" flexDirection="column" flex="1" justifyContent="center" alignItems="center">
+								<Typography variant="caption">{"% 24h"}</Typography>
+								{this.renderPercentages("subtitle1", cryptos.change24h)}
+							</Box>
+							<Box display="flex" flexDirection="column" flex="1" justifyContent="center" alignItems="center">
+								<Typography variant="caption">{"% 7d"}</Typography>
+								{this.renderPercentages("subtitle1", cryptos.change7d)}
+							</Box>
+						</Box>
+					</Box>
+				</Zoom>
+			);
 		}
 		return null;
 	}
