@@ -20,6 +20,12 @@ const twitch = require("./server/twitch");
 const tv = require("./server/tv");
 
 global.sockets = [];
+global.cache = {
+	crypto: {
+		data: {},
+		lastUpdate: Date.now(),
+	},
+};
 
 require("./server/secrets");
 

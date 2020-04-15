@@ -2,6 +2,8 @@ const { middleware, response } = require("./middleware");
 const errors = require("./errors");
 const { api } = require("./request");
 
+const moment = require("moment");
+
 async function getCoins(event) {
 	const { query } = event;
 	const { filter } = query;
@@ -32,18 +34,38 @@ async function getPrices(event) {
 	const { params } = event;
 	const { coins } = params;
 
-	const headers = { "X-CMC_PRO_API_KEY": process.env.coinmarketcapKey };
+	let useCache = false;
+	let data = global.cache.crypto.data;
 
-	const url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${coins}&&convert=EUR`;
+	if (moment(global.cache.lastUpdate).diff(moment(), "minutes") < 10) {
+		useCache = true;
 
-	const res = await api({ method: "get", url, headers });
-	const json = res.data;
+		for (const symbol of coins.split(",")) {
+			const coin = data[symbol];
 
-	if (json.error) return errors.coinmarketcapForbidden;
+			if (!coin) useCache = false;
+		}
+	}
+
+	if (!useCache) {
+		console.log("called");
+		const headers = { "X-CMC_PRO_API_KEY": process.env.coinmarketcapKey };
+
+		const url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${coins}&convert=EUR`;
+
+		const res = await api({ method: "get", url, headers });
+		const json = res.data;
+
+		if (json.error) return errors.coinmarketcapForbidden;
+
+		data = json.data;
+	}
 
 	const coinsInfo = [];
-	for (const symbol in json.data) {
-		const coin = json.data[symbol];
+	for (const symbol in data) {
+		const coin = data[symbol];
+
+		global.cache.crypto.data[symbol] = coin;
 
 		coinsInfo.push({
 			id: coin.id,
