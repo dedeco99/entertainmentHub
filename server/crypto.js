@@ -84,6 +84,7 @@ async function getPrices(event) {
 			id: coin.id,
 			name: coin.name,
 			symbol: coin.symbol,
+			image: `https://s2.coinmarketcap.com/static/img/coins/64x64/${coin.id}.png`,
 			rank: coin.cmc_rank,
 			dateAdded: coin.date_added,
 			circulatingSupply: coin.circulating_supply,
@@ -97,6 +98,8 @@ async function getPrices(event) {
 			change7d: coin.quote.EUR.percent_change_7d,
 		});
 	}
+
+	coinsInfo.sort((a, b) => a.rank <= b.rank ? -1 : 1);
 
 	return response(200, "Coin found", coinsInfo.length === 1 ? coinsInfo[0] : coinsInfo);
 }
