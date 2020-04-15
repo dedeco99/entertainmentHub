@@ -34,21 +34,21 @@ async function getPrices(event) {
 	const { params } = event;
 	const { coins } = params;
 
-	let useCache = false;
+	let useCache = true;
 	let data = global.cache.crypto.data;
 
-	if (moment(global.cache.lastUpdate).diff(moment(), "minutes") < 10) {
-		useCache = true;
+	for (const symbol of coins.split(",")) {
+		const coin = data[symbol];
 
-		for (const symbol of coins.split(",")) {
-			const coin = data[symbol];
-
-			if (!coin) useCache = false;
+		if (
+			!coin ||
+			moment(data[symbol].lastUpdate).diff(moment(), "minutes") > 10
+		) {
+			useCache = false;
 		}
 	}
 
 	if (!useCache) {
-		console.log("called");
 		const headers = { "X-CMC_PRO_API_KEY": process.env.coinmarketcapKey };
 
 		const url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${coins}&convert=EUR`;
@@ -65,6 +65,7 @@ async function getPrices(event) {
 	for (const symbol in data) {
 		const coin = data[symbol];
 
+		coin.lastUpdate = Date.now();
 		global.cache.crypto.data[symbol] = coin;
 
 		coinsInfo.push({
