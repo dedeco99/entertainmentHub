@@ -6,6 +6,7 @@ import Zoom from "@material-ui/core/Zoom";
 import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
+import Tooltip from "@material-ui/core/Tooltip"
 
 import Table from "@material-ui/core/Table";
 import TableContainer from "@material-ui/core/TableContainer";
@@ -22,19 +23,43 @@ const styles = () => ({
 		overflow: "auto",
 		padding: 10,
 		backgroundColor: "#212121",
+		border: "1px solid #424242",
 	},
 	cell: {
 		padding: 2,
 	},
-	single: {
+	nameCell: {
+		maxWidth: 60,
+	},
+	listImage: {
+		height: 16,
+		width: 16,
+		padding: 5,
+	},
+	singleRoot: {
 		height: "100%",
 		boxSizing: "border-box",
 		backgroundColor: "#212121",
 		padding: 16,
+		border: "1px solid #424242",
 	},
-	headersingle: {
+	singleContent: {
+		paddingTop: 15,
+		paddingBottom: 15,
+		borderTop: "1px solid #424242",
+	},
+	singleHeader: {
 		paddingBottom: 5,
-		borderBottom: "1px solid #424242",
+	},
+	singlePercentage: {
+		width: 70,
+		padding: 5,
+		borderLeft: "1px solid #424242",
+	},
+	singleImage: {
+		padding: 10,
+		height: 36,
+		width: 36,
 	},
 	green: {
 		color: "#43a047 !important",
@@ -72,8 +97,16 @@ class CryptoWidget extends Component {
 		} else if (number >= 1000000) {
 			number /= 1000000;
 			prefix = "M";
+		} else if (number >= 10000) {
+			number /= 10000;
+			prefix = "k";
 		}
 		return `${number.toFixed(2)} ${prefix}`;
+	}
+
+	renderPrice(price) {
+		price = ~~price === 0 ? price.toFixed(3) : price.toFixed(2);
+		return `€${price}`;
 	}
 
 	renderPercentages(variant, percentage) {
@@ -85,88 +118,128 @@ class CryptoWidget extends Component {
 		);
 	}
 
-	render() {
+	renderSingleView() {
 		const { classes } = this.props;
 		const { loaded, cryptos } = this.state;
 
-		if (loaded) {
-			if (cryptos.length) {
-				return (
-					<Zoom in={loaded}>
-						<TableContainer component={Paper} className={classes.root}>
-							<Table>
-								<TableBody>
-									{cryptos.map(crypto => (
-										<TableRow key={crypto.rank}>
-											<TableCell className={classes.cell}>
-												<Box display="flex" flexDirection="column">
-													<Typography variant="subtitle2">{crypto.symbol}</Typography>
-													<Typography variant="caption">{crypto.name}</Typography>
-												</Box>
-											</TableCell>
-											<TableCell className={classes.cell} align="right">
-												<Typography variant="caption">{`€${crypto.price.toFixed(2)}`}</Typography>
-											</TableCell>
-											<TableCell className={classes.cell}>
-												<Box display="flex" flexDirection="column" alignItems="flex-end">
-													<Typography variant="caption">{`€${this.simplifyNumber(crypto.marketCap)}`}</Typography>
-													<Typography variant="caption">{`€${this.simplifyNumber(crypto.volume)}`}</Typography>
-												</Box>
-											</TableCell>
-											<TableCell className={classes.cell}>
-												<Box display="flex" flexDirection="column" alignItems="flex-end">
-													{this.renderPercentages("caption", crypto.change1h)}
-													{this.renderPercentages("caption", crypto.change24h)}
-													{this.renderPercentages("caption", crypto.change7d)}
-												</Box>
-											</TableCell>
-										</TableRow>
-									))}
-								</TableBody>
-							</Table>
-						</TableContainer>
-					</Zoom>
-				);
-			}
-
-			return (
-				<Zoom in={loaded}>
-					<Box component={Paper} display="flex" flexDirection="column" className={classes.single}>
-						<Box display="flex" flexDirection="column" className={classes.headersingle}>
+		return (
+			<Zoom in={loaded}>
+				<Box component={Paper} display="flex" flexDirection="column" className={classes.singleRoot}>
+					<Box display="flex" alignItems="center" className={classes.singleHeader}>
+						<Box display="flex">
+							<img src={cryptos.image} alt="icon-crypto" className={classes.singleImage}/>
+						</Box>
+						<Box display="flex" flexGrow={1} flexDirection="column">
 							<Typography variant="h5">{cryptos.symbol}</Typography>
 							<Typography variant="subtitle1">{cryptos.name}</Typography>
 						</Box>
-						<Box display="flex" flexGrow={1} justifyContent="center">
-							<Box display="flex" flexDirection="column" flex="1" justifyContent="center" alignItems="center">
-								<Typography align="center" variant="caption">{"Market Cap"}</Typography>
-								<Typography variant="subtitle1">{`€${this.simplifyNumber(cryptos.marketCap)}`}</Typography>
-							</Box>
-							<Box display="flex" flexDirection="column" flex="1" justifyContent="center" alignItems="center">
-								<Typography align="center" variant="caption">{"Volume (24h)"}</Typography>
-								<Typography variant="subtitle1">{`€${this.simplifyNumber(cryptos.volume)}`}</Typography>
-							</Box>
-							<Box display="flex" flexDirection="column" flex="1" justifyContent="center" alignItems="center">
-								<Typography align="center" variant="caption">{"Circulating Supply"}</Typography>
-								<Typography variant="subtitle1">{`${this.simplifyNumber(cryptos.circulatingSupply)}`}</Typography>
-							</Box>
+						<Box display="flex">
+							<Typography variant="h6">{this.renderPrice(cryptos.price)}</Typography>
 						</Box>
-						<Box display="flex" flexGrow={1}>
-							<Box display="flex" flexDirection="column" flex="1" justifyContent="center" alignItems="center">
+					</Box>
+					<Box display="flex" flexDirection="column" flex="1" justifyContent="center" className={classes.singleContent}>
+						<Box display="flex" flex="1">
+							<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
+								<Typography variant="caption">{"Market Cap"}</Typography>
+								<Typography variant="subtitle1">{`€${cryptos.marketCap}`}</Typography>
+							</Box>
+							<Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" className={classes.singlePercentage}>
 								<Typography variant="caption">{"% 1h"}</Typography>
 								{this.renderPercentages("subtitle1", cryptos.change1h)}
 							</Box>
-							<Box display="flex" flexDirection="column" flex="1" justifyContent="center" alignItems="center">
+						</Box>
+						<Box display="flex" flex="1">
+							<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
+								<Typography variant="caption">{"Volume (24h)"}</Typography>
+								<Typography variant="subtitle1">{`€${cryptos.volume}`}</Typography>
+							</Box>
+							<Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" className={classes.singlePercentage}>
 								<Typography variant="caption">{"% 24h"}</Typography>
 								{this.renderPercentages("subtitle1", cryptos.change24h)}
 							</Box>
-							<Box display="flex" flexDirection="column" flex="1" justifyContent="center" alignItems="center">
+						</Box>
+						<Box display="flex" flex="1">
+							<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
+								<Typography variant="caption">{"Circulating Supply"}</Typography>
+								<Typography variant="subtitle1">{`${cryptos.circulatingSupply} ${cryptos.symbol}`}</Typography>
+							</Box>
+							<Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" className={classes.singlePercentage}>
 								<Typography variant="caption">{"% 7d"}</Typography>
 								{this.renderPercentages("subtitle1", cryptos.change7d)}
 							</Box>
 						</Box>
 					</Box>
-				</Zoom>
-			);
+				</Box>
+			</Zoom>
+		);
+	}
+
+	renderListView() {
+		const { classes } = this.props;
+		const { loaded, cryptos } = this.state;
+
+		return (
+			<Zoom in={loaded}>
+				<TableContainer component={Paper} className={classes.root}>
+					<Table>
+						<TableBody>
+							{cryptos.map(crypto => (
+								<TableRow key={crypto.rank}>
+									<TableCell className={classes.cell}>
+										<img src={crypto.image} alt="icon-crypto" className={classes.listImage} />
+									</TableCell>
+									<TableCell className={`${classes.cell} ${classes.nameCell}`}>
+										<Box display="flex" flexDirection="column">
+											<Typography variant="subtitle2">{crypto.symbol}</Typography>
+											<Typography variant="caption">{crypto.name}</Typography>
+										</Box>
+									</TableCell>
+									<TableCell className={classes.cell} align="right">
+										<Tooltip title="Price" placement="left">
+											<Typography variant="caption">{this.renderPrice(crypto.price)}</Typography>
+										</Tooltip>
+									</TableCell>
+									<TableCell className={classes.cell}>
+										<Box display="flex" flexDirection="column" alignItems="flex-end">
+											<Tooltip title="Market Cap" placement="left">
+												<Typography variant="caption">{`€${this.simplifyNumber(crypto.marketCap)}`}</Typography>
+											</Tooltip>
+											<Tooltip title="Volume" placement="left">
+												<Typography variant="caption">{`€${this.simplifyNumber(crypto.volume)}`}</Typography>
+											</Tooltip>
+										</Box>
+									</TableCell>
+									<TableCell className={classes.cell}>
+										<Box display="flex" flexDirection="column" alignItems="flex-end">
+											<Tooltip title="% 1h" placement="left">
+												{this.renderPercentages("caption", crypto.change1h)}
+											</Tooltip>
+											<Tooltip title="% 24h" placement="left">
+												{this.renderPercentages("caption", crypto.change24h)}
+											</Tooltip>
+											<Tooltip title="% 7d" placement="left">
+												{this.renderPercentages("caption", crypto.change7d)}
+											</Tooltip>
+										</Box>
+									</TableCell>
+								</TableRow>
+							))}
+						</TableBody>
+					</Table>
+				</TableContainer>
+			</Zoom>
+		);
+	}
+
+	render() {
+		const { loaded, cryptos } = this.state;
+
+		if (loaded) {
+			if (cryptos.length) {
+				return this.renderListView();
+			}
+
+			return this.renderSingleView();
 		}
 		return null;
 	}
