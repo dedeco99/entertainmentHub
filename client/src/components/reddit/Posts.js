@@ -33,7 +33,7 @@ class Post extends Component {
 		const response = await getPosts(subreddit);
 
 		if (response.data) {
-			response.data = response.data.filter(post => post.thumbnail !== "self");
+			//response.data = response.data.filter(post => post.thumbnail !== "self");
 
 			this.setState({ posts: response.data, open: true });
 		}
@@ -135,7 +135,7 @@ class Post extends Component {
 			);
 		} else {
 			content = <CardMedia component="img" src={placeholder} className={classes.media} />;
-			// content = <div style={{ padding: "40px 10px 20px 10px" }} dangerouslySetInnerHTML={{ __html: this.htmlEscape(post.text) }} />
+			content = <div style={{ padding: "40px 10px 20px 10px" }} dangerouslySetInnerHTML={{ __html: this.htmlEscape(post.text) }} />
 		}
 
 		const info = (
@@ -147,20 +147,20 @@ class Post extends Component {
 					{post.title}
 				</div>
 				<div
-					className={`${classes.overlay} ${classes.previous}`}
+					className={`${classes.overlay} ${classes.arrow} ${classes.previous}`}
 					onClick={num > 0 ? () => this.setState({ num: num - 1 }) : null}
 					onMouseEnter={this.showInfo}
 					onMouseLeave={this.hideInfo}
 				>
-					{"<"}
+					<i className="icofont-caret-left" />
 				</div>
 				<div
-					className={`${classes.overlay} ${classes.next}`}
+					className={`${classes.overlay} ${classes.arrow} ${classes.next}`}
 					onClick={num < posts.length - 1 ? () => this.setState({ num: num + 1 }) : null}
 					onMouseEnter={this.showInfo}
 					onMouseLeave={this.hideInfo}
 				>
-					{">"}
+					<i className="icofont-caret-right" />
 				</div>
 				<div className={`${classes.overlay} ${classes.score} ${!showInfo && classes.hide}`}>
 					{`↑ ${post.score} ↓`}
@@ -174,6 +174,7 @@ class Post extends Component {
 		return (
 			<Zoom in={open}>
 				<Card
+					variant="outlined"
 					className={classes.root}
 					onMouseEnter={this.hideInfo}
 					onMouseLeave={this.showInfo}

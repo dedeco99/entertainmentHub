@@ -23,15 +23,24 @@ const styles = {
 		overflow: "hidden",
 		textOverflow: "ellipsis",
 	},
-	previous: {
-		fontSize: "2em",
+	arrow: {
+		display: "flex",
+		justifyContent: "center",
+		alignItems: "center",
 		top: "50%",
-		left: "5px",
+		borderRadius: "50%",
+		cursor: "pointer",
+		width: 40,
+		height: 40,
+		"&:hover": {
+			backgroundColor: "#424242",
+		},
+	},
+	previous: {
+		left: "7px",
 	},
 	next: {
-		fontSize: "2em",
-		top: "50%",
-		right: "5px",
+		right: "7px",
 	},
 	score: {
 		bottom: "5px",
