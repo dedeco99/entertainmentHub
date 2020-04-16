@@ -7,6 +7,7 @@ import Notifications from "./Notifications";
 import Posts from "../reddit/Posts";
 import Weather from "./Weather";
 import TVWidget from "./TVWidget";
+import CryptoWidget from "../crypto/CryptoWidget";
 
 import Widget from "./Widget";
 
@@ -117,15 +118,15 @@ class Index extends Component {
 						content = <Notifications height="100%" />;
 						editText = "Notifications";
 						editIcon = "icofont-alarm";
-						dimensions = { w: widget.width || 1, h: widget.height || 4}
-						restrictions = { minW: 1, minH: 4, maxW: 1, maxH: 8};
+						dimensions = { w: widget.width || 1, h: widget.height || 4 };
+						restrictions = { minW: 1, minH: 4, maxW: 1, maxH: 8 };
 						break;
 					case "reddit":
 						content = <Posts subreddit={widget.info.subreddit} />;
 						editText = `r/${widget.info.subreddit}`;
 						editIcon = "icofont-reddit";
-						dimensions = { w: widget.width || 1, h: widget.height || 2}
-						restrictions = { minW: 1, minH: 2, maxW: 3, maxH: 6};
+						dimensions = { w: widget.width || 1, h: widget.height || 2 };
+						restrictions = { minW: 1, minH: 2, maxW: 3, maxH: 6 };
 						break;
 					case "weather":
 						content = (
@@ -135,18 +136,25 @@ class Index extends Component {
 								lat={widget.info.lat}
 								lon={widget.info.lon}
 							/>
-						)
+						);
 						editText = "Weather";
 						editIcon = "icofont-cloud";
-						dimensions = { w: widget.width || 1, h: widget.height || 2}
-						restrictions = { minW: 1, minH: 2, maxW: 3, maxH: 6};
+						dimensions = { w: widget.width || 1, h: widget.height || 2 };
+						restrictions = { minW: 1, minH: 2, maxW: 3, maxH: 6 };
 						break;
 					case "tv":
 						content = <TVWidget />;
 						editText = "TV";
 						editIcon = "icofont-contrast";
-						dimensions = { w: widget.width || 1, h: widget.height || 4}
-						restrictions = { minW: 1, minH: 4, maxW: 1, maxH: 8};
+						dimensions = { w: widget.width || 1, h: widget.height || 4 };
+						restrictions = { minW: 1, minH: 4, maxW: 1, maxH: 8 };
+						break;
+					case "crypto":
+						content = <CryptoWidget coins={widget.info.coins} />;
+						editText = "Crypto";
+						editIcon = "icofont-bitcoin";
+						dimensions = { w: widget.width || 1, h: widget.height || 2 };
+						restrictions = { minW: 1, minH: 2, maxW: 3, maxH: 6 };
 						break;
 					default: return <div />;
 				}

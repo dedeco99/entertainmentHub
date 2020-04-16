@@ -14,8 +14,10 @@ import Input from "../.partials/Input";
 
 import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
+import Chip from "@material-ui/core/Chip";
 
 import { getCities } from "../../api/weather";
+import { getCoins } from "../../api/crypto";
 
 const styles = () => ({
 	autocomplete: {
@@ -37,9 +39,9 @@ class WidgetDetail extends Component {
 				lon: 0,
 			},
 
-			filter: "",
 			typingTimeout: null,
 			cities: [],
+			coins: [],
 		};
 
 		this.handleChange = this.handleChange.bind(this);
@@ -48,14 +50,14 @@ class WidgetDetail extends Component {
 
 		this.getCities = this.getCities.bind(this);
 		this.selectCity = this.selectCity.bind(this);
+		this.getCoins = this.getCoins.bind(this);
+		this.selectCoin = this.selectCoin.bind(this);
 	}
 
 	getCities(e, filter) {
 		const { typingTimeout } = this.state;
 
 		if (!filter) return;
-
-		this.setState({ filter });
 
 		if (typingTimeout) clearTimeout(typingTimeout);
 
@@ -79,8 +81,37 @@ class WidgetDetail extends Component {
 				city: city.name,
 				country: city.country,
 				lat: city.lat,
-				lon: city.lon
+				lon: city.lon,
+			},
+		});
+	}
+
+	getCoins(e, filter) {
+		const { typingTimeout } = this.state;
+
+		if (!filter) return;
+
+		if (typingTimeout) clearTimeout(typingTimeout);
+
+		const timeout = setTimeout(async () => {
+			const response = await getCoins(filter);
+
+			if (response.data) {
+				this.setState({ coins: response.data });
 			}
+		}, 500);
+
+		this.setState({ typingTimeout: timeout });
+	}
+
+	selectCoin(e, coins) {
+		const { info } = this.state;
+
+		this.setState({
+			info: {
+				...info,
+				coins: coins.map(coin => coin.symbol).join(","),
+			},
 		});
 	}
 
@@ -107,7 +138,7 @@ class WidgetDetail extends Component {
 
 	renderFields() {
 		const { classes } = this.props;
-		const { type, info, cities } = this.state;
+		const { type, info, cities, coins } = this.state;
 
 		switch (type) {
 			case "reddit":
@@ -134,6 +165,24 @@ class WidgetDetail extends Component {
 						className={classes.autocomplete}
 						getOptionLabel={option => option.name}
 						renderInput={params => <TextField {...params} label="Cidade" variant="outlined" fullWidth margin="normal" />}
+					/>
+				);
+			case "crypto":
+				return (
+					<Autocomplete
+						multiple
+						limitTags={2}
+						renderTags={(value, getTagProps) =>
+							value.map((option, index) => (
+								<Chip label={option.symbol} {...getTagProps({ index })} />
+							))
+						}
+						options={coins}
+						onInputChange={this.getCoins}
+						onChange={this.selectCoin}
+						className={classes.autocomplete}
+						getOptionLabel={option => `${option.symbol} - ${option.name}`}
+						renderInput={params => <TextField {...params} label="Coins" variant="outlined" fullWidth margin="normal" />}
 					/>
 				);
 			default: return null;
@@ -166,6 +215,7 @@ class WidgetDetail extends Component {
 							<option value="notifications">{"Notifications"}</option>
 							<option value="reddit">{"Reddit"}</option>
 							<option value="weather">{"Weather"}</option>
+							<option value="crypto">{"Crypto"}</option>
 							<option value="tv">{"TV"}</option>
 						</Select>
 					</FormControl>

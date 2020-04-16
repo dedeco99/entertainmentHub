@@ -11,6 +11,7 @@ const auth = require("./server/auth");
 const widgets = require("./server/widgets");
 const notifications = require("./server/notifications");
 const weather = require("./server/weather");
+const crypto = require("./server/crypto");
 const reddit = require("./server/reddit");
 /*
 const youtube = require("./server/youtube");
@@ -19,6 +20,13 @@ const twitch = require("./server/twitch");
 const tv = require("./server/tv");
 
 global.sockets = [];
+global.cache = {
+	crypto: {
+		data: {},
+		coins: [],
+		lastUpdate: Date.now(),
+	},
+};
 
 require("./server/secrets");
 
@@ -64,6 +72,10 @@ app.delete("/api/notifications/:id", notifications.deleteNotification);
 app.get("/api/weather/:lat/:lon", weather.getWeather);
 
 app.get("/api/weather/cities", weather.getCities);
+
+app.get("/api/crypto", crypto.getCoins);
+
+app.get("/api/crypto/:coins", crypto.getPrices);
 
 app.get("/api/reddit/subreddits/", reddit.getSubreddits);
 
