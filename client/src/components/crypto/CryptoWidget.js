@@ -104,8 +104,15 @@ class CryptoWidget extends Component {
 		return `${number.toFixed(2)} ${prefix}`;
 	}
 
+	formatNumber(number) {
+		return new Intl.NumberFormat(undefined, {
+			style: "currency",
+			currency: "EUR",
+		}).format(Math.floor(number)).slice(0, -3);
+	}
+
 	renderPrice(price) {
-		price = ~~price === 0 ? price.toFixed(3) : price.toFixed(2);
+		price = Math.floor(price) === 0 ? price.toFixed(3) : price.toFixed(2);
 		return `€${price}`;
 	}
 
@@ -141,7 +148,7 @@ class CryptoWidget extends Component {
 						<Box display="flex" flex="1">
 							<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
 								<Typography variant="caption">{"Market Cap"}</Typography>
-								<Typography variant="subtitle1">{`€${cryptos.marketCap}`}</Typography>
+								<Typography variant="subtitle1">{`${this.formatNumber(cryptos.marketCap)}`}</Typography>
 							</Box>
 							<Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" className={classes.singlePercentage}>
 								<Typography variant="caption">{"% 1h"}</Typography>
@@ -151,7 +158,7 @@ class CryptoWidget extends Component {
 						<Box display="flex" flex="1">
 							<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
 								<Typography variant="caption">{"Volume (24h)"}</Typography>
-								<Typography variant="subtitle1">{`€${cryptos.volume}`}</Typography>
+								<Typography variant="subtitle1">{`${this.formatNumber(cryptos.volume)}`}</Typography>
 							</Box>
 							<Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" className={classes.singlePercentage}>
 								<Typography variant="caption">{"% 24h"}</Typography>
@@ -161,7 +168,7 @@ class CryptoWidget extends Component {
 						<Box display="flex" flex="1">
 							<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
 								<Typography variant="caption">{"Circulating Supply"}</Typography>
-								<Typography variant="subtitle1">{`${cryptos.circulatingSupply} ${cryptos.symbol}`}</Typography>
+								<Typography variant="subtitle1">{`${this.formatNumber(cryptos.circulatingSupply).substr(1)} ${cryptos.symbol}`}</Typography>
 							</Box>
 							<Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" className={classes.singlePercentage}>
 								<Typography variant="caption">{"% 7d"}</Typography>
