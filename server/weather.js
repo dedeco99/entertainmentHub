@@ -97,8 +97,8 @@ function getCities(event) {
 			name: city.name,
 			country: city.country,
 			population: city.population,
-			lat: city.loc.coordinates[0],
-			lon: city.loc.coordinates[1],
+			lat: city.loc.coordinates[1],
+			lon: city.loc.coordinates[0],
 		}))
 		.sort((a, b) => a.name <= b.name ? -1 : 1);
 
