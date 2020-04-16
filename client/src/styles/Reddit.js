@@ -4,6 +4,14 @@ const styles = {
 		backgroundColor: "#212121",
 		height: "100%",
 	},
+	wrapper: {
+		height: "100%",
+	},
+	content: {
+		overflowY: "auto",
+		overflowX: "hidden",
+		position: "relative",
+	},
 	media: {
 		width: "100%",
 		height: "100%",
@@ -23,25 +31,6 @@ const styles = {
 		overflow: "hidden",
 		textOverflow: "ellipsis",
 	},
-	arrow: {
-		display: "flex",
-		justifyContent: "center",
-		alignItems: "center",
-		top: "50%",
-		borderRadius: "50%",
-		cursor: "pointer",
-		width: 40,
-		height: 40,
-		"&:hover": {
-			backgroundColor: "#424242",
-		},
-	},
-	previous: {
-		left: "7px",
-	},
-	next: {
-		right: "7px",
-	},
 	score: {
 		bottom: "5px",
 		left: "5px",
@@ -52,6 +41,41 @@ const styles = {
 	},
 	hide: {
 		display: "none",
+	},
+	textHeader: {
+		padding: 16,
+		boxSizing: "border-box",
+		borderBottom: "1px solid #424242",
+	},
+	textContent: {
+		padding: 16,
+		paddingTop: 0,
+		boxSizing: "border-box",
+		"& p": {
+			fontSize: "1rem",
+			fontWeight: 400,
+			lineHeight: 1.5,
+			letterSpacing: 0.00938,
+		},
+		"& *": {
+			overflow: "hidden",
+		},
+	},
+	arrows: {
+		backgroundColor: "#424242",
+		"& div": {
+			padding: 12,
+			cursor: "pointer",
+			"&:hover": {
+				backgroundColor: "#3d3d3d",
+			},
+		},
+	},
+	arrowsBorder: {
+		borderRight: "1px solid #212121",
+	},
+	widthFix: {
+		width: "100%",
 	},
 };
 
