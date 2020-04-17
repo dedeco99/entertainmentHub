@@ -53,16 +53,19 @@ function formatResponse(json) {
 		}
 
 		res.push({
-			id: i,
+			id: data.id,
 			title: data.title,
+			subreddit: data.subreddit,
 			permalink: `https://reddit.com/${data.permalink}`,
-			thumbnail: data.thumbnail,
+			gilded: data.gilded,
 			score: data.score,
 			comments: data.num_comments,
 			crossposts: data.num_crossposts,
+			flairs: data.link_flair_richtext.map(flair => flair.t),
 			author: data.author,
 			domain: data.domain,
 			url: data.url,
+			thumbnail: data.thumbnail,
 			text: sanitizeHtml(data.selftext_html),
 			redditVideo,
 			videoHeight,
@@ -146,6 +149,7 @@ async function getPosts(event) {
 	if (res.status === 404) throw errors.redditNotFound;
 
 	const json = res.data;
+	console.log(json.data.children[6].data);
 	const posts = formatResponse(json);
 
 	return response(200, "Reddit posts found", posts);
