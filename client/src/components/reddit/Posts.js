@@ -7,6 +7,10 @@ import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
 import Box from "@material-ui/core/Box";
 
+import Modal from "@material-ui/core/Modal";
+import Backdrop from '@material-ui/core/Backdrop';
+import Fade from '@material-ui/core/Fade';
+
 import { getPosts } from "../../api/reddit";
 import { formatDate } from "../../utils/utils";
 
@@ -24,10 +28,14 @@ class Post extends Component {
 
 			open: false,
 			showInfo: true,
+			expandedView: false,
 		};
 
 		this.showInfo = this.showInfo.bind(this);
 		this.hideInfo = this.hideInfo.bind(this);
+
+		this.handleCloseExpandedView = this.handleCloseExpandedView.bind(this);
+		this.handleOpenExpandedView = this.handleOpenExpandedView.bind(this);
 	}
 
 	async componentDidMount() {
@@ -60,10 +68,18 @@ class Post extends Component {
 		this.setState({ showInfo: false });
 	}
 
+	handleCloseExpandedView() {
+		this.setState({ expandedView: false });
+	}
+
+	handleOpenExpandedView() {
+		this.setState({ expandedView: true });
+	}
+
 	// eslint-disable-next-line max-lines-per-function,complexity
 	render() {
 		const { classes } = this.props;
-		const { posts, num, open, showInfo } = this.state;
+		const { posts, num, open, showInfo, expandedView } = this.state;
 
 		if (!posts || !posts.length) return null;
 
@@ -74,6 +90,7 @@ class Post extends Component {
 
 		const imgTypes = ["jpg", "jpeg", "png", "gif"];
 		let content = null;
+		let expandedContent = null;
 		let isMedia = true;
 
 		if (imgTypes.includes(post.url.substr(post.url.lastIndexOf(".") + 1))) {
@@ -84,6 +101,7 @@ class Post extends Component {
 					className={classes.media}
 				/>
 			);
+			expandedContent = <img src={post.url} />;
 		} else if (post.domain === "gfycat.com") {
 			content = (
 				<CardMedia
@@ -94,6 +112,7 @@ class Post extends Component {
 					className={classes.media}
 				/>
 			);
+			expandedContent = <iframe src={`https://gfycat.com/ifr/${post.url.substr(post.url.lastIndexOf("/") + 1)}?autoplay=0&hd=1`} frameBorder={0} allowFullScreen />;
 		} else if (post.domain === "imgur.com") {
 			const imgurId = post.url.substr(post.url.lastIndexOf("/") + 1);
 
@@ -110,6 +129,7 @@ class Post extends Component {
 					allowFullScreen
 				/>
 			);
+			expandedContent = <iframe src={imgurLink} frameBorder={0} allowFullScreen />;
 		} else if (post.domain === "i.imgur.com" && post.url.substr(post.url.lastIndexOf(".") + 1) === "gifv") {
 			content = (
 				<CardMedia
@@ -119,6 +139,7 @@ class Post extends Component {
 					controls
 				/>
 			);
+			expandedContent = <video controls> <source src={`${post.url.slice(0, -5)}.mp4`} type="video/mp4"/> </video>;
 		} else if (post.domain === "v.redd.it") {
 			content = (
 				<CardMedia
@@ -128,6 +149,7 @@ class Post extends Component {
 					controls
 				/>
 			);
+			expandedContent = <video controls> <source src={post.redditVideo} type="video/mp4"/> </video>;
 		} else if (post.domain === "youtube.com" || post.domain === "youtu.be") {
 			const videoId = post.url.includes("?v=")
 				? post.url.substr(post.url.lastIndexOf("?v=") + 3)
@@ -143,6 +165,7 @@ class Post extends Component {
 					allowFullScreen
 				/>
 			);
+			expandedContent = <iframe src={`https://www.youtube.com/embed/${videoId}`} frameBorder={0} allowFullScreen />;
 		} else {
 			isMedia = false;
 			content = (
@@ -197,12 +220,27 @@ class Post extends Component {
 					className={classes.root}
 				>
 					<Box display="flex" flexDirection="column" className={classes.wrapper}>
+						<Modal
+							className={classes.modal}
+							open={expandedView}
+							onClose={this.handleCloseExpandedView}
+							closeAfterTransition
+							BackdropComponent={Backdrop}
+							BackdropProps={{ invisible: true }}
+						>
+							<Fade in={expandedView}>
+								<Card variant="outlined" className={classes.expandedView} onClick={this.handleCloseExpandedView}>
+									{expandedContent}
+								</Card>
+							</Fade>
+						</Modal>
 						<Box
 							display="flex"
 							flexGrow={1}
 							className={classes.content}
 							onMouseEnter={this.hideInfo}
 							onMouseLeave={this.showInfo}
+							onClick={isMedia ? this.handleOpenExpandedView : null}
 						>
 							{isMedia ? info : null}
 							{content}

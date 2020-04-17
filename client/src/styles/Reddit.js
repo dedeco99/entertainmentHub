@@ -77,6 +77,23 @@ const styles = {
 	widthFix: {
 		width: "100%",
 	},
+	modal: {
+		display: "flex",
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	expandedView: {
+		backgroundColor: "#212121",
+		height: "80%",
+		width: "auto",
+		maxWidth: "90%",
+		outline: "none",
+		"& img": {
+			objectFit: "contain",
+			height: "100%",
+			maxWidth: "100%",
+		},
+	},
 };
 
 export default styles;
