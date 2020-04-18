@@ -149,7 +149,6 @@ async function getPosts(event) {
 	if (res.status === 404) throw errors.redditNotFound;
 
 	const json = res.data;
-	console.log(json.data.children[6].data);
 	const posts = formatResponse(json);
 
 	return response(200, "Reddit posts found", posts);

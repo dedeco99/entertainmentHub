@@ -52,8 +52,6 @@ async function getPrices(event) {
 	for (const symbol of coins.split(",")) {
 		const coin = data[symbol];
 
-		console.log(coin && moment().diff(moment(coin.lastUpdate), "minutes"));
-
 		if (
 			!coin ||
 			moment().diff(moment(coin.lastUpdate), "minutes") > 10
