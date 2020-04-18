@@ -10,18 +10,7 @@ import Badge from "@material-ui/core/Badge";
 
 import Notifications from "../widgets/Notifications";
 
-const styles = {
-	wrapper: {
-		display: "inline-block",
-		position: "relative",
-	},
-	paper: {
-		position: "absolute",
-		width: 400,
-		right: 0,
-		backgroundColor: "#212121",
-	},
-};
+import { notificationDropdown as styles } from "../../styles/Header";
 
 class NotificationDropdown extends Component {
 	constructor() {

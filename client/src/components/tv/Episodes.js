@@ -8,18 +8,7 @@ import InfiniteScroll from "react-infinite-scroller";
 import Categories from "../.partials/Categories";
 import Episode from "./Episode";
 
-const styles = () => ({
-	episodeListContainer: {
-		width: "100%",
-	},
-	episodeBtn: {
-		marginTop: 10,
-		marginBottom: 10,
-	},
-	noEpisodes: {
-		textAlign: "center",
-	},
-});
+import { episodes as styles } from "../../styles/TV";
 
 class Episodes extends Component {
 	constructor() {

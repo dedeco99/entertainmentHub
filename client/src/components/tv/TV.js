@@ -16,16 +16,7 @@ import { getSeries, getSeasons, getPopular, addSeries, editSeries, deleteSeries 
 
 import loadingGif from "../../img/loading3.gif";
 
-const styles = () => ({
-	searchBtn: {
-		width: "100% !important",
-		backgroundColor: "#222",
-	},
-	outlinedBtn: {
-		marginTop: 10,
-		marginBottom: 10,
-	},
-});
+import { tv as styles } from "../../styles/TV";
 
 class TV extends Component {
 	constructor() {

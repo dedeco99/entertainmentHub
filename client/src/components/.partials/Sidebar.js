@@ -12,11 +12,7 @@ import { StyledMenu, StyledMenuItem } from "../.partials/Menu";
 
 import loadingGif from "../../img/loading2.gif";
 
-const styles = () => ({
-	noResults: {
-		textAlign: "center",
-	},
-});
+import styles from "../../styles/General";
 
 class Sidebar extends Component {
 	constructor() {
@@ -55,7 +51,7 @@ class Sidebar extends Component {
 			);
 		} else {
 			return (
-				<div className={classes.noResults}>{noResultsMessage}</div>
+				<div className={classes.center}>{noResultsMessage}</div>
 			)
 		}
 	}

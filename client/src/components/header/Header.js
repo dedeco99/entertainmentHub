@@ -11,16 +11,7 @@ import LoggedOutLinks from "./LoggedOutLinks";
 
 import logo from "../../img/logo.png";
 
-const styles = () => ({
-	appBar: {
-		backgroundColor: "#222",
-		marginBottom: 20,
-	},
-	title: {
-		flexGrow: 1,
-		marginLeft: 50,
-	},
-});
+import { header as styles } from "../../styles/Header";
 
 function Header({ classes }) {
 	const user = localStorage.getItem("user");

@@ -9,11 +9,7 @@ import NotificationDropdown from "./NotificationDropdown";
 
 import { logout } from "../../api/auth";
 
-const styles = () => ({
-	navBtn: {
-		marginRight: 20,
-	},
-});
+import { loggedInLinks as styles } from "../../styles/Header";
 
 function LoggedInLinks({ classes }) {
 	return (

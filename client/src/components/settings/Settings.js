@@ -15,15 +15,7 @@ import twitch from "../../img/twitch.png";
 import youtube from "../../img/youtube.png";
 import tv from "../../img/tv.png";
 
-const styles = () => ({
-	appsContainer: {
-		position: "relative",
-	},
-	appIcon: {
-		color: "white",
-		fontSize: "2em",
-	},
-});
+import { settings as styles } from "../../styles/Header";
 
 class Settings extends Component {
 	constructor() {
