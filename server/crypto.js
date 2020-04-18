@@ -11,7 +11,7 @@ async function getCoins(event) {
 	let useCache = true;
 	let data = global.cache.crypto.coins;
 
-	if (!data.length || moment(global.cache.crypto.lastUpdate).diff(moment(), "hours") > 24) {
+	if (!data.length || moment().diff(moment(global.cache.crypto.lastUpdate), "hours") > 24) {
 		useCache = false;
 	}
 
@@ -52,9 +52,11 @@ async function getPrices(event) {
 	for (const symbol of coins.split(",")) {
 		const coin = data[symbol];
 
+		console.log(coin && moment().diff(moment(coin.lastUpdate), "minutes"));
+
 		if (
 			!coin ||
-			moment(data[symbol].lastUpdate).diff(moment(), "minutes") > 10
+			moment().diff(moment(coin.lastUpdate), "minutes") > 10
 		) {
 			useCache = false;
 		}
