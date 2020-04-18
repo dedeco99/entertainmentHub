@@ -6,20 +6,17 @@ import Zoom from "@material-ui/core/Zoom";
 import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
 import Box from "@material-ui/core/Box";
-
 import Modal from "@material-ui/core/Modal";
-import Backdrop from '@material-ui/core/Backdrop';
-import Fade from '@material-ui/core/Fade';
+import Backdrop from "@material-ui/core/Backdrop";
+import Fade from "@material-ui/core/Fade";
+import Typography from "@material-ui/core/Typography";
 
 import { getPosts } from "../../api/reddit";
 import { formatDate } from "../../utils/utils";
 
-import placeholder from "../../img/noimage.png";
+import { reddit as styles } from "../../styles/Widgets";
 
-import styles from "../../styles/Reddit";
-import { Typography } from "@material-ui/core";
-
-class Post extends Component {
+class Reddit extends Component {
 	constructor() {
 		super();
 		this.state = {
@@ -31,8 +28,10 @@ class Post extends Component {
 			expandedView: false,
 		};
 
-		this.showInfo = this.showInfo.bind(this);
-		this.hideInfo = this.hideInfo.bind(this);
+		this.handleShowPreviousPost = this.handleShowPreviousPost.bind(this);
+		this.handleShowNextPost = this.handleShowNextPost.bind(this);
+		this.handleShowInfo = this.handleShowInfo.bind(this);
+		this.handleHideInfo = this.handleHideInfo.bind(this);
 
 		this.handleCloseExpandedView = this.handleCloseExpandedView.bind(this);
 		this.handleOpenExpandedView = this.handleOpenExpandedView.bind(this);
@@ -41,11 +40,13 @@ class Post extends Component {
 	async componentDidMount() {
 		const { subreddit } = this.props;
 
+		await this.getPosts(subreddit);
+	}
+
+	async getPosts(subreddit) {
 		const response = await getPosts(subreddit);
 
 		if (response.data) {
-			//response.data = response.data.filter(post => post.thumbnail !== "self");
-
 			this.setState({ posts: response.data, open: true });
 		}
 	}
@@ -60,11 +61,24 @@ class Post extends Component {
 			.replace(/<\/table>/g, "</table></div>");
 	}
 
-	showInfo() {
+	handleShowPreviousPost() {
+		const { num } = this.state;
+
+		if (num > 0) this.setState({ num: num - 1 });
+	}
+
+	handleShowNextPost() {
+		const { num, posts } = this.state;
+
+		if (num < posts.length - 1) this.setState({ num: num + 1 });
+	}
+
+
+	handleShowInfo() {
 		this.setState({ showInfo: true });
 	}
 
-	hideInfo() {
+	handleHideInfo() {
 		this.setState({ showInfo: false });
 	}
 
@@ -101,7 +115,7 @@ class Post extends Component {
 					className={classes.media}
 				/>
 			);
-			expandedContent = <img src={post.url} />;
+			expandedContent = <img src={post.url} alt={post.url} />;
 		} else if (post.domain === "gfycat.com") {
 			content = (
 				<CardMedia
@@ -112,7 +126,6 @@ class Post extends Component {
 					className={classes.media}
 				/>
 			);
-			expandedContent = <iframe src={`https://gfycat.com/ifr/${post.url.substr(post.url.lastIndexOf("/") + 1)}?autoplay=0&hd=1`} frameBorder={0} allowFullScreen />;
 		} else if (post.domain === "imgur.com") {
 			const imgurId = post.url.substr(post.url.lastIndexOf("/") + 1);
 
@@ -129,7 +142,6 @@ class Post extends Component {
 					allowFullScreen
 				/>
 			);
-			expandedContent = <iframe src={imgurLink} frameBorder={0} allowFullScreen />;
 		} else if (post.domain === "i.imgur.com" && post.url.substr(post.url.lastIndexOf(".") + 1) === "gifv") {
 			content = (
 				<CardMedia
@@ -139,7 +151,6 @@ class Post extends Component {
 					controls
 				/>
 			);
-			expandedContent = <video controls> <source src={`${post.url.slice(0, -5)}.mp4`} type="video/mp4"/> </video>;
 		} else if (post.domain === "v.redd.it") {
 			content = (
 				<CardMedia
@@ -149,7 +160,6 @@ class Post extends Component {
 					controls
 				/>
 			);
-			expandedContent = <video controls> <source src={post.redditVideo} type="video/mp4"/> </video>;
 		} else if (post.domain === "youtube.com" || post.domain === "youtu.be") {
 			const videoId = post.url.includes("?v=")
 				? post.url.substr(post.url.lastIndexOf("?v=") + 3)
@@ -165,7 +175,6 @@ class Post extends Component {
 					allowFullScreen
 				/>
 			);
-			expandedContent = <iframe src={`https://www.youtube.com/embed/${videoId}`} frameBorder={0} allowFullScreen />;
 		} else {
 			isMedia = false;
 			content = (
@@ -176,20 +185,23 @@ class Post extends Component {
 						</Box>
 						<Box display="flex">
 							<Box display="flex" flexGrow={1}>
-								<Typography variant="caption"> 
-									<i className="icofont-caret-up" /> 
-									{post.score} 
+								<Typography variant="caption">
+									<i className="icofont-caret-up" />
+									{post.score}
 									<i className="icofont-caret-down" />
 								</Typography>
 							</Box>
 							<Box display="flex">
-								<Typography variant="caption"> 
+								<Typography variant="caption">
 									{formatDate(post.created * 1000, null, true)}
 								</Typography>
 							</Box>
 						</Box>
 					</Box>
-					<div className={classes.textContent} dangerouslySetInnerHTML={{ __html: this.htmlEscape(post.text) }} />
+					<div
+						className={classes.textContent}
+						dangerouslySetInnerHTML={{ __html: this.htmlEscape(post.text) }}
+					/>
 				</Box>
 			);
 		}
@@ -238,8 +250,8 @@ class Post extends Component {
 							display="flex"
 							flexGrow={1}
 							className={classes.content}
-							onMouseEnter={this.hideInfo}
-							onMouseLeave={this.showInfo}
+							onMouseEnter={this.handleHideInfo}
+							onMouseLeave={this.handleShowInfo}
 							onClick={isMedia ? this.handleOpenExpandedView : null}
 						>
 							{isMedia ? info : null}
@@ -250,7 +262,7 @@ class Post extends Component {
 								display="flex"
 								flex="1"
 								justifyContent="center"
-								onClick={num > 0 ? () => this.setState({ num: num - 1 }) : null}
+								onClick={this.handleShowPreviousPost}
 								className={classes.arrowsBorder}
 							>
 								<i className="icofont-caret-left" />
@@ -259,7 +271,7 @@ class Post extends Component {
 								display="flex"
 								flex="1"
 								justifyContent="center"
-								onClick={num < posts.length - 1 ? () => this.setState({ num: num + 1 }) : null}
+								onClick={this.handleShowNextPost}
 							>
 								<i className="icofont-caret-right" />
 							</Box>
@@ -271,9 +283,9 @@ class Post extends Component {
 	}
 }
 
-Post.propTypes = {
+Reddit.propTypes = {
 	classes: PropTypes.object.isRequired,
 	subreddit: PropTypes.string.isRequired,
 };
 
-export default withStyles(styles)(Post);
+export default withStyles(styles)(Reddit);

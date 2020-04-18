@@ -7,11 +7,7 @@ import ListItem from "@material-ui/core/ListItem";
 
 import { getApps } from "../../api/auth";
 
-const styles = () => ({
-	appItem: {
-		paddingLeft: 10,
-	},
-});
+import { appMenu as styles } from "../../styles/Header";
 
 class AppMenu extends Component {
 	constructor() {

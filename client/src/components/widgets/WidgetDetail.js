@@ -9,21 +9,16 @@ import Button from "@material-ui/core/Button";
 import FormControl from "@material-ui/core/FormControl";
 import InputLabel from "@material-ui/core/InputLabel";
 import Select from "@material-ui/core/Select";
-
-import Input from "../.partials/Input";
-
 import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import Chip from "@material-ui/core/Chip";
 
+import Input from "../.partials/Input";
+
 import { getCities } from "../../api/weather";
 import { getCoins } from "../../api/crypto";
 
-const styles = () => ({
-	autocomplete: {
-		width: 300,
-	},
-});
+import { widgetDetail as styles } from "../../styles/Widgets";
 
 class WidgetDetail extends Component {
 	constructor() {
@@ -48,13 +43,13 @@ class WidgetDetail extends Component {
 		this.handleSubmit = this.handleSubmit.bind(this);
 		this.handleKeyPress = this.handleKeyPress.bind(this);
 
-		this.getCities = this.getCities.bind(this);
-		this.selectCity = this.selectCity.bind(this);
-		this.getCoins = this.getCoins.bind(this);
-		this.selectCoin = this.selectCoin.bind(this);
+		this.handleGetCities = this.handleGetCities.bind(this);
+		this.handleSelectCity = this.handleSelectCity.bind(this);
+		this.handleGetCoins = this.handleGetCoins.bind(this);
+		this.handleSelectCoin = this.handleSelectCoin.bind(this);
 	}
 
-	getCities(e, filter) {
+	handleGetCities(e, filter) {
 		const { typingTimeout } = this.state;
 
 		if (!filter) return;
@@ -72,8 +67,10 @@ class WidgetDetail extends Component {
 		this.setState({ typingTimeout: timeout });
 	}
 
-	selectCity(e, city) {
+	handleSelectCity(e, city) {
 		const { info } = this.state;
+
+		if (!city) return;
 
 		this.setState({
 			info: {
@@ -86,7 +83,7 @@ class WidgetDetail extends Component {
 		});
 	}
 
-	getCoins(e, filter) {
+	handleGetCoins(e, filter) {
 		const { typingTimeout } = this.state;
 
 		if (!filter) return;
@@ -104,7 +101,7 @@ class WidgetDetail extends Component {
 		this.setState({ typingTimeout: timeout });
 	}
 
-	selectCoin(e, coins) {
+	handleSelectCoin(e, coins) {
 		const { info } = this.state;
 
 		this.setState({
@@ -160,10 +157,10 @@ class WidgetDetail extends Component {
 				return (
 					<Autocomplete
 						options={cities}
-						onInputChange={this.getCities}
-						onChange={this.selectCity}
+						onInputChange={this.handleGetCities}
+						onChange={this.handleSelectCity}
 						className={classes.autocomplete}
-						getOptionLabel={option => option.name}
+						getOptionLabel={option => `${option.name}, ${option.country}`}
 						renderInput={params => <TextField {...params} label="Cidade" variant="outlined" fullWidth margin="normal" />}
 					/>
 				);
@@ -172,14 +169,14 @@ class WidgetDetail extends Component {
 					<Autocomplete
 						multiple
 						limitTags={2}
-						renderTags={(value, getTagProps) =>
+						renderTags={(value, getTagProps) => (
 							value.map((option, index) => (
-								<Chip label={option.symbol} {...getTagProps({ index })} />
+								<Chip key={option.symbol} label={option.symbol} {...getTagProps({ index })} />
 							))
-						}
+						)}
 						options={coins}
-						onInputChange={this.getCoins}
-						onChange={this.selectCoin}
+						onInputChange={this.handleGetCoins}
+						onChange={this.handleSelectCoin}
 						className={classes.autocomplete}
 						getOptionLabel={option => `${option.symbol} - ${option.name}`}
 						renderInput={params => <TextField {...params} label="Coins" variant="outlined" fullWidth margin="normal" />}

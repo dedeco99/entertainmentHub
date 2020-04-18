@@ -15,15 +15,7 @@ import twitch from "../../img/twitch.png";
 import youtube from "../../img/youtube.png";
 import tv from "../../img/tv.png";
 
-const styles = () => ({
-	appsContainer: {
-		position: "relative",
-	},
-	appIcon: {
-		color: "white",
-		fontSize: "2em",
-	},
-});
+import { settings as styles } from "../../styles/Header";
 
 class Settings extends Component {
 	constructor() {
@@ -97,7 +89,7 @@ class Settings extends Component {
 		}
 	}
 
-	async deleteApp(e) {
+	async handleDeleteApp(e) {
 		await deleteApp(e.target.id);
 	}
 
@@ -119,7 +111,7 @@ class Settings extends Component {
 				<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={app.key}>
 					<div className={classes.appsContainer}>
 						<img src={images[app.key]} width="100%" alt={app.displayName} />
-						<i className="delete material-icons" id={app.id} onClick={this.deleteApp}>
+						<i className="delete material-icons" id={app.id} onClick={this.handleDeleteApp}>
 							{"delete"}
 						</i>
 					</div>

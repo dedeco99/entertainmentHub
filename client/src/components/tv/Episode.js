@@ -9,31 +9,7 @@ import { formatDate } from "../../utils/utils";
 
 import noimage from "../../img/noimage.png";
 
-const styles = () => ({
-	overlay: {
-		position: "absolute",
-		color: "white",
-		backgroundColor: "#212121dd",
-		padding: "3px",
-		borderRadius: "3px",
-	},
-	title: {
-		top: "5px",
-		left: "5px",
-	},
-	seriesName: {
-		top: "30px",
-		left: "5px",
-	},
-	date: {
-		bottom: "5px",
-		right: "5px",
-	},
-	season: {
-		bottom: "5px",
-		left: "5px",
-	},
-});
+import { episode as styles } from "../../styles/TV";
 
 function Episode({ episode, classes }) {
 	const seasonLabel = episode.season > 9 ? `S${episode.season}` : `S0${episode.season}`;

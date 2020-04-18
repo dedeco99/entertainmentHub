@@ -1,7 +1,6 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/styles";
-
 import Tabs from "@material-ui/core/Tabs";
 import Tab from "@material-ui/core/Tab";
 import List from "@material-ui/core/List";
@@ -14,42 +13,11 @@ import Box from "@material-ui/core/Box";
 import CustomScrollbar from "../.partials/CustomScrollbar";
 
 import { getSeasons, getPopular } from "../../api/tv";
-
 import { formatDate } from "../../utils/utils";
 
-const styles = () => ({
-	root: {
-		width: "100%",
-		flexGrow: 1,
-		backgroundColor: "#212121",
-		height: "100%",
-	},
-	indicator: {
-		backgroundColor: "white",
-	},
-	tab: {
-		minWidth: 50,
-	},
-	tabPanel: {
-		height: "calc(100% - 48px)",
-		overflow: "auto",
-	},
-	episodeList: {
-		flexDirection: "column",
-	},
-	episodeName: {
-		display: "flex",
-		flexGrow: 1,
-	},
-	episodeDate: {
-		display: "flex",
-	},
-	popularText: {
-		paddingLeft: 10,
-	},
-});
+import { tv as styles } from "../../styles/Widgets";
 
-class TVWidget extends Component {
+class TV extends Component {
 	constructor() {
 		super();
 		this.state = {
@@ -68,6 +36,10 @@ class TVWidget extends Component {
 	}
 
 	async componentDidMount() {
+		await this.getTV();
+	}
+
+	async getTV() {
 		const response = await Promise.all([
 			getSeasons("all", 0, "passed"),
 			getPopular(0),
@@ -127,14 +99,14 @@ class TVWidget extends Component {
 
 	a11yTabProps(index) {
 		return {
-			"id": `tvwidget-tab-${index}`,
+			id: `tvwidget-tab-${index}`,
 			"aria-controls": `tvwidget-tabpanel-${index}`,
 		};
 	}
 
 	a11yTabPanelProps(index) {
 		return {
-			"id": `tvwidget-tabpanel-${index}`,
+			id: `tvwidget-tabpanel-${index}`,
 			"aria-labelledby": `tvwidget-tab-${index}`,
 		};
 	}
@@ -176,8 +148,8 @@ class TVWidget extends Component {
 	}
 }
 
-TVWidget.propTypes = {
+TV.propTypes = {
 	classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(TVWidget);
+export default withStyles(styles)(TV);

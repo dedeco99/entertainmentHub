@@ -35,14 +35,17 @@
 		/* possible errors */
 		"no-await-in-loop": "warn",
 		// "no-console": "error",
+		/*
 		"no-extra-parens": [
 			"error",
 			"all",
 			{
 				"ignoreJSX": "multi-line",
-				"nestedBinaryExpressions": false
+				"nestedBinaryExpressions": false,
+				"enforceForArrowConditionals": false
 			}
 		],
+		*/
 		"no-import-assign": "error",
 		"no-template-curly-in-string": "error",
 		/* best practices */
@@ -196,16 +199,11 @@
 		"linebreak-style": "error",
 		// "lines-around-comment": "error",
 		"lines-between-class-members": "error",
-		"max-depth": [
-			"warn",
-			{
-				"max": 5
-			}
-		],
+		// "max-depth": "warn",
 		"max-len": [
 			"warn",
 			{
-				"code": 100,
+				"code": 115,
 				"ignoreStrings": true,
 				"ignoreTemplateLiterals": true
 			}
@@ -288,7 +286,7 @@
 		"prefer-object-spread": "error",
 		"quote-props": [
 			"error",
-			"consistent-as-needed"
+			"as-needed"
 		],
 		"quotes": [
 			"error",
@@ -327,7 +325,7 @@
 		],
 		"arrow-spacing": "error",
 		"generator-star-spacing": "error",
-		"no-confusing-arrow": "error",
+		// "no-confusing-arrow": "error",
 		"no-duplicate-imports": "error",
 		"no-restricted-imports": "error",
 		"no-useless-computed-key": "error",
@@ -422,12 +420,7 @@
 			"tab"
 		],
 		"react/jsx-key": "error", // recommended
-		"react/jsx-max-depth": [
-			"warn",
-			{
-				"max": 5
-			}
-		],
+		// "react/jsx-max-depth": "warn",
 		// "react/jsx-max-props-per-line": "error",
 		"react/jsx-no-bind": "warn",
 		"react/jsx-no-comment-textnodes": "error", // recommended

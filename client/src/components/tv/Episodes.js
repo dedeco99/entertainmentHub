@@ -8,34 +8,23 @@ import InfiniteScroll from "react-infinite-scroller";
 import Categories from "../.partials/Categories";
 import Episode from "./Episode";
 
-const styles = () => ({
-	episodeListContainer: {
-		width: "100%",
-	},
-	episodeBtn: {
-		marginTop: 10,
-		marginBottom: 10,
-	},
-	noEpisodes: {
-		textAlign: "center",
-	}
-});
+import { episodes as styles } from "../../styles/TV";
 
 class Episodes extends Component {
 	constructor() {
 		super();
 
-		this.getPassedEpisodes = this.getPassedEpisodes.bind(this);
-		this.getFutureEpisodes = this.getFutureEpisodes.bind(this);
+		this.handleGetPassedEpisodes = this.handleGetPassedEpisodes.bind(this);
+		this.handleGetFutureEpisodes = this.handleGetFutureEpisodes.bind(this);
 	}
 
-	getPassedEpisodes() {
+	handleGetPassedEpisodes() {
 		const { filterEpisodes } = this.props;
 
 		filterEpisodes("passed");
 	}
 
-	getFutureEpisodes() {
+	handleGetFutureEpisodes() {
 		const { filterEpisodes } = this.props;
 
 		filterEpisodes("future");
@@ -72,7 +61,7 @@ class Episodes extends Component {
 			<Grid container spacing={2}>
 				<Grid item sm={3} md={2}>
 					<Button
-						onClick={this.getPassedEpisodes}
+						onClick={this.handleGetPassedEpisodes}
 						className={`outlined-button ${classes.episodesBtn}`}
 						variant="outlined"
 						fullWidth
@@ -82,7 +71,7 @@ class Episodes extends Component {
 				</Grid>
 				<Grid item sm={3} md={2}>
 					<Button
-						onClick={this.getFutureEpisodes}
+						onClick={this.handleGetFutureEpisodes}
 						className={`outlined-button ${classes.episodesBtn}`}
 						variant="outlined"
 						fullWidth

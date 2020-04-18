@@ -15,7 +15,7 @@ async function getAccessToken(user) {
 	const auth = `Basic ${encryptedAuth}`;
 	const headers = {
 		"User-Agent": "Entertainment-Hub by dedeco99",
-		"Authorization": auth,
+		Authorization: auth,
 	};
 
 	const res = await api({ method: "post", url, headers });
@@ -85,7 +85,7 @@ async function getSubreddits(req, res) {
 	const url = "https://oauth.reddit.com/subreddits/mine/subscriber";
 	const headers = {
 		"User-Agent": "Entertainment-Hub by dedeco99",
-		"Authorization": `bearer ${accessToken}`,
+		Authorization: `bearer ${accessToken}`,
 	};
 
 	try {
@@ -140,7 +140,7 @@ async function getPosts(event) {
 
 	const headers = {
 		"User-Agent": "Entertainment-Hub by dedeco99",
-		"Authorization": `bearer ${accessToken}`,
+		Authorization: `bearer ${accessToken}`,
 	};
 
 	const res = await api({ method: "get", url, headers });
@@ -149,7 +149,6 @@ async function getPosts(event) {
 	if (res.status === 404) throw errors.redditNotFound;
 
 	const json = res.data;
-	console.log(json.data.children[6].data);
 	const posts = formatResponse(json);
 
 	return response(200, "Reddit posts found", posts);

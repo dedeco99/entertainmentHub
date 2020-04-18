@@ -5,11 +5,7 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemText from "@material-ui/core/ListItemText";
 
-const styles = () => ({
-	menuOption: {
-		textAlign: "center",
-	},
-});
+import styles from "../../styles/General";
 
 class Categories extends Component {
 	constructor() {
@@ -39,7 +35,7 @@ class Categories extends Component {
 					onClick={() => this.handleClick(option[idField])}
 					key={option[idField]}
 					id={option[idField]}
-					className={classes.menuOption}
+					className={classes.center}
 				>
 					<ListItemText primary={option[nameField]} />
 				</ListItem >

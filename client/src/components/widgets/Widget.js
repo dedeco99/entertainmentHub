@@ -4,22 +4,7 @@ import { withStyles } from "@material-ui/styles";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 
-const styles = () => ({
-	edit: {
-		display: "flex",
-		justifyContent: "center",
-		alignItems: "center",
-		flexDirection: "column",
-		backgroundColor: "#212121",
-		height: "100%",
-		width: "100%",
-	},
-	delete: {
-		top: 0,
-		right: 0,
-		position: "absolute",
-	},
-});
+import { widget as styles } from "../../styles/Widgets";
 
 class Widget extends Component {
 	constructor() {

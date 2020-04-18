@@ -6,26 +6,17 @@ import Fab from "@material-ui/core/Fab";
 import Button from "@material-ui/core/Button";
 import Modal from "@material-ui/core/Modal";
 
-import { getSeries, getSeasons, getPopular, addSeries, editSeries, deleteSeries } from "../../api/tv";
-
 import Sidebar from "../.partials/Sidebar";
 import SeriesDetail from "./SeriesDetail";
 import Episodes from "./Episodes";
 import Search from "./Search";
 import Banners from "./Banners";
 
+import { getSeries, getSeasons, getPopular, addSeries, editSeries, deleteSeries } from "../../api/tv";
+
 import loadingGif from "../../img/loading3.gif";
 
-const styles = () => ({
-	searchBtn: {
-		width: "100% !important",
-		backgroundColor: "#222",
-	},
-	outlinedBtn: {
-		marginTop: 10,
-		marginBottom: 10,
-	},
-});
+import { tv as styles } from "../../styles/TV";
 
 class TV extends Component {
 	constructor() {
@@ -64,14 +55,18 @@ class TV extends Component {
 		this.editSeries = this.editSeries.bind(this);
 		this.deleteSeries = this.deleteSeries.bind(this);
 
-		this.showSearchBlock = this.showSearchBlock.bind(this);
-		this.showPopularBlock = this.showPopularBlock.bind(this);
-		this.showAllBlock = this.showAllBlock.bind(this);
-		this.showModal = this.showModal.bind(this);
-		this.hideModal = this.hideModal.bind(this);
+		this.handleShowSearchBlock = this.handleShowSearchBlock.bind(this);
+		this.handleShowPopularBlock = this.handleShowPopularBlock.bind(this);
+		this.handleShowAllBlock = this.handleShowAllBlock.bind(this);
+		this.handleShowModal = this.handleShowModal.bind(this);
+		this.handleHideModal = this.handleHideModal.bind(this);
 	}
 
 	async componentDidMount() {
+		await this.getSeries();
+	}
+
+	async getSeries() {
 		this.setState({ loadingSeries: true });
 
 		const response = await getSeries();
@@ -166,9 +161,8 @@ class TV extends Component {
 
 		if (response.status < 400) {
 			this.setState(prevState => ({
-				series: [...prevState.series.filter(s => s._id !== response.data._id), response.data].sort((a, b) => (
-					a.displayName <= b.displayName ? -1 : 1
-				)),
+				series: [...prevState.series.filter(s => s._id !== response.data._id), response.data]
+					.sort((a, b) => a.displayName <= b.displayName ? -1 : 1),
 			}));
 		}
 	}
@@ -186,11 +180,11 @@ class TV extends Component {
 		}
 	}
 
-	showSearchBlock() {
+	handleShowSearchBlock() {
 		this.setState({ showSearchBlock: true, showPopularBlock: false, showEpisodesBlock: false });
 	}
 
-	showPopularBlock() {
+	handleShowPopularBlock() {
 		this.setState({
 			popular: [],
 			popularPage: 0,
@@ -201,7 +195,7 @@ class TV extends Component {
 		}, this.getPopular);
 	}
 
-	showAllBlock() {
+	handleShowAllBlock() {
 		this.setState({
 			episodes: [],
 			allPage: 0,
@@ -212,7 +206,7 @@ class TV extends Component {
 		}, this.getAll);
 	}
 
-	showModal(e, type) {
+	handleShowModal(e, type) {
 		const { search, popular, series } = this.state;
 
 		if (type === "edit") {
@@ -231,14 +225,14 @@ class TV extends Component {
 		}
 	}
 
-	hideModal() {
+	handleHideModal() {
 		this.setState({ showModal: false });
 	}
 
 	filterEpisodes(filter) {
 		this.setState({ episodeFilter: filter, episodes: [] });
 
-		this.showAllBlock();
+		this.handleShowAllBlock();
 	}
 
 	renderButtons() {
@@ -248,7 +242,7 @@ class TV extends Component {
 		return (
 			<div align="center">
 				<Fab
-					onClick={this.showSearchBlock}
+					onClick={this.handleShowSearchBlock}
 					variant="extended"
 					size="medium"
 					className={classes.searchBtn}
@@ -257,7 +251,7 @@ class TV extends Component {
 					{"Search"}
 				</Fab>
 				<Button
-					onClick={this.showPopularBlock}
+					onClick={this.handleShowPopularBlock}
 					className={`outlined-button ${classes.outlinedBtn}`}
 					variant="outlined"
 					fullWidth
@@ -265,7 +259,7 @@ class TV extends Component {
 					{loadingPopular ? <img src={loadingGif} height="25px" alt="Loading..." /> : "Popular"}
 				</Button>
 				<Button
-					onClick={this.showAllBlock}
+					onClick={this.handleShowAllBlock}
 					className={`outlined-button ${classes.outlinedBtn}`}
 					variant="outlined"
 					fullWidth
@@ -328,7 +322,7 @@ class TV extends Component {
 		const { loadingSeries, series, currentSeries, showModal } = this.state;
 
 		const menuOptions = [
-			{ displayName: "Edit", onClick: e => this.showModal(e, "edit") },
+			{ displayName: "Edit", onClick: e => this.handleShowModal(e, "edit") },
 			{ displayName: "Delete", onClick: this.deleteSeries },
 		];
 
@@ -350,7 +344,7 @@ class TV extends Component {
 				</Grid>
 				<Modal
 					open={showModal}
-					onClose={this.hideModal}
+					onClose={this.handleHideModal}
 				>
 					<SeriesDetail
 						series={currentSeries._id ? currentSeries : {}}
