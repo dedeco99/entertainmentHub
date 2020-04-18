@@ -8,7 +8,7 @@ import IconButton from "@material-ui/core/IconButton";
 import Grow from "@material-ui/core/Grow";
 import Badge from "@material-ui/core/Badge";
 
-import Notifications from "../index/Notifications";
+import Notifications from "../widgets/Notifications";
 
 const styles = {
 	wrapper: {

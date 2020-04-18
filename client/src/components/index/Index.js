@@ -2,14 +2,13 @@ import React, { Component } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import IconButton from "@material-ui/core/IconButton";
 
-import WidgetDetail from "./WidgetDetail";
-import Notifications from "./Notifications";
+import Widget from "../widgets/Widget";
+import WidgetDetail from "../widgets/WidgetDetail";
+import Notifications from "../widgets/Notifications";
 import Posts from "../reddit/Posts";
-import Weather from "./Weather";
-import TVWidget from "./TVWidget";
-import CryptoWidget from "../crypto/CryptoWidget";
-
-import Widget from "./Widget";
+import Weather from "../widgets/Weather";
+import TVWidget from "../widgets/TV";
+import CryptoWidget from "../widgets/Crypto";
 
 import { getWidgets, addWidget, editWidget, deleteWidget } from "../../api/widgets";
 

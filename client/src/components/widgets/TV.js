@@ -17,37 +17,7 @@ import { getSeasons, getPopular } from "../../api/tv";
 
 import { formatDate } from "../../utils/utils";
 
-const styles = () => ({
-	root: {
-		width: "100%",
-		flexGrow: 1,
-		backgroundColor: "#212121",
-		height: "100%",
-	},
-	indicator: {
-		backgroundColor: "white",
-	},
-	tab: {
-		minWidth: 50,
-	},
-	tabPanel: {
-		height: "calc(100% - 48px)",
-		overflow: "auto",
-	},
-	episodeList: {
-		flexDirection: "column",
-	},
-	episodeName: {
-		display: "flex",
-		flexGrow: 1,
-	},
-	episodeDate: {
-		display: "flex",
-	},
-	popularText: {
-		paddingLeft: 10,
-	},
-});
+import { tv as styles } from "../../styles/Widgets"
 
 class TVWidget extends Component {
 	constructor() {

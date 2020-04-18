@@ -16,58 +16,7 @@ import TableCell from "@material-ui/core/TableCell";
 
 import { getCrypto } from "../../api/crypto";
 
-const styles = () => ({
-	root: {
-		height: "100%",
-		boxSizing: "border-box",
-		overflow: "auto",
-		padding: 10,
-		backgroundColor: "#212121",
-		border: "1px solid #424242",
-	},
-	cell: {
-		padding: 2,
-	},
-	nameCell: {
-		maxWidth: 60,
-	},
-	listImage: {
-		height: 16,
-		width: 16,
-		padding: 5,
-	},
-	singleRoot: {
-		height: "100%",
-		boxSizing: "border-box",
-		backgroundColor: "#212121",
-		padding: 16,
-		border: "1px solid #424242",
-	},
-	singleContent: {
-		paddingTop: 15,
-		paddingBottom: 15,
-		borderTop: "1px solid #424242",
-	},
-	singleHeader: {
-		paddingBottom: 5,
-	},
-	singlePercentage: {
-		width: 70,
-		padding: 5,
-		borderLeft: "1px solid #424242",
-	},
-	singleImage: {
-		padding: 10,
-		height: 36,
-		width: 36,
-	},
-	green: {
-		color: "#43a047 !important",
-	},
-	red: {
-		color: "#f4511e !important",
-	},
-});
+import { crypto as styles } from "../../styles/Widgets";
 
 class CryptoWidget extends Component {
 	constructor() {
@@ -134,7 +83,7 @@ class CryptoWidget extends Component {
 				<Box component={Paper} display="flex" flexDirection="column" className={classes.singleRoot}>
 					<Box display="flex" alignItems="center" className={classes.singleHeader}>
 						<Box display="flex">
-							<img src={cryptos.image} alt="icon-crypto" className={classes.singleImage}/>
+							<img src={cryptos.image} alt="icon-crypto" className={classes.singleImage} />
 						</Box>
 						<Box display="flex" flexGrow={1} flexDirection="column">
 							<Typography variant="h5">{cryptos.symbol}</Typography>

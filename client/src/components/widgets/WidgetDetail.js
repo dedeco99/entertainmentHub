@@ -19,11 +19,7 @@ import Chip from "@material-ui/core/Chip";
 import { getCities } from "../../api/weather";
 import { getCoins } from "../../api/crypto";
 
-const styles = () => ({
-	autocomplete: {
-		width: 300,
-	},
-});
+import { widgetDetail as styles } from "../../styles/Widgets";
 
 class WidgetDetail extends Component {
 	constructor() {

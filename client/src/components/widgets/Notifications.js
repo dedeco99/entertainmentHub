@@ -24,20 +24,7 @@ import { formatDate } from "../../utils/utils";
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
 import { Typography } from "@material-ui/core";
 
-const styles = () => ({
-	root: {
-		backgroundColor: "#212121",
-	},
-	header: {
-		backgroundColor: "#424242",
-		padding: 5,
-		paddingLeft: 16,
-		paddingRight: 8,
-	},
-	avatar: {
-		backgroundColor: "#444",
-	}
-});
+import { notifications as styles } from "../../styles/Widgets";
 
 class Notifications extends Component {
 	constructor() {

@@ -11,46 +11,7 @@ import moment from "moment";
 
 import { getWeather } from "../../api/weather";
 
-const styles = () => ({
-	root: {
-		display: "flex",
-		flexDirection: "column",
-		backgroundColor: "#212121dd",
-		height: "100%",
-		boxSizing: "border-box",
-	},
-	content: {
-		padding: 16,
-		paddingBottom: 0,
-	},
-	description: {
-		textTransform: "capitalize",
-	},
-	info: {
-		"display": "flex",
-		"alignItems": "center",
-		"& i": {
-			fontSize: "1.5rem",
-			marginRight: 4,
-			marginBottom: 5,
-			display: "inline-block",
-		},
-	},
-	nextDays: {
-		"& div": {
-			"borderTop": "1px solid #121212",
-			"borderRight": "1px solid #121212",
-			"padding": "5px 2px 5px 2px",
-			"& img": {
-				width: 40,
-				height: 40,
-			},
-		},
-	},
-	lastDay: {
-		borderRight: "none !important",
-	},
-});
+import { weather as styles } from "../../styles/Widgets";
 
 class Weather extends Component {
 	constructor() {
