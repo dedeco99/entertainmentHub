@@ -36,6 +36,104 @@ const notifications = () => ({
 	},
 });
 
+const reddit = {
+	root: {
+		position: "relative",
+		backgroundColor: "#212121",
+		height: "100%",
+	},
+	wrapper: {
+		height: "100%",
+	},
+	content: {
+		overflowY: "auto",
+		overflowX: "hidden",
+		position: "relative",
+	},
+	media: {
+		width: "100%",
+		height: "100%",
+	},
+	overlay: {
+		position: "absolute",
+		color: "white",
+		backgroundColor: "#212121dd",
+		padding: "3px",
+		borderRadius: "3px",
+	},
+	title: {
+		top: "5px",
+		left: "5px",
+		maxWidth: "95%",
+		whiteSpace: "nowrap",
+		overflow: "hidden",
+		textOverflow: "ellipsis",
+	},
+	score: {
+		bottom: "5px",
+		left: "5px",
+	},
+	date: {
+		bottom: "5px",
+		right: "5px",
+	},
+	hide: {
+		display: "none",
+	},
+	textHeader: {
+		padding: 16,
+		boxSizing: "border-box",
+		borderBottom: "1px solid #424242",
+	},
+	textContent: {
+		padding: 16,
+		paddingTop: 0,
+		boxSizing: "border-box",
+		"& p": {
+			fontSize: "1rem",
+			fontWeight: 400,
+			lineHeight: 1.5,
+			letterSpacing: 0.00938,
+		},
+		"& *": {
+			overflow: "hidden",
+		},
+	},
+	arrows: {
+		backgroundColor: "#424242",
+		"& div": {
+			padding: 12,
+			cursor: "pointer",
+			"&:hover": {
+				backgroundColor: "#3d3d3d",
+			},
+		},
+	},
+	arrowsBorder: {
+		borderRight: "1px solid #212121",
+	},
+	widthFix: {
+		width: "100%",
+	},
+	modal: {
+		display: "flex",
+		alignItems: "center",
+		justifyContent: "center",
+	},
+	expandedView: {
+		backgroundColor: "#212121",
+		height: "80%",
+		width: "auto",
+		maxWidth: "90%",
+		outline: "none",
+		"& img": {
+			objectFit: "contain",
+			height: "100%",
+			maxWidth: "100%",
+		},
+	},
+};
+
 const weather = () => ({
 	root: {
 		display: "flex",
@@ -52,8 +150,8 @@ const weather = () => ({
 		textTransform: "capitalize",
 	},
 	info: {
-		"display": "flex",
-		"alignItems": "center",
+		display: "flex",
+		alignItems: "center",
 		"& i": {
 			fontSize: "1.5rem",
 			marginRight: 4,
@@ -63,9 +161,9 @@ const weather = () => ({
 	},
 	nextDays: {
 		"& div": {
-			"borderTop": "1px solid #121212",
-			"borderRight": "1px solid #121212",
-			"padding": "5px 2px 5px 2px",
+			borderTop: "1px solid #121212",
+			borderRight: "1px solid #121212",
+			padding: "5px 2px 5px 2px",
 			"& img": {
 				width: 40,
 				height: 40,
@@ -166,6 +264,7 @@ export {
 	widget,
 	widgetDetail,
 	notifications,
+	reddit,
 	weather,
 	tv,
 	crypto,

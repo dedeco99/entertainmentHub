@@ -1,4 +1,3 @@
-/* eslint-disable react/no-danger */
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/styles";
@@ -6,18 +5,15 @@ import Zoom from "@material-ui/core/Zoom";
 import Card from "@material-ui/core/Card";
 import CardMedia from "@material-ui/core/CardMedia";
 import Box from "@material-ui/core/Box";
-
 import Modal from "@material-ui/core/Modal";
-import Backdrop from '@material-ui/core/Backdrop';
-import Fade from '@material-ui/core/Fade';
+import Backdrop from "@material-ui/core/Backdrop";
+import Fade from "@material-ui/core/Fade";
+import Typography from "@material-ui/core/Typography";
 
 import { getPosts } from "../../api/reddit";
 import { formatDate } from "../../utils/utils";
 
-import placeholder from "../../img/noimage.png";
-
-import styles from "../../styles/Reddit";
-import { Typography } from "@material-ui/core";
+import { reddit as styles } from "../../styles/Widgets";
 
 class Post extends Component {
 	constructor() {
@@ -139,7 +135,7 @@ class Post extends Component {
 					controls
 				/>
 			);
-			expandedContent = <video controls> <source src={`${post.url.slice(0, -5)}.mp4`} type="video/mp4"/> </video>;
+			expandedContent = <video controls> <source src={`${post.url.slice(0, -5)}.mp4`} type="video/mp4" /> </video>;
 		} else if (post.domain === "v.redd.it") {
 			content = (
 				<CardMedia
@@ -149,7 +145,7 @@ class Post extends Component {
 					controls
 				/>
 			);
-			expandedContent = <video controls> <source src={post.redditVideo} type="video/mp4"/> </video>;
+			expandedContent = <video controls> <source src={post.redditVideo} type="video/mp4" /> </video>;
 		} else if (post.domain === "youtube.com" || post.domain === "youtu.be") {
 			const videoId = post.url.includes("?v=")
 				? post.url.substr(post.url.lastIndexOf("?v=") + 3)
@@ -176,14 +172,14 @@ class Post extends Component {
 						</Box>
 						<Box display="flex">
 							<Box display="flex" flexGrow={1}>
-								<Typography variant="caption"> 
-									<i className="icofont-caret-up" /> 
-									{post.score} 
+								<Typography variant="caption">
+									<i className="icofont-caret-up" />
+									{post.score}
 									<i className="icofont-caret-down" />
 								</Typography>
 							</Box>
 							<Box display="flex">
-								<Typography variant="caption"> 
+								<Typography variant="caption">
 									{formatDate(post.created * 1000, null, true)}
 								</Typography>
 							</Box>

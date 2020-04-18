@@ -5,7 +5,7 @@ import IconButton from "@material-ui/core/IconButton";
 import Widget from "../widgets/Widget";
 import WidgetDetail from "../widgets/WidgetDetail";
 import Notifications from "../widgets/Notifications";
-import Posts from "../reddit/Posts";
+import Posts from "../widgets/Reddit";
 import Weather from "../widgets/Weather";
 import TVWidget from "../widgets/TV";
 import CryptoWidget from "../widgets/Crypto";
