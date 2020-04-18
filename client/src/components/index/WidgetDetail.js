@@ -75,6 +75,8 @@ class WidgetDetail extends Component {
 	selectCity(e, city) {
 		const { info } = this.state;
 
+		if (!city) return;
+
 		this.setState({
 			info: {
 				...info,
@@ -163,7 +165,7 @@ class WidgetDetail extends Component {
 						onInputChange={this.getCities}
 						onChange={this.selectCity}
 						className={classes.autocomplete}
-						getOptionLabel={option => option.name}
+						getOptionLabel={option => `${option.name}, ${option.country}`}
 						renderInput={params => <TextField {...params} label="Cidade" variant="outlined" fullWidth margin="normal" />}
 					/>
 				);
