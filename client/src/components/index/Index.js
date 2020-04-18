@@ -35,6 +35,10 @@ class Index extends Component {
 	}
 
 	async componentDidMount() {
+		await this.getWidgets();
+	}
+
+	async getWidgets() {
 		const response = await getWidgets();
 
 		this.setState({ widgets: response.data });
@@ -105,6 +109,7 @@ class Index extends Component {
 		const { widgets, editMode } = this.state;
 
 		if (widgets && widgets.length) {
+			// eslint-disable-next-line complexity
 			return widgets.map(widget => {
 				let content = null;
 				let editText = null;

@@ -70,7 +70,7 @@ class App extends Component {
 		});
 	}
 
-	goBackUp() {
+	handleGoBackUp() {
 		window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
 	}
 
@@ -79,7 +79,7 @@ class App extends Component {
 
 		if (showGoBackUpButton) {
 			return (
-				<div className="go-back-up" onClick={this.goBackUp}>
+				<div className="go-back-up" onClick={this.handleGoBackUp}>
 					<img src={goBackUp} width="50px" alt="Go Back Up" />
 				</div>
 			);

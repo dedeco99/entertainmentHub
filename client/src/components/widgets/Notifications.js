@@ -1,9 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { withStyles } from "@material-ui/styles";
-
 import { connect } from "react-redux";
-
+import { withStyles } from "@material-ui/styles";
 import Zoom from "@material-ui/core/Zoom";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -16,13 +14,12 @@ import Button from "@material-ui/core/Button";
 import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import Box from "@material-ui/core/Box";
+import Typography from "@material-ui/core/Typography";
 
 import CustomScrollbar from "../.partials/CustomScrollbar";
 
-import { formatDate } from "../../utils/utils";
-
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
-import { Typography } from "@material-ui/core";
+import { formatDate } from "../../utils/utils";
 
 import { notifications as styles } from "../../styles/Widgets";
 
@@ -38,7 +35,7 @@ class Notifications extends Component {
 			open: false,
 		};
 
-		this.toggleHistory = this.toggleHistory.bind(this);
+		this.handleToggleHistory = this.handleToggleHistory.bind(this);
 		this.handleClickListItem = this.handleClickListItem.bind(this);
 		this.handleMenuItemClick = this.handleMenuItemClick.bind(this);
 		this.handleClose = this.handleClose.bind(this);
@@ -65,7 +62,7 @@ class Notifications extends Component {
 		this.setState({ open: true });
 	}
 
-	async hideNotification(id) {
+	async handleHideNotification(id) {
 		const { deleteNotification } = this.props;
 		const { history } = this.state;
 
@@ -76,7 +73,7 @@ class Notifications extends Component {
 		}
 	}
 
-	toggleHistory() {
+	handleToggleHistory() {
 		const { history } = this.state;
 		this.setState({ history: !history }, this.getNotifications);
 	}
@@ -141,7 +138,7 @@ class Notifications extends Component {
 						primaryTypographyProps={{ noWrap: true }}
 					/>
 					<ListItemSecondaryAction
-						onClick={() => this.hideNotification(notification._id)}
+						onClick={() => this.handleHideNotification(notification._id)}
 					>
 						<IconButton>
 							<i className="material-icons">{history ? "delete" : "check_circle"}</i>
@@ -200,8 +197,7 @@ class Notifications extends Component {
 									</MenuItem>
 								))}
 							</Menu>
-
-							<IconButton onClick={this.toggleHistory}>
+							<IconButton onClick={this.handleToggleHistory}>
 								<i className="material-icons">
 									{history ? "notifications" : "history"}
 								</i>

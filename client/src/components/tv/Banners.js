@@ -14,10 +14,10 @@ class Banners extends Component {
 		};
 
 		this.renderAddIcon = this.renderAddIcon.bind(this);
-		this.addSeries = this.addSeries.bind(this);
+		this.handleAddSeries = this.handleAddSeries.bind(this);
 	}
 
-	async addSeries(e) {
+	async handleAddSeries(e) {
 		const { series, addSeries } = this.props;
 
 		this.setState({ loadingAddSeries: true });
@@ -46,7 +46,7 @@ class Banners extends Component {
 				<i
 					id={s.id}
 					className="add-series-icon icofont-ui-add icofont-3x"
-					onClick={this.addSeries}
+					onClick={this.handleAddSeries}
 				/>
 			);
 		}
