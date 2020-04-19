@@ -169,8 +169,35 @@ async function getPosts(event) {
 	return response(200, "Reddit posts found", posts);
 }
 
+async function getSearch(event) {
+	const { params, query, user } = event;
+	const { subreddit, search } = params;
+	const { after } = query;
+
+	const accessToken = await getAccessToken(user);
+	let url = `https://oauth.reddit.com/r/${subreddit}/search?q=${search}&restrict_sr=1&type=link&sort=new`;
+	if (after) url += `&after=${after}`;
+
+	const headers = {
+		"User-Agent": "Entertainment-Hub by dedeco99",
+		Authorization: `bearer ${accessToken}`,
+	};
+
+	const res = await api({ method: "get", url, headers });
+
+	if (res.status === 403) throw errors.redditForbidden;
+	if (res.status === 404) throw errors.redditNotFound;
+
+	const json = res.data;
+	console.log(json);
+	const posts = formatResponse(json);
+
+	return response(200, "Reddit search found", posts);
+}
+
 module.exports = {
 	isSubreddit,
 	getSubreddits: (req, res) => middleware(req, res, getSubreddits, ["token"]),
 	getPosts: (req, res) => middleware(req, res, getPosts, ["token"]),
+	getSearch: (req, res) => middleware(req, res, getSearch, ["token"]),
 };

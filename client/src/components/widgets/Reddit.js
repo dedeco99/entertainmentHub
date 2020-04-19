@@ -11,7 +11,7 @@ import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
 import Typography from "@material-ui/core/Typography";
 
-import { getPosts } from "../../api/reddit";
+import { getPosts, getSearch } from "../../api/reddit";
 import { formatDate } from "../../utils/utils";
 
 import { reddit as styles } from "../../styles/Widgets";
@@ -39,6 +39,10 @@ class Reddit extends Component {
 
 	async componentDidMount() {
 		const { subreddit } = this.props;
+
+		const response = await getSearch(subreddit, "tofu65");
+
+		console.log(response.data);
 
 		await this.getPosts(subreddit);
 	}
