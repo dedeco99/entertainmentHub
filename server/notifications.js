@@ -1,5 +1,3 @@
-/* global sockets */
-
 const moment = require("moment");
 
 const { middleware, response } = require("./middleware");
@@ -93,7 +91,7 @@ async function cronjob() {
 	}).lean();
 
 	for (const notification of notifications) {
-		for (const socket of sockets[notification.user]) {
+		for (const socket of global.sockets[notification.user]) {
 			socket.emit("notification", notification);
 		}
 	}

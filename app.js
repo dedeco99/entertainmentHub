@@ -1,5 +1,3 @@
-/* global sockets */
-
 const express = require("express");
 const path = require("path");
 const morgan = require("morgan");
@@ -28,7 +26,8 @@ global.cache = {
 	},
 };
 
-require("./server/secrets");
+// eslint-disable-next-line global-require
+if (!process.env.ENV) require("./server/secrets");
 
 initialize();
 
@@ -123,10 +122,10 @@ io.sockets.on("connection", socket => {
 
 	socket.on("bind", user => {
 		if (user) {
-			if (sockets[user]) {
-				sockets[user].push(socket);
+			if (global.sockets[user]) {
+				global.sockets[user].push(socket);
 			} else {
-				sockets[user] = [socket];
+				global.sockets[user] = [socket];
 			}
 		}
 	});
@@ -138,18 +137,22 @@ io.sockets.on("connection", socket => {
 	*/
 
 	socket.on("disconnect", () => {
-		for (const user in sockets) {
-			sockets[user] = sockets[user].filter(s => !s.disconnected);
+		for (const user in global.sockets) {
+			global.sockets[user] = global.sockets[user].filter(s => !s.disconnected);
 			console.log("Disconnected", socket.id);
 		}
 	});
 });
 
-cron.schedule("0 * * * *", () => {
-	notifications.cronjob();
-});
+if (process.env.ENV === "prod") {
+	cron.schedule("0 * * * *", () => {
+		notifications.cronjob();
+	});
 
 
-cron.schedule("0 0,8,16 * * *", () => {
-	tv.cronjob();
-});
+	cron.schedule("0 0,8,16 * * *", () => {
+		tv.cronjob();
+	});
+
+	console.log("Cronjobs are running");
+}

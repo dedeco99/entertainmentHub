@@ -35,7 +35,10 @@ class Index extends Component {
 	}
 
 	async componentDidMount() {
-		await this.getWidgets();
+		const user = localStorage.getItem("user");
+		const token = localStorage.getItem("token");
+
+		if (user && token) await this.getWidgets();
 	}
 
 	async getWidgets() {
