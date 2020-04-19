@@ -78,6 +78,21 @@ function formatResponse(json) {
 	return res;
 }
 
+async function isSubreddit(subreddit, user) {
+	const accessToken = await getAccessToken(user);
+
+	const url = `https://oauth.reddit.com/api/search_reddit_names?query=${subreddit}&exact=true`;
+
+	const headers = {
+		"User-Agent": "Entertainment-Hub by dedeco99",
+		Authorization: `bearer ${accessToken}`,
+	};
+
+	const res = await api({ method: "get", url, headers });
+
+	return res.status !== 404;
+}
+
 async function getSubreddits(req, res) {
 	const data = { userId: req.query.userId };
 
@@ -129,15 +144,14 @@ async function getSubreddits(req, res) {
 }
 
 async function getPosts(event) {
-	const { params, user } = event;
+	const { params, query, user } = event;
 	const { subreddit, category } = params;
-
-	const data = { subreddit, category };
+	const { after } = query;
 
 	const accessToken = await getAccessToken(user);
 
-	let url = `https://oauth.reddit.com/r/${data.subreddit}/${data.category}`;
-	if (data.after) url += `?after=${data.after}`;
+	let url = `https://oauth.reddit.com/r/${subreddit}/${category}`;
+	if (after) url += `?after=${after}`;
 
 	const headers = {
 		"User-Agent": "Entertainment-Hub by dedeco99",
@@ -150,13 +164,13 @@ async function getPosts(event) {
 	if (res.status === 404) throw errors.redditNotFound;
 
 	const json = res.data;
-	console.log(json.data.children[2]);
 	const posts = formatResponse(json);
 
 	return response(200, "Reddit posts found", posts);
 }
 
 module.exports = {
+	isSubreddit,
 	getSubreddits: (req, res) => middleware(req, res, getSubreddits, ["token"]),
 	getPosts: (req, res) => middleware(req, res, getPosts, ["token"]),
 };
