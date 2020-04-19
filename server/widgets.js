@@ -23,9 +23,12 @@ async function addWidget(event) {
 		case "reddit":
 			if (!info.subreddit) return errors.requiredFieldsMissing;
 
-			const subredditExists = await isSubreddit(info.subreddit, user);
+			const subreddits = info.subreddit.split("+");
+			for (const subreddit of subreddits) {
+				const subredditExists = await isSubreddit(subreddit, user);
 
-			if (!subredditExists) return errors.redditNotFound;
+				if (!subredditExists) return errors.redditNotFound(subreddit);
+			}
 
 			break;
 		case "weather":
