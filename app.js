@@ -1,5 +1,6 @@
 const express = require("express");
 const path = require("path");
+const moment = require("moment");
 const morgan = require("morgan");
 const socketio = require("socket.io");
 const cron = require("node-cron");
@@ -35,9 +36,12 @@ const app = express();
 
 app.set("port", process.env.PORT || 5000);
 
-app.use(morgan("dev", {
-	skip: req => req.originalUrl.includes("/static/"),
-}));
+morgan.token("date", () => moment().format("hh:mm:ss"));
+
+app.use(morgan(
+	":date :status :method :url :response-time ms",
+	{ skip: req => req.originalUrl.includes(".css") || req.originalUrl.includes(".ico") },
+));
 
 app.use(express.static(path.join(__dirname, "client/build")));
 
