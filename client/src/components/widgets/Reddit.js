@@ -47,6 +47,8 @@ class Reddit extends Component {
 		const response = await getPosts(subreddit);
 
 		if (response.data) {
+			response.data = response.data.filter(post => !post.stickied);
+
 			this.setState({ posts: response.data, open: true });
 		}
 	}

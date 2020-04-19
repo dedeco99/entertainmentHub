@@ -63,6 +63,7 @@ function formatResponse(json) {
 			crossposts: data.num_crossposts,
 			flairs: data.link_flair_richtext.map(flair => flair.t),
 			author: data.author,
+			stickied: data.stickied,
 			domain: data.domain,
 			url: data.url,
 			thumbnail: data.thumbnail,
@@ -149,6 +150,7 @@ async function getPosts(event) {
 	if (res.status === 404) throw errors.redditNotFound;
 
 	const json = res.data;
+	console.log(json.data.children[2]);
 	const posts = formatResponse(json);
 
 	return response(200, "Reddit posts found", posts);
