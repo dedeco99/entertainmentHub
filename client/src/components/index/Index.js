@@ -5,10 +5,10 @@ import IconButton from "@material-ui/core/IconButton";
 import Widget from "../widgets/Widget";
 import WidgetDetail from "../widgets/WidgetDetail";
 import Notifications from "../widgets/Notifications";
-import Posts from "../widgets/Reddit";
+import Reddit from "../widgets/Reddit";
 import Weather from "../widgets/Weather";
-import TVWidget from "../widgets/TV";
-import CryptoWidget from "../widgets/Crypto";
+import TV from "../widgets/TV";
+import Crypto from "../widgets/Crypto";
 
 import { getWidgets, addWidget, editWidget, deleteWidget } from "../../api/widgets";
 
@@ -126,7 +126,7 @@ class Index extends Component {
 						restrictions = { minW: 1, minH: 4, maxW: 1, maxH: 8 };
 						break;
 					case "reddit":
-						content = <Posts subreddit={widget.info.subreddit} />;
+						content = <Reddit subreddit={widget.info.subreddit} search={widget.info.search} />;
 						editText = `r/${widget.info.subreddit}`;
 						editIcon = "icofont-reddit";
 						dimensions = { w: widget.width || 1, h: widget.height || 2 };
@@ -147,14 +147,14 @@ class Index extends Component {
 						restrictions = { minW: 1, minH: 2, maxW: 3, maxH: 6 };
 						break;
 					case "tv":
-						content = <TVWidget />;
+						content = <TV />;
 						editText = "TV";
 						editIcon = "icofont-contrast";
 						dimensions = { w: widget.width || 1, h: widget.height || 4 };
 						restrictions = { minW: 1, minH: 4, maxW: 1, maxH: 8 };
 						break;
 					case "crypto":
-						content = <CryptoWidget coins={widget.info.coins} />;
+						content = <Crypto coins={widget.info.coins} />;
 						editText = "Crypto";
 						editIcon = "icofont-bitcoin";
 						dimensions = { w: widget.width || 1, h: widget.height || 2 };

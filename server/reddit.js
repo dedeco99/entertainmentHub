@@ -189,7 +189,6 @@ async function getSearch(event) {
 	if (res.status === 404) throw errors.redditNotFound;
 
 	const json = res.data;
-	console.log(json);
 	const posts = formatResponse(json);
 
 	return response(200, "Reddit search found", posts);

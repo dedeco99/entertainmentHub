@@ -12,6 +12,7 @@ const WidgetSchema = new Schema({
 	info: {
 		// Reddit
 		subreddit: { type: String },
+		search: { type: String },
 
 		// Weather
 		city: { type: String },

@@ -25,14 +25,7 @@ class WidgetDetail extends Component {
 		super();
 		this.state = {
 			type: "notifications",
-			info: {
-				subreddit: "",
-
-				city: "",
-				country: "",
-				lat: 0,
-				lon: 0,
-			},
+			info: {},
 
 			typingTimeout: null,
 			cities: [],
@@ -68,19 +61,9 @@ class WidgetDetail extends Component {
 	}
 
 	handleSelectCity(e, city) {
-		const { info } = this.state;
-
 		if (!city) return;
 
-		this.setState({
-			info: {
-				...info,
-				city: city.name,
-				country: city.country,
-				lat: city.lat,
-				lon: city.lon,
-			},
-		});
+		this.setState({ info: { city: city.name, country: city.country, lat: city.lat, lon: city.lon } });
 	}
 
 	handleGetCoins(e, filter) {
@@ -102,14 +85,7 @@ class WidgetDetail extends Component {
 	}
 
 	handleSelectCoin(e, coins) {
-		const { info } = this.state;
-
-		this.setState({
-			info: {
-				...info,
-				coins: coins.map(coin => coin.symbol).join(","),
-			},
-		});
+		this.setState({ info: { coins: coins.map(coin => coin.symbol).join(",") } });
 	}
 
 	handleChange(e) {
@@ -127,6 +103,8 @@ class WidgetDetail extends Component {
 		const { type, info } = this.state;
 
 		await onAdd({ type, info });
+
+		this.setState({ info: {} });
 	}
 
 	handleKeyPress(event) {
@@ -140,23 +118,36 @@ class WidgetDetail extends Component {
 		switch (type) {
 			case "reddit":
 				return (
-					<Input
-						id="info.subreddit"
-						type="text"
-						label="Subreddit"
-						value={info.subreddit}
-						onChange={this.handleChange}
-						onKeyPress={this.handleKeyPress}
-						margin="normal"
-						variant="outlined"
-						fullWidth
-						required
-					/>
+					<div>
+						<Input
+							id="info.subreddit"
+							type="text"
+							label="Subreddit"
+							value={info.subreddit || ""}
+							onChange={this.handleChange}
+							onKeyPress={this.handleKeyPress}
+							margin="normal"
+							variant="outlined"
+							fullWidth
+							required
+						/>
+						<Input
+							id="info.search"
+							type="text"
+							label="Search"
+							value={info.search || ""}
+							onChange={this.handleChange}
+							onKeyPress={this.handleKeyPress}
+							margin="normal"
+							variant="outlined"
+							fullWidth
+						/>
+					</div>
 				);
 			case "weather":
 				return (
 					<Autocomplete
-						options={cities}
+						options={cities || []}
 						onInputChange={this.handleGetCities}
 						onChange={this.handleSelectCity}
 						className={classes.autocomplete}
@@ -169,12 +160,16 @@ class WidgetDetail extends Component {
 					<Autocomplete
 						multiple
 						limitTags={2}
-						renderTags={(value, getTagProps) => (
-							value.map((option, index) => (
-								<Chip key={option.symbol} label={option.symbol} {...getTagProps({ index })} />
-							))
-						)}
-						options={coins}
+						renderTags={(value, getTagProps) => {
+							if (value) {
+								return value.map((option, index) => (
+									<Chip key={option.symbol} label={option.symbol} {...getTagProps({ index })} />
+								));
+							}
+
+							return [];
+						}}
+						options={coins || []}
 						onInputChange={this.handleGetCoins}
 						onChange={this.handleSelectCoin}
 						className={classes.autocomplete}

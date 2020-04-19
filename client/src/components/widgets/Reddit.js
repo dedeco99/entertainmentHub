@@ -38,17 +38,19 @@ class Reddit extends Component {
 	}
 
 	async componentDidMount() {
-		const { subreddit } = this.props;
+		const { subreddit, search } = this.props;
 
-		const response = await getSearch(subreddit, "tofu65");
-
-		console.log(response.data);
-
-		await this.getPosts(subreddit);
+		await this.getPosts(subreddit, search);
 	}
 
-	async getPosts(subreddit) {
-		const response = await getPosts(subreddit);
+	async getPosts(subreddit, search) {
+		let response = null;
+
+		if (search) {
+			response = await getSearch(subreddit, search);
+		} else {
+			response = await getPosts(subreddit);
+		}
 
 		if (response.data) {
 			response.data = response.data.filter(post => !post.stickied);
@@ -292,6 +294,7 @@ class Reddit extends Component {
 Reddit.propTypes = {
 	classes: PropTypes.object.isRequired,
 	subreddit: PropTypes.string.isRequired,
+	search: PropTypes.string,
 };
 
 export default withStyles(styles)(Reddit);
