@@ -84,11 +84,14 @@ app.get("/api/reddit/:subreddit/:category", reddit.getPosts);
 
 app.get("/api/reddit/:subreddit/search/:search", reddit.getSearch);
 
-app.get("/api/youtube/subscriptions/", youtube.getSubscriptions);
+app.get("/api/youtube/subscriptions", youtube.getSubscriptions);
 
+app.get("/api/youtube/channels", youtube.getChannels);
+
+app.post("/api/youtube/channels", youtube.addChannels);
+
+app.delete("/api/youtube/channels/:id", youtube.deleteChannel);
 /*
-app.get("/api/youtube/channels/", youtube.getChannels);
-
 app.get("/api/youtube/channels/:channel/", youtube.getPosts);
 
 app.get("/api/twitch/streams/", twitch.getStreams);

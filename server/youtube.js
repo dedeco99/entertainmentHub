@@ -2,7 +2,7 @@ const { middleware, response } = require("./middleware");
 const errors = require("./errors");
 const { api } = require("./request");
 
-// const Channel = require("./models/channel");
+const Channel = require("./models/channel");
 const App = require("./models/app");
 
 async function getAccessToken(user) {
@@ -55,6 +55,58 @@ async function getSubscriptions(event) {
 	return response(200, "Youtube subscriptions found", channels);
 }
 
+async function getChannels(event) {
+	const { user } = event;
+
+	const channels = await Channel.find({ user: user._id }).lean();
+
+	return response(200, "Channels found", channels);
+}
+
+async function addChannels(event) {
+	const { body, user } = event;
+	const { channels } = body;
+
+	if (!channels || !channels.length) return errors.requiredFieldsMissing;
+
+	const channelsToAdd = [];
+	for (const channel of channels) {
+		const { channelId, displayName, image } = channel;
+
+		if (channelId && displayName) {
+			channelsToAdd.push(new Channel({
+				user: user._id,
+				channelId,
+				displayName,
+				image,
+			}));
+		}
+	}
+
+	await Channel.insertMany(channelsToAdd);
+
+	return response(200, "Channels created", channels);
+}
+
+async function deleteChannel(event) {
+	const { params } = event;
+	const { id } = params;
+
+	let channel = null;
+	try {
+		channel = await Channel.findOneAndDelete({ _id: id });
+	} catch (e) {
+		return errors.notFound;
+	}
+
+	if (!channel) return errors.notFound;
+
+	return response(200, "Channel deleted", channel);
+}
+
 module.exports = {
 	getSubscriptions: (req, res) => middleware(req, res, getSubscriptions, ["token"]),
+	getChannels: (req, res) => middleware(req, res, getChannels, ["token"]),
+	addChannels: (req, res) => middleware(req, res, addChannels, ["token"]),
+	deleteChannel: (req, res) => middleware(req, res, deleteChannel, ["token"]),
 };
