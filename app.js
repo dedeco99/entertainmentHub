@@ -11,10 +11,8 @@ const notifications = require("./server/notifications");
 const weather = require("./server/weather");
 const crypto = require("./server/crypto");
 const reddit = require("./server/reddit");
-/*
 const youtube = require("./server/youtube");
-const twitch = require("./server/twitch");
-*/
+// const twitch = require("./server/twitch");
 const tv = require("./server/tv");
 
 global.sockets = [];
@@ -79,6 +77,8 @@ app.get("/api/crypto/:coins", crypto.getPrices);
 app.get("/api/reddit/subreddits/", reddit.getSubreddits);
 
 app.get("/api/reddit/subreddits/:subreddit/:category/", reddit.getPosts);
+
+app.get("/api/youtube/subscriptions/", youtube.getSubscriptions);
 
 /*
 app.get("/api/youtube/channels/", youtube.getChannels);
