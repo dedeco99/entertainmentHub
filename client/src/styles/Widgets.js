@@ -109,9 +109,6 @@ const reddit = {
 			},
 		},
 	},
-	arrowsBorder: {
-		borderRight: "1px solid #212121",
-	},
 	widthFix: {
 		width: "100%",
 	},
@@ -121,15 +118,44 @@ const reddit = {
 		justifyContent: "center",
 	},
 	expandedView: {
+		display: "inline-block",
 		backgroundColor: "#212121",
 		height: "80%",
+		maxHeight: "80%",
 		width: "auto",
 		maxWidth: "90%",
 		outline: "none",
 		"& img": {
+			display: "block",
 			objectFit: "contain",
-			height: "100%",
+			maxHeight: "100%",
 			maxWidth: "100%",
+			minWidth: 0,
+		},
+	},
+	header: {
+		borderLeft: "1px solid #212121",
+		borderRight: "1px solid #212121",
+		"& i": {
+			fontSize: "1.1rem",
+		},
+	},
+	singleWrapper: {
+		backgroundColor: "#212121",
+		width: "100%",
+		height: "100%",
+	},
+	singleHeader: {
+		backgroundColor: "#424242",
+		padding: "8px 16px",
+	},
+	singleContent: {
+		overflow: "auto",
+	},
+	flairs: {
+		"& div": {
+			marginRight: 5,
+			marginBottom: 5,
 		},
 	},
 };
