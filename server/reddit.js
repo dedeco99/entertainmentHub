@@ -61,8 +61,9 @@ function formatResponse(json) {
 			score: data.score,
 			comments: data.num_comments,
 			crossposts: data.num_crossposts,
-			flairs: data.link_flair_richtext.map(flair => flair.t),
+			flairs: data.link_flair_richtext.map(flair => flair.t).filter(flair => flair),
 			author: data.author,
+			stickied: data.stickied,
 			domain: data.domain,
 			url: data.url,
 			thumbnail: data.thumbnail,
@@ -75,6 +76,21 @@ function formatResponse(json) {
 		});
 	}
 	return res;
+}
+
+async function isSubreddit(subreddit, user) {
+	const accessToken = await getAccessToken(user);
+
+	const url = `https://oauth.reddit.com/api/search_reddit_names?query=${subreddit}&exact=true`;
+
+	const headers = {
+		"User-Agent": "Entertainment-Hub by dedeco99",
+		Authorization: `bearer ${accessToken}`,
+	};
+
+	const res = await api({ method: "get", url, headers });
+
+	return res.status !== 404;
 }
 
 async function getSubreddits(req, res) {
@@ -128,15 +144,14 @@ async function getSubreddits(req, res) {
 }
 
 async function getPosts(event) {
-	const { params, user } = event;
+	const { params, query, user } = event;
 	const { subreddit, category } = params;
-
-	const data = { subreddit, category };
+	const { after } = query;
 
 	const accessToken = await getAccessToken(user);
 
-	let url = `https://oauth.reddit.com/r/${data.subreddit}/${data.category}`;
-	if (data.after) url += `?after=${data.after}`;
+	let url = `https://oauth.reddit.com/r/${subreddit}/${category}`;
+	if (after) url += `?after=${after}`;
 
 	const headers = {
 		"User-Agent": "Entertainment-Hub by dedeco99",
@@ -154,7 +169,34 @@ async function getPosts(event) {
 	return response(200, "Reddit posts found", posts);
 }
 
+async function getSearch(event) {
+	const { params, query, user } = event;
+	const { subreddit, search } = params;
+	const { after } = query;
+
+	const accessToken = await getAccessToken(user);
+	let url = `https://oauth.reddit.com/r/${subreddit}/search?q=${search}&restrict_sr=1&type=link&sort=new`;
+	if (after) url += `&after=${after}`;
+
+	const headers = {
+		"User-Agent": "Entertainment-Hub by dedeco99",
+		Authorization: `bearer ${accessToken}`,
+	};
+
+	const res = await api({ method: "get", url, headers });
+
+	if (res.status === 403) throw errors.redditForbidden;
+	if (res.status === 404) throw errors.redditNotFound;
+
+	const json = res.data;
+	const posts = formatResponse(json);
+
+	return response(200, "Reddit search found", posts);
+}
+
 module.exports = {
+	isSubreddit,
 	getSubreddits: (req, res) => middleware(req, res, getSubreddits, ["token"]),
 	getPosts: (req, res) => middleware(req, res, getPosts, ["token"]),
+	getSearch: (req, res) => middleware(req, res, getSearch, ["token"]),
 };

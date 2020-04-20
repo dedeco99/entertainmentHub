@@ -48,9 +48,9 @@ app.use(express.static(path.join(__dirname, "client/build")));
 // Body parser
 app.use(express.json());
 
-app.post("/api/auth/register/", auth.register);
+app.post("/api/auth/register", auth.register);
 
-app.post("/api/auth/login/", auth.login);
+app.post("/api/auth/login", auth.login);
 
 app.get("/api/auth/apps", auth.getApps);
 
@@ -80,9 +80,11 @@ app.get("/api/crypto", crypto.getCoins);
 
 app.get("/api/crypto/:coins", crypto.getPrices);
 
-app.get("/api/reddit/subreddits/", reddit.getSubreddits);
+app.get("/api/reddit", reddit.getSubreddits);
 
-app.get("/api/reddit/subreddits/:subreddit/:category/", reddit.getPosts);
+app.get("/api/reddit/:subreddit/:category", reddit.getPosts);
+
+app.get("/api/reddit/:subreddit/search/:search", reddit.getSearch);
 
 /*
 app.get("/api/youtube/channels/", youtube.getChannels);
