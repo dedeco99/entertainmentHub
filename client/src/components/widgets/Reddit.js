@@ -49,12 +49,12 @@ class Reddit extends Component {
 	}
 
 	async componentDidMount() {
-		const { subreddit, search } = this.props;
+		const { subreddit, search, listView } = this.props;
 
-		await this.getPosts(subreddit, search);
+		await this.getPosts(subreddit, search, listView);
 	}
 
-	async getPosts(subreddit, search) {
+	async getPosts(subreddit, search, listView) {
 		let response = null;
 
 		if (search) {
@@ -66,8 +66,7 @@ class Reddit extends Component {
 		if (response.data) {
 			response.data = response.data.filter(post => !post.stickied);
 
-			this.setState({ posts: response.data, open: true });
-			console.log(this.state.posts);
+			this.setState({ posts: response.data, open: true, showListView: listView });
 		}
 	}
 
@@ -121,28 +120,26 @@ class Reddit extends Component {
 		const { classes, subreddit } = this.props;
 		const { open, posts } = this.state;
 
-		const postsList = posts.map((post, index) => {
-			return (
-				<ListItem key={post.id} button divider onClick={() => this.handleCheckPost(index)}>
-					<Box display="flex" flex="1 1 auto" minWidth={0} flexDirection="column">
-						<Typography display="block" variant="caption">
-							{formatDate(post.created * 1000, null, true)}
-						</Typography>
-						<Box display="flex">
-							<Box display="flex" flexGrow={1} alignItems="center">
-								<Typography display="block" title={post.title} variant="body1">
-									{post.title}
-								</Typography>
-							</Box>
-							{post.gilded > 0 ? (<Box display="flex" p={1}> <img src={redditGold} height={16} width={16} alt="reddit gold" /> </Box>) : null }
+		const postsList = posts.map((post, index) => (
+			<ListItem key={post.id} button divider onClick={() => this.handleCheckPost(index)}>
+				<Box display="flex" flex="1 1 auto" minWidth={0} flexDirection="column">
+					<Typography display="block" variant="caption">
+						{formatDate(post.created * 1000, null, true)}
+					</Typography>
+					<Box display="flex">
+						<Box display="flex" flexGrow={1} alignItems="center">
+							<Typography display="block" title={post.title} variant="body1">
+								{post.title}
+							</Typography>
 						</Box>
-						<Box display="flex" flexWrap="wrap" className={classes.flairs}>
-							{ post.flairs.map(flair => <Chip key={flair} size="small" label={flair} />) }
-						</Box>
+						{post.gilded > 0 ? (<Box display="flex" p={1}> <img src={redditGold} height={16} width={16} alt="reddit gold" /> </Box>) : null}
 					</Box>
-				</ListItem>
-			);
-		});
+					<Box display="flex" flexWrap="wrap" className={classes.flairs}>
+						{post.flairs.map(flair => <Chip key={flair} size="small" label={flair} />)}
+					</Box>
+				</Box>
+			</ListItem>
+		));
 
 		return (
 			<Zoom in={open}>
@@ -369,6 +366,7 @@ Reddit.propTypes = {
 	classes: PropTypes.object.isRequired,
 	subreddit: PropTypes.string.isRequired,
 	search: PropTypes.string,
+	listView: PropTypes.bool,
 };
 
 export default withStyles(styles)(Reddit);

@@ -12,6 +12,8 @@ import Select from "@material-ui/core/Select";
 import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import Chip from "@material-ui/core/Chip";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import Checkbox from "@material-ui/core/Checkbox";
 
 import Input from "../.partials/Input";
 
@@ -141,6 +143,17 @@ class WidgetDetail extends Component {
 							margin="normal"
 							variant="outlined"
 							fullWidth
+						/>
+						<FormControlLabel
+							control={
+								<Checkbox
+									id="info.listView"
+									checked={info.listView === "true"}
+									value={info.listView !== "true"}
+									onChange={this.handleChange}
+								/>
+							}
+							label="List View"
 						/>
 					</div>
 				);

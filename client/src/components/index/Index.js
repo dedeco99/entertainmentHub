@@ -126,7 +126,13 @@ class Index extends Component {
 						restrictions = { minW: 1, minH: 4, maxW: 1, maxH: 8 };
 						break;
 					case "reddit":
-						content = <Reddit subreddit={widget.info.subreddit} search={widget.info.search} />;
+						content = (
+							<Reddit
+								subreddit={widget.info.subreddit}
+								search={widget.info.search}
+								listView={widget.info.listView}
+							/>
+						);
 						editText = `r/${widget.info.subreddit}`;
 						editIcon = "icofont-reddit";
 						dimensions = { w: widget.width || 1, h: widget.height || 2 };
