@@ -1,6 +1,8 @@
 const { middleware, response } = require("./middleware");
 const errors = require("./errors");
 
+const { isSubreddit } = require("./reddit");
+
 const Widget = require("./models/widget");
 
 async function getWidgets(event) {
@@ -20,6 +22,14 @@ async function addWidget(event) {
 	switch (type) {
 		case "reddit":
 			if (!info.subreddit) return errors.requiredFieldsMissing;
+
+			const subreddits = info.subreddit.split("+");
+			for (const subreddit of subreddits) {
+				const subredditExists = await isSubreddit(subreddit, user);
+
+				if (!subredditExists) return errors.redditNotFound(subreddit);
+			}
+
 			break;
 		case "weather":
 			if (!info.lat || !info.lon) return errors.requiredFieldsMissing;

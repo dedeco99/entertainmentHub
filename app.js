@@ -1,5 +1,6 @@
 const express = require("express");
 const path = require("path");
+const moment = require("moment");
 const morgan = require("morgan");
 const socketio = require("socket.io");
 const cron = require("node-cron");
@@ -33,18 +34,21 @@ const app = express();
 
 app.set("port", process.env.PORT || 5000);
 
-app.use(morgan("dev", {
-	skip: req => req.originalUrl.includes("/static/"),
-}));
+morgan.token("date", () => moment().format("hh:mm:ss"));
+
+app.use(morgan(
+	":date :status :method :url :response-time ms",
+	{ skip: req => req.originalUrl.includes(".css") || req.originalUrl.includes(".ico") },
+));
 
 app.use(express.static(path.join(__dirname, "client/build")));
 
 // Body parser
 app.use(express.json());
 
-app.post("/api/auth/register/", auth.register);
+app.post("/api/auth/register", auth.register);
 
-app.post("/api/auth/login/", auth.login);
+app.post("/api/auth/login", auth.login);
 
 app.get("/api/auth/apps", auth.getApps);
 
@@ -74,9 +78,11 @@ app.get("/api/crypto", crypto.getCoins);
 
 app.get("/api/crypto/:coins", crypto.getPrices);
 
-app.get("/api/reddit/subreddits/", reddit.getSubreddits);
+app.get("/api/reddit", reddit.getSubreddits);
 
-app.get("/api/reddit/subreddits/:subreddit/:category/", reddit.getPosts);
+app.get("/api/reddit/:subreddit/:category", reddit.getPosts);
+
+app.get("/api/reddit/:subreddit/search/:search", reddit.getSearch);
 
 app.get("/api/youtube/subscriptions/", youtube.getSubscriptions);
 

@@ -10,11 +10,18 @@ import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
 import Typography from "@material-ui/core/Typography";
+import List from "@material-ui/core/List";
+import ListItem from "@material-ui/core/ListItem";
+import Chip from "@material-ui/core/Chip";
 
-import { getPosts } from "../../api/reddit";
+import CustomScrollbar from "../.partials/CustomScrollbar";
+
+import { getPosts, getSearch } from "../../api/reddit";
 import { formatDate } from "../../utils/utils";
 
 import { reddit as styles } from "../../styles/Widgets";
+
+import redditGold from "../../img/gold_reddit.png";
 
 class Reddit extends Component {
 	constructor() {
@@ -26,6 +33,7 @@ class Reddit extends Component {
 			open: false,
 			showInfo: true,
 			expandedView: false,
+			showListView: true,
 		};
 
 		this.handleShowPreviousPost = this.handleShowPreviousPost.bind(this);
@@ -35,19 +43,30 @@ class Reddit extends Component {
 
 		this.handleCloseExpandedView = this.handleCloseExpandedView.bind(this);
 		this.handleOpenExpandedView = this.handleOpenExpandedView.bind(this);
+
+		this.handleShowListView = this.handleShowListView.bind(this);
+		this.handleCheckPost = this.handleCheckPost.bind(this);
 	}
 
 	async componentDidMount() {
-		const { subreddit } = this.props;
+		const { subreddit, search, listView } = this.props;
 
-		await this.getPosts(subreddit);
+		await this.getPosts(subreddit, search, listView);
 	}
 
-	async getPosts(subreddit) {
-		const response = await getPosts(subreddit);
+	async getPosts(subreddit, search, listView) {
+		let response = null;
+
+		if (search) {
+			response = await getSearch(subreddit, search);
+		} else {
+			response = await getPosts(subreddit);
+		}
 
 		if (response.data) {
-			this.setState({ posts: response.data, open: true });
+			response.data = response.data.filter(post => !post.stickied);
+
+			this.setState({ posts: response.data, open: true, showListView: listView });
 		}
 	}
 
@@ -73,7 +92,6 @@ class Reddit extends Component {
 		if (num < posts.length - 1) this.setState({ num: num + 1 });
 	}
 
-
 	handleShowInfo() {
 		this.setState({ showInfo: true });
 	}
@@ -90,8 +108,57 @@ class Reddit extends Component {
 		this.setState({ expandedView: true });
 	}
 
+	handleShowListView() {
+		this.setState({ showListView: true });
+	}
+
+	handleCheckPost(position) {
+		this.setState({ showListView: false, num: position });
+	}
+
+	renderListView() {
+		const { classes, subreddit } = this.props;
+		const { open, posts } = this.state;
+
+		const postsList = posts.map((post, index) => (
+			<ListItem key={post.id} button divider onClick={() => this.handleCheckPost(index)}>
+				<Box display="flex" flex="1 1 auto" minWidth={0} flexDirection="column">
+					<Typography display="block" variant="caption">
+						{formatDate(post.created * 1000, null, true)}
+					</Typography>
+					<Box display="flex">
+						<Box display="flex" flexGrow={1} alignItems="center">
+							<Typography display="block" title={post.title} variant="body1">
+								{post.title}
+							</Typography>
+						</Box>
+						{post.gilded > 0 ? (<Box display="flex" p={1}> <img src={redditGold} height={16} width={16} alt="reddit gold" /> </Box>) : null}
+					</Box>
+					<Box display="flex" flexWrap="wrap" className={classes.flairs}>
+						{post.flairs.map(flair => <Chip key={flair} size="small" label={flair} />)}
+					</Box>
+				</Box>
+			</ListItem>
+		));
+
+		return (
+			<Zoom in={open}>
+				<Box display="flex" flexDirection="column" className={classes.singleWrapper}>
+					<Box display="flex" className={classes.singleHeader} alignItems="center">
+						<Typography variant="subtitle1"> {`r/${subreddit}`} </Typography>
+					</Box>
+					<Box display="flex" flexGrow={1} className={classes.singleContent}>
+						<CustomScrollbar>
+							<List> {postsList} </List>
+						</CustomScrollbar>
+					</Box>
+				</Box>
+			</Zoom>
+		);
+	}
+
 	// eslint-disable-next-line max-lines-per-function,complexity
-	render() {
+	renderSingleView() {
 		const { classes } = this.props;
 		const { posts, num, open, showInfo, expandedView } = this.state;
 
@@ -241,9 +308,9 @@ class Reddit extends Component {
 							BackdropProps={{ invisible: true }}
 						>
 							<Fade in={expandedView}>
-								<Card variant="outlined" className={classes.expandedView} onClick={this.handleCloseExpandedView}>
+								<div className={classes.expandedView} onClick={this.handleCloseExpandedView}>
 									{expandedContent}
-								</Card>
+								</div>
 							</Fade>
 						</Modal>
 						<Box
@@ -262,15 +329,19 @@ class Reddit extends Component {
 								display="flex"
 								flex="1"
 								justifyContent="center"
+								alignItems="center"
 								onClick={this.handleShowPreviousPost}
-								className={classes.arrowsBorder}
 							>
 								<i className="icofont-caret-left" />
+							</Box>
+							<Box display="flex" onClick={this.handleShowListView} className={classes.header}>
+								<i className="icofont-listing-box" />
 							</Box>
 							<Box
 								display="flex"
 								flex="1"
 								justifyContent="center"
+								alignItems="center"
 								onClick={this.handleShowNextPost}
 							>
 								<i className="icofont-caret-right" />
@@ -281,11 +352,21 @@ class Reddit extends Component {
 			</Zoom>
 		);
 	}
+
+	render() {
+		const { posts, showListView } = this.state;
+
+		if (!posts || !posts.length) return null;
+
+		return (showListView ? this.renderListView() : this.renderSingleView());
+	}
 }
 
 Reddit.propTypes = {
 	classes: PropTypes.object.isRequired,
 	subreddit: PropTypes.string.isRequired,
+	search: PropTypes.string,
+	listView: PropTypes.bool,
 };
 
 export default withStyles(styles)(Reddit);

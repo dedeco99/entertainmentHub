@@ -53,6 +53,7 @@ const reddit = {
 	media: {
 		width: "100%",
 		height: "100%",
+		objectFit: "contain",
 	},
 	overlay: {
 		position: "absolute",
@@ -109,9 +110,6 @@ const reddit = {
 			},
 		},
 	},
-	arrowsBorder: {
-		borderRight: "1px solid #212121",
-	},
 	widthFix: {
 		width: "100%",
 	},
@@ -121,15 +119,38 @@ const reddit = {
 		justifyContent: "center",
 	},
 	expandedView: {
-		backgroundColor: "#212121",
 		height: "80%",
-		width: "auto",
-		maxWidth: "90%",
+		width: "90%",
 		outline: "none",
 		"& img": {
 			objectFit: "contain",
 			height: "100%",
-			maxWidth: "100%",
+			width: "100%",
+		},
+	},
+	header: {
+		borderLeft: "1px solid #212121",
+		borderRight: "1px solid #212121",
+		"& i": {
+			fontSize: "1.1rem",
+		},
+	},
+	singleWrapper: {
+		backgroundColor: "#212121",
+		width: "100%",
+		height: "100%",
+	},
+	singleHeader: {
+		backgroundColor: "#424242",
+		padding: "8px 16px",
+	},
+	singleContent: {
+		overflow: "auto",
+	},
+	flairs: {
+		"& div": {
+			marginRight: 5,
+			marginBottom: 5,
 		},
 	},
 };
