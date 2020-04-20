@@ -7,7 +7,7 @@ class Apps extends Component {
 	componentDidMount() {
 		const { history } = this.props;
 		const platform = history.location.pathname.split("/")[2];
-		const code = history.location.search.split("code=")[1];
+		const code = history.location.search.split("code=")[1].split("&")[0];
 
 		addApp(platform, code);
 	}

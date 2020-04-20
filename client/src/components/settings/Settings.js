@@ -12,7 +12,7 @@ import { getApps, deleteApp } from "../../api/auth";
 
 import reddit from "../../img/reddit.png";
 import twitch from "../../img/twitch.png";
-import youtube from "../../img/youtube.png";
+import google from "../../img/youtube.png";
 import tv from "../../img/tv.png";
 
 import { settings as styles } from "../../styles/Header";
@@ -44,16 +44,16 @@ class Settings extends Component {
 						&redirect_uri=http://localhost:3000/apps/twitch
 						&scope=user_read`,
 				},
-				youtube: {
+				google: {
 					active: false,
-					key: "youtube",
+					key: "google",
 					displayName: "Youtube",
 					link: `https://accounts.google.com/o/oauth2/v2/auth
 						?redirect_uri=http://localhost:3000/apps/google
 						&prompt=consent
 						&access_type=offline
 						&response_type=code
-						&client_id=769835198677-vn6mkg9odjt6p08a2ph0jslssdgbtnaj.apps.googleusercontent.com
+						&client_id=539994951120-kabifq9ct2lbk92m9ef4hddc5f57nksl.apps.googleusercontent.com
 						&scope=https://www.googleapis.com/auth/youtube.readonly`,
 				},
 				tv: {
@@ -102,7 +102,7 @@ class Settings extends Component {
 		const images = {
 			reddit,
 			twitch,
-			youtube,
+			google,
 			tv,
 		};
 

@@ -101,7 +101,7 @@ async function addApp(event) {
 			json = res.data;
 			break;
 		}
-		case "youtube": {
+		case "google": {
 			const url = `https://www.googleapis.com/oauth2/v4/token?client_id=${process.env.googleClientId}&client_secret=${process.env.googleSecret}&code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/google`;
 
 			const res = await api({ method: "post", url });
