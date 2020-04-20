@@ -311,9 +311,9 @@ class Reddit extends Component {
 							BackdropProps={{ invisible: true }}
 						>
 							<Fade in={expandedView}>
-								<Card variant="outlined" className={classes.expandedView} onClick={this.handleCloseExpandedView}>
+								<div className={classes.expandedView} onClick={this.handleCloseExpandedView}>
 									{expandedContent}
-								</Card>
+								</div>
 							</Fade>
 						</Modal>
 						<Box

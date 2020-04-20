@@ -53,6 +53,7 @@ const reddit = {
 	media: {
 		width: "100%",
 		height: "100%",
+		objectFit: "contain",
 	},
 	overlay: {
 		position: "absolute",
@@ -118,19 +119,13 @@ const reddit = {
 		justifyContent: "center",
 	},
 	expandedView: {
-		display: "inline-block",
-		backgroundColor: "#212121",
 		height: "80%",
-		maxHeight: "80%",
-		width: "auto",
-		maxWidth: "90%",
+		width: "90%",
 		outline: "none",
 		"& img": {
-			display: "block",
 			objectFit: "contain",
-			maxHeight: "100%",
-			maxWidth: "100%",
-			minWidth: 0,
+			height: "100%",
+			width: "100%",
 		},
 	},
 	header: {
