@@ -28,6 +28,22 @@ import goBackUp from "../img/go_back_up.png";
 import { createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
 
+const theme = createMuiTheme({
+	palette: {
+		type: "dark",
+	},
+	overrides: {
+		MuiButton: {
+			contained: {
+				backgroundColor: "white",
+				"& span": {
+					color: "black !important",
+				},
+			},
+		},
+	},
+});
+
 class App extends Component {
 	constructor() {
 		super();
@@ -111,7 +127,7 @@ class App extends Component {
 
 	render() {
 		return (
-			<ThemeProvider theme={createMuiTheme({ palette: { type: "dark" } })}>
+			<ThemeProvider theme={theme}>
 				<BrowserRouter>
 					<div className="App">
 						<Header />
