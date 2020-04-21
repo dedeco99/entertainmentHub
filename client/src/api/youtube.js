@@ -22,7 +22,7 @@ async function addChannels(channels) {
 	const res = await api({
 		method: "post",
 		url: "api/youtube/channels",
-		data: channels,
+		data: { channels },
 		message: true,
 	});
 

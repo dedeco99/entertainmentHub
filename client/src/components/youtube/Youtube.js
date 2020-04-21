@@ -1,58 +1,66 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/styles";
-import { youtube as styles } from "../../styles/Youtube";
 
 import IconButton from "@material-ui/core/IconButton";
-import Modal from "@material-ui/core/Modal";
-import Backdrop from "@material-ui/core/Backdrop";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
-import ListItemText from "@material-ui/core/ListItemText";
-import ListItemAvatar from "@material-ui/core/ListItemAvatar";
-import Checkbox from "@material-ui/core/Checkbox";
-import Avatar from "@material-ui/core/Avatar";
-import Fade from "@material-ui/core/Fade";
-import Paper from "@material-ui/core/Paper";
-import Box from "@material-ui/core/Box";
-import Button from "@material-ui/core/Button";
+import Grid from "@material-ui/core/Grid";
 
-import { getSubscriptions } from "../../api/youtube";
+import Sidebar from "../.partials/Sidebar";
+import Subscriptions from "./Subscriptions";
+
+import { getChannels, addChannels, deleteChannel } from "../../api/youtube";
+
+import { youtube as styles } from "../../styles/Youtube";
 
 class Youtube extends Component {
 	constructor() {
 		super();
 
 		this.state = {
-			subscriptions: [],
-			checkedChannels: [],
+			channels: [],
 			openModal: false,
-
-			page: 0,
-			after: null,
 		};
 
-		this.getSubscriptions = this.getSubscriptions.bind(this);
+		this.addChannels = this.addChannels.bind(this);
+		this.deleteChannel = this.deleteChannel.bind(this);
 
 		this.handleOpenModal = this.handleOpenModal.bind(this);
 		this.handleCloseModal = this.handleCloseModal.bind(this);
-		this.handleSubscriptionCheckbox = this.handleSubscriptionCheckbox.bind(this);
 	}
 
 	async componentDidMount() {
-		await this.getSubscriptions();
+		await this.getChannels();
 	}
 
-	async getSubscriptions() {
-		const { subscriptions, page, after } = this.state;
-
-		const response = await getSubscriptions(after);
+	async getChannels() {
+		const response = await getChannels();
 
 		if (response.data && response.data.length) {
-			const newSubscriptions = page === 0 ? response.data : subscriptions.concat(response.data);
+			this.setState({ channels: response.data });
+		}
+	}
 
-			this.setState({ subscriptions: newSubscriptions, page: page + 1, after: response.data[0].after });
+	async addChannels(channels) {
+		const response = await addChannels(channels);
+
+		if (response.status < 400) {
+			this.setState(prevState => ({
+				channels: [...prevState.channels, ...response.data].sort((a, b) => (
+					a.displayName <= b.displayName ? -1 : 1
+				)),
+			}));
+		}
+	}
+
+	async deleteChannel(e) {
+		const { channels } = this.state;
+
+		const response = await deleteChannel(e.target.id);
+
+		if (response.status < 400) {
+			const updatedChannels = channels.filter(s => s._id !== response.data._id);
+
+			this.setState({ channels: updatedChannels });
 		}
 	}
 
@@ -64,75 +72,34 @@ class Youtube extends Component {
 		this.setState({ openModal: false });
 	}
 
-	handleSubscriptionCheckbox(channelId) {
-		const { checkedChannels } = this.state;
-		const currentIndex = checkedChannels.indexOf(channelId);
-		const newChecked = [...checkedChannels];
-
-		if (currentIndex === -1) {
-			newChecked.push(channelId);
-		} else {
-			newChecked.splice(currentIndex, 1);
-		}
-
-		this.setState({ checkedChannels: newChecked });
-	}
-
-	renderSubscriptionsList() {
-		const { classes } = this.props;
-		const { subscriptions, checkedChannels } = this.state;
-
-		return (
-			<List className={classes.root}>
-				{subscriptions.map(channel => {
-					const labelId = `checkbox-list-secondary-label-${channel.channelId}`;
-					return (
-						<ListItem key={channel.channelId} button onClick={() => this.handleSubscriptionCheckbox(channel.channelId)}>
-							<ListItemAvatar> <Avatar alt={channel.title} src={channel.logo} /> </ListItemAvatar>
-							<ListItemText id={labelId} primary={channel.displayName} />
-							<ListItemSecondaryAction>
-								<Checkbox
-									edge="end"
-									onChange={() => this.handleSubscriptionCheckbox(channel.channelId)}
-									checked={checkedChannels.indexOf(channel.channelId) !== -1}
-									inputProps={{ "aria-labelledby": labelId }}
-								/>
-							</ListItemSecondaryAction>
-						</ListItem>
-					);
-				})}
-			</List>
-		);
-	}
-
 	render() {
-		const { classes } = this.props;
 		const { openModal } = this.state;
+		const { loadingChannels, channels } = this.state;
+
+		const menuOptions = [{ displayName: "Delete", onClick: this.deleteChannel }];
 
 		return (
-			<div>
-				<IconButton onClick={this.handleOpenModal}>
-					<i className="icofont-ui-add" />
-				</IconButton>
-				<Modal
-					className={classes.modal}
+			<Grid container spacing={2}>
+				<Grid item sm={3} md={2}>
+					<IconButton onClick={this.handleOpenModal}>
+						<i className="icofont-ui-add" />
+					</IconButton>
+					<Sidebar
+						options={channels}
+						idField="_id"
+						menu={menuOptions}
+						loading={loadingChannels}
+						noResultsMessage={"No channels"}
+					/>
+				</Grid>
+				<Grid item sm={9} md={10} lg={10} />
+				<Subscriptions
 					open={openModal}
 					onClose={this.handleCloseModal}
-					closeAfterTransition
-					BackdropComponent={Backdrop}
-				>
-					<Fade in={openModal}>
-						<Paper variant="outlined" className={classes.modalContent}>
-							<Box display="flex" flexGrow={1} style={{ overflow: "auto" }}>
-								{this.renderSubscriptionsList()}
-							</Box>
-							<Box display="flex" justifyContent="flex-end" className={classes.modalFooter}>
-								<Button variant="contained">{"Submit"}</Button>
-							</Box>
-						</Paper>
-					</Fade>
-				</Modal>
-			</div>
+					channels={channels}
+					addChannels={this.addChannels}
+				/>
+			</Grid>
 		);
 	}
 }

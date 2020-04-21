@@ -74,18 +74,22 @@ async function addChannels(event) {
 		const { channelId, displayName, image } = channel;
 
 		if (channelId && displayName) {
-			channelsToAdd.push(new Channel({
-				user: user._id,
-				channelId,
-				displayName,
-				image,
-			}));
+			const channelExists = await Channel.findOne({ user: user._id, channelId }).lean();
+
+			if (!channelExists) {
+				channelsToAdd.push(new Channel({
+					user: user._id,
+					channelId,
+					displayName,
+					image,
+				}));
+			}
 		}
 	}
 
 	await Channel.insertMany(channelsToAdd);
 
-	return response(200, "Channels created", channels);
+	return response(200, "Channels created", channelsToAdd);
 }
 
 async function deleteChannel(event) {
