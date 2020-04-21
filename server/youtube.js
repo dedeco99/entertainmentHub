@@ -35,7 +35,7 @@ async function getSubscriptions(event) {
 
 	const accessToken = await getAccessToken(user);
 
-	let url = "https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&maxResults=50";
+	let url = "https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&maxResults=25";
 	if (after) url += `&pageToken=${after}`;
 
 	const headers = {
@@ -48,7 +48,7 @@ async function getSubscriptions(event) {
 	const channels = json.items.map(channel => ({
 		channelId: channel.snippet.resourceId.channelId,
 		displayName: channel.snippet.title,
-		logo: channel.snippet.thumbnails.high.url,
+		logo: channel.snippet.thumbnails.default.url,
 		after: json.nextPageToken,
 	}));
 

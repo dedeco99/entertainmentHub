@@ -28,7 +28,12 @@ class Youtube extends Component {
 			subscriptions: [],
 			checkedChannels: [],
 			openModal: false,
+
+			page: 0,
+			after: null,
 		};
+
+		this.getSubscriptions = this.getSubscriptions.bind(this);
 
 		this.handleOpenModal = this.handleOpenModal.bind(this);
 		this.handleCloseModal = this.handleCloseModal.bind(this);
@@ -40,10 +45,14 @@ class Youtube extends Component {
 	}
 
 	async getSubscriptions() {
-		const response = await getSubscriptions();
+		const { subscriptions, page, after } = this.state;
 
-		if (response.data) {
-			this.setState({ subscriptions: response.data });
+		const response = await getSubscriptions(after);
+
+		if (response.data && response.data.length) {
+			const newSubscriptions = page === 0 ? response.data : subscriptions.concat(response.data);
+
+			this.setState({ subscriptions: newSubscriptions, page: page + 1, after: response.data[0].after });
 		}
 	}
 
@@ -114,7 +123,7 @@ class Youtube extends Component {
 				>
 					<Fade in={openModal}>
 						<Paper variant="outlined" className={classes.modalContent}>
-							<Box display="flex" flexGrow={1} style={{overflow: "auto"}}>
+							<Box display="flex" flexGrow={1} style={{ overflow: "auto" }}>
 								{this.renderSubscriptionsList()}
 							</Box>
 							<Box display="flex" justifyContent="flex-end" className={classes.modalFooter}>
