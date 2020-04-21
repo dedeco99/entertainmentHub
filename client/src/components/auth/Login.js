@@ -28,7 +28,7 @@ class Login extends Component {
 		const response = await login({ email, password });
 
 		if (response.status < 400) {
-			localStorage.setItem("user", response.data.user);
+			localStorage.setItem("user", JSON.stringify(response.data.user));
 			localStorage.setItem("token", response.data.token);
 
 			window.location.replace("/");

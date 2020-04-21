@@ -4,6 +4,19 @@ import PropTypes from "prop-types";
 import { Scrollbars } from "react-custom-scrollbars";
 
 class CustomScrollbar extends Component {
+
+	constructor() {
+		super();
+		this.state = {
+			useCustom: true,
+		};
+	}
+
+	componentDidMount() {
+		const user = JSON.parse(localStorage.getItem("user"));
+		this.setState({ useCustom: user.settings.useCustomScrollbar })
+	}
+
 	renderThumb({ style, ...props }) {
 		const thumbStyle = { backgroundColor: "#212121", width: 8 };
 		return <div style={{ ...style, ...thumbStyle }} {...props} />;
@@ -23,16 +36,20 @@ class CustomScrollbar extends Component {
 	}
 
 	render() {
+		const { useCustom } = this.state;
 		const { children } = this.props;
 
-		return (
-			<Scrollbars
-				renderThumbVertical={this.renderThumb}
-				renderTrackVertical={this.renderTrack}
-			>
-				{ children }
-			</Scrollbars>
-		);
+		if (useCustom) {
+			return (
+				<Scrollbars
+					renderThumbVertical={this.renderThumb}
+					renderTrackVertical={this.renderTrack}
+				>
+					{ children }
+				</Scrollbars>
+			);
+		}
+		return <div style={{ width: "100%" }}> {children} </div>
 	}
 }
 

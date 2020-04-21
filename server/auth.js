@@ -53,7 +53,7 @@ async function login(event) {
 			const newToken = new Token({ user: user._id, token: generateToken(60) });
 			await newToken.save();
 
-			return response(200, "Login successful", { user: user.id, token: newToken.token });
+			return response(200, "Login successful", { user: { id: user.id, settings: user.settings }, token: newToken.token });
 		}
 
 		return response(401, "Password is incorrect");
