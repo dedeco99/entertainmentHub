@@ -1,15 +1,15 @@
 import { api } from "../utils/request";
 
-async function editSettings(settings) {
+async function editUser(user) {
 	const res = await api({
 		method: "put",
-		url: "api/settings",
-		data: settings,
+		url: "api/users",
+		data: user,
 	});
 
 	return res;
 }
 
 export {
-	editSettings,
+	editUser,
 };

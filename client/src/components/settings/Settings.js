@@ -14,7 +14,7 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 
 import { getApps, deleteApp } from "../../api/auth";
-import { editSettings } from "../../api/settings";
+import { editUser } from "../../api/users";
 
 import reddit from "../../img/reddit.png";
 import twitch from "../../img/twitch.png";
@@ -86,18 +86,20 @@ class Settings extends Component {
 
 	getSettings() {
 		const user = JSON.parse(localStorage.getItem("user"));
-		this.setState({ settings: user.settings });
+
+		this.setState({ settings: user.settings || {} });
 	}
 
 	async handleSubmitSettings() {
 		const { settings } = this.state;
 
-		const response = await editSettings(settings);
+		const response = await editUser({ settings });
 
-		const user = JSON.parse(localStorage.getItem("user"));
-		user.settings = response.data;
-		localStorage.setItem("user", JSON.stringify(user));
-		window.location.replace("/settings");
+		if (response.data) {
+			localStorage.setItem("user", JSON.stringify(response.data));
+
+			window.location.replace("/settings");
+		}
 	}
 
 	async getApps() {
@@ -125,7 +127,9 @@ class Settings extends Component {
 
 	handleChangeScrollbar() {
 		const { settings } = this.state;
+
 		settings.useCustomScrollbar = !settings.useCustomScrollbar;
+
 		this.setState({ settings });
 	}
 
@@ -173,6 +177,7 @@ class Settings extends Component {
 	renderSettings() {
 		const { settings } = this.state;
 		const { classes } = this.props;
+
 		return (
 			<div className={classes.settingsContainer}>
 				<Typography variant="h4"> {"Change settings"} </Typography>
@@ -194,6 +199,7 @@ class Settings extends Component {
 
 	renderContent() {
 		const { selectedMenu } = this.state;
+
 		switch (selectedMenu) {
 			case 0:
 				return this.renderApps();

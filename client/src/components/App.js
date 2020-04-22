@@ -45,6 +45,7 @@ class App extends Component {
 
 		socket.on("connect", () => {
 			const user = JSON.parse(localStorage.getItem("user"));
+
 			socket.emit("bind", user);
 		});
 
