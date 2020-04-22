@@ -36,6 +36,15 @@ const settings = () => ({
 		color: "white",
 		fontSize: "2em",
 	},
+	settingsContainer: {
+		display: "flex",
+		flexDirection: "column",
+		padding: 16,
+		backgroundColor: "#212121",
+		"& button": {
+			alignSelf: "flex-end",
+		},
+	},
 });
 
 const appMenu = () => ({

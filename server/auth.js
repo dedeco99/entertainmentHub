@@ -44,7 +44,7 @@ async function login(event) {
 	const { body } = event;
 	const { email, password } = body;
 
-	const user = await User.findOne({ email });
+	const user = await User.findOne({ email }).lean();
 
 	if (user) {
 		const isPassword = await bcrypt.compare(password, user.password);
@@ -53,7 +53,9 @@ async function login(event) {
 			const newToken = new Token({ user: user._id, token: generateToken(60) });
 			await newToken.save();
 
-			return response(200, "Login successful", { user: user.id, token: newToken.token });
+			delete user.password;
+
+			return response(200, "Login successful", { user, token: newToken.token });
 		}
 
 		return response(401, "Password is incorrect");
