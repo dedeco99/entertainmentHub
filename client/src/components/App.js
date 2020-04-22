@@ -60,7 +60,14 @@ class App extends Component {
 		const socket = socketio("http://localhost:5000", { transports: ["websocket"] });
 
 		socket.on("connect", () => {
-			const user = localStorage.getItem("user");
+			let user = null;
+			try {
+				user = JSON.parse(localStorage.getItem("user"));
+			} catch (err) {
+				user = localStorage.getItem("user");
+			}
+
+
 			socket.emit("bind", user);
 		});
 

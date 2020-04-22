@@ -204,7 +204,7 @@ class Notifications extends Component {
 							</IconButton>
 						</Box>
 					</Box>
-					<Box display="flex" flexGrow={1}>
+					<Box display="flex" flexGrow={1} style={{ overflow: "auto" }}>
 						<CustomScrollbar>
 							<List> {this.renderNotificationList()} </List>
 						</CustomScrollbar>
