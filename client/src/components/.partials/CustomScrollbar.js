@@ -12,7 +12,12 @@ class CustomScrollbar extends Component {
 	}
 
 	componentDidMount() {
-		let user = JSON.parse(localStorage.getItem("user"));
+		let user = null;
+		try {
+			user = JSON.parse(localStorage.getItem("user"));
+		} catch (err) {
+			user = localStorage.getItem("user");
+		}
 
 		this.setState({ useCustom: user.settings ? user.settings.useCustomScrollbar : false })
 	}

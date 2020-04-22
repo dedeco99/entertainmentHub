@@ -85,7 +85,13 @@ class Settings extends Component {
 	}
 
 	getSettings() {
-		const user = JSON.parse(localStorage.getItem("user"));
+		let user = null;
+		try {
+			user = JSON.parse(localStorage.getItem("user"));
+		} catch (err) {
+			user = localStorage.getItem("user");
+		}
+
 
 		this.setState({ settings: user.settings || {} });
 	}
