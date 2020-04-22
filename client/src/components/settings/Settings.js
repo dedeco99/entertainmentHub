@@ -8,8 +8,10 @@ import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
+import FormControl from "@material-ui/core/FormControl";
 import Checkbox from "@material-ui/core/Checkbox";
 import Button from "@material-ui/core/Button";
+import Typography from "@material-ui/core/Typography";
 
 import { getApps, deleteApp } from "../../api/auth";
 import { editSettings } from "../../api/settings";
@@ -72,9 +74,9 @@ class Settings extends Component {
 			settings: {},
 		};
 
-		this.handleSettingsClick = this.handleSettingsClick.bind(this);
-		this.changeScrollbar = this.changeScrollbar.bind(this);
-		this.editSettings = this.editSettings.bind(this);
+		this.handleListClick = this.handleListClick.bind(this);
+		this.handleChangeScrollbar = this.handleChangeScrollbar.bind(this);
+		this.handleSubmitSettings = this.handleSubmitSettings.bind(this);
 	}
 
 	componentDidMount() {
@@ -87,7 +89,7 @@ class Settings extends Component {
 		this.setState({ settings: user.settings });
 	}
 
-	async editSettings() {
+	async handleSubmitSettings() {
 		const { settings } = this.state;
 
 		const response = await editSettings(settings);
@@ -116,11 +118,11 @@ class Settings extends Component {
 		await deleteApp(e.target.id);
 	}
 
-	handleSettingsClick() {
-		this.setState({ selectedMenu: 0 });
+	handleListClick(index) {
+		this.setState({ selectedMenu: index });
 	}
 
-	changeScrollbar() {
+	handleChangeScrollbar() {
 		const { settings } = this.state;
 		settings.useCustomScrollbar = !settings.useCustomScrollbar;
 		this.setState({ settings });
@@ -157,9 +159,53 @@ class Settings extends Component {
 		);
 	}
 
+	renderApps() {
+		const { apps } = this.state;
+
+		return (
+			<Grid container spacing={2}>
+				{Object.keys(apps).map(app => this.renderApp(apps[app]))}
+			</Grid>
+		);
+	}
+
+	renderSettings() {
+		const { settings } = this.state;
+		const { classes } = this.props;
+		return (
+			<div className={classes.settingsContainer}>
+				<Typography variant="h4"> {"Change settings"} </Typography>
+				<FormControl margin="normal">
+					<FormControlLabel
+						control={
+							<Checkbox
+								checked={settings.useCustomScrollbar || false}
+								onChange={this.handleChangeScrollbar}
+							/>
+						}
+						label="Use custom scrollbar"
+					/>
+				</FormControl>
+				<Button variant="contained" onClick={this.handleSubmitSettings}> {"Apply"} </Button>
+			</div>
+		);
+	}
+
+	renderContent() {
+		const { selectedMenu } = this.state;
+		switch (selectedMenu) {
+			case 0:
+				return this.renderApps();
+			case 1:
+				return this.renderSettings();
+			default:
+				return null;
+		}
+	}
+
 	render() {
 		const { classes } = this.props;
-		const { apps, selectedMenu, settings } = this.state;
+		const { selectedMenu } = this.state;
 
 		return (
 			<div>
@@ -169,28 +215,29 @@ class Settings extends Component {
 							<ListItem
 								button
 								selected={selectedMenu === 0}
-								onClick={this.handleSettingsClick}
+								onClick={() => this.handleListClick(0)}
 							>
 								<ListItemIcon>
 									<i className={`material-icons ${classes.appIcon}`}>{"apps"}</i>
 								</ListItemIcon>
 								<ListItemText primary="Apps" />
 							</ListItem>
+							<ListItem
+								button
+								selected={selectedMenu === 1}
+								onClick={() => this.handleListClick(1)}
+							>
+								<ListItemIcon>
+									<i className={`material-icons ${classes.appIcon}`}>{"settings"}</i>
+								</ListItemIcon>
+								<ListItemText primary="Settings" />
+							</ListItem>
 						</List>
 					</Grid>
 					<Grid item xs={12} sm={8} md={9} lg={10}>
-						<Grid container spacing={2}>
-							{Object.keys(apps).map(app => this.renderApp(apps[app]))}
-						</Grid>
+						{this.renderContent()}
 					</Grid>
 				</Grid >
-				<div style={{ marginTop: 10, padding: 16, backgroundColor: "#212121" }}>
-					<FormControlLabel
-						control={<Checkbox checked={settings.useCustomScrollbar || false} onChange={this.changeScrollbar} />}
-						label="Use custom scrollbar"
-					/>
-					<Button onClick={this.editSettings}> {"Save"} </Button>
-				</div>
 			</div>
 		);
 	}
