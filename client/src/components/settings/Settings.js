@@ -97,6 +97,7 @@ class Settings extends Component {
 		const user = JSON.parse(localStorage.getItem("user"));
 		user.settings = response.data;
 		localStorage.setItem("user", JSON.stringify(user));
+		window.location.replace("/settings");
 	}
 
 	async getApps() {
