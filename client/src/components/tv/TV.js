@@ -19,7 +19,6 @@ import loadingGif from "../../img/loading3.gif";
 import { tv as styles } from "../../styles/TV";
 
 import { withRouter } from "react-router";
-import { parseQuery, stringifyQuery } from "../../utils/utils";
 
 class TV extends Component {
 	constructor() {
@@ -73,30 +72,41 @@ class TV extends Component {
 	}
 
 	applyUrlFilters() {
-		const { location } = this.props;
-		const query = parseQuery(location.search);
-		if (query.series) {
-			if (query.season) {
-				this.getSeasons(query.series, parseInt(query.season, 10));
-			} else {
-				this.getSeasons(query.series);
-			}
+		const { match } = this.props;
+		switch (match.path) {
+			case "/tv/all":
+				this.handleShowAllBlock();
+				break;
+			case "/tv/popular":
+				this.handleShowPopularBlock();
+				break;
+			case "/tv/:seriesId":
+				this.getSeasons(match.params.seriesId);
+				break;
+			case "/tv/:seriesId/:season":
+				this.getSeasons(match.params.seriesId, parseInt(match.params.season, 10));
+				break;
+			default:
+				break;
 		}
 
-		this.setState({ queryObj: query });
+		this.setState({ queryObj: match.params });
 	}
 
 	updateUrlFilter(queryObj) {
-		const { location, history } = this.props;
-		history.replace({
-			pathname: location.pathname,
-			search: stringifyQuery(queryObj),
-		});
+		const { history } = this.props;
+		if (queryObj.seriesId) {
+			if (queryObj.season >= 0) {
+				history.push(`/tv/${queryObj.seriesId}/${queryObj.season}`);
+			} else {
+				history.push(`/tv/${queryObj.seriesId}`);
+			}
+		}
 	}
 
 	updateSeriesPath(series) {
 		const { queryObj } = this.state;
-		queryObj.series = series;
+		queryObj.seriesId = series;
 		this.setState({ queryObj });
 		this.updateUrlFilter(queryObj);
 	}
@@ -232,6 +242,8 @@ class TV extends Component {
 	}
 
 	handleShowPopularBlock() {
+		const { history } = this.props;
+		history.push("/tv/popular");
 		this.setState({
 			popular: [],
 			popularPage: 0,
@@ -243,6 +255,8 @@ class TV extends Component {
 	}
 
 	handleShowAllBlock() {
+		const { history } = this.props;
+		history.push("/tv/all");
 		this.setState({
 			episodes: [],
 			allPage: 0,
@@ -386,7 +400,7 @@ class TV extends Component {
 						menu={menuOptions}
 						loading={loadingSeries}
 						noResultsMessage={"No series"}
-						initialSelected={queryObj.series}
+						initialSelected={queryObj.seriesId}
 					/>
 				</Grid>
 				<Grid item sm={9} md={10} lg={10}>
@@ -408,8 +422,8 @@ class TV extends Component {
 
 TV.propTypes = {
 	classes: PropTypes.object.isRequired,
-	location: PropTypes.object.isRequired,
 	history: PropTypes.object.isRequired,
+	match: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(withRouter(TV));

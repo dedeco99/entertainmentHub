@@ -31,7 +31,7 @@ class Categories extends Component {
 			return (
 				<ListItem
 					button
-					selected={(selectedMenu || initialSelected) === option[idField]}
+					selected={(selectedMenu !== initialSelected ? initialSelected : selectedMenu) === option[idField]}
 					onClick={() => this.handleClick(option[idField])}
 					key={option[idField]}
 					id={option[idField]}
