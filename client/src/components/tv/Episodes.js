@@ -95,7 +95,7 @@ class Episodes extends Component {
 	}
 
 	renderSeasons(episodeList) {
-		const { classes, seasons, getEpisodes } = this.props;
+		const { classes, seasons, getEpisodes, selectedSeason } = this.props;
 
 		return (
 			<div>
@@ -104,6 +104,7 @@ class Episodes extends Component {
 					idField="_id"
 					nameField="_id"
 					action={getEpisodes}
+					initialSelected={selectedSeason}
 				/>
 				<br />
 				<Grid container spacing={2} className={classes.episodeListContainer}>
@@ -132,6 +133,7 @@ Episodes.propTypes = {
 	getAll: PropTypes.func.isRequired,
 	allHasMore: PropTypes.bool.isRequired,
 	filterEpisodes: PropTypes.func.isRequired,
+	selectedSeason: PropTypes.number,
 };
 
 export default withStyles(styles)(Episodes);

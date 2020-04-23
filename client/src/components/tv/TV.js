@@ -18,6 +18,9 @@ import loadingGif from "../../img/loading3.gif";
 
 import { tv as styles } from "../../styles/TV";
 
+import { withRouter } from "react-router";
+import { parseQuery, stringifyQuery } from "../../utils/utils";
+
 class TV extends Component {
 	constructor() {
 		super();
@@ -42,6 +45,8 @@ class TV extends Component {
 			loadingSeries: false,
 			loadingPopular: false,
 			loadingAll: false,
+
+			queryObj: {},
 		};
 
 		this.getAll = this.getAll.bind(this);
@@ -64,6 +69,43 @@ class TV extends Component {
 
 	async componentDidMount() {
 		await this.getSeries();
+		this.applyUrlFilters();
+	}
+
+	applyUrlFilters() {
+		const { location } = this.props;
+		const query = parseQuery(location.search);
+		if (query.series) {
+			if (query.season) {
+				this.getSeasons(query.series, parseInt(query.season, 10));
+			} else {
+				this.getSeasons(query.series);
+			}
+		}
+
+		this.setState({ queryObj: query });
+	}
+
+	updateUrlFilter(queryObj) {
+		const { location, history } = this.props;
+		history.replace({
+			pathname: location.pathname,
+			search: stringifyQuery(queryObj),
+		});
+	}
+
+	updateSeriesPath(series) {
+		const { queryObj } = this.state;
+		queryObj.series = series;
+		this.setState({ queryObj });
+		this.updateUrlFilter(queryObj);
+	}
+
+	updateSeasonPath(season) {
+		const { queryObj } = this.state;
+		queryObj.season = season;
+		this.setState({ queryObj });
+		this.updateUrlFilter(queryObj);
 	}
 
 	async getSeries() {
@@ -97,13 +139,16 @@ class TV extends Component {
 		}
 	}
 
-	async getSeasons(series) {
+	async getSeasons(series, selectSeason) {
 		const response = await getSeasons(series);
 
 		if (response.data.length) {
-			this.setState({ seasons: response.data, currentSeries: series, allPage: 0 });
+			this.updateSeriesPath(series);
 
-			this.getEpisodes(response.data[response.data.length - 1]._id);
+			this.setState(
+				{ seasons: response.data, currentSeries: series, allPage: 0 },
+				() => this.getEpisodes(selectSeason >= 0 ? selectSeason : response.data[response.data.length - 1]._id),
+			);
 		}
 	}
 
@@ -113,6 +158,8 @@ class TV extends Component {
 		const foundSeason = seasons.find(s => s._id === season);
 
 		if (foundSeason) {
+			this.updateSeasonPath(season);
+
 			this.setState({
 				episodes: foundSeason.episodes,
 				showSearchBlock: false,
@@ -282,6 +329,7 @@ class TV extends Component {
 			showSearchBlock,
 			showPopularBlock,
 			showEpisodesBlock,
+			queryObj,
 		} = this.state;
 
 		if (showSearchBlock) {
@@ -307,6 +355,7 @@ class TV extends Component {
 					currentSeries={currentSeries}
 					seasons={seasons}
 					episodes={episodes}
+					selectedSeason={parseInt(queryObj.season, 10)}
 					getEpisodes={this.getEpisodes}
 					getAll={this.getAll}
 					allHasMore={allHasMore}
@@ -319,7 +368,7 @@ class TV extends Component {
 	}
 
 	render() {
-		const { loadingSeries, series, currentSeries, showModal } = this.state;
+		const { loadingSeries, series, currentSeries, showModal, queryObj } = this.state;
 
 		const menuOptions = [
 			{ displayName: "Edit", onClick: e => this.handleShowModal(e, "edit") },
@@ -337,6 +386,7 @@ class TV extends Component {
 						menu={menuOptions}
 						loading={loadingSeries}
 						noResultsMessage={"No series"}
+						initialSelected={queryObj.series}
 					/>
 				</Grid>
 				<Grid item sm={9} md={10} lg={10}>
@@ -358,6 +408,8 @@ class TV extends Component {
 
 TV.propTypes = {
 	classes: PropTypes.object.isRequired,
+	location: PropTypes.object.isRequired,
+	history: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(TV);
+export default withStyles(styles)(withRouter(TV));

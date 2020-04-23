@@ -18,7 +18,7 @@ class Sidebar extends Component {
 	constructor() {
 		super();
 		this.state = {
-			selectedMenu: 0,
+			selectedMenu: undefined,
 			anchorEl: null,
 			currentId: null,
 		};
@@ -57,7 +57,7 @@ class Sidebar extends Component {
 	}
 
 	render() {
-		const { options, idField, menu } = this.props;
+		const { options, idField, menu, initialSelected } = this.props;
 		const { selectedMenu, anchorEl, currentId } = this.state;
 
 		let optionsList = this.renderLoading();
@@ -66,7 +66,7 @@ class Sidebar extends Component {
 				return (
 					<ListItem
 						button
-						selected={selectedMenu === option[idField]}
+						selected={(selectedMenu || initialSelected) === option[idField]}
 						onClick={() => this.handleClick(option[idField])}
 						key={option[idField]}
 						id={option[idField]}
