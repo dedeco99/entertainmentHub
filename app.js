@@ -157,10 +157,10 @@ io.sockets.on("connection", socket => {
 });
 
 if (process.env.ENV === "prod") {
-	cron.schedule("0 * * * *", () => {
+	cron.schedule("0,30 * * * *", () => {
 		notifications.cronjob();
+		youtube.cronjob();
 	});
-
 
 	cron.schedule("0 0,8,16 * * *", () => {
 		tv.cronjob();

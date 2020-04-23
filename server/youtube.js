@@ -1,9 +1,10 @@
 const { middleware, response } = require("./middleware");
 const errors = require("./errors");
 const { api } = require("./request");
+const { addNotifications } = require("./notifications");
 
-const Channel = require("./models/channel");
 const App = require("./models/app");
+const Channel = require("./models/channel");
 
 async function getAccessToken(user) {
 	const app = await App.findOne({ user: user._id, platform: "youtube" }).lean();
@@ -108,9 +109,80 @@ async function deleteChannel(event) {
 	return response(200, "Channel deleted", channel);
 }
 
+async function getChannelsPlaylist(channel) {
+	const url = `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${channel}&maxResults=50&key=${process.env.youtubeKey}`;
+
+	const res = await api({ method: "get", url });
+
+	if (res.status === 403) throw errors.youtubeForbidden;
+
+	const json = res.data;
+
+	return json.items;
+}
+
+async function cronjob() {
+	const notificationsToAdd = [];
+	const THREE_HOURS = 60000 * 60 * 3;
+
+	const channels = await Channel.aggregate([
+		{
+			$group: {
+				_id: "$channelId",
+				displayName: { $first: "$displayName" },
+				users: { $push: "$user" },
+			},
+		},
+		{ $sort: { _id: 1 } },
+	]);
+
+	const channelsString = channels.map(channel => channel._id).join(",");
+
+	const playlists = await getChannelsPlaylist(channelsString);
+
+	for (let i = 0; i < playlists.length; i++) {
+		const playlist = playlists[i];
+
+		const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlist.contentDetails.relatedPlaylists.uploads}&maxResults=3&key=${process.env.youtubeKey}`;
+
+		const res = await api({ method: "get", url });
+
+		const json = res.data;
+
+		for (const video of json.items) {
+			// TODO: change to moment diff
+			if (new Date() - new Date(video.snippet.publishedAt) < THREE_HOURS) {
+				const notifications = [];
+				for (const user of channels[i].users) {
+					notifications.push({
+						dateToSend: video.snippet.publishedAt,
+						sent: true,
+						notificationId: `${user}${video.snippet.resourceId.videoId}`,
+						user,
+						type: "youtube",
+						info: {
+							displayName: video.snippet.channelTitle,
+							videoTitle: video.snippet.title,
+							videoId: video.snippet.resourceId.videoId,
+						},
+					});
+				}
+
+				notificationsToAdd.push(addNotifications(notifications));
+			}
+		}
+	}
+
+
+	if (notificationsToAdd.length) await Promise.all(notificationsToAdd);
+
+	return true;
+}
+
 module.exports = {
 	getSubscriptions: (req, res) => middleware(req, res, getSubscriptions, ["token"]),
 	getChannels: (req, res) => middleware(req, res, getChannels, ["token"]),
 	addChannels: (req, res) => middleware(req, res, addChannels, ["token"]),
 	deleteChannel: (req, res) => middleware(req, res, deleteChannel, ["token"]),
+	cronjob,
 };

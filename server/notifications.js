@@ -62,8 +62,10 @@ async function deleteNotification(event) {
 
 async function addNotifications(notifications) {
 	for (const notification of notifications) {
-		const { dateToSend, notificationId, user, type, info } = notification;
-		if (moment(dateToSend).diff(moment(), "days") >= -5) {
+		const { dateToSend, sent, notificationId, user, type, info } = notification;
+
+		// TODO: Add diff to utils
+		if (moment().diff(moment(dateToSend), "days") <= 5) {
 			const notificationExists = await Notification.findOne({
 				user,
 				type,
@@ -73,12 +75,20 @@ async function addNotifications(notifications) {
 			if (!notificationExists) {
 				const newNotification = new Notification({
 					dateToSend,
+					sent,
 					notificationId,
 					user,
 					type,
 					info,
 				});
+
 				newNotification.save();
+
+				if (sent && global.sockets[notification.user]) {
+					for (const socket of global.sockets[notification.user]) {
+						socket.emit("notification", notification);
+					}
+				}
 			}
 		}
 	}
