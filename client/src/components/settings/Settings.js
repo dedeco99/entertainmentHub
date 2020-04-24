@@ -55,11 +55,11 @@ class Settings extends Component {
 					key: "youtube",
 					displayName: "Youtube",
 					link: `https://accounts.google.com/o/oauth2/v2/auth
-						?redirect_uri=http://localhost:3000/apps/google
+						?redirect_uri=http://localhost:3000/apps/youtube
 						&prompt=consent
 						&access_type=offline
 						&response_type=code
-						&client_id=769835198677-vn6mkg9odjt6p08a2ph0jslssdgbtnaj.apps.googleusercontent.com
+						&client_id=539994951120-kabifq9ct2lbk92m9ef4hddc5f57nksl.apps.googleusercontent.com
 						&scope=https://www.googleapis.com/auth/youtube.readonly`,
 				},
 				tv: {

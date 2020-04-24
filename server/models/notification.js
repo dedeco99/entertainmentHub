@@ -9,7 +9,17 @@ const NotificationSchema = new Schema({
 	notificationId: { type: String, unique: true },
 	user: { type: Schema.ObjectId, ref: "User" },
 	type: { type: String, default: "" },
-	info: { type: Object },
+	info: {
+		displayName: { type: String },
+
+		// TV
+		season: { type: Number },
+		number: { type: Number },
+
+		// Youtube
+		videoTitle: { type: String },
+		videoId: { type: String },
+	},
 }, { timestamps: { createdAt: "_created", updatedAt: "_modified" } });
 
 const Notification = mongoose.model("Notification", NotificationSchema);
