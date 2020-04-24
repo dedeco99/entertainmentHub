@@ -7,15 +7,14 @@ const cron = require("node-cron");
 
 const { initialize } = require("./server/database");
 const auth = require("./server/auth");
+const users = require("./server/users");
 const widgets = require("./server/widgets");
 const notifications = require("./server/notifications");
 const weather = require("./server/weather");
 const crypto = require("./server/crypto");
 const reddit = require("./server/reddit");
-/*
 const youtube = require("./server/youtube");
-const twitch = require("./server/twitch");
-*/
+// const twitch = require("./server/twitch");
 const tv = require("./server/tv");
 
 global.sockets = [];
@@ -58,6 +57,8 @@ app.post("/api/auth/apps", auth.addApp);
 
 app.delete("/api/auth/apps/:app", auth.deleteApp);
 
+app.put("/api/users", users.editUser);
+
 app.get("/api/widgets", widgets.getWidgets);
 
 app.post("/api/widgets", widgets.addWidget);
@@ -86,9 +87,14 @@ app.get("/api/reddit/:subreddit/:category", reddit.getPosts);
 
 app.get("/api/reddit/:subreddit/search/:search", reddit.getSearch);
 
-/*
-app.get("/api/youtube/channels/", youtube.getChannels);
+app.get("/api/youtube/subscriptions", youtube.getSubscriptions);
 
+app.get("/api/youtube/channels", youtube.getChannels);
+
+app.post("/api/youtube/channels", youtube.addChannels);
+
+app.delete("/api/youtube/channels/:id", youtube.deleteChannel);
+/*
 app.get("/api/youtube/channels/:channel/", youtube.getPosts);
 
 app.get("/api/twitch/streams/", twitch.getStreams);
@@ -128,10 +134,10 @@ io.sockets.on("connection", socket => {
 
 	socket.on("bind", user => {
 		if (user) {
-			if (global.sockets[user]) {
-				global.sockets[user].push(socket);
+			if (global.sockets[user._id]) {
+				global.sockets[user._id].push(socket);
 			} else {
-				global.sockets[user] = [socket];
+				global.sockets[user._id] = [socket];
 			}
 		}
 	});
@@ -151,10 +157,10 @@ io.sockets.on("connection", socket => {
 });
 
 if (process.env.ENV === "prod") {
-	cron.schedule("0 * * * *", () => {
+	cron.schedule("0,30 * * * *", () => {
 		notifications.cronjob();
+		youtube.cronjob();
 	});
-
 
 	cron.schedule("0 0,8,16 * * *", () => {
 		tv.cronjob();

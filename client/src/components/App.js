@@ -13,9 +13,9 @@ import Index from "./index/Index";
 import Register from "./auth/Register";
 import Login from "./auth/Login";
 import Apps from "./auth/Apps";
+import Youtube from "./youtube/Youtube";
 /*
 import Reddit from "./reddit/Reddit";
-import Youtube from "./youtube/Youtube";
 import Twitch from "./twitch/Twitch";
 */
 import TV from "./tv/TV";
@@ -28,6 +28,22 @@ import goBackUp from "../img/go_back_up.png";
 import { createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
 
+const theme = createMuiTheme({
+	palette: {
+		type: "dark",
+	},
+	overrides: {
+		MuiButton: {
+			contained: {
+				backgroundColor: "white",
+				"& span": {
+					color: "black !important",
+				},
+			},
+		},
+	},
+});
+
 class App extends Component {
 	constructor() {
 		super();
@@ -39,10 +55,16 @@ class App extends Component {
 	componentDidMount() {
 		const { addNotification } = this.props;
 
-		const socket = socketio("http://localhost:5000", { transports: ["websocket"] });
+		const socket = socketio("http://entertainmenthub.ddns.net:5000", { transports: ["websocket"] });
 
 		socket.on("connect", () => {
-			const user = localStorage.getItem("user");
+			let user = null;
+			try {
+				user = JSON.parse(localStorage.getItem("user"));
+			} catch (err) {
+				user = localStorage.getItem("user");
+			}
+
 			socket.emit("bind", user);
 		});
 
@@ -93,10 +115,10 @@ class App extends Component {
 				<Route exact path="/register" component={Register} />
 				<Route exact path="/login" component={Login} />
 				<PrivateRoute exact path="/apps/:app" component={Apps} />
+				<PrivateRoute exact path="/youtube" component={Youtube} />
 				{
 					/*
 					<PrivateRoute exact path="/reddit/:sub?/:category?" component={Reddit} />
-					<PrivateRoute exact path="/youtube" component={Youtube} />
 					<PrivateRoute exact path="/twitch" component={Twitch} />
 					*/
 				}
@@ -113,7 +135,7 @@ class App extends Component {
 
 	render() {
 		return (
-			<ThemeProvider theme={createMuiTheme({ palette: { type: "dark" } })}>
+			<ThemeProvider theme={theme}>
 				<BrowserRouter>
 					<div className="App">
 						<Header />

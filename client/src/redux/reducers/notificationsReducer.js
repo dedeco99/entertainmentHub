@@ -10,7 +10,7 @@ const notificationsReducer = (state = initState, action) => {
 			if (Array.isArray(action.notification)) {
 				notifications = action.notification;
 			} else {
-				notifications.push(action.notification);
+				notifications.unshift(action.notification);
 			}
 
 			return { ...state, notifications };

@@ -9,6 +9,8 @@ const App = require("./models/app");
 async function getAccessToken(user) {
 	const app = await App.findOne({ user: user._id, platform: "reddit" }).lean();
 
+	if (!app) return errors.notFound;
+
 	const url = `https://www.reddit.com/api/v1/access_token?refresh_token=${app.refreshToken}&grant_type=refresh_token`;
 
 	const encryptedAuth = new Buffer.from(`${process.env.redditClientId}:${process.env.redditSecret}`).toString("base64");

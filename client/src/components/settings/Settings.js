@@ -7,8 +7,14 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
+import FormControlLabel from "@material-ui/core/FormControlLabel";
+import FormControl from "@material-ui/core/FormControl";
+import Checkbox from "@material-ui/core/Checkbox";
+import Button from "@material-ui/core/Button";
+import Typography from "@material-ui/core/Typography";
 
 import { getApps, deleteApp } from "../../api/auth";
+import { editUser } from "../../api/users";
 
 import reddit from "../../img/reddit.png";
 import twitch from "../../img/twitch.png";
@@ -16,6 +22,8 @@ import youtube from "../../img/youtube.png";
 import tv from "../../img/tv.png";
 
 import { settings as styles } from "../../styles/Header";
+
+const REDIRECT = "https://entertainmenthub.ddns.net";
 
 class Settings extends Component {
 	constructor() {
@@ -30,7 +38,7 @@ class Settings extends Component {
 						?client_id=VXMNKvXfKALA3A
 						&response_type=code
 						&state=some_state
-						&redirect_uri=http://localhost:3000/apps/reddit
+						&redirect_uri=${REDIRECT}/apps/reddit
 						&duration=permanent
 						&scope=read`,
 				},
@@ -41,7 +49,7 @@ class Settings extends Component {
 					link: `https://api.twitch.tv/kraken/oauth2/authorize
 						?client_id=9haxv452ih4k8ewiml53vqetrbm0z9q
 						&response_type=code
-						&redirect_uri=http://localhost:3000/apps/twitch
+						&redirect_uri=${REDIRECT}/apps/twitch
 						&scope=user_read`,
 				},
 				youtube: {
@@ -49,11 +57,11 @@ class Settings extends Component {
 					key: "youtube",
 					displayName: "Youtube",
 					link: `https://accounts.google.com/o/oauth2/v2/auth
-						?redirect_uri=http://localhost:3000/apps/google
+						?redirect_uri=${REDIRECT}/apps/youtube
 						&prompt=consent
 						&access_type=offline
 						&response_type=code
-						&client_id=769835198677-vn6mkg9odjt6p08a2ph0jslssdgbtnaj.apps.googleusercontent.com
+						&client_id=539994951120-kabifq9ct2lbk92m9ef4hddc5f57nksl.apps.googleusercontent.com
 						&scope=https://www.googleapis.com/auth/youtube.readonly`,
 				},
 				tv: {
@@ -65,13 +73,41 @@ class Settings extends Component {
 			},
 
 			selectedMenu: 0,
+			settings: {},
 		};
 
-		this.handleSettingsClick = this.handleSettingsClick.bind(this);
+		this.handleListClick = this.handleListClick.bind(this);
+		this.handleChangeScrollbar = this.handleChangeScrollbar.bind(this);
+		this.handleSubmitSettings = this.handleSubmitSettings.bind(this);
 	}
 
 	componentDidMount() {
 		this.getApps();
+		this.getSettings();
+	}
+
+	getSettings() {
+		let user = null;
+		try {
+			user = JSON.parse(localStorage.getItem("user"));
+		} catch (err) {
+			user = localStorage.getItem("user");
+		}
+
+
+		this.setState({ settings: user.settings || {} });
+	}
+
+	async handleSubmitSettings() {
+		const { settings } = this.state;
+
+		const response = await editUser({ settings });
+
+		if (response.data) {
+			localStorage.setItem("user", JSON.stringify(response.data));
+
+			window.location.replace("/settings");
+		}
 	}
 
 	async getApps() {
@@ -93,8 +129,16 @@ class Settings extends Component {
 		await deleteApp(e.target.id);
 	}
 
-	handleSettingsClick() {
-		this.setState({ selectedMenu: 0 });
+	handleListClick(index) {
+		this.setState({ selectedMenu: index });
+	}
+
+	handleChangeScrollbar() {
+		const { settings } = this.state;
+
+		settings.useCustomScrollbar = !settings.useCustomScrollbar;
+
+		this.setState({ settings });
 	}
 
 	renderApp(app) {
@@ -128,32 +172,88 @@ class Settings extends Component {
 		);
 	}
 
-	render() {
-		const { classes } = this.props;
-		const { apps, selectedMenu } = this.state;
+	renderApps() {
+		const { apps } = this.state;
 
 		return (
 			<Grid container spacing={2}>
-				<Grid item xs={12} sm={4} md={3} lg={2}>
-					<List className="list-menu">
-						<ListItem
-							button
-							selected={selectedMenu === 0}
-							onClick={this.handleSettingsClick}
-						>
-							<ListItemIcon>
-								<i className={`material-icons ${classes.appIcon}`}>{"apps"}</i>
-							</ListItemIcon>
-							<ListItemText primary="Apps" />
-						</ListItem>
-					</List>
-				</Grid>
-				<Grid item xs={12} sm={8} md={9} lg={10}>
-					<Grid container spacing={2}>
-						{Object.keys(apps).map(app => this.renderApp(apps[app]))}
+				{Object.keys(apps).map(app => this.renderApp(apps[app]))}
+			</Grid>
+		);
+	}
+
+	renderSettings() {
+		const { settings } = this.state;
+		const { classes } = this.props;
+
+		return (
+			<div className={classes.settingsContainer}>
+				<Typography variant="h4"> {"Change settings"} </Typography>
+				<FormControl margin="normal">
+					<FormControlLabel
+						control={
+							<Checkbox
+								checked={settings.useCustomScrollbar || false}
+								onChange={this.handleChangeScrollbar}
+							/>
+						}
+						label="Use custom scrollbar"
+					/>
+				</FormControl>
+				<Button variant="contained" onClick={this.handleSubmitSettings}> {"Apply"} </Button>
+			</div>
+		);
+	}
+
+	renderContent() {
+		const { selectedMenu } = this.state;
+
+		switch (selectedMenu) {
+			case 0:
+				return this.renderApps();
+			case 1:
+				return this.renderSettings();
+			default:
+				return null;
+		}
+	}
+
+	render() {
+		const { classes } = this.props;
+		const { selectedMenu } = this.state;
+
+		return (
+			<div>
+				<Grid container spacing={2}>
+					<Grid item xs={12} sm={4} md={3} lg={2}>
+						<List className="list-menu">
+							<ListItem
+								button
+								selected={selectedMenu === 0}
+								onClick={() => this.handleListClick(0)}
+							>
+								<ListItemIcon>
+									<i className={`material-icons ${classes.appIcon}`}>{"apps"}</i>
+								</ListItemIcon>
+								<ListItemText primary="Apps" />
+							</ListItem>
+							<ListItem
+								button
+								selected={selectedMenu === 1}
+								onClick={() => this.handleListClick(1)}
+							>
+								<ListItemIcon>
+									<i className={`material-icons ${classes.appIcon}`}>{"settings"}</i>
+								</ListItemIcon>
+								<ListItemText primary="Settings" />
+							</ListItem>
+						</List>
 					</Grid>
-				</Grid>
-			</Grid >
+					<Grid item xs={12} sm={8} md={9} lg={10}>
+						{this.renderContent()}
+					</Grid>
+				</Grid >
+			</div>
 		);
 	}
 }

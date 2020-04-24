@@ -86,19 +86,24 @@ class Notifications extends Component {
 		switch (type) {
 			case "tv":
 				return <i className="material-icons">{"tv"}</i>;
+			case "youtube":
+				return <i className="icofont-youtube-play" />;
 			default:
 				return <i className="material-icons">{"notifications"}</i>;
 		}
 	}
 
 	renderNotificationMessage(notification) {
+		const { displayName, season, number, videoTitle } = notification.info;
+
 		switch (notification.type) {
 			case "tv":
-				const { displayName, season, number } = notification.info;
 				const seasonLabel = season > 9 ? `S${season}` : `S0${season}`;
 				const episodeLabel = number > 9 ? `E${number}` : `E0${number}`;
 
 				return `${displayName} - ${seasonLabel}${episodeLabel}`;
+			case "youtube":
+				return `${displayName} - ${videoTitle}`;
 			default:
 				return <i className="material-icons">{notification.info.message}</i>;
 		}
@@ -204,7 +209,7 @@ class Notifications extends Component {
 							</IconButton>
 						</Box>
 					</Box>
-					<Box display="flex" flexGrow={1}>
+					<Box display="flex" flexGrow={1} style={{ overflow: "auto" }}>
 						<CustomScrollbar>
 							<List> {this.renderNotificationList()} </List>
 						</CustomScrollbar>

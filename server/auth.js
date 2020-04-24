@@ -44,7 +44,7 @@ async function login(event) {
 	const { body } = event;
 	const { email, password } = body;
 
-	const user = await User.findOne({ email });
+	const user = await User.findOne({ email }).lean();
 
 	if (user) {
 		const isPassword = await bcrypt.compare(password, user.password);
@@ -53,7 +53,9 @@ async function login(event) {
 			const newToken = new Token({ user: user._id, token: generateToken(60) });
 			await newToken.save();
 
-			return response(200, "Login successful", { user: user.id, token: newToken.token });
+			delete user.password;
+
+			return response(200, "Login successful", { user, token: newToken.token });
 		}
 
 		return response(401, "Password is incorrect");
@@ -102,7 +104,7 @@ async function addApp(event) {
 			break;
 		}
 		case "youtube": {
-			const url = `https://www.googleapis.com/oauth2/v4/token?client_id=${process.env.googleClientId}&client_secret=${process.env.googleSecret}&code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/google`;
+			const url = `https://www.googleapis.com/oauth2/v4/token?client_id=${process.env.youtubeClientId}&client_secret=${process.env.youtubeSecret}&code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/youtube`;
 
 			const res = await api({ method: "post", url });
 			json = res.data;
