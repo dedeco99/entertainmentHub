@@ -1,13 +1,14 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 
-import { addApp } from "../../api/auth";
+import { addApp } from "../../api/apps";
 
 class Apps extends Component {
 	componentDidMount() {
 		const { history } = this.props;
 		const platform = history.location.pathname.split("/")[2];
-		const code = history.location.search.split("code=")[1].split("&")[0];
+		let code = history.location.search.split("code=")[1];
+		code = platform === "youtube" ? code.split("&")[0] : code;
 
 		addApp(platform, code);
 	}
