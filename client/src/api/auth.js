@@ -28,41 +28,8 @@ function logout() {
 	window.location.replace("/");
 }
 
-async function getApps() {
-	const res = await api({
-		method: "get",
-		url: "/api/auth/apps",
-	});
-
-	return res;
-}
-
-async function addApp(platform, code) {
-	await api({
-		method: "post",
-		url: "/api/auth/apps",
-		data: { platform, code },
-		message: true,
-	});
-
-	window.location.replace("/settings");
-}
-
-async function deleteApp(app) {
-	await api({
-		method: "delete",
-		url: `/api/auth/apps/${app}`,
-		message: true,
-	});
-
-	window.location.replace("/settings");
-}
-
 export {
 	register,
 	login,
 	logout,
-	getApps,
-	addApp,
-	deleteApp,
 };

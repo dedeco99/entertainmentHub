@@ -23,7 +23,7 @@ function Episode({ episode, classes }) {
 				<div className={`${classes.overlay} ${classes.title}`}>
 					{episode.title}
 				</div>
-				<div className={`${classes.overlay} ${classes.seriesName}`}>
+				<div className={episode.seriesId.displayName && `${classes.overlay} ${classes.seriesName}`}>
 					{episode.seriesId.displayName}
 				</div>
 				<div className={`${classes.overlay} ${classes.season}`}>

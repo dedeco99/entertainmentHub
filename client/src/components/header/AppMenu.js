@@ -5,7 +5,7 @@ import { NavLink } from "react-router-dom";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 
-import { getApps } from "../../api/auth";
+import { getApps } from "../../api/apps";
 
 import { appMenu as styles } from "../../styles/Header";
 

@@ -1,5 +1,5 @@
-const User = require("./models/user");
-const Token = require("./models/token");
+const User = require("../models/user");
+const Token = require("../models/token");
 
 function response(status, message, data) {
 	return {

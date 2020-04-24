@@ -5,8 +5,9 @@ const morgan = require("morgan");
 const socketio = require("socket.io");
 const cron = require("node-cron");
 
-const { initialize } = require("./server/database");
+const { initialize } = require("./server/utils/database");
 const auth = require("./server/auth");
+const apps = require("./server/apps");
 const users = require("./server/users");
 const widgets = require("./server/widgets");
 const notifications = require("./server/notifications");
@@ -51,11 +52,11 @@ app.post("/api/auth/register", auth.register);
 
 app.post("/api/auth/login", auth.login);
 
-app.get("/api/auth/apps", auth.getApps);
+app.get("/api/apps", apps.getApps);
 
-app.post("/api/auth/apps", auth.addApp);
+app.post("/api/apps", apps.addApp);
 
-app.delete("/api/auth/apps/:app", auth.deleteApp);
+app.delete("/api/apps/:id", apps.deleteApp);
 
 app.put("/api/users", users.editUser);
 
@@ -94,6 +95,7 @@ app.get("/api/youtube/channels", youtube.getChannels);
 app.post("/api/youtube/channels", youtube.addChannels);
 
 app.delete("/api/youtube/channels/:id", youtube.deleteChannel);
+
 /*
 app.get("/api/youtube/channels/:channel/", youtube.getPosts);
 

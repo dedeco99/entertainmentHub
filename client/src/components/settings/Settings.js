@@ -13,7 +13,7 @@ import Checkbox from "@material-ui/core/Checkbox";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 
-import { getApps, deleteApp } from "../../api/auth";
+import { getApps, deleteApp } from "../../api/apps";
 import { editUser } from "../../api/users";
 
 import reddit from "../../img/reddit.png";

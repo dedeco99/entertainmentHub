@@ -1,5 +1,5 @@
-const { middleware, response } = require("./middleware");
-const errors = require("./errors");
+const { middleware, response } = require("./utils/middleware");
+const errors = require("./utils/errors");
 
 const { isSubreddit } = require("./reddit");
 

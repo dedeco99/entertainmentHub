@@ -12,7 +12,6 @@ import AppMenu from "./header/AppMenu";
 import Index from "./index/Index";
 import Register from "./auth/Register";
 import Login from "./auth/Login";
-import Apps from "./auth/Apps";
 import Youtube from "./youtube/Youtube";
 /*
 import Reddit from "./reddit/Reddit";
@@ -20,6 +19,7 @@ import Twitch from "./twitch/Twitch";
 */
 import TV from "./tv/TV";
 import Settings from "./settings/Settings";
+import Apps from "./settings/Apps";
 
 import "../styles/App.css";
 
