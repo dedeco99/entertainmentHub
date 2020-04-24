@@ -3,7 +3,7 @@ import { api } from "../utils/request";
 async function getPosts(subreddit) {
 	const res = await api({
 		method: "get",
-		url: `api/reddit/${subreddit}/hot`,
+		url: `/api/reddit/${subreddit}/hot`,
 	});
 
 	return res;
@@ -12,7 +12,7 @@ async function getPosts(subreddit) {
 async function getSearch(subreddit, search) {
 	const res = await api({
 		method: "get",
-		url: `api/reddit/${subreddit}/search/${search}`,
+		url: `/api/reddit/${subreddit}/search/${search}`,
 	});
 
 	return res;

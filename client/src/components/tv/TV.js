@@ -18,8 +18,6 @@ import loadingGif from "../../img/loading3.gif";
 
 import { tv as styles } from "../../styles/TV";
 
-import { withRouter } from "react-router";
-
 class TV extends Component {
 	constructor() {
 		super();
@@ -45,7 +43,7 @@ class TV extends Component {
 			loadingPopular: false,
 			loadingAll: false,
 
-			queryObj: {},
+			urlParams: {},
 		};
 
 		this.getAll = this.getAll.bind(this);
@@ -68,11 +66,13 @@ class TV extends Component {
 
 	async componentDidMount() {
 		await this.getSeries();
+
 		this.applyUrlFilters();
 	}
 
 	applyUrlFilters() {
 		const { match } = this.props;
+
 		switch (match.path) {
 			case "/tv/all":
 				this.handleShowAllBlock();
@@ -84,38 +84,45 @@ class TV extends Component {
 				this.getSeasons(match.params.seriesId);
 				break;
 			case "/tv/:seriesId/:season":
-				this.getSeasons(match.params.seriesId, parseInt(match.params.season, 10));
+				this.getSeasons(match.params.seriesId, Number(match.params.season));
 				break;
 			default:
 				break;
 		}
 
-		this.setState({ queryObj: match.params });
+		this.setState({ urlParams: match.params });
 	}
 
-	updateUrlFilter(queryObj) {
+	updateUrlFilter(urlParams) {
 		const { history } = this.props;
-		if (queryObj.seriesId) {
-			if (queryObj.season >= 0) {
-				history.push(`/tv/${queryObj.seriesId}/${queryObj.season}`);
+
+		if (urlParams.seriesId) {
+			if (urlParams.season >= 0) {
+				history.push(`/tv/${urlParams.seriesId}/${urlParams.season}`);
 			} else {
-				history.push(`/tv/${queryObj.seriesId}`);
+				history.push(`/tv/${urlParams.seriesId}`);
 			}
 		}
 	}
 
 	updateSeriesPath(series) {
-		const { queryObj } = this.state;
-		queryObj.seriesId = series;
-		this.setState({ queryObj });
-		this.updateUrlFilter(queryObj);
+		const { urlParams } = this.state;
+
+		urlParams.seriesId = series;
+
+		this.setState({ urlParams });
+
+		this.updateUrlFilter(urlParams);
 	}
 
 	updateSeasonPath(season) {
-		const { queryObj } = this.state;
-		queryObj.season = season;
-		this.setState({ queryObj });
-		this.updateUrlFilter(queryObj);
+		const { urlParams } = this.state;
+
+		urlParams.season = season;
+
+		this.setState({ urlParams });
+
+		this.updateUrlFilter(urlParams);
 	}
 
 	async getSeries() {
@@ -149,7 +156,7 @@ class TV extends Component {
 		}
 	}
 
-	async getSeasons(series, selectSeason) {
+	async getSeasons(series, season) {
 		const response = await getSeasons(series);
 
 		if (response.data.length) {
@@ -157,7 +164,7 @@ class TV extends Component {
 
 			this.setState(
 				{ seasons: response.data, currentSeries: series, allPage: 0 },
-				() => this.getEpisodes(selectSeason >= 0 ? selectSeason : response.data[response.data.length - 1]._id),
+				() => this.getEpisodes(season >= 0 ? season : response.data[response.data.length - 1]._id),
 			);
 		}
 	}
@@ -243,7 +250,9 @@ class TV extends Component {
 
 	handleShowPopularBlock() {
 		const { history } = this.props;
+
 		history.push("/tv/popular");
+
 		this.setState({
 			popular: [],
 			popularPage: 0,
@@ -256,7 +265,9 @@ class TV extends Component {
 
 	handleShowAllBlock() {
 		const { history } = this.props;
+
 		history.push("/tv/all");
+
 		this.setState({
 			episodes: [],
 			allPage: 0,
@@ -343,7 +354,7 @@ class TV extends Component {
 			showSearchBlock,
 			showPopularBlock,
 			showEpisodesBlock,
-			queryObj,
+			urlParams,
 		} = this.state;
 
 		if (showSearchBlock) {
@@ -369,7 +380,7 @@ class TV extends Component {
 					currentSeries={currentSeries}
 					seasons={seasons}
 					episodes={episodes}
-					selectedSeason={parseInt(queryObj.season, 10)}
+					selectedSeason={Number(urlParams.season)}
 					getEpisodes={this.getEpisodes}
 					getAll={this.getAll}
 					allHasMore={allHasMore}
@@ -382,7 +393,7 @@ class TV extends Component {
 	}
 
 	render() {
-		const { loadingSeries, series, currentSeries, showModal, queryObj } = this.state;
+		const { loadingSeries, series, currentSeries, showModal, urlParams } = this.state;
 
 		const menuOptions = [
 			{ displayName: "Edit", onClick: e => this.handleShowModal(e, "edit") },
@@ -400,7 +411,7 @@ class TV extends Component {
 						menu={menuOptions}
 						loading={loadingSeries}
 						noResultsMessage={"No series"}
-						initialSelected={queryObj.seriesId}
+						initialSelected={urlParams.seriesId}
 					/>
 				</Grid>
 				<Grid item sm={9} md={10} lg={10}>
@@ -426,4 +437,4 @@ TV.propTypes = {
 	match: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(withRouter(TV));
+export default withStyles(styles)(TV);

@@ -11,7 +11,7 @@ class Categories extends Component {
 	constructor() {
 		super();
 		this.state = {
-			selectedMenu: undefined,
+			selectedMenu: null,
 		};
 
 		this.handleClick = this.handleClick.bind(this);
@@ -31,7 +31,7 @@ class Categories extends Component {
 			return (
 				<ListItem
 					button
-					selected={(selectedMenu !== initialSelected ? initialSelected : selectedMenu) === option[idField]}
+					selected={(selectedMenu || initialSelected) === option[idField]}
 					onClick={() => this.handleClick(option[idField])}
 					key={option[idField]}
 					id={option[idField]}

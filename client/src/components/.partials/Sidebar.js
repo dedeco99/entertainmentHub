@@ -18,7 +18,7 @@ class Sidebar extends Component {
 	constructor() {
 		super();
 		this.state = {
-			selectedMenu: undefined,
+			selectedMenu: null,
 			anchorEl: null,
 			currentId: null,
 		};
