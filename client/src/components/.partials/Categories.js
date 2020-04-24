@@ -11,7 +11,7 @@ class Categories extends Component {
 	constructor() {
 		super();
 		this.state = {
-			selectedMenu: 0,
+			selectedMenu: null,
 		};
 
 		this.handleClick = this.handleClick.bind(this);
@@ -24,14 +24,14 @@ class Categories extends Component {
 	};
 
 	render() {
-		const { classes, options, idField, nameField } = this.props;
+		const { classes, options, idField, nameField, initialSelected } = this.props;
 		const { selectedMenu } = this.state;
 
 		const optionsList = options.map(option => {
 			return (
 				<ListItem
 					button
-					selected={selectedMenu === option[idField]}
+					selected={(selectedMenu || initialSelected) === option[idField]}
 					onClick={() => this.handleClick(option[idField])}
 					key={option[idField]}
 					id={option[idField]}

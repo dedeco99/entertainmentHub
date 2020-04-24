@@ -3,7 +3,7 @@ import { api } from "../utils/request";
 async function getWidgets() {
 	const res = await api({
 		method: "get",
-		url: "api/widgets",
+		url: "/api/widgets",
 	});
 
 	return res;
@@ -12,7 +12,7 @@ async function getWidgets() {
 async function addWidget(widget) {
 	const res = await api({
 		method: "post",
-		url: "api/widgets",
+		url: "/api/widgets",
 		data: widget,
 		message: true,
 	});
@@ -23,7 +23,7 @@ async function addWidget(widget) {
 async function editWidget(widget) {
 	const res = await api({
 		method: "put",
-		url: `api/widgets/${widget._id}`,
+		url: `/api/widgets/${widget._id}`,
 		data: widget,
 	});
 
@@ -33,7 +33,7 @@ async function editWidget(widget) {
 async function deleteWidget(id) {
 	const res = await api({
 		method: "delete",
-		url: `api/widgets/${id}`,
+		url: `/api/widgets/${id}`,
 		message: true,
 	});
 

@@ -55,8 +55,6 @@ class App extends Component {
 	componentDidMount() {
 		const { addNotification } = this.props;
 
-		document.title = "EntertainmentHub";
-
 		const socket = socketio("http://entertainmenthub.ddns.net:5000", { transports: ["websocket"] });
 
 		socket.on("connect", () => {
@@ -125,6 +123,10 @@ class App extends Component {
 					*/
 				}
 				<PrivateRoute exact path="/tv" component={TV} />
+				<PrivateRoute exact path="/tv/all" component={TV} />
+				<PrivateRoute exact path="/tv/popular" component={TV} />
+				<PrivateRoute exact path="/tv/:seriesId" component={TV} />
+				<PrivateRoute exact path="/tv/:seriesId/:season" component={TV} />
 
 				<PrivateRoute exact path="/settings" component={Settings} />
 			</Switch>
