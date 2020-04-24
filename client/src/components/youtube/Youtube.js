@@ -8,7 +8,7 @@ import Grid from "@material-ui/core/Grid";
 import Sidebar from "../.partials/Sidebar";
 import Subscriptions from "./Subscriptions";
 
-import { getChannels, addChannels, deleteChannel } from "../../api/youtube";
+import { getSubscriptions, getChannels, addChannels, deleteChannel } from "../../api/youtube";
 
 import { youtube as styles } from "../../styles/Youtube";
 
@@ -18,6 +18,10 @@ class Youtube extends Component {
 
 		this.state = {
 			channels: [],
+			subscriptions: [],
+			page: 0,
+			after: null,
+
 			openModal: false,
 		};
 
@@ -30,6 +34,23 @@ class Youtube extends Component {
 
 	async componentDidMount() {
 		await this.getChannels();
+		await this.getSubscriptions(true);
+	}
+
+	async getSubscriptions() {
+		const { channels, subscriptions, page, after } = this.state;
+
+		const response = await getSubscriptions(after);
+
+		if (response.data && response.data.length) {
+			const newSubscriptions = page === 0 ? response.data : subscriptions.concat(response.data);
+
+			this.setState({
+				subscriptions: newSubscriptions.filter(s => !channels.map(c => c.channelId).includes(s.channelId)),
+				page: page + 1,
+				after: response.data[0].after,
+			});
+		}
 	}
 
 	async getChannels() {
@@ -48,6 +69,9 @@ class Youtube extends Component {
 				channels: [...prevState.channels, ...response.data].sort((a, b) => (
 					a.displayName <= b.displayName ? -1 : 1
 				)),
+				subscriptions: prevState.subscriptions.filter(s => (
+					![...prevState.channels, ...response.data].map(c => c.channelId).includes(s.channelId)
+				)),
 			}));
 		}
 	}
@@ -60,7 +84,7 @@ class Youtube extends Component {
 		if (response.status < 400) {
 			const updatedChannels = channels.filter(s => s._id !== response.data._id);
 
-			this.setState({ channels: updatedChannels });
+			this.setState({ channels: updatedChannels, page: 0, after: null }, this.getSubscriptions);
 		}
 	}
 
@@ -74,7 +98,7 @@ class Youtube extends Component {
 
 	render() {
 		const { openModal } = this.state;
-		const { loadingChannels, channels } = this.state;
+		const { loadingChannels, channels, subscriptions } = this.state;
 
 		const menuOptions = [{ displayName: "Delete", onClick: this.deleteChannel }];
 
@@ -96,7 +120,7 @@ class Youtube extends Component {
 				<Subscriptions
 					open={openModal}
 					onClose={this.handleCloseModal}
-					channels={channels}
+					subscriptions={subscriptions}
 					addChannels={this.addChannels}
 				/>
 			</Grid>

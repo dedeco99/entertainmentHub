@@ -16,8 +16,6 @@ import Paper from "@material-ui/core/Paper";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
 
-import { getSubscriptions } from "../../api/youtube";
-
 import { youtube as styles } from "../../styles/Youtube";
 
 class Subscriptions extends Component {
@@ -25,44 +23,12 @@ class Subscriptions extends Component {
 		super();
 
 		this.state = {
-			subscriptions: [],
-			page: 0,
-			after: null,
-
 			checkedChannels: [],
 		};
 
-		this.getSubscriptions = this.getSubscriptions.bind(this);
 		this.addChannels = this.addChannels.bind(this);
 
 		this.handleSubscriptionCheckbox = this.handleSubscriptionCheckbox.bind(this);
-	}
-
-	async componentDidMount() {
-		await this.getSubscriptions();
-	}
-
-	componentDidUpdate() {
-		const { channels } = this.props;
-		const { checkedChannels } = this.state;
-
-		if (!checkedChannels.length) this.setState({ checkedChannels: channels });
-	}
-
-	async getSubscriptions() {
-		const { subscriptions, page, after } = this.state;
-
-		const response = await getSubscriptions(after);
-
-		if (response.data && response.data.length) {
-			const newSubscriptions = page === 0 ? response.data : subscriptions.concat(response.data);
-
-			this.setState({
-				subscriptions: newSubscriptions,
-				page: page + 1,
-				after: response.data[0].after,
-			});
-		}
 	}
 
 	async addChannels() {
@@ -70,10 +36,13 @@ class Subscriptions extends Component {
 		const { checkedChannels } = this.state;
 
 		await addChannels(checkedChannels);
+
+		this.setState({ checkedChannels: [] });
 	}
 
 	handleSubscriptionCheckbox(channelId) {
-		const { subscriptions, checkedChannels } = this.state;
+		const { subscriptions } = this.props;
+		const { checkedChannels } = this.state;
 
 		const foundChannel = checkedChannels.findIndex(channel => channel.channelId === channelId);
 		const updatedChannels = [...checkedChannels];
@@ -90,8 +59,8 @@ class Subscriptions extends Component {
 	}
 
 	renderSubscriptionsList() {
-		const { classes } = this.props;
-		const { subscriptions, checkedChannels } = this.state;
+		const { classes, subscriptions } = this.props;
+		const { checkedChannels } = this.state;
 
 		return (
 			<List className={classes.root}>
@@ -148,7 +117,7 @@ Subscriptions.propTypes = {
 	classes: PropTypes.object.isRequired,
 	open: PropTypes.bool.isRequired,
 	onClose: PropTypes.func.isRequired,
-	channels: PropTypes.array.isRequired,
+	subscriptions: PropTypes.array.isRequired,
 	addChannels: PropTypes.func.isRequired,
 };
 
