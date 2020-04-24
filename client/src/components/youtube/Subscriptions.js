@@ -15,6 +15,8 @@ import Avatar from "@material-ui/core/Avatar";
 import Paper from "@material-ui/core/Paper";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
+import InfiniteScroll from "react-infinite-scroller";
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 import { youtube as styles } from "../../styles/Youtube";
 
@@ -87,8 +89,16 @@ class Subscriptions extends Component {
 		);
 	}
 
+	renderLoadingMore() {
+		return (
+			<Box key={0} display="flex" alignItems="center" justifyContent="center">
+				<CircularProgress />
+			</Box>
+		);
+	}
+
 	render() {
-		const { classes, open, onClose } = this.props;
+		const { classes, open, onClose, loadFunc, hasMoreSubscriptions } = this.props;
 
 		return (
 			<Modal
@@ -100,8 +110,15 @@ class Subscriptions extends Component {
 			>
 				<Fade in={open}>
 					<Paper variant="outlined" className={classes.modalContent}>
-						<Box display="flex" flexGrow={1} style={{ overflow: "auto" }}>
-							{this.renderSubscriptionsList()}
+						<Box flexGrow={1} style={{ overflow: "auto" }}>
+							<InfiniteScroll
+								loadMore={loadFunc}
+								hasMore={hasMoreSubscriptions}
+								useWindow={false}
+								loader={this.renderLoadingMore()}
+							>
+								{this.renderSubscriptionsList()}
+							</InfiniteScroll>
 						</Box>
 						<Box display="flex" justifyContent="flex-end" className={classes.modalFooter}>
 							<Button variant="contained" onClick={this.addChannels}>{"Submit"}</Button>
@@ -119,6 +136,8 @@ Subscriptions.propTypes = {
 	onClose: PropTypes.func.isRequired,
 	subscriptions: PropTypes.array.isRequired,
 	addChannels: PropTypes.func.isRequired,
+	loadFunc: PropTypes.func.isRequired,
+	hasMoreSubscriptions: PropTypes.bool.isRequired,
 };
 
 export default withStyles(styles)(Subscriptions);
