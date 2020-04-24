@@ -57,7 +57,7 @@ class App extends Component {
 
 		document.title = "EntertainmentHub";
 
-		const socket = socketio("https://entertainmenthub.ddns.net:5000", { transports: ["websocket"] });
+		const socket = socketio("http://entertainmenthub.ddns.net:5000", { transports: ["websocket"] });
 
 		socket.on("connect", () => {
 			let user = null;
@@ -66,7 +66,6 @@ class App extends Component {
 			} catch (err) {
 				user = localStorage.getItem("user");
 			}
-
 
 			socket.emit("bind", user);
 		});
