@@ -5,7 +5,7 @@ const morgan = require("morgan");
 const socketio = require("socket.io");
 const cron = require("node-cron");
 
-const { initialize } = require("./server/database");
+const { initialize } = require("./server/utils/database");
 const auth = require("./server/auth");
 const users = require("./server/users");
 const widgets = require("./server/widgets");

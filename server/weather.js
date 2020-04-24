@@ -1,5 +1,5 @@
-const { middleware, response } = require("./middleware");
-const { api } = require("./request");
+const { middleware, response } = require("./utils/middleware");
+const { api } = require("./utils/request");
 
 const moment = require("moment");
 const allTheCities = require("all-the-cities");

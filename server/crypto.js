@@ -1,6 +1,6 @@
-const { middleware, response } = require("./middleware");
-const errors = require("./errors");
-const { api } = require("./request");
+const { middleware, response } = require("./utils/middleware");
+const errors = require("./utils/errors");
+const { api } = require("./utils/request");
 
 const moment = require("moment");
 

@@ -1,7 +1,7 @@
 const bcrypt = require("bcryptjs");
 
-const { api } = require("./request");
-const { middleware, response } = require("./middleware");
+const { api } = require("./utils/request");
+const { middleware, response } = require("./utils/middleware");
 
 const User = require("./models/user");
 const Token = require("./models/token");

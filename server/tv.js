@@ -1,7 +1,8 @@
-const { middleware, response } = require("./middleware");
-const errors = require("./errors");
-const { api } = require("./request");
-const { toObjectId } = require("./utils");
+const { middleware, response } = require("./utils/middleware");
+const errors = require("./utils/errors");
+const { api } = require("./utils/request");
+const { toObjectId } = require("./utils/utils");
+
 const { addNotifications } = require("./notifications");
 
 const Series = require("./models/series");
