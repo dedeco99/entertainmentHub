@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/styles";
+import InfiniteScroll from "react-infinite-scroller";
 
 import Fade from "@material-ui/core/Fade";
 import Modal from "@material-ui/core/Modal";
@@ -15,8 +16,7 @@ import Avatar from "@material-ui/core/Avatar";
 import Paper from "@material-ui/core/Paper";
 import Box from "@material-ui/core/Box";
 import Button from "@material-ui/core/Button";
-import InfiniteScroll from "react-infinite-scroller";
-import CircularProgress from '@material-ui/core/CircularProgress';
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 import { youtube as styles } from "../../styles/Youtube";
 
@@ -98,7 +98,7 @@ class Subscriptions extends Component {
 	}
 
 	render() {
-		const { classes, open, onClose, loadFunc, hasMoreSubscriptions } = this.props;
+		const { classes, open, onClose, getSubscriptions, hasMoreSubscriptions } = this.props;
 
 		return (
 			<Modal
@@ -112,7 +112,7 @@ class Subscriptions extends Component {
 					<Paper variant="outlined" className={classes.modalContent}>
 						<Box flexGrow={1} style={{ overflow: "auto" }}>
 							<InfiniteScroll
-								loadMore={loadFunc}
+								loadMore={getSubscriptions}
 								hasMore={hasMoreSubscriptions}
 								useWindow={false}
 								loader={this.renderLoadingMore()}
@@ -136,7 +136,7 @@ Subscriptions.propTypes = {
 	onClose: PropTypes.func.isRequired,
 	subscriptions: PropTypes.array.isRequired,
 	addChannels: PropTypes.func.isRequired,
-	loadFunc: PropTypes.func.isRequired,
+	getSubscriptions: PropTypes.func.isRequired,
 	hasMoreSubscriptions: PropTypes.bool.isRequired,
 };
 

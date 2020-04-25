@@ -26,13 +26,12 @@ class Youtube extends Component {
 			openModal: false,
 		};
 
+		this.getSubscriptions = this.getSubscriptions.bind(this);
 		this.addChannels = this.addChannels.bind(this);
 		this.deleteChannel = this.deleteChannel.bind(this);
 
 		this.handleOpenModal = this.handleOpenModal.bind(this);
 		this.handleCloseModal = this.handleCloseModal.bind(this);
-
-		this.getSubscriptions = this.getSubscriptions.bind(this);
 	}
 
 	async componentDidMount() {
@@ -125,7 +124,7 @@ class Youtube extends Component {
 					open={openModal}
 					onClose={this.handleCloseModal}
 					subscriptions={subscriptions}
-					loadFunc={this.getSubscriptions}
+					getSubscriptions={this.getSubscriptions}
 					hasMoreSubscriptions={hasMoreSubscriptions}
 					addChannels={this.addChannels}
 				/>
