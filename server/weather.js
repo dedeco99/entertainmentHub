@@ -1,7 +1,7 @@
 const { middleware, response } = require("./utils/middleware");
 const { api } = require("./utils/request");
+const { formatDate } = require("./utils/utils");
 
-const moment = require("moment");
 const allTheCities = require("all-the-cities");
 
 async function getWeather(event) {
@@ -21,8 +21,8 @@ async function getWeather(event) {
 
 	const weather = {
 		current: {
-			sunrise: moment(json.current.sunrise * 1000).format("HH:mm"),
-			sunset: moment(json.current.sunset * 1000).format("HH:mm"),
+			sunrise: formatDate(json.current.sunrise * 1000, "HH:mm"),
+			sunset: formatDate(json.current.sunset * 1000, "HH:mm"),
 			temp: json.current.temp,
 			feelsLike: json.current.feels_like,
 			minTemp,
@@ -42,7 +42,7 @@ async function getWeather(event) {
 			},
 		},
 		hourly: json.hourly.map(hourly => ({
-			hour: moment(hourly.dt * 1000).format("HH:mm"),
+			hour: formatDate(hourly.dt * 1000, "HH:mm"),
 			temp: hourly.temp,
 			feelsLike: hourly.feels_like,
 			pressure: hourly.pressure,
@@ -60,9 +60,9 @@ async function getWeather(event) {
 			},
 		})),
 		daily: json.daily.map(daily => ({
-			date: moment(daily.dt * 1000).format("DD-MM-YYYY"),
-			sunrise: moment(daily.sunrise * 1000).format("HH:mm"),
-			sunset: moment(daily.sunset * 1000).format("HH:mm"),
+			date: formatDate(daily.dt * 1000, "DD-MM-YYYY"),
+			sunrise: formatDate(daily.sunrise * 1000, "HH:mm"),
+			sunset: formatDate(daily.sunset * 1000, "HH:mm"),
 			temp: daily.temp.day,
 			feelsLike: daily.feels_like.day,
 			minTemp: daily.temp.min,

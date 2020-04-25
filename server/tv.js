@@ -1,9 +1,9 @@
 const { middleware, response } = require("./utils/middleware");
 const errors = require("./utils/errors");
 const { api } = require("./utils/request");
-const { toObjectId } = require("./utils/utils");
+const { toObjectId, diff } = require("./utils/utils");
 
-const { addNotifications } = require("./notifications");
+const { scheduleNotifications } = require("./notifications");
 
 const Series = require("./models/series");
 const Episode = require("./models/episode");
@@ -108,24 +108,18 @@ async function fetchEpisodes(series) {
 					});
 					episodesToAdd.push(newEpisode);
 
-					const notifications = [];
-					for (let i = 0; i < series.users.length; i++) {
-						const displayName = series.displayNames[i];
-
-						notifications.push({
+					if (diff(newEpisode.date, "days") <= 5) {
+						notificationsToAdd.push({
 							dateToSend: newEpisode.date,
-							notificationId: `${series.users[i]}${episode.id}`,
-							user: series.users[i],
+							notificationId: episode.id,
 							type: "tv",
 							info: {
-								displayName,
+								seriesId: series._id,
 								season: newEpisode.season,
 								number: newEpisode.number,
 							},
 						});
 					}
-
-					notificationsToAdd.push(addNotifications(notifications));
 
 					console.log(`- S${episode.season_number}E${episode.episode_number} created`);
 				} else if (
@@ -150,7 +144,7 @@ async function fetchEpisodes(series) {
 
 	if (episodesToAdd.length) await Episode.insertMany(episodesToAdd);
 	if (episodesToUpdate.length) await Promise.all(episodesToUpdate);
-	if (notificationsToAdd.length) await Promise.all(notificationsToAdd);
+	if (notificationsToAdd.length) await scheduleNotifications(notificationsToAdd);
 
 	console.log(`${series.displayNames[0]} finished`);
 
