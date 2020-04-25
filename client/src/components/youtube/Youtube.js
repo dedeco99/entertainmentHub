@@ -19,12 +19,14 @@ class Youtube extends Component {
 		this.state = {
 			channels: [],
 			subscriptions: [],
+			hasMoreSubscriptions: false,
 			page: 0,
 			after: null,
 
 			openModal: false,
 		};
 
+		this.getSubscriptions = this.getSubscriptions.bind(this);
 		this.addChannels = this.addChannels.bind(this);
 		this.deleteChannel = this.deleteChannel.bind(this);
 
@@ -34,7 +36,7 @@ class Youtube extends Component {
 
 	async componentDidMount() {
 		await this.getChannels();
-		await this.getSubscriptions(true);
+		await this.getSubscriptions();
 	}
 
 	async getSubscriptions() {
@@ -49,6 +51,7 @@ class Youtube extends Component {
 				subscriptions: newSubscriptions.filter(s => !channels.map(c => c.channelId).includes(s.channelId)),
 				page: page + 1,
 				after: response.data[0].after,
+				hasMoreSubscriptions: !(response.data.length < 25),
 			});
 		}
 	}
@@ -98,7 +101,7 @@ class Youtube extends Component {
 
 	render() {
 		const { openModal } = this.state;
-		const { loadingChannels, channels, subscriptions } = this.state;
+		const { loadingChannels, channels, subscriptions, hasMoreSubscriptions } = this.state;
 
 		const menuOptions = [{ displayName: "Delete", onClick: this.deleteChannel }];
 
@@ -121,6 +124,8 @@ class Youtube extends Component {
 					open={openModal}
 					onClose={this.handleCloseModal}
 					subscriptions={subscriptions}
+					getSubscriptions={this.getSubscriptions}
+					hasMoreSubscriptions={hasMoreSubscriptions}
 					addChannels={this.addChannels}
 				/>
 			</Grid>

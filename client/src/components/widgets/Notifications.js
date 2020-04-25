@@ -160,7 +160,7 @@ class Notifications extends Component {
 		const { height, classes } = this.props;
 		const { history, anchorEl, selectedIndex, open } = this.state;
 
-		const options = ["All", "TV", "Reddit", "Twitch"];
+		const options = ["All", "TV", "Youtube", "Reddit", "Twitch"];
 
 		return (
 			<Zoom in={open}>
