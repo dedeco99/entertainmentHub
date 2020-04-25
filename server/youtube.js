@@ -1,6 +1,8 @@
 const { middleware, response } = require("./utils/middleware");
 const errors = require("./utils/errors");
 const { api } = require("./utils/request");
+const { diff } = require("./utils/utils");
+
 const { addNotifications } = require("./notifications");
 
 const App = require("./models/app");
@@ -150,8 +152,7 @@ async function cronjob() {
 		const json = res.data;
 
 		for (const video of json.items) {
-			// TODO: change to moment diff
-			if (new Date() - new Date(video.snippet.publishedAt) < THREE_HOURS) {
+			if (diff(video.snippet.publishedAt, "hours") <= 3) {
 				const notifications = [];
 				for (const user of channels[i].users) {
 					notifications.push({

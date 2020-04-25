@@ -1,11 +1,11 @@
 const express = require("express");
 const path = require("path");
-const moment = require("moment");
 const morgan = require("morgan");
 const socketio = require("socket.io");
 const cron = require("node-cron");
 
 const { initialize } = require("./server/utils/database");
+const { formatDate } = require("./server/utils/utils");
 const auth = require("./server/auth");
 const apps = require("./server/apps");
 const users = require("./server/users");
@@ -36,7 +36,7 @@ const app = express();
 
 app.set("port", process.env.PORT || 5000);
 
-morgan.token("date", () => moment().format("hh:mm:ss"));
+morgan.token("date", () => formatDate(Date.now(), "hh:mm:ss"));
 
 app.use(morgan(
 	":date :status :method :url :response-time ms",

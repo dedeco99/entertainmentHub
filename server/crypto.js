@@ -1,8 +1,7 @@
 const { middleware, response } = require("./utils/middleware");
 const errors = require("./utils/errors");
 const { api } = require("./utils/request");
-
-const moment = require("moment");
+const { diff } = require("./utils/utils");
 
 async function getCoins(event) {
 	const { query } = event;
@@ -11,7 +10,7 @@ async function getCoins(event) {
 	let useCache = true;
 	let data = global.cache.crypto.coins;
 
-	if (!data.length || moment().diff(moment(global.cache.crypto.lastUpdate), "hours") > 24) {
+	if (!data.length || diff(global.cache.crypto.lastUpdate, "hours") > 24) {
 		useCache = false;
 	}
 
@@ -52,12 +51,7 @@ async function getPrices(event) {
 	for (const symbol of coins.split(",")) {
 		const coin = data[symbol];
 
-		if (
-			!coin ||
-			moment().diff(moment(coin.lastUpdate), "minutes") > 10
-		) {
-			useCache = false;
-		}
+		if (!coin || diff(coin.lastUpdate, "minutes") > 10) useCache = false;
 	}
 
 	if (!useCache) {

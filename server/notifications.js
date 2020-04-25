@@ -1,9 +1,9 @@
-const moment = require("moment");
-
 const { middleware, response } = require("./utils/middleware");
 const errors = require("./utils/errors");
 
 const Notification = require("./models/notification");
+const ScheduledNotification = require("./models/scheduledNotification");
+const Series = require("./models/series");
 
 async function getNotifications(event) {
 	const { query, user } = event;
@@ -12,7 +12,6 @@ async function getNotifications(event) {
 	const searchQuery = {
 		user: user._id,
 		active: !history,
-		sent: true,
 	};
 
 	if (type) searchQuery.type = type;
@@ -62,51 +61,82 @@ async function deleteNotification(event) {
 
 async function addNotifications(notifications) {
 	for (const notification of notifications) {
-		const { dateToSend, sent, notificationId, user, type, info } = notification;
+		const { dateToSend, notificationId, user, type, info } = notification;
 
-		// TODO: Add diff to utils
-		if (moment().diff(moment(dateToSend), "days") <= 5) {
-			const notificationExists = await Notification.findOne({
+		const notificationExists = await Notification.findOne({ user, type, notificationId }).lean();
+
+		if (!notificationExists) {
+			const newNotification = new Notification({
+				dateToSend,
+				notificationId,
 				user,
 				type,
-				notificationId,
-			}).lean();
+				info,
+			});
 
-			if (!notificationExists) {
-				const newNotification = new Notification({
-					dateToSend,
-					sent,
-					notificationId,
-					user,
-					type,
-					info,
-				});
+			await newNotification.save();
 
-				newNotification.save();
-
-				if (sent && global.sockets[notification.user]) {
-					for (const socket of global.sockets[notification.user]) {
-						socket.emit("notification", notification);
-					}
+			if (global.sockets[notification.user]) {
+				for (const socket of global.sockets[notification.user]) {
+					socket.emit("notification", notification);
 				}
 			}
 		}
 	}
 }
 
+async function scheduleNotifications(notifications) {
+	for (const notification of notifications) {
+		const { dateToSend, notificationId, type, info } = notification;
+
+		const notificationExists = await ScheduledNotification.findOne({ type, notificationId }).lean();
+
+		if (!notificationExists) {
+			const newNotification = new ScheduledNotification({
+				dateToSend,
+				notificationId,
+				type,
+				info,
+			});
+
+			await newNotification.save();
+		}
+	}
+}
+
 async function cronjob() {
-	const notifications = await Notification.find({
+	const scheduledNotifications = await ScheduledNotification.find({
 		sent: false,
 		dateToSend: { $lte: Date.now() },
 	}).lean();
 
-	for (const notification of notifications) {
-		for (const socket of global.sockets[notification.user]) {
-			socket.emit("notification", notification);
+	const notifications = [];
+	for (const scheduledNotification of scheduledNotifications) {
+		const { dateToSend, notificationId, type, info } = scheduledNotification;
+
+		switch (type) {
+			case "tv":
+				const userSeries = await Series.find({ seriesId: info.seriesId }).lean();
+
+				for (const series of userSeries) {
+					notifications.push(new Notification({
+						dateToSend,
+						notificationId: `${series.user}${notificationId}`,
+						user: series.user,
+						type,
+						info: { ...info, displayName: series.displayName },
+					}));
+				}
+
+				break;
+			default:
+				break;
 		}
 	}
 
-	await Notification.updateMany(
+	await addNotifications(notifications);
+
+	await ScheduledNotification.updateMany(
 		{ sent: false, dateToSend: { $lte: Date.now() } },
 		{ sent: true },
 	).lean();
@@ -117,5 +147,6 @@ module.exports = {
 	patchNotification: (req, res) => middleware(req, res, patchNotification, ["token"]),
 	deleteNotification: (req, res) => middleware(req, res, deleteNotification, ["token"]),
 	addNotifications,
+	scheduleNotifications,
 	cronjob,
 };
