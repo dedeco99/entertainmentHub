@@ -32,6 +32,7 @@ class Notifications extends Component {
 		this.state = {
 			page: 0,
 			hasMore: false,
+			loading: false,
 			currentFilter: "filter-all",
 			history: false,
 
@@ -53,25 +54,30 @@ class Notifications extends Component {
 	}
 
 	async getNotifications() {
-		let { currentFilter } = this.state;
-		const { page, history } = this.state;
+		const { page, history, loading } = this.state;
 		const { notifications, addNotification } = this.props;
 
-		currentFilter = currentFilter.substring(7);
-		currentFilter = currentFilter === "all" ? "" : currentFilter;
+		if (!loading) {
+			this.setState({ loading: true });
 
-		const response = await getNotifications(page, history, currentFilter);
+			let { currentFilter } = this.state;
+			currentFilter = currentFilter.substring(7);
+			currentFilter = currentFilter === "all" ? "" : currentFilter;
 
-		if (response.data && response.data.length) {
-			const newNotifications = page === 0 ? response.data : notifications.concat(response.data);
+			const response = await getNotifications(page, history, currentFilter);
 
-			addNotification(newNotifications);
+			if (response.data && response.data.length) {
+				const newNotifications = page === 0 ? response.data : notifications.concat(response.data);
 
-			this.setState({
-				open: true,
-				page: page + 1,
-				hasMore: !(response.data.length < 25),
-			});
+				addNotification(newNotifications);
+
+				this.setState({
+					open: true,
+					page: page + 1,
+					hasMore: !(response.data.length < 25),
+					loading: false,
+				});
+			}
 		}
 	}
 
