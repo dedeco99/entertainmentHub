@@ -10,9 +10,9 @@ async function getSeries() {
 }
 
 async function getSeasons(series, page, filter) {
-	const pageQuery = page >= 0 ? `page=${page}&` : "";
-	const filterQuery = filter ? `filter=${filter}` : "";
-	const query = `?${pageQuery}${filterQuery}`;
+	let query = "";
+	query += page >= 0 ? `?page=${page}` : "";
+	query += filter ? `${query ? "&" : "?"}filter=${filter}` : "";
 
 	const res = await api({
 		method: "get",

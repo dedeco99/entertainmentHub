@@ -7,7 +7,7 @@ const Series = require("./models/series");
 
 async function getNotifications(event) {
 	const { query, user } = event;
-	const { type, history } = query;
+	const { type, history, page } = query;
 
 	const searchQuery = {
 		user: user._id,
@@ -18,7 +18,11 @@ async function getNotifications(event) {
 
 	const sortQuery = { dateToSend: -1, _id: -1 };
 
-	const notifications = await Notification.find(searchQuery).sort(sortQuery).lean();
+	const notifications = await Notification.find(searchQuery)
+		.sort(sortQuery)
+		.skip(page ? page * 25 : 0)
+		.limit(25)
+		.lean();
 
 	return response(200, "Notifications found", notifications);
 }

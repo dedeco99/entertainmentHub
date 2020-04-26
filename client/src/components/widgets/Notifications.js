@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { withStyles } from "@material-ui/styles";
+import InfiniteScroll from "react-infinite-scroller";
+
 import Zoom from "@material-ui/core/Zoom";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -15,6 +17,7 @@ import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 import CustomScrollbar from "../.partials/CustomScrollbar";
 
@@ -27,6 +30,8 @@ class Notifications extends Component {
 	constructor() {
 		super();
 		this.state = {
+			page: 0,
+			hasMore: false,
 			currentFilter: "filter-all",
 			history: false,
 
@@ -34,6 +39,8 @@ class Notifications extends Component {
 			selectedIndex: 0,
 			open: false,
 		};
+
+		this.getNotifications = this.getNotifications.bind(this);
 
 		this.handleToggleHistory = this.handleToggleHistory.bind(this);
 		this.handleClickListItem = this.handleClickListItem.bind(this);
@@ -47,19 +54,25 @@ class Notifications extends Component {
 
 	async getNotifications() {
 		let { currentFilter } = this.state;
-		const { history } = this.state;
-		const { addNotification } = this.props;
+		const { page, history } = this.state;
+		const { notifications, addNotification } = this.props;
 
 		currentFilter = currentFilter.substring(7);
 		currentFilter = currentFilter === "all" ? "" : currentFilter;
 
-		const response = await getNotifications(history, currentFilter);
+		const response = await getNotifications(page, history, currentFilter);
 
-		if (response.data) {
-			addNotification(response.data);
+		if (response.data && response.data.length) {
+			const newNotifications = page === 0 ? response.data : notifications.concat(response.data);
+
+			addNotification(newNotifications);
+
+			this.setState({
+				open: true,
+				page: page + 1,
+				hasMore: !(response.data.length < 25),
+			});
 		}
-
-		this.setState({ open: true });
 	}
 
 	async handleHideNotification(id) {
@@ -126,39 +139,49 @@ class Notifications extends Component {
 		const { notifications, classes } = this.props;
 		const { history } = this.state;
 
-		const notificationList = notifications.map(notification => {
-			const notificationText = this.renderNotificationMessage(notification);
+		return (
+			<List>
+				{notifications.map(notification => {
+					const notificationText = this.renderNotificationMessage(notification);
 
-			return (
-				<ListItem key={notification._id} button divider>
-					<ListItemAvatar>
-						<Avatar className={classes.avatar}>
-							{this.renderNotificationType(notification.type)}
-						</Avatar>
-					</ListItemAvatar>
-					<ListItemText
-						primary={notificationText}
-						title={notificationText}
-						secondary={formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}
-						primaryTypographyProps={{ noWrap: true }}
-					/>
-					<ListItemSecondaryAction
-						onClick={() => this.handleHideNotification(notification._id)}
-					>
-						<IconButton>
-							<i className="material-icons">{history ? "delete" : "check_circle"}</i>
-						</IconButton>
-					</ListItemSecondaryAction>
-				</ListItem >
-			);
-		});
+					return (
+						<ListItem key={notification._id} button divider>
+							<ListItemAvatar>
+								<Avatar className={classes.avatar}>
+									{this.renderNotificationType(notification.type)}
+								</Avatar>
+							</ListItemAvatar>
+							<ListItemText
+								primary={notificationText}
+								title={notificationText}
+								secondary={formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}
+								primaryTypographyProps={{ noWrap: true }}
+							/>
+							<ListItemSecondaryAction
+								onClick={() => this.handleHideNotification(notification._id)}
+							>
+								<IconButton>
+									<i className="material-icons">{history ? "delete" : "check_circle"}</i>
+								</IconButton>
+							</ListItemSecondaryAction>
+						</ListItem >
+					);
+				})}
+			</List>
+		);
+	}
 
-		return notificationList;
+	renderLoadingMore() {
+		return (
+			<Box key={0} display="flex" alignItems="center" justifyContent="center">
+				<CircularProgress />
+			</Box>
+		);
 	}
 
 	render() {
 		const { height, classes } = this.props;
-		const { history, anchorEl, selectedIndex, open } = this.state;
+		const { hasMore, history, anchorEl, selectedIndex, open } = this.state;
 
 		const options = ["All", "TV", "Youtube", "Reddit", "Twitch"];
 
@@ -209,10 +232,15 @@ class Notifications extends Component {
 							</IconButton>
 						</Box>
 					</Box>
-					<Box display="flex" flexGrow={1} style={{ overflow: "auto" }}>
-						<CustomScrollbar>
-							<List> {this.renderNotificationList()} </List>
-						</CustomScrollbar>
+					<Box style={{ overflow: "auto" }}>
+						<InfiniteScroll
+							loadMore={this.getNotifications}
+							hasMore={hasMore}
+							useWindow={false}
+							loader={this.renderLoadingMore()}
+						>
+							{this.renderNotificationList()}
+						</InfiniteScroll>
 					</Box>
 				</Box>
 			</Zoom >
