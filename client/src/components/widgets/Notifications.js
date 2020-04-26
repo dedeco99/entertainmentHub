@@ -55,7 +55,7 @@ class Notifications extends Component {
 
 	async getNotifications() {
 		const { page, history, loading } = this.state;
-		const { notifications, addNotification } = this.props;
+		const { notifications, addNotification, updateTotal } = this.props;
 
 		if (!loading) {
 			this.setState({ loading: true });
@@ -66,15 +66,18 @@ class Notifications extends Component {
 
 			const response = await getNotifications(page, history, currentFilter);
 
-			if (response.data && response.data.length) {
-				const newNotifications = page === 0 ? response.data : notifications.concat(response.data);
+			if (response.data) {
+				const newNotifications = page === 0
+					? response.data.notifications
+					: notifications.concat(response.data.notifications);
 
 				addNotification(newNotifications);
+				updateTotal(response.data.total);
 
 				this.setState({
 					open: true,
 					page: page + 1,
-					hasMore: !(response.data.length < 25),
+					hasMore: !(response.data.notifications.length < 25),
 					loading: false,
 				});
 			}
@@ -94,11 +97,12 @@ class Notifications extends Component {
 
 	handleToggleHistory() {
 		const { history } = this.state;
-		this.setState({ history: !history }, this.getNotifications);
+
+		this.setState({ history: !history, page: 0 }, this.getNotifications);
 	}
 
 	applyFilter(filter) {
-		this.setState({ currentFilter: filter }, this.getNotifications);
+		this.setState({ currentFilter: filter, page: 0 }, this.getNotifications);
 	}
 
 	renderNotificationType(type) {
@@ -259,6 +263,7 @@ Notifications.propTypes = {
 	notifications: PropTypes.array.isRequired,
 	addNotification: PropTypes.func.isRequired,
 	deleteNotification: PropTypes.func.isRequired,
+	updateTotal: PropTypes.func.isRequired,
 	height: PropTypes.string,
 };
 
@@ -269,6 +274,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
 	addNotification: notification => dispatch({ type: "ADD_NOTIFICATION", notification }),
 	deleteNotification: notification => dispatch({ type: "DELETE_NOTIFICATION", notification }),
+	updateTotal: total => dispatch({ type: "UPDATE_TOTAL", total }),
 });
 
 

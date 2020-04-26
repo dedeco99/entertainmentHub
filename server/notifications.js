@@ -14,17 +14,20 @@ async function getNotifications(event) {
 		active: !history,
 	};
 
+	const total = await Notification.countDocuments(searchQuery);
+
 	if (type) searchQuery.type = type;
 
 	const sortQuery = { dateToSend: -1, _id: -1 };
 
-	const notifications = await Notification.find(searchQuery)
-		.sort(sortQuery)
-		.skip(page ? page * 25 : 0)
-		.limit(25)
-		.lean();
+	const notifications = await Notification.aggregate([
+		{ $match: searchQuery },
+		{ $sort: sortQuery },
+		{ $skip: page ? page * 25 : 0 },
+		{ $limit: 25 },
+	]);
 
-	return response(200, "Notifications found", notifications);
+	return response(200, "Notifications found", { notifications, total });
 }
 
 async function patchNotification(event) {

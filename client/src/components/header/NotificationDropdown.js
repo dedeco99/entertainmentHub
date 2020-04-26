@@ -50,12 +50,12 @@ class NotificationDropdown extends Component {
 	}
 
 	render() {
-		const { classes, notifications } = this.props;
+		const { classes, total } = this.props;
 
 		return (
 			<ClickAwayListener onClickAway={this.handleClickAway}>
 				<div className={classes.wrapper}>
-					<Badge badgeContent={notifications.length} overlap="circle" color="error">
+					<Badge badgeContent={total} overlap="circle" color="error">
 						<IconButton onClick={this.handleClick}>
 							<i className="icofont-alarm" />
 						</IconButton>
@@ -69,11 +69,11 @@ class NotificationDropdown extends Component {
 
 NotificationDropdown.propTypes = {
 	classes: PropTypes.object.isRequired,
-	notifications: PropTypes.array.isRequired,
+	total: PropTypes.number.isRequired,
 };
 
 const mapStateToProps = state => ({
-	notifications: state.notifications.notifications,
+	total: state.notifications.total,
 });
 
 export default connect(mapStateToProps)(withStyles(styles)(NotificationDropdown));
