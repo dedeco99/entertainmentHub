@@ -116,7 +116,7 @@ class Notifications extends Component {
 		}
 	}
 
-	renderNotificationMessage(notification) {
+	getNotificationContent(notification) {
 		const { displayName, season, number, videoTitle } = notification.info;
 
 		switch (notification.type) {
@@ -124,12 +124,33 @@ class Notifications extends Component {
 				const seasonLabel = season > 9 ? `S${season}` : `S0${season}`;
 				const episodeLabel = number > 9 ? `E${number}` : `E0${number}`;
 
-				return `${displayName} - ${seasonLabel}${episodeLabel}`;
+				return {
+					title: displayName,
+					subtitle: `${seasonLabel}${episodeLabel}`,
+				};
 			case "youtube":
-				return `${displayName} - ${videoTitle}`;
+				return {
+					title: displayName,
+					subtitle: videoTitle,
+				};
 			default:
-				return <i className="material-icons">{notification.info.message}</i>;
+				return {
+					title: <i className="material-icons">{notification.info.message}</i>,
+					subtitle: "Message",
+				};
 		}
+	}
+
+	renderNotificationContent(notification) {
+		const { title, subtitle } = this.getNotificationContent(notification);
+
+		return (
+			<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
+				<Typography variant="body1" title={title} noWrap> {title} </Typography>
+				<Typography variant="body2" title={subtitle} noWrap> {subtitle} </Typography>
+				<Typography variant="caption"> {formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")} </Typography>
+			</Box>
+		);
 	}
 
 	handleClickListItem(e) {
@@ -152,8 +173,6 @@ class Notifications extends Component {
 		return (
 			<List>
 				{notifications.map(notification => {
-					const notificationText = this.renderNotificationMessage(notification);
-
 					return (
 						<ListItem key={notification._id} button divider>
 							<ListItemAvatar>
@@ -161,12 +180,7 @@ class Notifications extends Component {
 									{this.renderNotificationType(notification.type)}
 								</Avatar>
 							</ListItemAvatar>
-							<ListItemText
-								primary={notificationText}
-								title={notificationText}
-								secondary={formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}
-								primaryTypographyProps={{ noWrap: true }}
-							/>
+							{this.renderNotificationContent(notification)}
 							<ListItemSecondaryAction
 								onClick={() => this.handleHideNotification(notification._id)}
 							>
