@@ -156,14 +156,19 @@ class TV extends Component {
 		}
 	}
 
-	async getSeasons(series, season) {
-		const response = await getSeasons(series);
+	async getSeasons(id, season) {
+		const { series } = this.state;
+
+		const seriesFound = series.find(s => s._id === id);
+		const seriesId = seriesFound ? seriesFound.seriesId : id;
+
+		const response = await getSeasons(seriesId);
 
 		if (response.data.length) {
-			this.updateSeriesPath(series);
+			this.updateSeriesPath(seriesId);
 
 			this.setState(
-				{ seasons: response.data, currentSeries: series, allPage: 0 },
+				{ seasons: response.data, currentSeries: id, allPage: 0 },
 				() => this.getEpisodes(season >= 0 ? season : response.data[response.data.length - 1]._id),
 			);
 		}
