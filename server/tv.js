@@ -174,11 +174,11 @@ async function getEpisodes(event) {
 							},
 						},
 					],
-					as: "seriesId",
+					as: "series",
 				},
 			},
 			{
-				$unwind: "$seriesId",
+				$unwind: "$series",
 			},
 			{
 				$sort: sortQuery,
