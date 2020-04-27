@@ -8,55 +8,6 @@ const { scheduleNotifications } = require("./notifications");
 const Series = require("./models/series");
 const Episode = require("./models/episode");
 
-async function getSeries(event) {
-	const { user } = event;
-
-	const series = await Series.find({ user: user._id }).sort({ displayName: 1 }).lean();
-
-	return response(200, "Series found", series);
-}
-
-async function getSearch(event) {
-	const { params, query } = event;
-	const { search } = params;
-	const { page } = query;
-
-	if (!page && page !== "0") return response(400, "Missing page in query");
-
-	const url = `https://api.themoviedb.org/3/search/tv?query=${search}${`&page=${Number(page) + 1}`}&api_key=${process.env.tmdbKey}`;
-
-	const res = await api({ method: "get", url });
-	const json = res.data;
-
-	const series = json.results.map(s => ({
-		id: s.id,
-		displayName: s.name,
-		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}`,
-	}));
-
-	return response(200, "Series found", series);
-}
-
-async function getPopular(event) {
-	const { query } = event;
-	const { page } = query;
-
-	if (!page && page !== "0") return response(400, "Missing page in query");
-
-	const url = `https://api.themoviedb.org/3/tv/popular?${`page=${Number(page) + 1}`}&api_key=${process.env.tmdbKey}`;
-
-	const res = await api({ method: "get", url });
-	const json = res.data;
-
-	const series = json.results.map(s => ({
-		id: s.id,
-		displayName: s.name,
-		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}`,
-	}));
-
-	return response(200, "Series found", series);
-}
-
 // eslint-disable-next-line complexity
 async function fetchEpisodes(series) {
 	const episodesToAdd = [];
@@ -175,6 +126,134 @@ async function cronjob() {
 	return true;
 }
 
+async function getSeries(event) {
+	const { user } = event;
+
+	const series = await Series.find({ user: user._id }).sort({ displayName: 1 }).lean();
+
+	return response(200, "Series found", series);
+}
+
+async function getEpisodes(event) {
+	const { params, query, user } = event;
+	const { id } = params;
+	const { page, filter } = query;
+
+	const userSeries = await Series.find({ user: user._id }).sort({ displayName: 1 }).lean();
+
+	const seriesIds = userSeries.map(s => s.seriesId);
+
+	const episodeQuery = { seriesId: { $in: seriesIds } };
+	const sortQuery = { date: -1, seriesId: -1, number: -1 };
+	if (filter === "passed") {
+		episodeQuery.date = { $lte: new Date() };
+	} else if (filter === "future") {
+		episodeQuery.date = { $gt: new Date() };
+		sortQuery.date = 1;
+	}
+
+	let episodes = [];
+	if (id === "all") {
+		episodes = await Episode.aggregate([
+			{
+				$match: episodeQuery,
+			},
+			{
+				$lookup: {
+					from: "series",
+					let: { seriesId: "$seriesId" },
+					pipeline: [
+						{
+							$match: {
+								$expr: {
+									$and: [
+										{ $eq: ["$seriesId", "$$seriesId"] },
+										{ $eq: ["$user", toObjectId(user._id)] },
+									],
+								},
+							},
+						},
+					],
+					as: "series",
+				},
+			},
+			{
+				$unwind: "$series",
+			},
+			{
+				$sort: sortQuery,
+			},
+			{
+				$skip: page ? page * 50 : 0,
+			},
+			{
+				$limit: 50,
+			},
+		]);
+	} else {
+		episodes = await Episode.aggregate([
+			{
+				$match: { seriesId: id },
+			},
+			{
+				$sort: { number: -1 },
+			},
+			{
+				$group: {
+					_id: "$season",
+					episodes: { $push: "$$ROOT" },
+				},
+			},
+			{
+				$sort: { _id: 1 },
+			},
+		]);
+	}
+
+	return response(200, "Episodes found", episodes);
+}
+
+async function getSearch(event) {
+	const { params, query } = event;
+	const { search } = params;
+	const { page } = query;
+
+	if (!page && page !== "0") return response(400, "Missing page in query");
+
+	const url = `https://api.themoviedb.org/3/search/tv?query=${search}${`&page=${Number(page) + 1}`}&api_key=${process.env.tmdbKey}`;
+
+	const res = await api({ method: "get", url });
+	const json = res.data;
+
+	const series = json.results.map(s => ({
+		id: s.id,
+		displayName: s.name,
+		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}`,
+	}));
+
+	return response(200, "Series found", series);
+}
+
+async function getPopular(event) {
+	const { query } = event;
+	const { page } = query;
+
+	if (!page && page !== "0") return response(400, "Missing page in query");
+
+	const url = `https://api.themoviedb.org/3/tv/popular?${`page=${Number(page) + 1}`}&api_key=${process.env.tmdbKey}`;
+
+	const res = await api({ method: "get", url });
+	const json = res.data;
+
+	const series = json.results.map(s => ({
+		id: s.id,
+		displayName: s.name,
+		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}`,
+	}));
+
+	return response(200, "Series found", series);
+}
+
 async function addSeries(event) {
 	const { body, user } = event;
 	const { id, displayName, image } = body;
@@ -231,94 +310,13 @@ async function deleteSeries(event) {
 	return response(200, "Series has been deleted", series);
 }
 
-async function getEpisodes(event) {
-	const { params, query, user } = event;
-	const { series } = params;
-	const { page, filter } = query;
-
-	const userSeries = await Series.find({ user: user._id }).sort({ displayName: 1 }).lean();
-
-	const seriesIds = userSeries.map(s => s.seriesId);
-
-	const episodeQuery = { seriesId: { $in: seriesIds } };
-	const sortQuery = { date: -1, seriesId: -1, number: -1 };
-	if (filter === "passed") {
-		episodeQuery.date = { $lte: new Date() };
-	} else if (filter === "future") {
-		episodeQuery.date = { $gt: new Date() };
-		sortQuery.date = 1;
-	}
-
-	let episodes = [];
-	if (series === "all") {
-		episodes = await Episode.aggregate([
-			{
-				$match: episodeQuery,
-			},
-			{
-				$lookup: {
-					from: "series",
-					let: { seriesId: "$seriesId" },
-					pipeline: [
-						{
-							$match: {
-								$expr: {
-									$and: [
-										{ $eq: ["$seriesId", "$$seriesId"] },
-										{ $eq: ["$user", toObjectId(user._id)] },
-									],
-								},
-							},
-						},
-					],
-					as: "seriesId",
-				},
-			},
-			{
-				$unwind: "$seriesId",
-			},
-			{
-				$sort: sortQuery,
-			},
-			{
-				$skip: page ? page * 50 : 0,
-			},
-			{
-				$limit: 50,
-			},
-		]);
-	} else {
-		const seriesFound = userSeries.find(s => s._id.toString() === series.toString());
-
-		episodes = await Episode.aggregate([
-			{
-				$match: { seriesId: seriesFound.seriesId },
-			},
-			{
-				$sort: { number: -1 },
-			},
-			{
-				$group: {
-					_id: "$season",
-					episodes: { $push: "$$ROOT" },
-				},
-			},
-			{
-				$sort: { _id: 1 },
-			},
-		]);
-	}
-
-	return response(200, "Episodes found", episodes);
-}
-
 module.exports = {
+	cronjob,
 	getSeries: (req, res) => middleware(req, res, getSeries, ["token"]),
+	getEpisodes: (req, res) => middleware(req, res, getEpisodes, ["token"]),
 	getSearch: (req, res) => middleware(req, res, getSearch, ["token"]),
 	getPopular: (req, res) => middleware(req, res, getPopular, ["token"]),
 	addSeries: (req, res) => middleware(req, res, addSeries, ["token"]),
 	editSeries: (req, res) => middleware(req, res, editSeries, ["token"]),
 	deleteSeries: (req, res) => middleware(req, res, deleteSeries, ["token"]),
-	getEpisodes: (req, res) => middleware(req, res, getEpisodes, ["token"]),
-	cronjob,
 };
