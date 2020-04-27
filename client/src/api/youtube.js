@@ -39,9 +39,20 @@ async function deleteChannel(id) {
 	return res;
 }
 
+async function addToWatchLater(id) {
+	const res = await api({
+		method: "post",
+		url: `api/youtube/watchlater/${id}`,
+		message: true,
+	});
+
+	return res;
+}
+
 export {
 	getSubscriptions,
 	getChannels,
 	addChannels,
 	deleteChannel,
+	addToWatchLater,
 };
