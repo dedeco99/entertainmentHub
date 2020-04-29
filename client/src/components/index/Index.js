@@ -142,6 +142,13 @@ class Index extends Component {
 						dimensions = { w: widget.width || 1, h: widget.height || 2 };
 						restrictions = { minW: 1, minH: 2, maxW: 3, maxH: 6 };
 						break;
+					case "twitch":
+						content = <Twitch />;
+						editText = "Twitch";
+						editIcon = "icofont-twitch";
+						dimensions = { w: widget.width || 1, h: widget.height || 2 };
+						restrictions = { minW: 1, minH: 2, maxW: 3, maxH: 6 };
+						break;
 					case "weather":
 						content = (
 							<Weather
@@ -216,7 +223,6 @@ class Index extends Component {
 				<IconButton onClick={this.handleToggleEdit}>
 					<i className="icofont-ui-edit" />
 				</IconButton>
-				<Twitch />
 				{widgets ? (
 					<ResponsiveGridLayout
 						className="layout"
