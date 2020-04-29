@@ -13,10 +13,8 @@ import Index from "./index/Index";
 import Register from "./auth/Register";
 import Login from "./auth/Login";
 import Youtube from "./youtube/Youtube";
-/*
-import Reddit from "./reddit/Reddit";
+// import Reddit from "./reddit/Reddit";
 import Twitch from "./twitch/Twitch";
-*/
 import TV from "./tv/TV";
 import Settings from "./settings/Settings";
 import Apps from "./settings/Apps";
@@ -116,12 +114,8 @@ class App extends Component {
 				<Route exact path="/login" component={Login} />
 				<PrivateRoute exact path="/apps/:app" component={Apps} />
 				<PrivateRoute exact path="/youtube" component={Youtube} />
-				{
-					/*
-					<PrivateRoute exact path="/reddit/:sub?/:category?" component={Reddit} />
-					<PrivateRoute exact path="/twitch" component={Twitch} />
-					*/
-				}
+				{/* <PrivateRoute exact path="/reddit/:sub?/:category?" component={Reddit} /> */}
+				<PrivateRoute exact path="/twitch" component={Twitch} />
 				<PrivateRoute exact path="/tv" component={TV} />
 				<PrivateRoute exact path="/tv/all" component={TV} />
 				<PrivateRoute exact path="/tv/popular" component={TV} />

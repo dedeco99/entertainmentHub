@@ -4,12 +4,12 @@ const { api } = require("./utils/request");
 
 const App = require("./models/app");
 
-async function getAccessToken(user) {
+async function getAccessToken(user, grantType) {
 	const app = await App.findOne({ user: user._id, platform: "twitch" }).lean();
 
 	if (!app) return errors.notFound;
 
-	const url = `https://id.twitch.tv/oauth2/token?client_id=${process.env.twitchClientId}&client_secret=${process.env.twitchSecret}&refresh_token=${app.refreshToken}&grant_type=client_credentials`;
+	const url = `https://id.twitch.tv/oauth2/token?client_id=${process.env.twitchClientId}&client_secret=${process.env.twitchSecret}&refresh_token=${app.refreshToken}&grant_type=${grantType}`;
 
 	const res = await api({ method: "post", url });
 	const json = res.data;
@@ -21,7 +21,7 @@ async function getStreams(event) {
 	const { query, user } = event;
 	const { after } = query;
 
-	const accessToken = await getAccessToken(user);
+	const accessToken = await getAccessToken(user, "client_credentials");
 
 	let url = "https://api.twitch.tv/helix/streams?user_login=esl_csgo&user_login=p4wnyhof&user_login=cohhcarnage";
 	if (after) url += `&after=${after}`;
@@ -47,6 +47,36 @@ async function getStreams(event) {
 	streams.sort((a, b) => a.viewers <= b.viewers ? 1 : -1);
 
 	return response(200, "Streams found", streams);
+}
+
+async function getFollows(event) {
+	const { query, user } = event;
+	const { after } = query;
+
+	const accessToken = await getAccessToken(user, "refresh_token");
+
+	let url = "https://api.twitch.tv/helix/users";
+
+	const headers = {
+		Authorization: `Bearer ${accessToken}`,
+	};
+
+	let res = await api({ method: "get", url, headers });
+	let json = res.data;
+
+	url = `https://api.twitch.tv/helix/users/follows?from_id=${json.data[0].id}`;
+	if (after) url += `&after=${after}`;
+
+	res = await api({ method: "get", url, headers });
+	json = res.data;
+
+	const follows = json.data.map(follow => ({
+		id: follow.to_id,
+		user: follow.to_name,
+		after: json.pagination.cursor,
+	}));
+
+	return response(200, "Twitch followed channels found", follows);
 }
 
 async function testWebhooks(accessToken) {
@@ -82,4 +112,5 @@ async function testWebhooks(accessToken) {
 
 module.exports = {
 	getStreams: (req, res) => middleware(req, res, getStreams, ["token"]),
+	getFollows: (req, res) => middleware(req, res, getFollows, ["token"]),
 };

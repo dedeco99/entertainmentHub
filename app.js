@@ -100,6 +100,8 @@ app.delete("/api/youtube/channels/:id", youtube.deleteChannel);
 
 app.get("/api/twitch/streams", twitch.getStreams);
 
+app.get("/api/twitch/follows", twitch.getFollows);
+
 /*
 app.get("/api/twitch/games/", twitch.getGames);
 

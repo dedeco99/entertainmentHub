@@ -1,0 +1,132 @@
+import React, { Component } from "react";
+
+import IconButton from "@material-ui/core/IconButton";
+import Grid from "@material-ui/core/Grid";
+
+import Sidebar from "../.partials/Sidebar";
+import Follows from "./Follows";
+
+import { getFollows, getChannels, addChannels, deleteChannel } from "../../api/twitch";
+
+class Twitch extends Component {
+	constructor() {
+		super();
+
+		this.state = {
+			channels: [],
+			follows: [],
+			hasMoreFollows: false,
+			page: 0,
+			after: null,
+
+			openModal: false,
+		};
+
+		this.getFollows = this.getFollows.bind(this);
+		this.addChannels = this.addChannels.bind(this);
+		this.deleteChannel = this.deleteChannel.bind(this);
+
+		this.handleOpenModal = this.handleOpenModal.bind(this);
+		this.handleCloseModal = this.handleCloseModal.bind(this);
+	}
+
+	async componentDidMount() {
+		await this.getChannels();
+		await this.getFollows();
+	}
+
+	async getFollows() {
+		const { channels, follows, page, after } = this.state;
+
+		const response = await getFollows(after);
+
+		if (response.data && response.data.length) {
+			const newFollows = page === 0 ? response.data : follows.concat(response.data);
+
+			this.setState({
+				follows: newFollows.filter(s => !channels.map(c => c.channelId).includes(s.channelId)),
+				page: page + 1,
+				after: response.data[0].after,
+				hasMoreFollows: !(response.data.length < 20),
+			});
+		}
+	}
+
+	async getChannels() {
+		const response = await getChannels();
+
+		if (response.data && response.data.length) {
+			this.setState({ channels: response.data });
+		}
+	}
+
+	async addChannels(channels) {
+		const response = await addChannels(channels);
+
+		if (response.status < 400) {
+			this.setState(prevState => ({
+				channels: [...prevState.channels, ...response.data].sort((a, b) => (
+					a.displayName <= b.displayName ? -1 : 1
+				)),
+				follows: prevState.follows.filter(s => (
+					![...prevState.channels, ...response.data].map(c => c.channelId).includes(s.channelId)
+				)),
+			}));
+		}
+	}
+
+	async deleteChannel(e) {
+		const { channels } = this.state;
+
+		const response = await deleteChannel(e.target.id);
+
+		if (response.status < 400) {
+			const updatedChannels = channels.filter(s => s._id !== response.data._id);
+
+			this.setState({ channels: updatedChannels, page: 0, after: null }, this.getFollows);
+		}
+	}
+
+	handleOpenModal() {
+		this.setState({ openModal: true });
+	}
+
+	handleCloseModal() {
+		this.setState({ openModal: false });
+	}
+
+	render() {
+		const { openModal } = this.state;
+		const { loadingChannels, channels, follows, hasMoreFollows } = this.state;
+
+		const menuOptions = [{ displayName: "Delete", onClick: this.deleteChannel }];
+
+		return (
+			<Grid container spacing={2}>
+				<Grid item sm={3} md={2}>
+					<IconButton onClick={this.handleOpenModal}>
+						<i className="icofont-ui-add" />
+					</IconButton>
+					<Sidebar
+						options={channels}
+						idField="_id"
+						menu={menuOptions}
+						loading={loadingChannels}
+						noResultsMessage={"No channels"}
+					/>
+				</Grid>
+				<Grid item sm={9} md={10} lg={10} />
+				<Follows
+					open={openModal}
+					onClose={this.handleCloseModal}
+					follows={follows}
+					getFollows={this.getFollows}
+					hasMoreFollows={hasMoreFollows}
+					addChannels={this.addChannels}
+				/>
+			</Grid>
+		);
+	}
+}
+
+export default Twitch;
