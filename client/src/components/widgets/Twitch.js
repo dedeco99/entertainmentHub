@@ -29,8 +29,6 @@ class Twitch extends Component {
 	async getStreams() {
 		const response = await getStreams();
 
-		console.log(response);
-
 		this.setState({ streams: response.data, open: true });
 	}
 

@@ -9,6 +9,17 @@ async function getSubscriptions(after) {
 	return res;
 }
 
+async function addToWatchLater(id) {
+	const res = await api({
+		method: "post",
+		url: `api/youtube/watchlater/${id}`,
+		message: true,
+	});
+
+	return res;
+}
+
 export {
 	getSubscriptions,
+	addToWatchLater,
 };

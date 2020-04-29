@@ -59,8 +59,6 @@ async function getStreams(event) {
 	res = await api({ method: "get", url, headers });
 	json = res.data;
 
-	console.log(json);
-
 	streams = streams.map(stream => {
 		const game = json.data.find(g => g.id === stream.game);
 
