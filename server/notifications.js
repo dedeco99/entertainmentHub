@@ -7,20 +7,27 @@ const Series = require("./models/series");
 
 async function getNotifications(event) {
 	const { query, user } = event;
-	const { type, history } = query;
+	const { type, history, page } = query;
 
 	const searchQuery = {
 		user: user._id,
 		active: !history,
 	};
 
+	const total = await Notification.countDocuments(searchQuery);
+
 	if (type) searchQuery.type = type;
 
 	const sortQuery = { dateToSend: -1, _id: -1 };
 
-	const notifications = await Notification.find(searchQuery).sort(sortQuery).lean();
+	const notifications = await Notification.aggregate([
+		{ $match: searchQuery },
+		{ $sort: sortQuery },
+		{ $skip: page ? page * 25 : 0 },
+		{ $limit: 25 },
+	]);
 
-	return response(200, "Notifications found", notifications);
+	return response(200, "Notifications found", { notifications, total });
 }
 
 async function patchNotification(event) {
@@ -35,10 +42,10 @@ async function patchNotification(event) {
 			{ new: true },
 		);
 	} catch (e) {
-		throw errors.notFound;
+		return errors.notFound;
 	}
 
-	if (!notification) throw errors.notFound;
+	if (!notification) return errors.notFound;
 
 	return response(200, "Notification updated", notification);
 }
@@ -51,10 +58,10 @@ async function deleteNotification(event) {
 	try {
 		notification = await Notification.findOneAndDelete({ _id: id });
 	} catch (e) {
-		throw errors.notFound;
+		return errors.notFound;
 	}
 
-	if (!notification) throw errors.notFound;
+	if (!notification) return errors.notFound;
 
 	return response(200, "Notification deleted", notification);
 }

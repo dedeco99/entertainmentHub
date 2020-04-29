@@ -96,6 +96,8 @@ app.post("/api/youtube/channels", youtube.addChannels);
 
 app.delete("/api/youtube/channels/:id", youtube.deleteChannel);
 
+app.post("/api/youtube/watchlater/:id", youtube.addToWatchLater);
+
 /*
 app.get("/api/youtube/channels/:channel/", youtube.getPosts);
 

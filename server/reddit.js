@@ -25,7 +25,7 @@ async function getAccessToken(user) {
 	if (res.status === 400) {
 		await App.deleteOne({ user: user._id, platform: "reddit" });
 
-		throw errors.redditRefreshToken;
+		return errors.redditRefreshToken;
 	}
 
 	const json = res.data;
@@ -162,8 +162,8 @@ async function getPosts(event) {
 
 	const res = await api({ method: "get", url, headers });
 
-	if (res.status === 403) throw errors.redditForbidden;
-	if (res.status === 404) throw errors.redditNotFound;
+	if (res.status === 403) return errors.redditForbidden;
+	if (res.status === 404) return errors.redditNotFound;
 
 	const json = res.data;
 	const posts = formatResponse(json);
@@ -187,8 +187,8 @@ async function getSearch(event) {
 
 	const res = await api({ method: "get", url, headers });
 
-	if (res.status === 403) throw errors.redditForbidden;
-	if (res.status === 404) throw errors.redditNotFound;
+	if (res.status === 403) return errors.redditForbidden;
+	if (res.status === 404) return errors.redditNotFound;
 
 	const json = res.data;
 	const posts = formatResponse(json);

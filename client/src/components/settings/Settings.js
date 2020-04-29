@@ -62,7 +62,7 @@ class Settings extends Component {
 						&access_type=offline
 						&response_type=code
 						&client_id=539994951120-kabifq9ct2lbk92m9ef4hddc5f57nksl.apps.googleusercontent.com
-						&scope=https://www.googleapis.com/auth/youtube.readonly`,
+						&scope=https://www.googleapis.com/auth/youtube`,
 				},
 				tv: {
 					active: false,

@@ -1,12 +1,11 @@
 import { api } from "../utils/request";
 
-async function getNotifications(history, filter) {
+async function getNotifications(page, history, filter) {
 	let query = "";
-	if (history) {
-		query = filter ? `?history=true&type=${filter}` : "?history=true";
-	} else if (filter) {
-		query = `?type=${filter}`;
-	}
+	query += page >= 0 ? `?page=${page}` : "";
+	query += history ? `${query ? "&" : "?"}history=true` : "";
+	query += filter ? `${query ? "&" : "?"}type=${filter}` : "";
+
 	const res = await api({
 		method: "get",
 		url: `/api/notifications${query}`,
