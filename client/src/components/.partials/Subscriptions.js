@@ -20,7 +20,7 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 
 import { youtube as styles } from "../../styles/Youtube";
 
-class Follows extends Component {
+class Subscriptions extends Component {
 	constructor() {
 		super();
 
@@ -30,7 +30,7 @@ class Follows extends Component {
 
 		this.addChannels = this.addChannels.bind(this);
 
-		this.handleCheckbox = this.handleCheckbox.bind(this);
+		this.handleSubscriptionCheckbox = this.handleSubscriptionCheckbox.bind(this);
 	}
 
 	async addChannels() {
@@ -42,17 +42,17 @@ class Follows extends Component {
 		this.setState({ checkedChannels: [] });
 	}
 
-	handleCheckbox(channelId) {
-		const { follows } = this.props;
+	handleSubscriptionCheckbox(channelId) {
+		const { subscriptions } = this.props;
 		const { checkedChannels } = this.state;
 
 		const foundChannel = checkedChannels.findIndex(channel => channel.channelId === channelId);
 		const updatedChannels = [...checkedChannels];
 
 		if (foundChannel === -1) {
-			const follow = follows.find(channel => channel.channelId === channelId);
+			const subscription = subscriptions.find(channel => channel.channelId === channelId);
 
-			updatedChannels.push(follow);
+			updatedChannels.push(subscription);
 		} else {
 			updatedChannels.splice(foundChannel, 1);
 		}
@@ -60,25 +60,25 @@ class Follows extends Component {
 		this.setState({ checkedChannels: updatedChannels });
 	}
 
-	renderFollowsList() {
-		const { classes, follows } = this.props;
+	renderSubscriptionsList() {
+		const { classes, subscriptions } = this.props;
 		const { checkedChannels } = this.state;
 
 		return (
 			<List className={classes.root}>
-				{follows.map(channel => {
-					const labelId = `checkbox-list-secondary-label-${channel.id}`;
+				{subscriptions && subscriptions.map(channel => {
+					const labelId = `checkbox-list-secondary-label-${channel.channelId}`;
 					return (
-						<ListItem key={channel.id} button onClick={() => this.handleCheckbox(channel.id)}>
+						<ListItem key={channel.channelId} button onClick={() => this.handleSubscriptionCheckbox(channel.channelId)}>
 							<ListItemAvatar>
-								<Avatar alt={channel.user} /* src={channel.logo} */ />
+								<Avatar alt={channel.title} /* src={channel.logo} */ />
 							</ListItemAvatar>
-							<ListItemText id={labelId} primary={channel.user} />
+							<ListItemText id={labelId} primary={channel.displayName} />
 							<ListItemSecondaryAction>
 								<Checkbox
 									edge="end"
-									onChange={() => this.handleCheckbox(channel.id)}
-									checked={Boolean(checkedChannels.find(c => c.id === channel.id))}
+									onChange={() => this.handleSubscriptionCheckbox(channel.channelId)}
+									checked={Boolean(checkedChannels.find(c => c.channelId === channel.channelId))}
 									inputProps={{ "aria-labelledby": labelId }}
 								/>
 							</ListItemSecondaryAction>
@@ -98,7 +98,7 @@ class Follows extends Component {
 	}
 
 	render() {
-		const { classes, open, onClose, getFollows, hasMoreFollows } = this.props;
+		const { classes, open, onClose, getSubscriptions, hasMoreSubscriptions } = this.props;
 
 		return (
 			<Modal
@@ -112,12 +112,12 @@ class Follows extends Component {
 					<Paper variant="outlined" className={classes.modalContent}>
 						<Box flexGrow={1} style={{ overflow: "auto" }}>
 							<InfiniteScroll
-								loadMore={getFollows}
-								hasMore={hasMoreFollows}
+								loadMore={getSubscriptions}
+								hasMore={hasMoreSubscriptions}
 								useWindow={false}
 								loader={this.renderLoadingMore()}
 							>
-								{this.renderFollowsList()}
+								{this.renderSubscriptionsList()}
 							</InfiniteScroll>
 						</Box>
 						<Box display="flex" justifyContent="flex-end" className={classes.modalFooter}>
@@ -130,14 +130,14 @@ class Follows extends Component {
 	}
 }
 
-Follows.propTypes = {
+Subscriptions.propTypes = {
 	classes: PropTypes.object.isRequired,
 	open: PropTypes.bool.isRequired,
 	onClose: PropTypes.func.isRequired,
-	follows: PropTypes.array.isRequired,
+	subscriptions: PropTypes.array.isRequired,
 	addChannels: PropTypes.func.isRequired,
-	getFollows: PropTypes.func.isRequired,
-	hasMoreFollows: PropTypes.bool.isRequired,
+	getSubscriptions: PropTypes.func.isRequired,
+	hasMoreSubscriptions: PropTypes.bool.isRequired,
 };
 
-export default withStyles(styles)(Follows);
+export default withStyles(styles)(Subscriptions);

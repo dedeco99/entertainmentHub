@@ -4,9 +4,10 @@ import IconButton from "@material-ui/core/IconButton";
 import Grid from "@material-ui/core/Grid";
 
 import Sidebar from "../.partials/Sidebar";
-import Follows from "./Follows";
+import Subscriptions from "../.partials/Subscriptions";
 
-import { getFollows, getChannels, addChannels, deleteChannel } from "../../api/twitch";
+import { getFollows } from "../../api/twitch";
+import { getChannels, addChannels, deleteChannel } from "../../api/channels";
 
 class Twitch extends Component {
 	constructor() {
@@ -53,7 +54,7 @@ class Twitch extends Component {
 	}
 
 	async getChannels() {
-		const response = await getChannels();
+		const response = await getChannels("twitch");
 
 		if (response.data && response.data.length) {
 			this.setState({ channels: response.data });
@@ -61,12 +62,12 @@ class Twitch extends Component {
 	}
 
 	async addChannels(channels) {
-		const response = await addChannels(channels);
+		const response = await addChannels("twitch", channels);
 
 		if (response.status < 400) {
 			this.setState(prevState => ({
 				channels: [...prevState.channels, ...response.data].sort((a, b) => (
-					a.displayName <= b.displayName ? -1 : 1
+					a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1
 				)),
 				follows: prevState.follows.filter(s => (
 					![...prevState.channels, ...response.data].map(c => c.channelId).includes(s.channelId)
@@ -116,12 +117,12 @@ class Twitch extends Component {
 					/>
 				</Grid>
 				<Grid item sm={9} md={10} lg={10} />
-				<Follows
+				<Subscriptions
 					open={openModal}
 					onClose={this.handleCloseModal}
-					follows={follows}
-					getFollows={this.getFollows}
-					hasMoreFollows={hasMoreFollows}
+					subscriptions={follows}
+					getSubscriptions={this.getFollows}
+					hasMoreSubscriptions={hasMoreFollows}
 					addChannels={this.addChannels}
 				/>
 			</Grid>

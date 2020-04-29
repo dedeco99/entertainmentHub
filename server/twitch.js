@@ -70,13 +70,13 @@ async function getFollows(event) {
 	res = await api({ method: "get", url, headers });
 	json = res.data;
 
-	const follows = json.data.map(follow => ({
-		id: follow.to_id,
-		user: follow.to_name,
+	const channels = json.data.map(follow => ({
+		channelId: follow.to_id,
+		displayName: follow.to_name,
 		after: json.pagination.cursor,
 	}));
 
-	return response(200, "Twitch followed channels found", follows);
+	return response(200, "Twitch followed channels found", channels);
 }
 
 async function testWebhooks(accessToken) {

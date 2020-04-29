@@ -6,9 +6,10 @@ import IconButton from "@material-ui/core/IconButton";
 import Grid from "@material-ui/core/Grid";
 
 import Sidebar from "../.partials/Sidebar";
-import Subscriptions from "./Subscriptions";
+import Subscriptions from "../.partials/Subscriptions";
 
-import { getSubscriptions, getChannels, addChannels, deleteChannel } from "../../api/youtube";
+import { getSubscriptions } from "../../api/youtube";
+import { getChannels, addChannels, deleteChannel } from "../../api/channels";
 
 import { youtube as styles } from "../../styles/Youtube";
 
@@ -57,7 +58,7 @@ class Youtube extends Component {
 	}
 
 	async getChannels() {
-		const response = await getChannels();
+		const response = await getChannels("youtube");
 
 		if (response.data && response.data.length) {
 			this.setState({ channels: response.data });
@@ -65,12 +66,12 @@ class Youtube extends Component {
 	}
 
 	async addChannels(channels) {
-		const response = await addChannels(channels);
+		const response = await addChannels("youtube", channels);
 
 		if (response.status < 400) {
 			this.setState(prevState => ({
 				channels: [...prevState.channels, ...response.data].sort((a, b) => (
-					a.displayName <= b.displayName ? -1 : 1
+					a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1
 				)),
 				subscriptions: prevState.subscriptions.filter(s => (
 					![...prevState.channels, ...response.data].map(c => c.channelId).includes(s.channelId)
