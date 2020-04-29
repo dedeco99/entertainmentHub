@@ -15,7 +15,7 @@ const weather = require("./server/weather");
 const crypto = require("./server/crypto");
 const reddit = require("./server/reddit");
 const youtube = require("./server/youtube");
-// const twitch = require("./server/twitch");
+const twitch = require("./server/twitch");
 const tv = require("./server/tv");
 
 global.sockets = [];
@@ -96,11 +96,11 @@ app.post("/api/youtube/channels", youtube.addChannels);
 
 app.delete("/api/youtube/channels/:id", youtube.deleteChannel);
 
+// app.get("/api/youtube/channels/:channel/", youtube.getPosts);
+
+app.get("/api/twitch/streams", twitch.getStreams);
+
 /*
-app.get("/api/youtube/channels/:channel/", youtube.getPosts);
-
-app.get("/api/twitch/streams/", twitch.getStreams);
-
 app.get("/api/twitch/games/", twitch.getGames);
 
 app.get("/api/twitch/games/:game", twitch.getStreamsForGame);

@@ -6,6 +6,7 @@ import Widget from "../widgets/Widget";
 import WidgetDetail from "../widgets/WidgetDetail";
 import Notifications from "../widgets/Notifications";
 import Reddit from "../widgets/Reddit";
+import Twitch from "../widgets/Twitch";
 import Weather from "../widgets/Weather";
 import TV from "../widgets/TV";
 import Crypto from "../widgets/Crypto";
@@ -215,6 +216,7 @@ class Index extends Component {
 				<IconButton onClick={this.handleToggleEdit}>
 					<i className="icofont-ui-edit" />
 				</IconButton>
+				<Twitch />
 				{widgets ? (
 					<ResponsiveGridLayout
 						className="layout"
