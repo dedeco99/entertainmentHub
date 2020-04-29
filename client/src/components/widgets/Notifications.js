@@ -8,7 +8,6 @@ import Zoom from "@material-ui/core/Zoom";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
-import ListItemText from "@material-ui/core/ListItemText";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import IconButton from "@material-ui/core/IconButton";
 import Avatar from "@material-ui/core/Avatar";
@@ -19,9 +18,8 @@ import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
-import CustomScrollbar from "../.partials/CustomScrollbar";
-
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
+import { addToWatchLater } from "../../api/youtube";
 import { formatDate } from "../../utils/utils";
 
 import { notifications as styles } from "../../styles/Widgets";
@@ -36,9 +34,12 @@ class Notifications extends Component {
 			currentFilter: "filter-all",
 			history: false,
 
-			anchorEl: null,
+			filterAnchorEl: null,
 			selectedIndex: 0,
 			open: false,
+
+			notificationAnchorEl: null,
+			selectedNotification: null,
 		};
 
 		this.getNotifications = this.getNotifications.bind(this);
@@ -47,6 +48,11 @@ class Notifications extends Component {
 		this.handleClickListItem = this.handleClickListItem.bind(this);
 		this.handleMenuItemClick = this.handleMenuItemClick.bind(this);
 		this.handleClose = this.handleClose.bind(this);
+		this.handleOptionsClick = this.handleOptionsClick.bind(this);
+		this.handleCloseOptions = this.handleCloseOptions.bind(this);
+
+		this.handleHideNotification = this.handleHideNotification.bind(this);
+		this.handleWatchLaterOption = this.handleWatchLaterOption.bind(this);
 	}
 
 	componentDidMount() {
@@ -84,14 +90,27 @@ class Notifications extends Component {
 		}
 	}
 
-	async handleHideNotification(id) {
+	async handleHideNotification() {
 		const { deleteNotification } = this.props;
-		const { history } = this.state;
+		const { history, selectedNotification } = this.state;
 
-		const response = history ? await deleteNotifications(id) : await patchNotifications(id);
+		const response = history
+			? await deleteNotifications(selectedNotification._id)
+			: await patchNotifications(selectedNotification._id);
 
 		if (response.data) {
 			deleteNotification(response.data);
+		}
+	}
+
+	async handleWatchLaterOption() {
+		const { deleteNotification } = this.props;
+		const { selectedNotification } = this.state;
+
+		const response = await addToWatchLater(selectedNotification.info.videoId);
+
+		if (response.data) {
+			deleteNotification(selectedNotification);
 		}
 	}
 
@@ -154,43 +173,46 @@ class Notifications extends Component {
 	}
 
 	handleClickListItem(e) {
-		this.setState({ anchorEl: e.currentTarget });
+		this.setState({ filterAnchorEl: e.currentTarget });
 	}
 
 	handleMenuItemClick(e, index) {
-		this.setState({ anchorEl: null, selectedIndex: index });
+		this.setState({ filterAnchorEl: null, selectedIndex: index });
 		this.applyFilter(e.currentTarget.id);
 	}
 
 	handleClose() {
-		this.setState({ anchorEl: null });
+		this.setState({ filterAnchorEl: null });
+	}
+
+	handleOptionsClick(e, notification) {
+		this.setState({ notificationAnchorEl: e.currentTarget, selectedNotification: notification });
+	}
+
+	handleCloseOptions() {
+		this.setState({ notificationAnchorEl: null });
 	}
 
 	renderNotificationList() {
 		const { notifications, classes } = this.props;
-		const { history } = this.state;
 
 		return (
 			<List>
-				{notifications.map(notification => {
-					return (
-						<ListItem key={notification._id} button divider>
-							<ListItemAvatar>
-								<Avatar className={classes.avatar}>
-									{this.renderNotificationType(notification.type)}
-								</Avatar>
-							</ListItemAvatar>
-							{this.renderNotificationContent(notification)}
-							<ListItemSecondaryAction
-								onClick={() => this.handleHideNotification(notification._id)}
-							>
-								<IconButton>
-									<i className="material-icons">{history ? "delete" : "check_circle"}</i>
-								</IconButton>
-							</ListItemSecondaryAction>
-						</ListItem >
-					);
-				})}
+				{notifications.map(notification => (
+					<ListItem key={notification._id} button divider>
+						<ListItemAvatar>
+							<Avatar className={classes.avatar}>
+								{this.renderNotificationType(notification.type)}
+							</Avatar>
+						</ListItemAvatar>
+						{this.renderNotificationContent(notification)}
+						<ListItemSecondaryAction onClick={e => this.handleOptionsClick(e, notification)}>
+							<IconButton edge="end">
+								<i className="material-icons">{"more_vert"}</i>
+							</IconButton>
+						</ListItemSecondaryAction>
+					</ListItem >
+				))}
 			</List>
 		);
 	}
@@ -203,11 +225,28 @@ class Notifications extends Component {
 		);
 	}
 
+	getNotificationActions() {
+		const { selectedNotification } = this.state;
+		if (selectedNotification) {
+			switch (selectedNotification.type) {
+				case "youtube":
+					return [
+						{ name: "Mark as read", onClick: this.handleHideNotification },
+						{ name: "Watch later", onClick: this.handleWatchLaterOption },
+					];
+				default:
+					return [{ name: "Mark as read", onClick: this.handleHideNotification }];
+			}
+		}
+		return [];
+	}
+
 	render() {
 		const { height, classes } = this.props;
-		const { hasMore, history, anchorEl, selectedIndex, open } = this.state;
+		const { hasMore, history, filterAnchorEl, selectedIndex, open, notificationAnchorEl } = this.state;
 
-		const options = ["All", "TV", "Youtube", "Reddit", "Twitch"];
+		const filterOptions = ["All", "TV", "Youtube", "Reddit", "Twitch"];
+		const actions = this.getNotificationActions();
 
 		return (
 			<Zoom in={open}>
@@ -226,19 +265,19 @@ class Notifications extends Component {
 								onClick={this.handleClickListItem}
 								endIcon={<i className="material-icons"> {"filter_list"} </i>}
 							>
-								{options[selectedIndex]}
+								{filterOptions[selectedIndex]}
 							</Button>
 							<Menu
 								id="filter-menu"
-								anchorEl={anchorEl}
+								anchorEl={filterAnchorEl}
 								keepMounted
-								open={Boolean(anchorEl)}
+								open={Boolean(filterAnchorEl)}
 								onClose={this.handleClose}
 								getContentAnchorEl={null}
 								anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
 								transformOrigin={{ vertical: "top", horizontal: "right" }}
 							>
-								{options.map((option, index) => (
+								{filterOptions.map((option, index) => (
 									<MenuItem
 										key={option}
 										id={`filter-${option.toLowerCase()}`}
@@ -266,6 +305,23 @@ class Notifications extends Component {
 							{this.renderNotificationList()}
 						</InfiniteScroll>
 					</Box>
+					<Menu
+						anchorEl={notificationAnchorEl}
+						keepMounted
+						open={Boolean(notificationAnchorEl)}
+						onClose={this.handleCloseOptions}
+					>
+						{
+							actions.map(action => (
+								<MenuItem
+									key={action.name}
+									onClick={() => { action.onClick(); this.handleCloseOptions(); }}
+								>
+									{action.name}
+								</MenuItem>
+							))
+						}
+					</Menu>
 				</Box>
 			</Zoom >
 		);
