@@ -3,6 +3,7 @@ const errors = require("./utils/errors");
 const { api } = require("./utils/request");
 
 const App = require("./models/app");
+const Channel = require("./models/channel");
 
 async function getAccessToken(user, grantType) {
 	const app = await App.findOne({ user: user._id, platform: "twitch" }).lean();
@@ -21,9 +22,15 @@ async function getStreams(event) {
 	const { query, user } = event;
 	const { after } = query;
 
+	const channels = await Channel.find({ user: user._id, platform: "twitch" }).lean();
+
+	if (!channels.length) return response(200, "No streams found", []);
+
+	const channelsString = `user_id=${channels.map(c => c.channelId).join("&user_id=")}`;
+
 	const accessToken = await getAccessToken(user, "client_credentials");
 
-	let url = "https://api.twitch.tv/helix/streams?user_login=esl_csgo&user_login=p4wnyhof&user_login=cohhcarnage";
+	let url = `https://api.twitch.tv/helix/streams?${channelsString}`;
 	if (after) url += `&after=${after}`;
 
 	const headers = {
