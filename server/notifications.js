@@ -42,10 +42,10 @@ async function patchNotification(event) {
 			{ new: true },
 		);
 	} catch (e) {
-		throw errors.notFound;
+		return errors.notFound;
 	}
 
-	if (!notification) throw errors.notFound;
+	if (!notification) return errors.notFound;
 
 	return response(200, "Notification updated", notification);
 }
@@ -58,10 +58,10 @@ async function deleteNotification(event) {
 	try {
 		notification = await Notification.findOneAndDelete({ _id: id });
 	} catch (e) {
-		throw errors.notFound;
+		return errors.notFound;
 	}
 
-	if (!notification) throw errors.notFound;
+	if (!notification) return errors.notFound;
 
 	return response(200, "Notification deleted", notification);
 }

@@ -24,7 +24,7 @@ async function getAccessToken(user) {
 		res = await api({ method: "post", url });
 		json = res.data;
 
-		if (!json.refresh_token) throw errors.youtubeRefreshToken;
+		if (!json.refresh_token) return errors.youtubeRefreshToken;
 
 		await App.updateOne({ user: user._id, platform: "youtube" }, { refreshToken: json.refresh_token });
 	}
@@ -135,8 +135,8 @@ async function addToWatchLater(event) {
 
 	const res = await api({ method: "post", url, data: body, headers });
 
-	if (res.status === 409) throw errors.duplicated;
-	if (res.status === 403) throw errors.youtubeForbidden;
+	if (res.status === 409) return errors.duplicated;
+	if (res.status === 403) return errors.youtubeForbidden;
 
 	return response(200, "Video saved to watch later", true);
 }
@@ -146,7 +146,7 @@ async function getChannelsPlaylist(channel) {
 
 	const res = await api({ method: "get", url });
 
-	if (res.status === 403) throw errors.youtubeForbidden;
+	if (res.status === 403) return errors.youtubeForbidden;
 
 	const json = res.data;
 
