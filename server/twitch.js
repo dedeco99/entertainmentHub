@@ -37,19 +37,38 @@ async function getStreams(event) {
 		Authorization: `Bearer ${accessToken}`,
 	};
 
-	const res = await api({ method: "get", url, headers });
-	const json = res.data;
+	let res = await api({ method: "get", url, headers });
+	let json = res.data;
 
-	const streams = json.data.map(stream => ({
+	let streams = json.data.map(stream => ({
 		id: stream.id,
 		live: true,
 		user: stream.user_name,
 		title: stream.title,
+		thumbnail: stream.thumbnail_url.replace("{width}x{height}", "640x360"),
 		game: stream.game_id,
 		viewers: stream.viewer_count,
 		dateStarted: stream.started_at,
 		after: json.pagination.cursor,
 	}));
+
+	const gamesString = `id=${streams.map(s => s.game).join("&id=")}`;
+
+	url = `https://api.twitch.tv/helix/games?${gamesString}`;
+
+	res = await api({ method: "get", url, headers });
+	json = res.data;
+
+	console.log(json);
+
+	streams = streams.map(stream => {
+		const game = json.data.find(g => g.id === stream.game);
+
+		return {
+			...stream,
+			game: game && game.name,
+		};
+	});
 
 	streams.sort((a, b) => a.viewers <= b.viewers ? 1 : -1);
 
@@ -77,11 +96,27 @@ async function getFollows(event) {
 	res = await api({ method: "get", url, headers });
 	json = res.data;
 
-	const channels = json.data.map(follow => ({
+	let channels = json.data.map(follow => ({
 		channelId: follow.to_id,
 		displayName: follow.to_name,
 		after: json.pagination.cursor,
 	}));
+
+	const channelsString = `id=${channels.map(c => c.channelId).join("&id=")}`;
+
+	url = `https://api.twitch.tv/helix/users?${channelsString}`;
+
+	res = await api({ method: "get", url, headers });
+	json = res.data;
+
+	channels = channels.map(follow => {
+		const channel = json.data.find(c => c.id === follow.channelId);
+
+		return {
+			...follow,
+			logo: channel && channel.profile_image_url,
+		};
+	});
 
 	return response(200, "Twitch followed channels found", channels);
 }

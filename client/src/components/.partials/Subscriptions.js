@@ -71,7 +71,7 @@ class Subscriptions extends Component {
 					return (
 						<ListItem key={channel.channelId} button onClick={() => this.handleSubscriptionCheckbox(channel.channelId)}>
 							<ListItemAvatar>
-								<Avatar alt={channel.title} /* src={channel.logo} */ />
+								<Avatar alt={channel.title} src={channel.logo} />
 							</ListItemAvatar>
 							<ListItemText id={labelId} primary={channel.displayName} />
 							<ListItemSecondaryAction>
