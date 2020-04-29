@@ -86,7 +86,7 @@ class TV extends Component {
 			return (
 				<ListItem className={classes.episodeList} alignItems="flex-start" key={episode._id} button divider>
 					<Box display="flex" width="100%">
-						<Typography className={classes.episodeName} variant="body1"> {episode.seriesId.displayName} </Typography>
+						<Typography className={classes.episodeName} variant="body1"> {episode.series.displayName} </Typography>
 						<Typography className={classes.episodeDate} variant="caption"> {formatDate(episode.date, "DD-MM-YYYY")} </Typography>
 					</Box>
 					<Typography variant="body2"> {`${seasonLabel + episodeLabel} - ${episode.title}`} </Typography>

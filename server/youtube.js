@@ -24,7 +24,7 @@ async function getAccessToken(user) {
 		res = await api({ method: "post", url });
 		json = res.data;
 
-		if (!json.refresh_token) throw errors.youtubeRefreshToken;
+		if (!json.refresh_token) return errors.youtubeRefreshToken;
 
 		await App.updateOne({ user: user._id, platform: "youtube" }, { refreshToken: json.refresh_token });
 	}
@@ -58,12 +58,42 @@ async function getSubscriptions(event) {
 	return response(200, "Youtube subscriptions found", channels);
 }
 
+async function addToWatchLater(event) {
+	const { params, user } = event;
+	const { id } = params;
+
+	const accessToken = await getAccessToken(user);
+
+	const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&key=${process.env.youtubeKey}`;
+
+	const headers = {
+		Authorization: `Bearer ${accessToken}`,
+	};
+
+	const body = {
+		snippet: {
+			playlistId: "WL",
+			resourceId: {
+				videoId: id,
+				kind: "youtube#video",
+			},
+		},
+	};
+
+	const res = await api({ method: "post", url, data: body, headers });
+
+	if (res.status === 409) return errors.duplicated;
+	if (res.status === 403) return errors.youtubeForbidden;
+
+	return response(200, "Video saved to watch later", true);
+}
+
 async function getChannelsPlaylist(channel) {
 	const url = `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${channel}&maxResults=50&key=${process.env.youtubeKey}`;
 
 	const res = await api({ method: "get", url });
 
-	if (res.status === 403) throw errors.youtubeForbidden;
+	if (res.status === 403) return errors.youtubeForbidden;
 
 	const json = res.data;
 
@@ -128,5 +158,6 @@ async function cronjob() {
 
 module.exports = {
 	getSubscriptions: (req, res) => middleware(req, res, getSubscriptions, ["token"]),
+	addToWatchLater: (req, res) => middleware(req, res, addToWatchLater, ["token"]),
 	cronjob,
 };

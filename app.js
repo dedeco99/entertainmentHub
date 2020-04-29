@@ -97,6 +97,8 @@ app.delete("/api/channels/:id", channels.deleteChannel);
 
 app.get("/api/youtube/subscriptions", youtube.getSubscriptions);
 
+app.post("/api/youtube/watchlater/:id", youtube.addToWatchLater);
+
 // app.get("/api/youtube/channels/:channel/", youtube.getPosts);
 
 app.get("/api/twitch/streams", twitch.getStreams);
