@@ -281,6 +281,24 @@ const crypto = () => ({
 	},
 });
 
+const twitch = () => ({
+	root: {
+		backgroundColor: "#212121",
+		height: "100%",
+		borderColor: "#6441a5",
+	},
+	imageWrapper: {
+		position: "relative",
+	},
+	viewers: {
+		position: "absolute",
+		bottom: 2,
+		left: 0,
+		backgroundColor: "#212121dd",
+		padding: 2,
+	},
+});
+
 export {
 	widget,
 	widgetDetail,
@@ -289,4 +307,5 @@ export {
 	weather,
 	tv,
 	crypto,
+	twitch,
 };

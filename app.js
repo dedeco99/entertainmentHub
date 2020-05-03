@@ -14,8 +14,9 @@ const notifications = require("./server/notifications");
 const weather = require("./server/weather");
 const crypto = require("./server/crypto");
 const reddit = require("./server/reddit");
+const channels = require("./server/channels");
 const youtube = require("./server/youtube");
-// const twitch = require("./server/twitch");
+const twitch = require("./server/twitch");
 const tv = require("./server/tv");
 
 global.sockets = [];
@@ -88,21 +89,23 @@ app.get("/api/reddit/:subreddit/:category", reddit.getPosts);
 
 app.get("/api/reddit/:subreddit/search/:search", reddit.getSearch);
 
+app.get("/api/channels/:platform", channels.getChannels);
+
+app.post("/api/channels/:platform", channels.addChannels);
+
+app.delete("/api/channels/:id", channels.deleteChannel);
+
 app.get("/api/youtube/subscriptions", youtube.getSubscriptions);
-
-app.get("/api/youtube/channels", youtube.getChannels);
-
-app.post("/api/youtube/channels", youtube.addChannels);
-
-app.delete("/api/youtube/channels/:id", youtube.deleteChannel);
 
 app.post("/api/youtube/watchlater/:id", youtube.addToWatchLater);
 
+// app.get("/api/youtube/channels/:channel/", youtube.getPosts);
+
+app.get("/api/twitch/streams", twitch.getStreams);
+
+app.get("/api/twitch/follows", twitch.getFollows);
+
 /*
-app.get("/api/youtube/channels/:channel/", youtube.getPosts);
-
-app.get("/api/twitch/streams/", twitch.getStreams);
-
 app.get("/api/twitch/games/", twitch.getGames);
 
 app.get("/api/twitch/games/:game", twitch.getStreamsForGame);

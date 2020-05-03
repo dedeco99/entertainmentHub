@@ -219,6 +219,7 @@ class WidgetDetail extends Component {
 						>
 							<option value="notifications">{"Notifications"}</option>
 							<option value="reddit">{"Reddit"}</option>
+							<option value="twitch">{"Twitch"}</option>
 							<option value="weather">{"Weather"}</option>
 							<option value="crypto">{"Crypto"}</option>
 							<option value="tv">{"TV"}</option>

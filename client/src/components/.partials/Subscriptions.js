@@ -66,12 +66,12 @@ class Subscriptions extends Component {
 
 		return (
 			<List className={classes.root}>
-				{subscriptions.map(channel => {
+				{subscriptions && subscriptions.map(channel => {
 					const labelId = `checkbox-list-secondary-label-${channel.channelId}`;
 					return (
 						<ListItem key={channel.channelId} button onClick={() => this.handleSubscriptionCheckbox(channel.channelId)}>
 							<ListItemAvatar>
-								<Avatar alt={channel.title} /* src={channel.logo} */ />
+								<Avatar alt={channel.title} src={channel.logo} />
 							</ListItemAvatar>
 							<ListItemText id={labelId} primary={channel.displayName} />
 							<ListItemSecondaryAction>

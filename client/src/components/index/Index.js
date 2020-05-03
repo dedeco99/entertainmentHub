@@ -6,6 +6,7 @@ import Widget from "../widgets/Widget";
 import WidgetDetail from "../widgets/WidgetDetail";
 import Notifications from "../widgets/Notifications";
 import Reddit from "../widgets/Reddit";
+import Twitch from "../widgets/Twitch";
 import Weather from "../widgets/Weather";
 import TV from "../widgets/TV";
 import Crypto from "../widgets/Crypto";
@@ -138,6 +139,13 @@ class Index extends Component {
 						);
 						editText = `r/${widget.info.subreddit}`;
 						editIcon = "icofont-reddit";
+						dimensions = { w: widget.width || 1, h: widget.height || 2 };
+						restrictions = { minW: 1, minH: 2, maxW: 3, maxH: 6 };
+						break;
+					case "twitch":
+						content = <Twitch />;
+						editText = "Twitch";
+						editIcon = "icofont-twitch";
 						dimensions = { w: widget.width || 1, h: widget.height || 2 };
 						restrictions = { minW: 1, minH: 2, maxW: 3, maxH: 6 };
 						break;

@@ -58,59 +58,6 @@ async function getSubscriptions(event) {
 	return response(200, "Youtube subscriptions found", channels);
 }
 
-async function getChannels(event) {
-	const { user } = event;
-
-	const channels = await Channel.find({ user: user._id }).lean();
-
-	return response(200, "Channels found", channels);
-}
-
-async function addChannels(event) {
-	const { body, user } = event;
-	const { channels } = body;
-
-	if (!channels || !channels.length) return errors.requiredFieldsMissing;
-
-	const channelsToAdd = [];
-	for (const channel of channels) {
-		const { channelId, displayName, image } = channel;
-
-		if (channelId && displayName) {
-			const channelExists = await Channel.findOne({ user: user._id, channelId }).lean();
-
-			if (!channelExists) {
-				channelsToAdd.push(new Channel({
-					user: user._id,
-					channelId,
-					displayName,
-					image,
-				}));
-			}
-		}
-	}
-
-	await Channel.insertMany(channelsToAdd);
-
-	return response(200, "Channels created", channelsToAdd);
-}
-
-async function deleteChannel(event) {
-	const { params } = event;
-	const { id } = params;
-
-	let channel = null;
-	try {
-		channel = await Channel.findOneAndDelete({ _id: id });
-	} catch (e) {
-		return errors.notFound;
-	}
-
-	if (!channel) return errors.notFound;
-
-	return response(200, "Channel deleted", channel);
-}
-
 async function addToWatchLater(event) {
 	const { params, user } = event;
 	const { id } = params;
@@ -155,7 +102,6 @@ async function getChannelsPlaylist(channel) {
 
 async function cronjob() {
 	const notificationsToAdd = [];
-	const THREE_HOURS = 60000 * 60 * 3;
 
 	const channels = await Channel.aggregate([
 		{
@@ -212,9 +158,6 @@ async function cronjob() {
 
 module.exports = {
 	getSubscriptions: (req, res) => middleware(req, res, getSubscriptions, ["token"]),
-	getChannels: (req, res) => middleware(req, res, getChannels, ["token"]),
-	addChannels: (req, res) => middleware(req, res, addChannels, ["token"]),
-	deleteChannel: (req, res) => middleware(req, res, deleteChannel, ["token"]),
 	addToWatchLater: (req, res) => middleware(req, res, addToWatchLater, ["token"]),
 	cronjob,
 };

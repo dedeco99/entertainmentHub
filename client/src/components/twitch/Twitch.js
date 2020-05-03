@@ -1,6 +1,4 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { withStyles } from "@material-ui/styles";
 
 import IconButton from "@material-ui/core/IconButton";
 import Grid from "@material-ui/core/Grid";
@@ -8,26 +6,24 @@ import Grid from "@material-ui/core/Grid";
 import Sidebar from "../.partials/Sidebar";
 import Subscriptions from "../.partials/Subscriptions";
 
-import { getSubscriptions } from "../../api/youtube";
+import { getFollows } from "../../api/twitch";
 import { getChannels, addChannels, deleteChannel } from "../../api/channels";
 
-import { youtube as styles } from "../../styles/Youtube";
-
-class Youtube extends Component {
+class Twitch extends Component {
 	constructor() {
 		super();
 
 		this.state = {
 			channels: [],
-			subscriptions: [],
-			hasMoreSubscriptions: false,
+			follows: [],
+			hasMoreFollows: false,
 			page: 0,
 			after: null,
 
 			openModal: false,
 		};
 
-		this.getSubscriptions = this.getSubscriptions.bind(this);
+		this.getFollows = this.getFollows.bind(this);
 		this.addChannels = this.addChannels.bind(this);
 		this.deleteChannel = this.deleteChannel.bind(this);
 
@@ -37,28 +33,28 @@ class Youtube extends Component {
 
 	async componentDidMount() {
 		await this.getChannels();
-		await this.getSubscriptions();
+		await this.getFollows();
 	}
 
-	async getSubscriptions() {
-		const { channels, subscriptions, page, after } = this.state;
+	async getFollows() {
+		const { channels, follows, page, after } = this.state;
 
-		const response = await getSubscriptions(after);
+		const response = await getFollows(after);
 
 		if (response.data && response.data.length) {
-			const newSubscriptions = page === 0 ? response.data : subscriptions.concat(response.data);
+			const newFollows = page === 0 ? response.data : follows.concat(response.data);
 
 			this.setState({
-				subscriptions: newSubscriptions.filter(s => !channels.map(c => c.channelId).includes(s.channelId)),
+				follows: newFollows.filter(s => !channels.map(c => c.channelId).includes(s.channelId)),
 				page: page + 1,
 				after: response.data[0].after,
-				hasMoreSubscriptions: !(response.data.length < 25),
+				hasMoreFollows: !(response.data.length < 20),
 			});
 		}
 	}
 
 	async getChannels() {
-		const response = await getChannels("youtube");
+		const response = await getChannels("twitch");
 
 		if (response.data && response.data.length) {
 			this.setState({ channels: response.data });
@@ -66,14 +62,14 @@ class Youtube extends Component {
 	}
 
 	async addChannels(channels) {
-		const response = await addChannels("youtube", channels);
+		const response = await addChannels("twitch", channels);
 
 		if (response.status < 400) {
 			this.setState(prevState => ({
 				channels: [...prevState.channels, ...response.data].sort((a, b) => (
 					a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1
 				)),
-				subscriptions: prevState.subscriptions.filter(s => (
+				follows: prevState.follows.filter(s => (
 					![...prevState.channels, ...response.data].map(c => c.channelId).includes(s.channelId)
 				)),
 			}));
@@ -88,7 +84,7 @@ class Youtube extends Component {
 		if (response.status < 400) {
 			const updatedChannels = channels.filter(s => s._id !== response.data._id);
 
-			this.setState({ channels: updatedChannels, page: 0, after: null }, this.getSubscriptions);
+			this.setState({ channels: updatedChannels, page: 0, after: null }, this.getFollows);
 		}
 	}
 
@@ -102,7 +98,7 @@ class Youtube extends Component {
 
 	render() {
 		const { openModal } = this.state;
-		const { loadingChannels, channels, subscriptions, hasMoreSubscriptions } = this.state;
+		const { loadingChannels, channels, follows, hasMoreFollows } = this.state;
 
 		const menuOptions = [{ displayName: "Delete", onClick: this.deleteChannel }];
 
@@ -124,9 +120,9 @@ class Youtube extends Component {
 				<Subscriptions
 					open={openModal}
 					onClose={this.handleCloseModal}
-					subscriptions={subscriptions}
-					getSubscriptions={this.getSubscriptions}
-					hasMoreSubscriptions={hasMoreSubscriptions}
+					subscriptions={follows}
+					getSubscriptions={this.getFollows}
+					hasMoreSubscriptions={hasMoreFollows}
 					addChannels={this.addChannels}
 				/>
 			</Grid>
@@ -134,8 +130,4 @@ class Youtube extends Component {
 	}
 }
 
-Youtube.propTypes = {
-	classes: PropTypes.object.isRequired,
-};
-
-export default withStyles(styles)(Youtube);
+export default Twitch;
