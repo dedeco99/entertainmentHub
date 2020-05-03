@@ -127,7 +127,7 @@ class Index extends Component {
 						editText = "Notifications";
 						editIcon = "icofont-alarm";
 						dimensions = { w: widget.width || 1, h: widget.height || 4 };
-						restrictions = { minW: 1, minH: 4, maxW: 1, maxH: 8 };
+						restrictions = { minW: 1, minH: 4, maxW: 2, maxH: 8 };
 						break;
 					case "reddit":
 						content = (

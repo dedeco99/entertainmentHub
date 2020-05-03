@@ -104,13 +104,12 @@ class Notifications extends Component {
 	}
 
 	async handleWatchLaterOption() {
-		const { deleteNotification } = this.props;
 		const { selectedNotification } = this.state;
 
 		const response = await addToWatchLater(selectedNotification.info.videoId);
 
 		if (response.data) {
-			deleteNotification(selectedNotification);
+			await this.handleHideNotification();
 		}
 	}
 
