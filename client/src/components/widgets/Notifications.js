@@ -108,7 +108,7 @@ class Notifications extends Component {
 
 		const response = await addToWatchLater(selectedNotification.info.videoId);
 
-		if (response.data) {
+		if (response.status === 200 || response.status === 409) {
 			await this.handleHideNotification();
 		}
 	}

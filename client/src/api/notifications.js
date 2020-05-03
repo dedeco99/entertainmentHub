@@ -18,7 +18,6 @@ async function patchNotifications(id) {
 	const res = await api({
 		method: "patch",
 		url: `/api/notifications/${id}`,
-		message: true,
 	});
 
 	return res;
@@ -28,7 +27,6 @@ async function deleteNotifications(id) {
 	const res = await api({
 		method: "delete",
 		url: `/api/notifications/${id}`,
-		message: true,
 	});
 
 	return res;
