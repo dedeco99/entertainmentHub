@@ -100,10 +100,11 @@ async function getChannelsPlaylist(channel) {
 	return json.items;
 }
 
-async function cronjob() {
+async function cronjob(page = 0) {
+	let hasMore = false;
 	const notificationsToAdd = [];
 
-	const channels = await Channel.aggregate([
+	let channels = await Channel.aggregate([
 		{
 			$group: {
 				_id: "$channelId",
@@ -112,7 +113,13 @@ async function cronjob() {
 			},
 		},
 		{ $sort: { _id: 1 } },
+		{ $skip: page ? page * 50 : 0 },
 	]);
+
+	if (channels.length > 50) {
+		hasMore = true;
+		channels = channels.slice(0, 50);
+	}
 
 	const channelsString = channels.map(channel => channel._id).join(",");
 
@@ -152,6 +159,8 @@ async function cronjob() {
 
 
 	if (notificationsToAdd.length) await Promise.all(notificationsToAdd);
+
+	if (hasMore) await cronjob(page + 1);
 
 	return true;
 }
