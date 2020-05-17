@@ -69,8 +69,8 @@ class Crypto extends Component {
 	renderPercentages(variant, percentage) {
 		const { classes } = this.props;
 		return (
-			<Typography variant={variant} className={percentage > 0 ? classes.green : classes.red}>
-				{`${percentage.toFixed(2)}%`}
+			<Typography variant={variant} className={percentage >= 0 ? classes.green : classes.red}>
+				{`${percentage ? percentage.toFixed(2) : 0}%`}
 			</Typography>
 		);
 	}
