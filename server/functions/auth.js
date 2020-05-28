@@ -1,9 +1,9 @@
 const bcrypt = require("bcryptjs");
 
-const { middleware, response } = require("./utils/middleware");
+const { response } = require("../utils/request");
 
-const User = require("./models/user");
-const Token = require("./models/token");
+const User = require("../models/user");
+const Token = require("../models/token");
 
 
 async function hashPassword(password) {

@@ -1,7 +1,6 @@
-const { middleware, response } = require("./utils/middleware");
-const errors = require("./utils/errors");
-const { api } = require("./utils/request");
-const { diff } = require("./utils/utils");
+const { response, api } = require("../utils/request");
+const errors = require("../utils/errors");
+const { diff } = require("../utils/utils");
 
 async function getCoins(event) {
 	const { query } = event;

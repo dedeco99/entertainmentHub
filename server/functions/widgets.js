@@ -1,9 +1,9 @@
-const { middleware, response } = require("./utils/middleware");
-const errors = require("./utils/errors");
+const { response } = require("../utils/request");
+const errors = require("../utils/errors");
 
 const { isSubreddit } = require("./reddit");
 
-const Widget = require("./models/widget");
+const Widget = require("../models/widget");
 
 async function getWidgets(event) {
 	const { user } = event;

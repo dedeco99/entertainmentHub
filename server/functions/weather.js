@@ -1,6 +1,5 @@
-const { middleware, response } = require("./utils/middleware");
-const { api } = require("./utils/request");
-const { formatDate } = require("./utils/utils");
+const { response, api } = require("../utils/request");
+const { formatDate } = require("../utils/utils");
 
 const allTheCities = require("all-the-cities");
 

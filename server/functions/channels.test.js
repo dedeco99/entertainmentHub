@@ -1,8 +1,8 @@
 const { Types } = require("mongoose");
 
-const database = require("./utils/database");
+const database = require("../utils/database");
 
-const Channel = require("./models/channel");
+const Channel = require("../models/channel");
 
 const { getChannels, addChannels, deleteChannel } = require("./channels");
 

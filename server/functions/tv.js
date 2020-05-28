@@ -1,12 +1,11 @@
-const { middleware, response } = require("./utils/middleware");
-const errors = require("./utils/errors");
-const { api } = require("./utils/request");
-const { toObjectId, diff } = require("./utils/utils");
+const { response, api } = require("../utils/request");
+const errors = require("../utils/errors");
+const { toObjectId, diff } = require("../utils/utils");
 
 const { scheduleNotifications } = require("./notifications");
 
-const Series = require("./models/series");
-const Episode = require("./models/episode");
+const Series = require("../models/series");
+const Episode = require("../models/episode");
 
 // eslint-disable-next-line complexity
 async function fetchEpisodes(series) {

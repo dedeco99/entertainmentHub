@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 
 function connect(connectionString) {
-	new Promise(resolve => {
+	return new Promise(resolve => {
 		mongoose.set("useFindAndModify", false);
 		mongoose.connect(connectionString, {
 			useNewUrlParser: true,
@@ -17,7 +17,7 @@ function connect(connectionString) {
 }
 
 function disconnect() {
-	new Promise(resolve => {
+	return new Promise(resolve => {
 		mongoose.connection.close();
 
 		mongoose.connection.once("close", () => resolve());

@@ -1,25 +1,7 @@
+const { error } = require("../utils/request");
+
 const User = require("../models/user");
 const Token = require("../models/token");
-
-function response(status, message, data) {
-	return {
-		status,
-		body: {
-			message,
-			data,
-		},
-	};
-}
-
-function error(status, message, data) {
-	return {
-		status,
-		body: {
-			message,
-			data,
-		},
-	};
-}
 
 async function token(req, res, next) {
 	const authorization = req.headers.authorization;
@@ -38,7 +20,7 @@ async function token(req, res, next) {
 
 	req.user = user;
 
-	next();
+	return next();
 }
 
 async function middleware(req, res, fn) {
@@ -48,7 +30,7 @@ async function middleware(req, res, fn) {
 		query: req.query,
 		body: req.body,
 		user: req.user,
-	}
+	};
 
 	const result = await fn(event);
 
@@ -56,8 +38,6 @@ async function middleware(req, res, fn) {
 }
 
 module.exports = {
-	response,
-	error,
 	token,
 	middleware,
 };

@@ -1,7 +1,6 @@
-const { api } = require("./utils/request");
-const { middleware, response } = require("./utils/middleware");
+const { response, api } = require("../utils/request");
 
-const App = require("./models/app");
+const App = require("../models/app");
 
 async function getApps(event) {
 	const { user } = event;

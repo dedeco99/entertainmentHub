@@ -1,7 +1,7 @@
-const { response } = require("./utils/middleware");
-const errors = require("./utils/errors");
+const { response } = require("../utils/request");
+const errors = require("../utils/errors");
 
-const Channel = require("./models/channel");
+const Channel = require("../models/channel");
 
 async function getChannels(event) {
 	const { params, user } = event;

@@ -4,22 +4,22 @@ const morgan = require("morgan");
 const socketio = require("socket.io");
 const cron = require("node-cron");
 
-const database = require("./server/utils/database");
-const { token, middleware } = require("./server/utils/middleware");
-const { formatDate } = require("./server/utils/utils");
+const database = require("./utils/database");
+const { token, middleware } = require("./utils/middleware");
+const { formatDate } = require("./utils/utils");
 
-const auth = require("./server/auth");
-const apps = require("./server/apps");
-const users = require("./server/users");
-const widgets = require("./server/widgets");
-const notifications = require("./server/notifications");
-const weather = require("./server/weather");
-const crypto = require("./server/crypto");
-const reddit = require("./server/reddit");
-const channels = require("./server/channels");
-const youtube = require("./server/youtube");
-const twitch = require("./server/twitch");
-const tv = require("./server/tv");
+const auth = require("./functions/auth");
+const apps = require("./functions/apps");
+const users = require("./functions/users");
+const widgets = require("./functions/widgets");
+const notifications = require("./functions/notifications");
+const weather = require("./functions/weather");
+const crypto = require("./functions/crypto");
+const reddit = require("./functions/reddit");
+const channels = require("./functions/channels");
+const youtube = require("./functions/youtube");
+const twitch = require("./functions/twitch");
+const tv = require("./functions/tv");
 
 global.sockets = [];
 global.cache = {
@@ -30,8 +30,7 @@ global.cache = {
 	},
 };
 
-// eslint-disable-next-line global-require
-if (!process.env.ENV) require("./server/secrets");
+if (!process.env.ENV) require("./utils/secrets");
 
 database.connect(process.env.databaseConnectionString);
 

@@ -9,12 +9,12 @@
 	},
 	"scripts": {
 		"start": "node app.js",
-		"client-install": "cd client && npm install",
-		"client-build": "cd client && npm run build",
+		"client-install": "cd ../client && npm install",
+		"client-build": "cd ../client && npm run build",
 		"server": "nodemon app.js",
-		"client": "cd client && npm start",
+		"client": "cd ../client && npm start",
 		"dev": "concurrently \"npm run server\" \"npm run client\"",
-		"lint": "eslint '**/*.js' --ignore-pattern node_modules/ --ignore-pattern build/ --ignore-pattern public/",
+		"lint": "eslint '../**/*.js' -c ../.eslintrc.json --ignore-pattern node_modules/ --ignore-pattern build/ --ignore-pattern public/",
 		"test": "jest --coverage"
 	},
 	"devDependencies": {
