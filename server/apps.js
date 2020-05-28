@@ -83,7 +83,7 @@ async function deleteApp(event) {
 }
 
 module.exports = {
-	getApps: (req, res) => middleware(req, res, getApps, ["token"]),
-	addApp: (req, res) => middleware(req, res, addApp, ["token"]),
-	deleteApp: (req, res) => middleware(req, res, deleteApp, ["token"]),
+	getApps,
+	addApp,
+	deleteApp,
 };

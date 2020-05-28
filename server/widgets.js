@@ -87,8 +87,8 @@ async function deleteWidget(event) {
 }
 
 module.exports = {
-	getWidgets: (req, res) => middleware(req, res, getWidgets, ["token"]),
-	addWidget: (req, res) => middleware(req, res, addWidget, ["token"]),
-	editWidget: (req, res) => middleware(req, res, editWidget, ["token"]),
-	deleteWidget: (req, res) => middleware(req, res, deleteWidget, ["token"]),
+	getWidgets,
+	addWidget,
+	editWidget,
+	deleteWidget,
 };

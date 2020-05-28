@@ -106,6 +106,6 @@ function getCities(event) {
 }
 
 module.exports = {
-	getWeather: (req, res) => middleware(req, res, getWeather, ["token"]),
-	getCities: (req, res) => middleware(req, res, getCities, ["token"]),
+	getWeather,
+	getCities,
 };

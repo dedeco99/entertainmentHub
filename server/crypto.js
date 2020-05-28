@@ -99,6 +99,6 @@ async function getPrices(event) {
 }
 
 module.exports = {
-	getCoins: (req, res) => middleware(req, res, getCoins, ["token"]),
-	getPrices: (req, res) => middleware(req, res, getPrices, ["token"]),
+	getCoins,
+	getPrices,
 };

@@ -21,38 +21,34 @@ function error(status, message, data) {
 	};
 }
 
-async function token(authorization) {
-	if (!authorization) return false;
+async function token(req, res, next) {
+	const authorization = req.headers.authorization;
+
+	if (!authorization) return error(401, "Invalid Token");
 
 	const bearerToken = authorization.split(" ");
 
-	if (bearerToken[0] !== "Bearer") return false;
-
-	if (!bearerToken[1]) return false;
+	if (bearerToken[0] !== "Bearer" || !bearerToken[1]) return error(401, "Invalid Token");
 
 	const tokenFound = await Token.findOne({ token: bearerToken[1] });
 
-	if (!tokenFound) return false;
+	if (!tokenFound) return error(401, "Invalid Token");
 
 	const user = await User.findOne({ _id: tokenFound.user });
 
-	return user;
+	req.user = user;
+
+	next();
 }
 
-async function middleware(req, res, fn, options) {
-	const event = {};
-
-	if (options && options.includes("token")) {
-		const validToken = await token(req.headers.authorization);
-
-		if (!validToken) res.status(401).json({ type: "error", text: "Invalid Token" });
-		event.user = validToken;
+async function middleware(req, res, fn) {
+	const event = {
+		headers: req.headers,
+		params: req.params,
+		query: req.query,
+		body: req.body,
+		user: req.user,
 	}
-
-	event.headers = req.headers;
-	event.params = req.params;
-	event.query = req.query;
-	event.body = req.body;
 
 	const result = await fn(event);
 
@@ -62,5 +58,6 @@ async function middleware(req, res, fn, options) {
 module.exports = {
 	response,
 	error,
+	token,
 	middleware,
 };

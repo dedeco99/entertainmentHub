@@ -63,6 +63,6 @@ async function login(event) {
 }
 
 module.exports = {
-	register: (req, res) => middleware(req, res, register),
-	login: (req, res) => middleware(req, res, login),
+	register,
+	login,
 };

@@ -151,6 +151,6 @@ async function testWebhooks(accessToken) {
 }
 
 module.exports = {
-	getStreams: (req, res) => middleware(req, res, getStreams, ["token"]),
-	getFollows: (req, res) => middleware(req, res, getFollows, ["token"]),
+	getStreams,
+	getFollows,
 };

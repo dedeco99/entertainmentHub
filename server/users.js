@@ -19,5 +19,5 @@ async function editUser(event) {
 }
 
 module.exports = {
-	editUser: (req, res) => middleware(req, res, editUser, ["token"]),
+	editUser,
 };

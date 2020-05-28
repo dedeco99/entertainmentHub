@@ -198,7 +198,7 @@ async function getSearch(event) {
 
 module.exports = {
 	isSubreddit,
-	getSubreddits: (req, res) => middleware(req, res, getSubreddits, ["token"]),
-	getPosts: (req, res) => middleware(req, res, getPosts, ["token"]),
-	getSearch: (req, res) => middleware(req, res, getSearch, ["token"]),
+	getSubreddits,
+	getPosts,
+	getSearch,
 };

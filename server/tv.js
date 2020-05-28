@@ -312,11 +312,11 @@ async function deleteSeries(event) {
 
 module.exports = {
 	cronjob,
-	getSeries: (req, res) => middleware(req, res, getSeries, ["token"]),
-	getEpisodes: (req, res) => middleware(req, res, getEpisodes, ["token"]),
-	getSearch: (req, res) => middleware(req, res, getSearch, ["token"]),
-	getPopular: (req, res) => middleware(req, res, getPopular, ["token"]),
-	addSeries: (req, res) => middleware(req, res, addSeries, ["token"]),
-	editSeries: (req, res) => middleware(req, res, editSeries, ["token"]),
-	deleteSeries: (req, res) => middleware(req, res, deleteSeries, ["token"]),
+	getSeries,
+	getEpisodes,
+	getSearch,
+	getPopular,
+	addSeries,
+	editSeries,
+	deleteSeries,
 };

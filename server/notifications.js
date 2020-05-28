@@ -150,9 +150,9 @@ async function cronjob() {
 }
 
 module.exports = {
-	getNotifications: (req, res) => middleware(req, res, getNotifications, ["token"]),
-	patchNotification: (req, res) => middleware(req, res, patchNotification, ["token"]),
-	deleteNotification: (req, res) => middleware(req, res, deleteNotification, ["token"]),
+	getNotifications,
+	patchNotification,
+	deleteNotification,
 	addNotifications,
 	scheduleNotifications,
 	cronjob,

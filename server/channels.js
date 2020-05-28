@@ -61,7 +61,7 @@ async function deleteChannel(event) {
 }
 
 module.exports = {
-	getChannels: (req, res) => middleware(req, res, getChannels, ["token"]),
+	getChannels,
 	addChannels,
-	deleteChannel: (req, res) => middleware(req, res, deleteChannel, ["token"]),
+	deleteChannel,
 };

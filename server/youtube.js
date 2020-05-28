@@ -166,7 +166,7 @@ async function cronjob(page = 0) {
 }
 
 module.exports = {
-	getSubscriptions: (req, res) => middleware(req, res, getSubscriptions, ["token"]),
-	addToWatchLater: (req, res) => middleware(req, res, addToWatchLater, ["token"]),
+	getSubscriptions,
+	addToWatchLater,
 	cronjob,
 };
