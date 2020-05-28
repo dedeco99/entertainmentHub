@@ -1,6 +1,4 @@
-const mongoose = require("mongoose");
-
-const Schema = mongoose.Schema;
+const { Schema, model } = require("mongoose");
 
 const EpisodeSchema = new Schema({
 	seriesId: { type: String, default: null },
@@ -11,6 +9,6 @@ const EpisodeSchema = new Schema({
 	date: { type: Date, default: null },
 }, { timestamps: { createdAt: "_created", updatedAt: "_modified" } });
 
-const Episode = mongoose.model("Episode", EpisodeSchema);
+const Episode = model("Episode", EpisodeSchema);
 
 module.exports = Episode;

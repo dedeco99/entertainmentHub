@@ -1,6 +1,4 @@
-const mongoose = require("mongoose");
-
-const Schema = mongoose.Schema;
+const { Schema, model } = require("mongoose");
 
 const WidgetSchema = new Schema({
 	user: { type: Schema.ObjectId, ref: "User" },
@@ -26,6 +24,6 @@ const WidgetSchema = new Schema({
 	},
 }, { timestamps: { createdAt: "_created", updatedAt: "_modified" } });
 
-const Widget = mongoose.model("Widget", WidgetSchema);
+const Widget = model("Widget", WidgetSchema);
 
 module.exports = Widget;

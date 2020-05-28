@@ -1,6 +1,4 @@
-const mongoose = require("mongoose");
-
-const Schema = mongoose.Schema;
+const { Schema, model } = require("mongoose");
 
 const AppSchema = new Schema({
 	user: { type: Schema.ObjectId, ref: "User" },
@@ -8,6 +6,6 @@ const AppSchema = new Schema({
 	refreshToken: { type: String, default: "" },
 }, { timestamps: { createdAt: "_created", updatedAt: "_modified" } });
 
-const App = mongoose.model("App", AppSchema);
+const App = model("App", AppSchema);
 
 module.exports = App;

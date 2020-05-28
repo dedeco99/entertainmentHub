@@ -1,8 +1,8 @@
-const mongoose = require("mongoose");
+const { Types } = require("mongoose");
 const moment = require("moment");
 
 function toObjectId(id) {
-	return mongoose.Types.ObjectId(id);
+	return Types.ObjectId(id);
 }
 
 function formatDate(date, format, relative) {

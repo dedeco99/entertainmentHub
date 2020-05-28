@@ -1,6 +1,4 @@
-const mongoose = require("mongoose");
-
-const Schema = mongoose.Schema;
+const { Schema, model } = require("mongoose");
 
 const SeriesSchema = new Schema({
 	user: { type: Schema.ObjectId, ref: "User" },
@@ -9,6 +7,6 @@ const SeriesSchema = new Schema({
 	image: { type: String, default: "" },
 }, { timestamps: { createdAt: "_created", updatedAt: "_modified" } });
 
-const Series = mongoose.model("Series", SeriesSchema);
+const Series = model("Series", SeriesSchema);
 
 module.exports = Series;
