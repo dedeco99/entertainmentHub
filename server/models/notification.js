@@ -1,6 +1,4 @@
-const mongoose = require("mongoose");
-
-const Schema = mongoose.Schema;
+const { Schema, model } = require("mongoose");
 
 const NotificationSchema = new Schema({
 	active: { type: Boolean, default: true },
@@ -21,6 +19,6 @@ const NotificationSchema = new Schema({
 	},
 }, { timestamps: { createdAt: "_created", updatedAt: "_modified" } });
 
-const Notification = mongoose.model("Notification", NotificationSchema);
+const Notification = model("Notification", NotificationSchema);
 
 module.exports = Notification;

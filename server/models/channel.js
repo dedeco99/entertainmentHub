@@ -1,6 +1,4 @@
-const mongoose = require("mongoose");
-
-const Schema = mongoose.Schema;
+const { Schema, model } = require("mongoose");
 
 const ChannelSchema = new Schema({
 	user: { type: Schema.ObjectId, ref: "User", required: true },
@@ -10,6 +8,6 @@ const ChannelSchema = new Schema({
 	image: { type: String, default: "" },
 }, { timestamps: { createdAt: "_created", updatedAt: "_modified" } });
 
-const Channel = mongoose.model("Channel", ChannelSchema);
+const Channel = model("Channel", ChannelSchema);
 
 module.exports = Channel;
