@@ -132,7 +132,7 @@ app.get("*/", (req, res) => {
 });
 
 const server = app.listen(app.get("port"), () => {
-	console.log("Node app is running on port", app.get("port"));
+	console.log("Listening on port", app.get("port"));
 });
 
 const io = socketio(server, { origins: "*:*", transports: ["websocket"] });

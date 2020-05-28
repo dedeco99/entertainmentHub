@@ -7,6 +7,8 @@ function initialize() {
 		useUnifiedTopology: true,
 		useCreateIndex: true,
 	});
+
+	mongoose.connection.once("open", () => console.log("Connected to database"));
 }
 
 module.exports = {
