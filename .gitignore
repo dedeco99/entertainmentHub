@@ -7,3 +7,5 @@ client/package-lock.json
 package-lock.json
 
 server/secrets.js
+
+coverage

@@ -1,4 +1,4 @@
-const { middleware, response } = require("./utils/middleware");
+const { response } = require("./utils/middleware");
 const errors = require("./utils/errors");
 
 const Channel = require("./models/channel");
@@ -62,6 +62,6 @@ async function deleteChannel(event) {
 
 module.exports = {
 	getChannels: (req, res) => middleware(req, res, getChannels, ["token"]),
-	addChannels: (req, res) => middleware(req, res, addChannels, ["token"]),
+	addChannels,
 	deleteChannel: (req, res) => middleware(req, res, deleteChannel, ["token"]),
 };

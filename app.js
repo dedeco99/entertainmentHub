@@ -4,8 +4,10 @@ const morgan = require("morgan");
 const socketio = require("socket.io");
 const cron = require("node-cron");
 
-const { initialize } = require("./server/utils/database");
+const database = require("./server/utils/database");
+const { response } = require("./server/utils/middleware");
 const { formatDate } = require("./server/utils/utils");
+
 const auth = require("./server/auth");
 const apps = require("./server/apps");
 const users = require("./server/users");
@@ -31,7 +33,7 @@ global.cache = {
 // eslint-disable-next-line global-require
 if (!process.env.ENV) require("./server/secrets");
 
-initialize();
+database.connect(process.env.databaseConnectionString);
 
 const app = express();
 
@@ -91,7 +93,7 @@ app.get("/api/reddit/:subreddit/search/:search", reddit.getSearch);
 
 app.get("/api/channels/:platform", channels.getChannels);
 
-app.post("/api/channels/:platform", channels.addChannels);
+app.post("/api/channels/:platform", (req, res) => middleware(req, res, channels.addChannels, ["token"]));
 
 app.delete("/api/channels/:id", channels.deleteChannel);
 
