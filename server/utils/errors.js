@@ -1,4 +1,4 @@
-const { error } = require("./middleware");
+const { error } = require("./request");
 
 module.exports = {
 	notFound: error(404, "Not Found"),

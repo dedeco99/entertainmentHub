@@ -1,9 +1,9 @@
-const { middleware, response } = require("./utils/middleware");
-const errors = require("./utils/errors");
+const { response } = require("../utils/request");
+const errors = require("../utils/errors");
 
 const { isSubreddit } = require("./reddit");
 
-const Widget = require("./models/widget");
+const Widget = require("../models/widget");
 
 async function getWidgets(event) {
 	const { user } = event;
@@ -87,8 +87,8 @@ async function deleteWidget(event) {
 }
 
 module.exports = {
-	getWidgets: (req, res) => middleware(req, res, getWidgets, ["token"]),
-	addWidget: (req, res) => middleware(req, res, addWidget, ["token"]),
-	editWidget: (req, res) => middleware(req, res, editWidget, ["token"]),
-	deleteWidget: (req, res) => middleware(req, res, deleteWidget, ["token"]),
+	getWidgets,
+	addWidget,
+	editWidget,
+	deleteWidget,
 };

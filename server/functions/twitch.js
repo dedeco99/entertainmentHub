@@ -1,9 +1,8 @@
-const { middleware, response } = require("./utils/middleware");
-const errors = require("./utils/errors");
-const { api } = require("./utils/request");
+const { response, api } = require("../utils/request");
+const errors = require("../utils/errors");
 
-const App = require("./models/app");
-const Channel = require("./models/channel");
+const App = require("../models/app");
+const Channel = require("../models/channel");
 
 async function getAccessToken(user, grantType) {
 	const app = await App.findOne({ user: user._id, platform: "twitch" }).lean();
@@ -151,6 +150,6 @@ async function testWebhooks(accessToken) {
 }
 
 module.exports = {
-	getStreams: (req, res) => middleware(req, res, getStreams, ["token"]),
-	getFollows: (req, res) => middleware(req, res, getFollows, ["token"]),
+	getStreams,
+	getFollows,
 };

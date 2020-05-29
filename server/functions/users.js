@@ -1,6 +1,6 @@
-const { middleware, response } = require("./utils/middleware");
+const { response } = require("../utils/request");
 
-const User = require("./models/user");
+const User = require("../models/user");
 
 async function editUser(event) {
 	const { body, user } = event;
@@ -19,5 +19,5 @@ async function editUser(event) {
 }
 
 module.exports = {
-	editUser: (req, res) => middleware(req, res, editUser, ["token"]),
+	editUser,
 };

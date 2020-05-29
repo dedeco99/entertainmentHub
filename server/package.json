@@ -9,29 +9,31 @@
 	},
 	"scripts": {
 		"start": "node app.js",
-		"client-install": "cd client && npm install",
-		"client-build": "cd client && npm run build",
+		"client-install": "cd ../client && npm install",
+		"client-build": "cd ../client && npm run build",
 		"server": "nodemon app.js",
-		"client": "cd client && npm start",
+		"client": "cd ../client && npm start",
 		"dev": "concurrently \"npm run server\" \"npm run client\"",
-		"lint": "eslint '**/*.js' --ignore-pattern node_modules/ --ignore-pattern build/ --ignore-pattern public/"
+		"lint": "eslint '../**/*.js' -c ../.eslintrc.json --ignore-pattern node_modules/ --ignore-pattern build/ --ignore-pattern public/",
+		"test": "jest --coverage"
 	},
 	"devDependencies": {
 		"concurrently": "^5.2.0",
 		"eslint": "^6.8.0",
-		"eslint-plugin-react": "^7.19.0",
-		"nodemon": "^2.0.2"
+		"eslint-plugin-react": "^7.20.0",
+		"jest": "^26.0.1",
+		"nodemon": "^2.0.4"
 	},
 	"dependencies": {
 		"all-the-cities": "^3.1.0",
 		"axios": "^0.19.2",
 		"bcryptjs": "^2.4.3",
 		"express": "^4.17.1",
-		"moment": "^2.24.0",
-		"mongoose": "^5.9.10",
+		"moment": "^2.26.0",
+		"mongoose": "^5.9.16",
 		"morgan": "^1.10.0",
 		"node-cron": "^2.0.3",
-		"sanitize-html": "^1.22.1",
+		"sanitize-html": "^1.24.0",
 		"socket.io": "^2.3.0"
 	}
 }

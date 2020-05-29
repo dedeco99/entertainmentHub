@@ -1,9 +1,9 @@
-const { middleware, response } = require("./utils/middleware");
-const errors = require("./utils/errors");
+const { response } = require("../utils/request");
+const errors = require("../utils/errors");
 
-const Notification = require("./models/notification");
-const ScheduledNotification = require("./models/scheduledNotification");
-const Series = require("./models/series");
+const Notification = require("../models/notification");
+const ScheduledNotification = require("../models/scheduledNotification");
+const Series = require("../models/series");
 
 async function getNotifications(event) {
 	const { query, user } = event;
@@ -150,9 +150,9 @@ async function cronjob() {
 }
 
 module.exports = {
-	getNotifications: (req, res) => middleware(req, res, getNotifications, ["token"]),
-	patchNotification: (req, res) => middleware(req, res, patchNotification, ["token"]),
-	deleteNotification: (req, res) => middleware(req, res, deleteNotification, ["token"]),
+	getNotifications,
+	patchNotification,
+	deleteNotification,
 	addNotifications,
 	scheduleNotifications,
 	cronjob,

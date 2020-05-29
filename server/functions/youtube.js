@@ -1,12 +1,11 @@
-const { middleware, response } = require("./utils/middleware");
-const errors = require("./utils/errors");
-const { api } = require("./utils/request");
-const { diff } = require("./utils/utils");
+const { response, api } = require("../utils/request");
+const errors = require("../utils/errors");
+const { diff } = require("../utils/utils");
 
 const { addNotifications } = require("./notifications");
 
-const App = require("./models/app");
-const Channel = require("./models/channel");
+const App = require("../models/app");
+const Channel = require("../models/channel");
 
 async function getAccessToken(user) {
 	const app = await App.findOne({ user: user._id, platform: "youtube" }).lean();
@@ -166,7 +165,7 @@ async function cronjob(page = 0) {
 }
 
 module.exports = {
-	getSubscriptions: (req, res) => middleware(req, res, getSubscriptions, ["token"]),
-	addToWatchLater: (req, res) => middleware(req, res, addToWatchLater, ["token"]),
+	getSubscriptions,
+	addToWatchLater,
 	cronjob,
 };

@@ -1,9 +1,6 @@
 node_modules
-client/node_modules
+build
+coverage
 
-client/build
-
-client/package-lock.json
 package-lock.json
-
-server/secrets.js
+secrets.js

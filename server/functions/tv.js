@@ -1,12 +1,11 @@
-const { middleware, response } = require("./utils/middleware");
-const errors = require("./utils/errors");
-const { api } = require("./utils/request");
-const { toObjectId, diff } = require("./utils/utils");
+const { response, api } = require("../utils/request");
+const errors = require("../utils/errors");
+const { toObjectId, diff } = require("../utils/utils");
 
 const { scheduleNotifications } = require("./notifications");
 
-const Series = require("./models/series");
-const Episode = require("./models/episode");
+const Series = require("../models/series");
+const Episode = require("../models/episode");
 
 // eslint-disable-next-line complexity
 async function fetchEpisodes(series) {
@@ -312,11 +311,11 @@ async function deleteSeries(event) {
 
 module.exports = {
 	cronjob,
-	getSeries: (req, res) => middleware(req, res, getSeries, ["token"]),
-	getEpisodes: (req, res) => middleware(req, res, getEpisodes, ["token"]),
-	getSearch: (req, res) => middleware(req, res, getSearch, ["token"]),
-	getPopular: (req, res) => middleware(req, res, getPopular, ["token"]),
-	addSeries: (req, res) => middleware(req, res, addSeries, ["token"]),
-	editSeries: (req, res) => middleware(req, res, editSeries, ["token"]),
-	deleteSeries: (req, res) => middleware(req, res, deleteSeries, ["token"]),
+	getSeries,
+	getEpisodes,
+	getSearch,
+	getPopular,
+	addSeries,
+	editSeries,
+	deleteSeries,
 };

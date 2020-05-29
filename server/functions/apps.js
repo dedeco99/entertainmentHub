@@ -1,7 +1,6 @@
-const { api } = require("./utils/request");
-const { middleware, response } = require("./utils/middleware");
+const { response, api } = require("../utils/request");
 
-const App = require("./models/app");
+const App = require("../models/app");
 
 async function getApps(event) {
 	const { user } = event;
@@ -83,7 +82,7 @@ async function deleteApp(event) {
 }
 
 module.exports = {
-	getApps: (req, res) => middleware(req, res, getApps, ["token"]),
-	addApp: (req, res) => middleware(req, res, addApp, ["token"]),
-	deleteApp: (req, res) => middleware(req, res, deleteApp, ["token"]),
+	getApps,
+	addApp,
+	deleteApp,
 };

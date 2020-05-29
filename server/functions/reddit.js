@@ -1,10 +1,9 @@
 const sanitizeHtml = require("sanitize-html");
 
-const { middleware, response } = require("./utils/middleware");
-const errors = require("./utils/errors");
-const { api } = require("./utils/request");
+const { response, api } = require("../utils/request");
+const errors = require("../utils/errors");
 
-const App = require("./models/app");
+const App = require("../models/app");
 
 async function getAccessToken(user) {
 	const app = await App.findOne({ user: user._id, platform: "reddit" }).lean();
@@ -198,7 +197,7 @@ async function getSearch(event) {
 
 module.exports = {
 	isSubreddit,
-	getSubreddits: (req, res) => middleware(req, res, getSubreddits, ["token"]),
-	getPosts: (req, res) => middleware(req, res, getPosts, ["token"]),
-	getSearch: (req, res) => middleware(req, res, getSearch, ["token"]),
+	getSubreddits,
+	getPosts,
+	getSearch,
 };
