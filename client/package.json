@@ -17,12 +17,14 @@
 		"react-dom": "^16.13.1",
 		"react-grid-layout": "^0.18.3",
 		"react-infinite-scroller": "^1.2.4",
-		"react-redux": "^7.2.0",
 		"react-router-dom": "^5.1.2",
 		"react-scripts": "^3.4.1",
 		"react-toastify": "^5.5.0",
-		"redux": "^4.0.5",
 		"socket.io-client": "^2.3.0"
+	},
+	"devDependencies": {
+		"eslint": "^6.8.0",
+		"eslint-plugin-react": "^7.20.0"
 	},
 	"browserslist": [
 		">0.2%",

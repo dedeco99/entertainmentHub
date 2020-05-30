@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import IconButton from "@material-ui/core/IconButton";
 
+import NotificationContextProvider from "../../contexts/NotificationContext";
+
 import Widget from "../widgets/Widget";
 import WidgetDetail from "../widgets/WidgetDetail";
 import Notifications from "../widgets/Notifications";
@@ -123,7 +125,11 @@ class Index extends Component {
 
 				switch (widget.type) {
 					case "notifications":
-						content = <Notifications height="100%" />;
+						content = (
+							<NotificationContextProvider>
+								<Notifications height="100%" />
+							</NotificationContextProvider>
+						);
 						editText = "Notifications";
 						editIcon = "icofont-alarm";
 						dimensions = { w: widget.width || 1, h: widget.height || 4 };

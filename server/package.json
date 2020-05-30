@@ -9,13 +9,14 @@
 	},
 	"scripts": {
 		"start": "node app.js",
+		"server": "nodemon app.js",
+		"lint": "eslint '**/*.js' --ignore-pattern node_modules/",
+		"test": "jest --coverage",
+		"client": "cd ../client && npm start",
 		"client-install": "cd ../client && npm install",
 		"client-build": "cd ../client && npm run build",
-		"server": "nodemon app.js",
-		"client": "cd ../client && npm start",
-		"dev": "concurrently \"npm run server\" \"npm run client\"",
-		"lint": "eslint '../**/*.js' -c ../.eslintrc.json --ignore-pattern node_modules/ --ignore-pattern build/ --ignore-pattern public/",
-		"test": "jest --coverage"
+		"client-lint": "cd ../client && eslint '**/*.js' --ignore-pattern node_modules/ --ignore-pattern build/ --ignore-pattern public/",
+		"dev": "concurrently \"npm run server\" \"npm run client\""
 	},
 	"devDependencies": {
 		"concurrently": "^5.2.0",

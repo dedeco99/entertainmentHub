@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
-import { connect } from "react-redux";
-import socketio from "socket.io-client";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import NotificationContextProvider from "../contexts/NotificationContext";
+
+import SocketClient from "./.partials/SocketClient";
 import PrivateRoute from "./auth/PrivateRoute";
 import Header from "./header/Header";
 import AppMenu from "./header/AppMenu";
@@ -45,31 +45,13 @@ const theme = createMuiTheme({
 class App extends Component {
 	constructor() {
 		super();
+
 		this.state = {
 			showGoBackUpButton: false,
 		};
 	}
 
 	componentDidMount() {
-		const { addNotification } = this.props;
-
-		const socket = socketio("http://entertainmenthub.ddns.net:5000", { transports: ["websocket"] });
-
-		socket.on("connect", () => {
-			let user = null;
-			try {
-				user = JSON.parse(localStorage.getItem("user"));
-			} catch (err) {
-				user = localStorage.getItem("user");
-			}
-
-			socket.emit("bind", user);
-		});
-
-		socket.on("notification", data => {
-			addNotification(data);
-		});
-
 		window.addEventListener("scroll", () => {
 			const { showGoBackUpButton } = this.state;
 
@@ -142,6 +124,9 @@ class App extends Component {
 							position="bottom-right"
 							newestOnTop
 						/>
+						<NotificationContextProvider>
+							<SocketClient />
+						</NotificationContextProvider>
 					</div>
 				</BrowserRouter>
 			</ThemeProvider>
@@ -149,12 +134,4 @@ class App extends Component {
 	}
 }
 
-App.propTypes = {
-	addNotification: PropTypes.func.isRequired,
-};
-
-const mapDispatchToProps = dispatch => ({
-	addNotification: notification => dispatch({ type: "ADD_NOTIFICATION", notification }),
-});
-
-export default connect(null, mapDispatchToProps)(App);
+export default App;
