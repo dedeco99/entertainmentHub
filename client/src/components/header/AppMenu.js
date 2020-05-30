@@ -5,6 +5,8 @@ import { NavLink } from "react-router-dom";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 
+import { UserContext } from "../../contexts/UserContext";
+
 import { getApps } from "../../api/apps";
 
 import { appMenu as styles } from "../../styles/Header";
@@ -30,10 +32,9 @@ class AppMenu extends Component {
 	}
 
 	componentDidMount() {
-		const user = localStorage.getItem("user");
-		const token = localStorage.getItem("token");
+		const { user } = this.context;
 
-		if (user && token) this.getApps();
+		if (user && user.token) this.getApps();
 	}
 
 	async getApps() {
@@ -106,10 +107,9 @@ class AppMenu extends Component {
 	}
 
 	render() {
-		const user = localStorage.getItem("user");
-		const token = localStorage.getItem("token");
+		const { user } = this.context;
 
-		if (user && token) {
+		if (user && user.token) {
 			return (
 				<div className="appMenu">
 					<List className="list-menu" >
@@ -123,6 +123,8 @@ class AppMenu extends Component {
 		return <div />;
 	}
 }
+
+AppMenu.contextType = UserContext;
 
 AppMenu.propTypes = {
 	classes: PropTypes.object.isRequired,

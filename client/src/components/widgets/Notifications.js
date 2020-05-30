@@ -62,7 +62,7 @@ class Notifications extends Component {
 	}
 
 	async getNotifications() {
-		const { dispatch, notificationState } = this.context;
+		const { notificationState, dispatch } = this.context;
 		const { notifications } = notificationState;
 		const { loading, currentFilter, page, history } = this.state;
 

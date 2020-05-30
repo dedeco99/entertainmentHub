@@ -3,6 +3,7 @@ import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import UserContextProvider from "../contexts/UserContext";
 import NotificationContextProvider from "../contexts/NotificationContext";
 
 import SocketClient from "./.partials/SocketClient";
@@ -112,23 +113,25 @@ class App extends Component {
 	render() {
 		return (
 			<ThemeProvider theme={theme}>
-				<BrowserRouter>
-					<div className="App">
-						<Header />
-						<AppMenu />
-						<div className="main">
-							{this.renderRoutes()}
+				<UserContextProvider>
+					<BrowserRouter>
+						<div className="App">
+							<Header />
+							<AppMenu />
+							<div className="main">
+								{this.renderRoutes()}
+							</div>
+							{this.renderGoBackUpButton()}
+							<ToastContainer
+								position="bottom-right"
+								newestOnTop
+							/>
+							<NotificationContextProvider>
+								<SocketClient />
+							</NotificationContextProvider>
 						</div>
-						{this.renderGoBackUpButton()}
-						<ToastContainer
-							position="bottom-right"
-							newestOnTop
-						/>
-						<NotificationContextProvider>
-							<SocketClient />
-						</NotificationContextProvider>
-					</div>
-				</BrowserRouter>
+					</BrowserRouter>
+				</UserContextProvider>
 			</ThemeProvider>
 		);
 	}

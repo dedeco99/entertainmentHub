@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import Container from "@material-ui/core/Container";
 import Button from "@material-ui/core/Button";
 
+import { UserContext } from "../../contexts/UserContext";
+
 import Input from "../.partials/Input";
 
 import { login } from "../../api/auth";
@@ -24,12 +26,12 @@ class Login extends Component {
 	}
 
 	async handleSubmit() {
+		const { dispatch } = this.context;
 		const { email, password } = this.state;
 		const response = await login({ email, password });
 
 		if (response.status < 400) {
-			localStorage.setItem("user", JSON.stringify(response.data.user));
-			localStorage.setItem("token", response.data.token);
+			dispatch({ type: "SET_USER", user: { ...response.data.user, token: response.data.token } });
 
 			window.location.replace("/");
 		}
@@ -83,5 +85,7 @@ class Login extends Component {
 		);
 	}
 }
+
+Login.contextType = UserContext;
 
 export default Login;
