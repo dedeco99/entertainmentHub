@@ -1,11 +1,12 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
-import { connect } from "react-redux";
-import socketio from "socket.io-client";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+import UserContextProvider from "../contexts/UserContext";
+import NotificationContextProvider from "../contexts/NotificationContext";
+
+import SocketClient from "./.partials/SocketClient";
 import PrivateRoute from "./auth/PrivateRoute";
 import Header from "./header/Header";
 import AppMenu from "./header/AppMenu";
@@ -45,31 +46,13 @@ const theme = createMuiTheme({
 class App extends Component {
 	constructor() {
 		super();
+
 		this.state = {
 			showGoBackUpButton: false,
 		};
 	}
 
 	componentDidMount() {
-		const { addNotification } = this.props;
-
-		const socket = socketio("http://entertainmenthub.ddns.net:5000", { transports: ["websocket"] });
-
-		socket.on("connect", () => {
-			let user = null;
-			try {
-				user = JSON.parse(localStorage.getItem("user"));
-			} catch (err) {
-				user = localStorage.getItem("user");
-			}
-
-			socket.emit("bind", user);
-		});
-
-		socket.on("notification", data => {
-			addNotification(data);
-		});
-
 		window.addEventListener("scroll", () => {
 			const { showGoBackUpButton } = this.state;
 
@@ -130,31 +113,28 @@ class App extends Component {
 	render() {
 		return (
 			<ThemeProvider theme={theme}>
-				<BrowserRouter>
-					<div className="App">
-						<Header />
-						<AppMenu />
-						<div className="main">
-							{this.renderRoutes()}
+				<UserContextProvider>
+					<BrowserRouter>
+						<div className="App">
+							<Header />
+							<AppMenu />
+							<div className="main">
+								{this.renderRoutes()}
+							</div>
+							{this.renderGoBackUpButton()}
+							<ToastContainer
+								position="bottom-right"
+								newestOnTop
+							/>
+							<NotificationContextProvider>
+								<SocketClient />
+							</NotificationContextProvider>
 						</div>
-						{this.renderGoBackUpButton()}
-						<ToastContainer
-							position="bottom-right"
-							newestOnTop
-						/>
-					</div>
-				</BrowserRouter>
+					</BrowserRouter>
+				</UserContextProvider>
 			</ThemeProvider>
 		);
 	}
 }
 
-App.propTypes = {
-	addNotification: PropTypes.func.isRequired,
-};
-
-const mapDispatchToProps = dispatch => ({
-	addNotification: notification => dispatch({ type: "ADD_NOTIFICATION", notification }),
-});
-
-export default connect(null, mapDispatchToProps)(App);
+export default App;

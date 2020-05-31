@@ -13,6 +13,8 @@ import Checkbox from "@material-ui/core/Checkbox";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 
+import { UserContext } from "../../contexts/UserContext";
+
 import { getApps, deleteApp } from "../../api/apps";
 import { editUser } from "../../api/users";
 
@@ -87,24 +89,19 @@ class Settings extends Component {
 	}
 
 	getSettings() {
-		let user = null;
-		try {
-			user = JSON.parse(localStorage.getItem("user"));
-		} catch (err) {
-			user = localStorage.getItem("user");
-		}
-
+		const { user } = this.context;
 
 		this.setState({ settings: user.settings || {} });
 	}
 
 	async handleSubmitSettings() {
+		const { user, dispatch } = this.context;
 		const { settings } = this.state;
 
 		const response = await editUser({ settings });
 
 		if (response.data) {
-			localStorage.setItem("user", JSON.stringify(response.data));
+			dispatch({ type: "SET_USER", user: { ...user, ...response.data } });
 
 			window.location.replace("/settings");
 		}
@@ -257,6 +254,8 @@ class Settings extends Component {
 		);
 	}
 }
+
+Settings.contextType = UserContext;
 
 Settings.propTypes = {
 	classes: PropTypes.object.isRequired,

@@ -1,9 +1,4 @@
-const initState = {
-	notifications: [],
-	total: 0,
-};
-
-const notificationsReducer = (state = initState, action) => {
+export const notificationReducer = (state, action) => {
 	let notifications = JSON.parse(JSON.stringify(state.notifications));
 
 	switch (action.type) {
@@ -27,5 +22,3 @@ const notificationsReducer = (state = initState, action) => {
 			return state;
 	}
 };
-
-export default notificationsReducer;

@@ -1,7 +1,8 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-
 import { Scrollbars } from "react-custom-scrollbars";
+
+import { UserContext } from "../../contexts/UserContext";
 
 class CustomScrollbar extends Component {
 	constructor() {
@@ -12,12 +13,7 @@ class CustomScrollbar extends Component {
 	}
 
 	componentDidMount() {
-		let user = null;
-		try {
-			user = JSON.parse(localStorage.getItem("user"));
-		} catch (err) {
-			user = localStorage.getItem("user");
-		}
+		const { user } = this.context;
 
 		this.setState({ useCustom: user.settings ? user.settings.useCustomScrollbar : false })
 	}
@@ -58,6 +54,8 @@ class CustomScrollbar extends Component {
 		);
 	}
 }
+
+CustomScrollbar.contextType = UserContext;
 
 CustomScrollbar.propTypes = {
 	children: PropTypes.node.isRequired,

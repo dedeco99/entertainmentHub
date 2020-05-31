@@ -1,12 +1,14 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { connect } from "react-redux";
 import { withStyles } from "@material-ui/core/styles";
+
 import Paper from "@material-ui/core/Paper";
 import ClickAwayListener from "@material-ui/core/ClickAwayListener";
 import IconButton from "@material-ui/core/IconButton";
 import Grow from "@material-ui/core/Grow";
 import Badge from "@material-ui/core/Badge";
+
+import { NotificationContext } from "../../contexts/NotificationContext";
 
 import Notifications from "../widgets/Notifications";
 
@@ -37,8 +39,8 @@ class NotificationDropdown extends Component {
 	}
 
 	renderDropdownContent() {
-		const { open } = this.state;
 		const { classes } = this.props;
+		const { open } = this.state;
 
 		return (
 			<Grow in={open} style={{ transformOrigin: "right top" }}>
@@ -50,7 +52,9 @@ class NotificationDropdown extends Component {
 	}
 
 	render() {
-		const { classes, total } = this.props;
+		const { notificationState } = this.context;
+		const { total } = notificationState;
+		const { classes } = this.props;
 
 		return (
 			<ClickAwayListener onClickAway={this.handleClickAway}>
@@ -67,13 +71,10 @@ class NotificationDropdown extends Component {
 	}
 }
 
+NotificationDropdown.contextType = NotificationContext;
+
 NotificationDropdown.propTypes = {
 	classes: PropTypes.object.isRequired,
-	total: PropTypes.number.isRequired,
 };
 
-const mapStateToProps = state => ({
-	total: state.notifications.total,
-});
-
-export default connect(mapStateToProps)(withStyles(styles)(NotificationDropdown));
+export default withStyles(styles)(NotificationDropdown);
