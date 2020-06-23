@@ -85,7 +85,7 @@ async function addNotifications(notifications) {
 
 			if (global.sockets[notification.user]) {
 				for (const socket of global.sockets[notification.user]) {
-					socket.emit("notification", notification);
+					socket.emit("notification", newNotification);
 				}
 			}
 		}
