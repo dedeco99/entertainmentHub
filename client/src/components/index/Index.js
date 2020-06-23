@@ -2,6 +2,9 @@ import React, { Component } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import IconButton from "@material-ui/core/IconButton";
 
+import { UserContext } from "../../contexts/UserContext";
+import NotificationContextProvider from "../../contexts/NotificationContext";
+
 import Widget from "../widgets/Widget";
 import WidgetDetail from "../widgets/WidgetDetail";
 import Notifications from "../widgets/Notifications";
@@ -36,10 +39,9 @@ class Index extends Component {
 	}
 
 	async componentDidMount() {
-		const user = localStorage.getItem("user");
-		const token = localStorage.getItem("token");
+		const { user } = this.context;
 
-		if (user && token) await this.getWidgets();
+		if (user && user.token) await this.getWidgets();
 	}
 
 	async getWidgets() {
@@ -123,7 +125,11 @@ class Index extends Component {
 
 				switch (widget.type) {
 					case "notifications":
-						content = <Notifications height="100%" />;
+						content = (
+							<NotificationContextProvider>
+								<Notifications height="100%" />
+							</NotificationContextProvider>
+						);
 						editText = "Notifications";
 						editIcon = "icofont-alarm";
 						dimensions = { w: widget.width || 1, h: widget.height || 4 };
@@ -250,13 +256,14 @@ class Index extends Component {
 	}
 
 	render() {
-		const user = localStorage.getItem("user");
-		const token = localStorage.getItem("token");
+		const { user } = this.context;
 
-		if (user && token) return this.renderDashboard();
+		if (user && user.token) return this.renderDashboard();
 
 		return this.renderIndex();
 	}
 }
+
+Index.contextType = UserContext;
 
 export default Index;

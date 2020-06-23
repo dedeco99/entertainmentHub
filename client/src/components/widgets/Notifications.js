@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { connect } from "react-redux";
 import { withStyles } from "@material-ui/styles";
 import InfiniteScroll from "react-infinite-scroller";
 
@@ -18,6 +17,8 @@ import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
+import { NotificationContext } from "../../contexts/NotificationContext";
+
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
 import { addToWatchLater } from "../../api/youtube";
 import { formatDate } from "../../utils/utils";
@@ -27,17 +28,18 @@ import { notifications as styles } from "../../styles/Widgets";
 class Notifications extends Component {
 	constructor() {
 		super();
+
 		this.state = {
+			open: false,
+			loading: false,
 			page: 0,
 			hasMore: false,
-			loading: false,
+
 			currentFilter: "filter-all",
 			history: false,
 
 			filterAnchorEl: null,
 			selectedIndex: 0,
-			open: false,
-
 			notificationAnchorEl: null,
 			selectedNotification: null,
 		};
@@ -60,25 +62,25 @@ class Notifications extends Component {
 	}
 
 	async getNotifications() {
-		const { page, history, loading } = this.state;
-		const { notifications, addNotification, updateTotal } = this.props;
+		const { notificationState, dispatch } = this.context;
+		const { notifications } = notificationState;
+		const { loading, currentFilter, page, history } = this.state;
 
 		if (!loading) {
 			this.setState({ loading: true });
 
-			let { currentFilter } = this.state;
-			currentFilter = currentFilter.substring(7);
-			currentFilter = currentFilter === "all" ? "" : currentFilter;
+			let filter = currentFilter.substring(7);
+			filter = filter === "all" ? "" : filter;
 
-			const response = await getNotifications(page, history, currentFilter);
+			const response = await getNotifications(page, history, filter);
 
 			if (response.data) {
 				const newNotifications = page === 0
 					? response.data.notifications
 					: notifications.concat(response.data.notifications);
 
-				addNotification(newNotifications);
-				updateTotal(response.data.total);
+				dispatch({ type: "ADD_NOTIFICATION", notification: newNotifications });
+				dispatch({ type: "UPDATE_TOTAL", total: response.data.total });
 
 				this.setState({
 					open: true,
@@ -91,15 +93,15 @@ class Notifications extends Component {
 	}
 
 	async handleHideNotification() {
-		const { deleteNotification } = this.props;
-		const { history, selectedNotification } = this.state;
+		const { dispatch } = this.context;
+		const { selectedNotification, history } = this.state;
 
 		const response = history
 			? await deleteNotifications(selectedNotification._id)
 			: await patchNotifications(selectedNotification._id);
 
 		if (response.data) {
-			deleteNotification(response.data);
+			dispatch({ type: "DELETE_NOTIFICATION", notification: response.data });
 		}
 	}
 
@@ -121,6 +123,28 @@ class Notifications extends Component {
 
 	applyFilter(filter) {
 		this.setState({ currentFilter: filter, page: 0 }, this.getNotifications);
+	}
+
+	handleClickListItem(e) {
+		this.setState({ filterAnchorEl: e.currentTarget });
+	}
+
+	handleMenuItemClick(e, index) {
+		this.setState({ filterAnchorEl: null, selectedIndex: index });
+
+		this.applyFilter(e.currentTarget.id);
+	}
+
+	handleClose() {
+		this.setState({ filterAnchorEl: null });
+	}
+
+	handleOptionsClick(e, notification) {
+		this.setState({ notificationAnchorEl: e.currentTarget, selectedNotification: notification });
+	}
+
+	handleCloseOptions() {
+		this.setState({ notificationAnchorEl: null });
 	}
 
 	renderNotificationType(type) {
@@ -171,29 +195,10 @@ class Notifications extends Component {
 		);
 	}
 
-	handleClickListItem(e) {
-		this.setState({ filterAnchorEl: e.currentTarget });
-	}
-
-	handleMenuItemClick(e, index) {
-		this.setState({ filterAnchorEl: null, selectedIndex: index });
-		this.applyFilter(e.currentTarget.id);
-	}
-
-	handleClose() {
-		this.setState({ filterAnchorEl: null });
-	}
-
-	handleOptionsClick(e, notification) {
-		this.setState({ notificationAnchorEl: e.currentTarget, selectedNotification: notification });
-	}
-
-	handleCloseOptions() {
-		this.setState({ notificationAnchorEl: null });
-	}
-
 	renderNotificationList() {
-		const { notifications, classes } = this.props;
+		const { notificationState } = this.context;
+		const { notifications } = notificationState;
+		const { classes } = this.props;
 
 		return (
 			<List>
@@ -226,6 +231,7 @@ class Notifications extends Component {
 
 	getNotificationActions() {
 		const { selectedNotification } = this.state;
+
 		if (selectedNotification) {
 			switch (selectedNotification.type) {
 				case "youtube":
@@ -240,9 +246,17 @@ class Notifications extends Component {
 		return [];
 	}
 
+
 	render() {
-		const { height, classes } = this.props;
-		const { hasMore, history, filterAnchorEl, selectedIndex, open, notificationAnchorEl } = this.state;
+		const { classes, height } = this.props;
+		const {
+			open,
+			hasMore,
+			history,
+			filterAnchorEl,
+			selectedIndex,
+			notificationAnchorEl,
+		} = this.state;
 
 		const filterOptions = ["All", "TV", "Youtube", "Reddit", "Twitch"];
 		const actions = this.getNotificationActions();
@@ -314,7 +328,10 @@ class Notifications extends Component {
 							actions.map(action => (
 								<MenuItem
 									key={action.name}
-									onClick={() => { action.onClick(); this.handleCloseOptions(); }}
+									onClick={() => {
+										action.onClick();
+										this.handleCloseOptions();
+									}}
 								>
 									{action.name}
 								</MenuItem>
@@ -327,24 +344,11 @@ class Notifications extends Component {
 	}
 }
 
+Notifications.contextType = NotificationContext;
+
 Notifications.propTypes = {
 	classes: PropTypes.object.isRequired,
-	notifications: PropTypes.array.isRequired,
-	addNotification: PropTypes.func.isRequired,
-	deleteNotification: PropTypes.func.isRequired,
-	updateTotal: PropTypes.func.isRequired,
 	height: PropTypes.string,
 };
 
-const mapStateToProps = state => ({
-	notifications: state.notifications.notifications,
-});
-
-const mapDispatchToProps = dispatch => ({
-	addNotification: notification => dispatch({ type: "ADD_NOTIFICATION", notification }),
-	deleteNotification: notification => dispatch({ type: "DELETE_NOTIFICATION", notification }),
-	updateTotal: total => dispatch({ type: "UPDATE_TOTAL", total }),
-});
-
-
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(styles)(Notifications));
+export default withStyles(styles)(Notifications);

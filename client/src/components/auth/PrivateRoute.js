@@ -1,17 +1,18 @@
-import React from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { Route, Redirect } from "react-router-dom";
 
+import { UserContext } from "../../contexts/UserContext";
+
 function PrivateRoute({ component: Component, ...rest }) {
-	const user = localStorage.getItem("user");
-	const token = localStorage.getItem("token");
+	const { user } = useContext(UserContext);
 
 	return (
 		<Route
 			{...rest}
 			// eslint-disable-next-line react/jsx-no-bind
 			render={props => {
-				if (user && token) {
+				if (user && user.token) {
 					return <Component {...props} />;
 				}
 
