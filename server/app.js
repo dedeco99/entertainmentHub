@@ -45,7 +45,7 @@ app.use(morgan(
 	{ skip: req => req.originalUrl.includes(".css") || req.originalUrl.includes(".ico") },
 ));
 
-app.use(express.static(path.join(__dirname, "client/build")));
+app.use(express.static(path.join(__dirname, "build")));
 
 // Body parser
 app.use(express.json());
@@ -129,7 +129,7 @@ app.get("/api/tv/popular", token, (req, res) => middleware(req, res, tv.getPopul
 app.get("/api/tv/:id", token, (req, res) => middleware(req, res, tv.getEpisodes));
 
 app.get("*/", (req, res) => {
-	res.sendFile(path.join(`${__dirname}/client/build/index.html`));
+	res.sendFile(path.join(`${__dirname}/build/index.html`));
 });
 
 const server = app.listen(app.get("port"), () => {
