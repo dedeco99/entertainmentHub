@@ -6,8 +6,6 @@ import { NavLink } from "react-router-dom";
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 
-import NotificationContextProvider from "../../contexts/NotificationContext";
-
 import NotificationDropdown from "./NotificationDropdown";
 
 import { logout } from "../../api/auth";
@@ -17,9 +15,7 @@ import { loggedInLinks as styles } from "../../styles/Header";
 function LoggedInLinks({ classes }) {
 	return (
 		<div>
-			<NotificationContextProvider>
-				<NotificationDropdown />
-			</NotificationContextProvider>
+			<NotificationDropdown />
 			<NavLink className={`nav-item ${classes.navBtn}`} to="/settings">
 				<IconButton>
 					<i className="icofont-ui-user" />

@@ -79,8 +79,7 @@ class Notifications extends Component {
 					? response.data.notifications
 					: notifications.concat(response.data.notifications);
 
-				dispatch({ type: "ADD_NOTIFICATION", notification: newNotifications });
-				dispatch({ type: "UPDATE_TOTAL", total: response.data.total });
+				dispatch({ type: "SET_NOTIFICATIONS", notifications: newNotifications, total: response.data.total });
 
 				this.setState({
 					open: true,
