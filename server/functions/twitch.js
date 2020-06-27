@@ -33,6 +33,7 @@ async function getStreams(event) {
 	if (after) url += `&after=${after}`;
 
 	const headers = {
+		"Client-ID": process.env.twitchClientId,
 		Authorization: `Bearer ${accessToken}`,
 	};
 
@@ -81,6 +82,7 @@ async function getFollows(event) {
 	let url = "https://api.twitch.tv/helix/users";
 
 	const headers = {
+		"Client-ID": process.env.twitchClientId,
 		Authorization: `Bearer ${accessToken}`,
 	};
 
@@ -122,6 +124,7 @@ async function testWebhooks(accessToken) {
 	let url = "https://api.twitch.tv/helix/webhooks/hub";
 
 	let headers = {
+		"Client-ID": process.env.twitchClientId,
 		Authorization: `Bearer ${accessToken}`,
 	};
 
@@ -140,6 +143,7 @@ async function testWebhooks(accessToken) {
 	url = "https://api.twitch.tv/helix/webhooks/subscriptions?first=10";
 
 	headers = {
+		"Client-ID": process.env.twitchClientId,
 		Authorization: `Bearer ${accessToken}`,
 	};
 
