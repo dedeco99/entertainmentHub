@@ -25,7 +25,7 @@ import tv from "../../img/tv.png";
 
 import { settings as styles } from "../../styles/Header";
 
-const REDIRECT = "https://entertainmenthub.ddns.net";
+const REDIRECT = "http://entertainmenthub.ddns.net";
 
 class Settings extends Component {
 	constructor() {
