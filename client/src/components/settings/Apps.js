@@ -8,7 +8,7 @@ class Apps extends Component {
 		const { history } = this.props;
 		const platform = history.location.pathname.split("/")[2];
 		let code = history.location.search.split("code=")[1];
-		code = platform === "youtube" ? code.split("&")[0] : code;
+		code = platform === "youtube" || platform === "twitch" ? code.split("&")[0] : code;
 
 		addApp(platform, code);
 	}
