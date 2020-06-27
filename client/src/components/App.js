@@ -114,23 +114,23 @@ class App extends Component {
 		return (
 			<ThemeProvider theme={theme}>
 				<UserContextProvider>
-					<BrowserRouter>
-						<div className="App">
-							<Header />
-							<AppMenu />
-							<div className="main">
-								{this.renderRoutes()}
-							</div>
-							{this.renderGoBackUpButton()}
-							<ToastContainer
-								position="bottom-right"
-								newestOnTop
-							/>
-							<NotificationContextProvider>
+					<NotificationContextProvider>
+						<BrowserRouter>
+							<div className="App">
+								<Header />
+								<AppMenu />
+								<div className="main">
+									{this.renderRoutes()}
+								</div>
+								{this.renderGoBackUpButton()}
+								<ToastContainer
+									position="bottom-right"
+									newestOnTop
+								/>
 								<SocketClient />
-							</NotificationContextProvider>
-						</div>
-					</BrowserRouter>
+							</div>
+						</BrowserRouter>
+					</NotificationContextProvider>
 				</UserContextProvider>
 			</ThemeProvider>
 		);
