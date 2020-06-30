@@ -1,3 +1,5 @@
+import { makeStyles } from "@material-ui/styles";
+
 const widget = () => ({
 	edit: {
 		display: "flex",
@@ -15,7 +17,7 @@ const widget = () => ({
 	},
 });
 
-const widgetDetail = () => ({
+const widgetDetail = makeStyles({
 	autocomplete: {
 		width: 300,
 	},

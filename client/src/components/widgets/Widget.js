@@ -1,8 +1,13 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/styles";
+
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
+
+import { WidgetContext } from "../../contexts/WidgetContext";
+
+import { deleteWidget } from "../../api/widgets";
 
 import { widget as styles } from "../../styles/Widgets";
 
@@ -14,9 +19,14 @@ class Widget extends Component {
 	}
 
 	async handleDelete() {
-		const { id, onDelete } = this.props;
+		const { id } = this.props;
+		const { dispatch } = this.context;
 
-		await onDelete(id);
+		const response = await deleteWidget(id);
+
+		if (response.status < 400) {
+			dispatch({ type: "DELETE_WIDGET", widget: response.data });
+		}
 	}
 
 	render() {
@@ -38,14 +48,15 @@ class Widget extends Component {
 	}
 }
 
+Widget.contextType = WidgetContext;
+
 Widget.propTypes = {
 	classes: PropTypes.object.isRequired,
 	id: PropTypes.string.isRequired,
 	content: PropTypes.node.isRequired,
-	editMode: PropTypes.bool.isRequired,
 	editText: PropTypes.string.isRequired,
 	editIcon: PropTypes.string.isRequired,
-	onDelete: PropTypes.func.isRequired,
+	editMode: PropTypes.bool.isRequired,
 };
 
 export default withStyles(styles)(Widget);
