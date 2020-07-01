@@ -1,7 +1,8 @@
-import React, { Component } from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
-import { withStyles } from "@material-ui/styles";
 
+import Zoom from "@material-ui/core/Zoom";
+import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 
@@ -9,19 +10,13 @@ import { WidgetContext } from "../../contexts/WidgetContext";
 
 import { deleteWidget } from "../../api/widgets";
 
-import { widget as styles } from "../../styles/Widgets";
+import { widget as useStyles } from "../../styles/Widgets";
 
-class Widget extends Component {
-	constructor() {
-		super();
+function Widget({ id, content, borderColor, editText, editIcon, editMode }) {
+	const classes = useStyles({ borderColor });
+	const { dispatch } = useContext(WidgetContext);
 
-		this.handleDelete = this.handleDelete.bind(this);
-	}
-
-	async handleDelete() {
-		const { id } = this.props;
-		const { dispatch } = this.context;
-
+	async function handleDelete() {
 		const response = await deleteWidget(id);
 
 		if (response.status < 400) {
@@ -29,12 +24,10 @@ class Widget extends Component {
 		}
 	}
 
-	render() {
-		const { classes, editMode, editText, editIcon, content } = this.props;
-
-		const display = editMode ? (
-			<div className={classes.edit}>
-				<IconButton className={classes.delete} onClick={this.handleDelete}>
+	if (editMode) {
+		return (
+			<div className={classes.root}>
+				<IconButton className={classes.delete} onClick={handleDelete}>
 					<i className="icofont-ui-delete" />
 				</IconButton>
 				<i className={`${editIcon} icofont-2x`} />
@@ -42,21 +35,25 @@ class Widget extends Component {
 					{editText}
 				</Typography>
 			</div>
-		) : content;
-
-		return display;
+		);
 	}
+
+	return (
+		<Zoom in>
+			<Box className={classes.root}>
+				{content}
+			</Box>
+		</Zoom>
+	);
 }
 
-Widget.contextType = WidgetContext;
-
 Widget.propTypes = {
-	classes: PropTypes.object.isRequired,
 	id: PropTypes.string.isRequired,
 	content: PropTypes.node.isRequired,
+	borderColor: PropTypes.string,
 	editText: PropTypes.string.isRequired,
 	editIcon: PropTypes.string.isRequired,
 	editMode: PropTypes.bool.isRequired,
 };
 
-export default withStyles(styles)(Widget);
+export default Widget;

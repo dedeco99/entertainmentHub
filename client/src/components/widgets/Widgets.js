@@ -31,6 +31,7 @@ const widgetsInfo = {
 				listView={widget.info.listView}
 			/>
 		),
+		borderColor: "#ff4500",
 		editText: `r/${widget.info.subreddit}`,
 		editIcon: "icofont-reddit",
 		dimensions: { w: widget.width || 1, h: widget.height || 2 },
@@ -38,6 +39,7 @@ const widgetsInfo = {
 	}),
 	twitch: widget => ({
 		content: <Twitch />,
+		borderColor: "#6441a5",
 		editText: "Twitch",
 		editIcon: "icofont-twitch",
 		dimensions: { w: widget.width || 1, h: widget.height || 2 },
@@ -140,6 +142,7 @@ class Widgets extends Component {
 						<Widget
 							id={widget._id}
 							content={widgetInfo.content}
+							borderColor={widgetInfo.borderColor}
 							editText={widgetInfo.editText}
 							editIcon={widgetInfo.editIcon}
 							editMode={editMode}

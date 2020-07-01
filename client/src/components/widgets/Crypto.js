@@ -98,7 +98,7 @@ class Crypto extends Component {
 						<Box display="flex" flex="1">
 							<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
 								<Typography variant="caption">{"Market Cap"}</Typography>
-								<Typography variant="subtitle1">{`${this.formatNumber(crypto.marketCap)}`}</Typography>
+								<Typography variant="subtitle1">{`${this.simplifyNumber(crypto.marketCap)}`}</Typography>
 							</Box>
 							<Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" className={classes.singlePercentage}>
 								<Typography variant="caption">{"% 1h"}</Typography>
@@ -108,7 +108,7 @@ class Crypto extends Component {
 						<Box display="flex" flex="1">
 							<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
 								<Typography variant="caption">{"Volume (24h)"}</Typography>
-								<Typography variant="subtitle1">{`${this.formatNumber(crypto.volume)}`}</Typography>
+								<Typography variant="subtitle1">{`${this.simplifyNumber(crypto.volume)}`}</Typography>
 							</Box>
 							<Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" className={classes.singlePercentage}>
 								<Typography variant="caption">{"% 24h"}</Typography>
@@ -118,7 +118,7 @@ class Crypto extends Component {
 						<Box display="flex" flex="1">
 							<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
 								<Typography variant="caption">{"Circulating Supply"}</Typography>
-								<Typography variant="subtitle1">{`${this.formatNumber(crypto.circulatingSupply).substr(1)} ${crypto.symbol}`}</Typography>
+								<Typography variant="subtitle1">{`${this.simplifyNumber(crypto.circulatingSupply).substr(1)} ${crypto.symbol}`}</Typography>
 							</Box>
 							<Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" className={classes.singlePercentage}>
 								<Typography variant="caption">{"% 7d"}</Typography>
