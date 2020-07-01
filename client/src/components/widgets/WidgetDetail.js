@@ -97,6 +97,30 @@ function WidgetDetail({ open, onClose }) {
 		if (event.key === "Enter") handleSubmit();
 	}
 
+	function renderCitiesOptionLabel(option) {
+		return `${option.name}, ${option.country}`;
+	}
+
+	function renderCitiesInput(params) {
+		return <TextField {...params} label="City" variant="outlined" fullWidth margin="normal" />;
+	}
+
+	function renderCoinsOptionLabel(option) {
+		return `${option.symbol} - ${option.name}`;
+	}
+
+	function renderCoinsInput(params) {
+		return <TextField {...params} label="Coins" variant="outlined" fullWidth margin="normal" />;
+	}
+
+	function renderTags(value, getTagProps) {
+		if (!value) return [];
+
+		return value.map((option, index) => (
+			<Chip key={option.symbol} label={option.symbol} {...getTagProps({ index })} />
+		));
+	}
+
 	function renderFields() {
 		switch (type) {
 			case "reddit":
@@ -145,8 +169,8 @@ function WidgetDetail({ open, onClose }) {
 						onInputChange={handleGetCities}
 						onChange={handleSelectCity}
 						className={classes.autocomplete}
-						getOptionLabel={option => `${option.name}, ${option.country}`}
-						renderInput={params => <TextField {...params} label="Cidade" variant="outlined" fullWidth margin="normal" />}
+						getOptionLabel={renderCitiesOptionLabel}
+						renderInput={renderCitiesInput}
 					/>
 				);
 			case "crypto":
@@ -154,21 +178,13 @@ function WidgetDetail({ open, onClose }) {
 					<Autocomplete
 						multiple
 						limitTags={2}
-						renderTags={(value, getTagProps) => {
-							if (value) {
-								return value.map((option, index) => (
-									<Chip key={option.symbol} label={option.symbol} {...getTagProps({ index })} />
-								));
-							}
-
-							return [];
-						}}
+						renderTags={renderTags}
 						options={coins || []}
 						onInputChange={handleGetCoins}
 						onChange={handleSelectCoin}
 						className={classes.autocomplete}
-						getOptionLabel={option => `${option.symbol} - ${option.name}`}
-						renderInput={params => <TextField {...params} label="Coins" variant="outlined" fullWidth margin="normal" />}
+						getOptionLabel={renderCoinsOptionLabel}
+						renderInput={renderCoinsInput}
 					/>
 				);
 			default: return null;
