@@ -69,11 +69,17 @@ class TV extends Component {
 		const popularList = popular.map(serie => (
 			<ListItem key={serie.id} button divider>
 				<img src={serie.image} height="100x" alt="Series" />
-				<Typography variant="body1" className={classes.popularText}> {serie.displayName} </Typography>
+				<Typography variant="body1" className={classes.popularText}>{serie.displayName}</Typography>
 			</ListItem >
 		));
 
-		return <CustomScrollbar> <List> {popularList} </List> </CustomScrollbar>;
+		return (
+			<CustomScrollbar>
+				<List>
+					{popularList}
+				</List>
+			</CustomScrollbar>
+		);
 	}
 
 	renderEpisodeList(episodes) {
@@ -86,15 +92,21 @@ class TV extends Component {
 			return (
 				<ListItem className={classes.episodeList} alignItems="flex-start" key={episode._id} button divider>
 					<Box display="flex" width="100%">
-						<Typography className={classes.episodeName} variant="body1"> {episode.series.displayName} </Typography>
-						<Typography className={classes.episodeDate} variant="caption"> {formatDate(episode.date, "DD-MM-YYYY")} </Typography>
+						<Typography className={classes.episodeName} variant="body1">{episode.series.displayName}</Typography>
+						<Typography className={classes.episodeDate} variant="caption">{formatDate(episode.date, "DD-MM-YYYY")}</Typography>
 					</Box>
-					<Typography variant="body2"> {`${seasonLabel + episodeLabel} - ${episode.title}`} </Typography>
+					<Typography variant="body2">{`${seasonLabel + episodeLabel} - ${episode.title}`}</Typography>
 				</ListItem >
 			);
 		});
 
-		return <CustomScrollbar> <List component="div"> {episodeList} </List> </CustomScrollbar>;
+		return (
+			<CustomScrollbar>
+				<List>
+					{episodeList}
+				</List>
+			</CustomScrollbar>
+		);
 	}
 
 	a11yTabProps(index) {

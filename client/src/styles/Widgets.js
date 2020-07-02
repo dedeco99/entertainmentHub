@@ -278,6 +278,7 @@ const crypto = () => ({
 	},
 	singleImage: {
 		padding: 10,
+		paddingRight: 20,
 		height: 36,
 		width: 36,
 	},

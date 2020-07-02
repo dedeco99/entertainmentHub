@@ -4,7 +4,6 @@ import { withStyles } from "@material-ui/styles";
 import InfiniteScroll from "react-infinite-scroller";
 
 import Zoom from "@material-ui/core/Zoom";
-import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
@@ -16,6 +15,8 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import CircularProgress from "@material-ui/core/CircularProgress";
+
+import AnimatedList from "../.partials/AnimatedList";
 
 import { NotificationContext } from "../../contexts/NotificationContext";
 
@@ -200,7 +201,7 @@ class Notifications extends Component {
 		const { classes } = this.props;
 
 		return (
-			<List>
+			<AnimatedList>
 				{notifications.map(notification => (
 					<ListItem key={notification._id} button divider>
 						<ListItemAvatar>
@@ -214,9 +215,9 @@ class Notifications extends Component {
 								<i className="material-icons">{"more_vert"}</i>
 							</IconButton>
 						</ListItemSecondaryAction>
-					</ListItem >
+					</ListItem>
 				))}
-			</List>
+			</AnimatedList>
 		);
 	}
 
