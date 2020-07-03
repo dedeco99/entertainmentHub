@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/styles";
+
 import Zoom from "@material-ui/core/Zoom";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
