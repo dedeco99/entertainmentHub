@@ -1,10 +1,10 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/styles";
+
 import Zoom from "@material-ui/core/Zoom";
 import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
-import Paper from "@material-ui/core/Paper";
 import Tooltip from "@material-ui/core/Tooltip";
 import Table from "@material-ui/core/Table";
 import TableContainer from "@material-ui/core/TableContainer";
@@ -55,13 +55,6 @@ class Crypto extends Component {
 		return `${number.toFixed(2)} ${prefix}`;
 	}
 
-	formatNumber(number) {
-		return new Intl.NumberFormat(null, {
-			style: "currency",
-			currency: "EUR",
-		}).format(Math.floor(number)).slice(0, -3);
-	}
-
 	renderPrice(price) {
 		return `€${Math.floor(price) === 0 ? price.toFixed(3) : price.toFixed(2)}`;
 	}
@@ -81,7 +74,7 @@ class Crypto extends Component {
 
 		return (
 			<Zoom in={loaded}>
-				<Box component={Paper} display="flex" flexDirection="column" className={classes.singleRoot}>
+				<Box display="flex" flexDirection="column" className={classes.singleRoot}>
 					<Box display="flex" alignItems="center" className={classes.singleHeader}>
 						<Box display="flex">
 							<img src={crypto.image} alt="icon-crypto" className={classes.singleImage} />
@@ -98,7 +91,7 @@ class Crypto extends Component {
 						<Box display="flex" flex="1">
 							<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
 								<Typography variant="caption">{"Market Cap"}</Typography>
-								<Typography variant="subtitle1">{`${this.formatNumber(crypto.marketCap)}`}</Typography>
+								<Typography variant="subtitle1">{`${this.simplifyNumber(crypto.marketCap)}`}</Typography>
 							</Box>
 							<Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" className={classes.singlePercentage}>
 								<Typography variant="caption">{"% 1h"}</Typography>
@@ -108,7 +101,7 @@ class Crypto extends Component {
 						<Box display="flex" flex="1">
 							<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
 								<Typography variant="caption">{"Volume (24h)"}</Typography>
-								<Typography variant="subtitle1">{`${this.formatNumber(crypto.volume)}`}</Typography>
+								<Typography variant="subtitle1">{`${this.simplifyNumber(crypto.volume)}`}</Typography>
 							</Box>
 							<Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" className={classes.singlePercentage}>
 								<Typography variant="caption">{"% 24h"}</Typography>
@@ -118,7 +111,7 @@ class Crypto extends Component {
 						<Box display="flex" flex="1">
 							<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
 								<Typography variant="caption">{"Circulating Supply"}</Typography>
-								<Typography variant="subtitle1">{`${this.formatNumber(crypto.circulatingSupply).substr(1)} ${crypto.symbol}`}</Typography>
+								<Typography variant="subtitle1">{`${this.simplifyNumber(crypto.circulatingSupply).substr(1)} ${crypto.symbol}`}</Typography>
 							</Box>
 							<Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" className={classes.singlePercentage}>
 								<Typography variant="caption">{"% 7d"}</Typography>
@@ -137,7 +130,7 @@ class Crypto extends Component {
 
 		return (
 			<Zoom in={loaded}>
-				<TableContainer component={Paper} className={classes.root}>
+				<TableContainer className={classes.root}>
 					<Table>
 						<TableBody>
 							{crypto.map(c => (

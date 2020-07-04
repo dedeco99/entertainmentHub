@@ -1,5 +1,4 @@
-import React, { Component } from "react";
-import { withStyles } from "@material-ui/styles";
+import React, { useState, useContext } from "react";
 import PropTypes from "prop-types";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
@@ -17,36 +16,24 @@ import Checkbox from "@material-ui/core/Checkbox";
 
 import Input from "../.partials/Input";
 
+import { WidgetContext } from "../../contexts/WidgetContext";
+
 import { getCities } from "../../api/weather";
 import { getCoins } from "../../api/crypto";
+import { addWidget } from "../../api/widgets";
 
-import { widgetDetail as styles } from "../../styles/Widgets";
+import { widgetDetail as useStyles } from "../../styles/Widgets";
 
-class WidgetDetail extends Component {
-	constructor() {
-		super();
-		this.state = {
-			type: "notifications",
-			info: {},
+function WidgetDetail({ open, onClose }) {
+	const classes = useStyles();
+	const { dispatch } = useContext(WidgetContext);
+	const [type, setType] = useState("notifications");
+	const [info, setInfo] = useState({});
+	const [typingTimeout, setTypingTimeout] = useState(null);
+	const [cities, setCities] = useState([]);
+	const [coins, setCoins] = useState([]);
 
-			typingTimeout: null,
-			cities: [],
-			coins: [],
-		};
-
-		this.handleChange = this.handleChange.bind(this);
-		this.handleSubmit = this.handleSubmit.bind(this);
-		this.handleKeyPress = this.handleKeyPress.bind(this);
-
-		this.handleGetCities = this.handleGetCities.bind(this);
-		this.handleSelectCity = this.handleSelectCity.bind(this);
-		this.handleGetCoins = this.handleGetCoins.bind(this);
-		this.handleSelectCoin = this.handleSelectCoin.bind(this);
-	}
-
-	handleGetCities(e, filter) {
-		const { typingTimeout } = this.state;
-
+	function handleGetCities(e, filter) {
 		if (!filter) return;
 
 		if (typingTimeout) clearTimeout(typingTimeout);
@@ -55,22 +42,20 @@ class WidgetDetail extends Component {
 			const response = await getCities(filter);
 
 			if (response.data) {
-				this.setState({ cities: response.data });
+				setCities(response.data);
 			}
 		}, 500);
 
-		this.setState({ typingTimeout: timeout });
+		setTypingTimeout(timeout);
 	}
 
-	handleSelectCity(e, city) {
+	function handleSelectCity(e, city) {
 		if (!city) return;
 
-		this.setState({ info: { city: city.name, country: city.country, lat: city.lat, lon: city.lon } });
+		setInfo({ city: city.name, country: city.country, lat: city.lat, lon: city.lon });
 	}
 
-	handleGetCoins(e, filter) {
-		const { typingTimeout } = this.state;
-
+	function handleGetCoins(e, filter) {
 		if (!filter) return;
 
 		if (typingTimeout) clearTimeout(typingTimeout);
@@ -79,44 +64,64 @@ class WidgetDetail extends Component {
 			const response = await getCoins(filter);
 
 			if (response.data) {
-				this.setState({ coins: response.data });
+				setCoins(response.data);
 			}
 		}, 500);
 
-		this.setState({ typingTimeout: timeout });
+		setTypingTimeout(timeout);
 	}
 
-	handleSelectCoin(e, coins) {
-		this.setState({ info: { coins: coins.map(coin => coin.symbol).join(",") } });
+	function handleSelectCoin(e, selectedCoins) {
+		setInfo({ coins: selectedCoins.map(coin => coin.symbol).join(",") });
 	}
 
-	handleChange(e) {
-		const { info } = this.state;
-
+	function handleChange(e) {
 		if (e.target.id.includes("info")) {
-			this.setState({ info: { ...info, [e.target.id.replace("info.", "")]: e.target.value } });
+			setInfo({ ...info, [e.target.id.replace("info.", "")]: e.target.value });
 		} else {
-			this.setState({ [e.target.id]: e.target.value });
+			setType(e.target.value);
 		}
 	}
 
-	async handleSubmit() {
-		const { onAdd } = this.props;
-		const { type, info } = this.state;
+	async function handleSubmit() {
+		const response = await addWidget({ type, info });
 
-		await onAdd({ type, info });
+		if (response.status < 400) {
+			dispatch({ type: "ADD_WIDGET", widget: response.data });
+		}
 
-		this.setState({ info: {} });
+		setInfo({});
 	}
 
-	handleKeyPress(event) {
-		if (event.key === "Enter") this.handleSubmit();
+	function handleKeyPress(event) {
+		if (event.key === "Enter") handleSubmit();
 	}
 
-	renderFields() {
-		const { classes } = this.props;
-		const { type, info, cities, coins } = this.state;
+	function renderCitiesOptionLabel(option) {
+		return `${option.name}, ${option.country}`;
+	}
 
+	function renderCitiesInput(params) {
+		return <TextField {...params} label="City" variant="outlined" fullWidth margin="normal" />;
+	}
+
+	function renderCoinsOptionLabel(option) {
+		return `${option.symbol} - ${option.name}`;
+	}
+
+	function renderCoinsInput(params) {
+		return <TextField {...params} label="Coins" variant="outlined" fullWidth margin="normal" />;
+	}
+
+	function renderTags(value, getTagProps) {
+		if (!value) return [];
+
+		return value.map((option, index) => (
+			<Chip key={option.symbol} label={option.symbol} {...getTagProps({ index })} />
+		));
+	}
+
+	function renderFields() {
 		switch (type) {
 			case "reddit":
 				return (
@@ -126,8 +131,8 @@ class WidgetDetail extends Component {
 							type="text"
 							label="Subreddit"
 							value={info.subreddit || ""}
-							onChange={this.handleChange}
-							onKeyPress={this.handleKeyPress}
+							onChange={handleChange}
+							onKeyPress={handleKeyPress}
 							margin="normal"
 							variant="outlined"
 							fullWidth
@@ -138,8 +143,8 @@ class WidgetDetail extends Component {
 							type="text"
 							label="Search"
 							value={info.search || ""}
-							onChange={this.handleChange}
-							onKeyPress={this.handleKeyPress}
+							onChange={handleChange}
+							onKeyPress={handleKeyPress}
 							margin="normal"
 							variant="outlined"
 							fullWidth
@@ -150,7 +155,7 @@ class WidgetDetail extends Component {
 									id="info.listView"
 									checked={info.listView === "true"}
 									value={info.listView !== "true"}
-									onChange={this.handleChange}
+									onChange={handleChange}
 								/>
 							}
 							label="List View"
@@ -161,11 +166,11 @@ class WidgetDetail extends Component {
 				return (
 					<Autocomplete
 						options={cities || []}
-						onInputChange={this.handleGetCities}
-						onChange={this.handleSelectCity}
+						onInputChange={handleGetCities}
+						onChange={handleSelectCity}
 						className={classes.autocomplete}
-						getOptionLabel={option => `${option.name}, ${option.country}`}
-						renderInput={params => <TextField {...params} label="Cidade" variant="outlined" fullWidth margin="normal" />}
+						getOptionLabel={renderCitiesOptionLabel}
+						renderInput={renderCitiesInput}
 					/>
 				);
 			case "crypto":
@@ -173,78 +178,63 @@ class WidgetDetail extends Component {
 					<Autocomplete
 						multiple
 						limitTags={2}
-						renderTags={(value, getTagProps) => {
-							if (value) {
-								return value.map((option, index) => (
-									<Chip key={option.symbol} label={option.symbol} {...getTagProps({ index })} />
-								));
-							}
-
-							return [];
-						}}
+						renderTags={renderTags}
 						options={coins || []}
-						onInputChange={this.handleGetCoins}
-						onChange={this.handleSelectCoin}
+						onInputChange={handleGetCoins}
+						onChange={handleSelectCoin}
 						className={classes.autocomplete}
-						getOptionLabel={option => `${option.symbol} - ${option.name}`}
-						renderInput={params => <TextField {...params} label="Coins" variant="outlined" fullWidth margin="normal" />}
+						getOptionLabel={renderCoinsOptionLabel}
+						renderInput={renderCoinsInput}
 					/>
 				);
 			default: return null;
 		}
 	}
 
-	render() {
-		const { open, onClose } = this.props;
-		const { type } = this.state;
-
-		return (
-			<Dialog
-				aria-labelledby="alert-dialog-title"
-				aria-describedby="alert-dialog-description"
-				open={open}
-			>
-				<DialogTitle id="simple-dialog-title">{"New Widget"}</DialogTitle>
-				<DialogContent>
-					<FormControl variant="outlined">
-						<InputLabel htmlFor="outlined-age-native-simple">{"Type"}</InputLabel>
-						<Select
-							native
-							label="Type"
-							id="type"
-							value={type}
-							onChange={this.handleChange}
-							fullWidth
-							required
-						>
-							<option value="notifications">{"Notifications"}</option>
-							<option value="reddit">{"Reddit"}</option>
-							<option value="twitch">{"Twitch"}</option>
-							<option value="weather">{"Weather"}</option>
-							<option value="crypto">{"Crypto"}</option>
-							<option value="tv">{"TV"}</option>
-						</Select>
-					</FormControl>
-					{this.renderFields()}
-				</DialogContent>
-				<DialogActions>
-					<Button onClick={onClose} color="primary">
-						{"Close"}
-					</Button>
-					<Button onClick={this.handleSubmit} color="primary" autoFocus>
-						{"Add"}
-					</Button>
-				</DialogActions>
-			</Dialog>
-		);
-	}
+	return (
+		<Dialog
+			aria-labelledby="alert-dialog-title"
+			aria-describedby="alert-dialog-description"
+			open={open}
+		>
+			<DialogTitle id="simple-dialog-title">{"New Widget"}</DialogTitle>
+			<DialogContent>
+				<FormControl variant="outlined">
+					<InputLabel htmlFor="outlined-age-native-simple">{"Type"}</InputLabel>
+					<Select
+						native
+						label="Type"
+						id="type"
+						value={type}
+						onChange={handleChange}
+						fullWidth
+						required
+					>
+						<option value="notifications">{"Notifications"}</option>
+						<option value="reddit">{"Reddit"}</option>
+						<option value="twitch">{"Twitch"}</option>
+						<option value="weather">{"Weather"}</option>
+						<option value="crypto">{"Crypto"}</option>
+						<option value="tv">{"TV"}</option>
+					</Select>
+				</FormControl>
+				{renderFields()}
+			</DialogContent>
+			<DialogActions>
+				<Button onClick={onClose} color="primary">
+					{"Close"}
+				</Button>
+				<Button onClick={handleSubmit} color="primary" autoFocus>
+					{"Add"}
+				</Button>
+			</DialogActions>
+		</Dialog>
+	);
 }
 
 WidgetDetail.propTypes = {
 	open: PropTypes.bool.isRequired,
 	onClose: PropTypes.func.isRequired,
-	onAdd: PropTypes.func.isRequired,
-	classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(WidgetDetail);
+export default WidgetDetail;

@@ -215,12 +215,7 @@
 				"max": 500
 			}
 		],
-		"max-lines-per-function": [
-			"warn",
-			{
-				"max": 100
-			}
-		],
+		// "max-lines-per-function": "warn",
 		"max-nested-callbacks": "error",
 		"max-params": [
 			"error",
@@ -438,7 +433,12 @@
 		// "react/jsx-one-expression-per-line": "error",
 		// "react/jsx-curly-brace-presence": "error",
 		"react/jsx-fragments": "error",
-		"react/jsx-pascal-case": "error",
+		"react/jsx-pascal-case": [
+			"error",
+			{
+				"allowAllCaps": true
+			}
+		],
 		"react/jsx-props-no-multi-spaces": "error",
 		// "react/jsx-props-no-spreading": "error",
 		"react/jsx-sort-default-props": "error",

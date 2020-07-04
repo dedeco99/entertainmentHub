@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/styles";
 
 import Zoom from "@material-ui/core/Zoom";
-import Card from "@material-ui/core/Card";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import Box from "@material-ui/core/Box";
@@ -60,9 +59,9 @@ class Twitch extends Component {
 
 		return (
 			<Zoom in={open}>
-				<Card variant="outlined" className={classes.root}>
+				<Box className={classes.root}>
 					{this.renderStreamsList()}
-				</Card>
+				</Box>
 			</Zoom>
 		);
 	}

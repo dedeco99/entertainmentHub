@@ -1,8 +1,8 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/styles";
+
 import Zoom from "@material-ui/core/Zoom";
-import Card from "@material-ui/core/Card";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 import Tooltip from "@material-ui/core/Tooltip";
@@ -97,7 +97,7 @@ class Weather extends Component {
 
 		return (
 			<Zoom in={loaded}>
-				<Card variant="outlined" className={classes.root}>
+				<Box className={classes.root}>
 					<Box display="flex" flexDirection="column" flexGrow={1} className={classes.content}>
 						<Box display="flex">
 							<Box display="flex" flexDirection="column" justifyContent="center" flexGrow={1}>
@@ -156,7 +156,7 @@ class Weather extends Component {
 					<Box display="flex" className={classes.nextDays}>
 						{weather && this.renderNextDays()}
 					</Box>
-				</Card>
+				</Box>
 			</Zoom>
 		);
 	}

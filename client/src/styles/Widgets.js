@@ -1,13 +1,18 @@
-const widget = () => ({
-	edit: {
+import { makeStyles } from "@material-ui/styles";
+
+const widget = makeStyles({
+	root: props => ({
+		backgroundColor: "#212121",
+		height: "100%",
+		width: "100%",
 		display: "flex",
 		justifyContent: "center",
 		alignItems: "center",
 		flexDirection: "column",
-		backgroundColor: "#212121",
-		height: "100%",
-		width: "100%",
-	},
+		border: `1px solid ${props.borderColor || "#424242"}`,
+		borderRadius: "3px",
+		overflow: "hidden",
+	}),
 	delete: {
 		top: 0,
 		right: 0,
@@ -15,7 +20,7 @@ const widget = () => ({
 	},
 });
 
-const widgetDetail = () => ({
+const widgetDetail = makeStyles({
 	autocomplete: {
 		width: 300,
 	},
@@ -24,6 +29,8 @@ const widgetDetail = () => ({
 const notifications = () => ({
 	root: {
 		backgroundColor: "#212121",
+		width: "100%",
+		height: "100%",
 	},
 	header: {
 		backgroundColor: "#424242",
@@ -36,10 +43,10 @@ const notifications = () => ({
 	},
 });
 
-const reddit = {
+const reddit = () => ({
 	root: {
-		position: "relative",
 		backgroundColor: "#212121",
+		width: "100%",
 		height: "100%",
 	},
 	wrapper: {
@@ -153,15 +160,16 @@ const reddit = {
 			marginBottom: 5,
 		},
 	},
-};
+});
 
 const weather = () => ({
 	root: {
 		display: "flex",
 		flexDirection: "column",
 		backgroundColor: "#212121dd",
-		height: "100%",
 		boxSizing: "border-box",
+		width: "100%",
+		height: "100%",
 	},
 	content: {
 		padding: 16,
@@ -198,9 +206,9 @@ const weather = () => ({
 
 const tv = () => ({
 	root: {
-		width: "100%",
 		flexGrow: 1,
 		backgroundColor: "#212121",
+		width: "100%",
 		height: "100%",
 	},
 	indicator: {
@@ -230,12 +238,12 @@ const tv = () => ({
 
 const crypto = () => ({
 	root: {
+		backgroundColor: "#212121",
+		width: "100%",
 		height: "100%",
 		boxSizing: "border-box",
 		overflow: "auto",
 		padding: 10,
-		backgroundColor: "#212121",
-		border: "1px solid #424242",
 	},
 	cell: {
 		padding: 2,
@@ -249,11 +257,11 @@ const crypto = () => ({
 		padding: 5,
 	},
 	singleRoot: {
+		backgroundColor: "#212121",
+		width: "100%",
 		height: "100%",
 		boxSizing: "border-box",
-		backgroundColor: "#212121",
 		padding: 16,
-		border: "1px solid #424242",
 	},
 	singleContent: {
 		paddingTop: 15,
@@ -270,6 +278,7 @@ const crypto = () => ({
 	},
 	singleImage: {
 		padding: 10,
+		paddingRight: 20,
 		height: 36,
 		width: 36,
 	},
@@ -284,8 +293,8 @@ const crypto = () => ({
 const twitch = () => ({
 	root: {
 		backgroundColor: "#212121",
+		width: "100%",
 		height: "100%",
-		borderColor: "#6441a5",
 	},
 	imageWrapper: {
 		position: "relative",
