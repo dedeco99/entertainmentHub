@@ -20,8 +20,8 @@
 	},
 	"devDependencies": {
 		"concurrently": "^5.2.0",
-		"eslint": "^7.1.0",
-		"jest": "^26.0.1",
+		"eslint": "^7.3.1",
+		"jest": "^26.1.0",
 		"nodemon": "^2.0.4"
 	},
 	"dependencies": {
@@ -29,11 +29,11 @@
 		"axios": "^0.19.2",
 		"bcryptjs": "^2.4.3",
 		"express": "^4.17.1",
-		"moment": "^2.26.0",
-		"mongoose": "^5.9.16",
+		"moment": "^2.27.0",
+		"mongoose": "^5.9.21",
 		"morgan": "^1.10.0",
 		"node-cron": "^2.0.3",
-		"sanitize-html": "^1.24.0",
+		"sanitize-html": "^1.27.0",
 		"socket.io": "^2.3.0"
 	}
 }
