@@ -8,10 +8,11 @@
 		"eject": "react-scripts eject"
 	},
 	"dependencies": {
-		"@material-ui/core": "^4.9.10",
-		"@material-ui/lab": "^4.0.0-alpha.49",
+		"@material-ui/core": "^4.11.0",
+		"@material-ui/lab": "^4.0.0-alpha.56",
 		"axios": "^0.19.2",
-		"moment": "^2.24.0",
+		"framer-motion": "^1.11.1",
+		"moment": "^2.27.0",
 		"react": "^16.13.1",
 		"react-custom-scrollbars": "^4.2.1",
 		"react-dom": "^16.13.1",
@@ -19,12 +20,12 @@
 		"react-infinite-scroller": "^1.2.4",
 		"react-router-dom": "^5.1.2",
 		"react-scripts": "^3.4.1",
-		"react-toastify": "^6.0.5",
+		"react-toastify": "^6.0.8",
 		"socket.io-client": "^2.3.0"
 	},
 	"devDependencies": {
 		"eslint": "^6.6.0",
-		"eslint-plugin-react": "^7.20.0"
+		"eslint-plugin-react": "^7.20.3"
 	},
 	"browserslist": [
 		">0.2%",
