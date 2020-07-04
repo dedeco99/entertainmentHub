@@ -101,7 +101,6 @@ async function getChannelsPlaylist(channel) {
 
 async function cronjob(page = 0) {
 	let hasMore = false;
-	const notificationsToAdd = [];
 
 	let channels = await Channel.aggregate([
 		{
@@ -124,38 +123,57 @@ async function cronjob(page = 0) {
 
 	const playlists = await getChannelsPlaylist(channelsString);
 
+	const requests = [];
 	for (const playlist of playlists) {
 		const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlist.contentDetails.relatedPlaylists.uploads}&maxResults=3&key=${process.env.youtubeKey}`;
 
-		const res = await api({ method: "get", url });
+		requests.push(api({ method: "get", url }));
+	}
 
-		const json = res.data;
+	const responses = await Promise.all(requests);
 
-		for (const video of json.items) {
-			if (diff(video.snippet.publishedAt, "hours") <= 3) {
-				const notifications = [];
-				const channel = channels.find(c => c._id === video.snippet.channelId);
+	let items = [];
+	for (const res of responses) {
+		items = items.concat(res.data.items);
+	}
 
-				if (channel) {
-					for (const user of channel.users) {
-						notifications.push({
-							dateToSend: video.snippet.publishedAt,
-							sent: true,
-							notificationId: `${user}${video.snippet.resourceId.videoId}`,
-							user,
-							type: "youtube",
-							info: {
-								displayName: video.snippet.channelTitle,
-								videoTitle: video.snippet.title,
-								videoId: video.snippet.resourceId.videoId,
-							},
-						});
-					}
-				}
+	/*
+	// Video length can't be implemented because of api quotas
+	const videoIds = items.map(i => i.snippet.resourceId.videoId);
 
-				notificationsToAdd.push(addNotifications(notifications));
+	const url = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds.join(",")}
+								&key=${process.env.youtubeKey}`;
+
+	const res = await api({ method: "get", url });
+
+	const json = res.data;
+	*/
+
+	const notificationsToAdd = [];
+	for (const video of items) {
+		const notifications = [];
+		const channel = channels.find(c => c._id === video.snippet.channelId);
+
+		if (channel) {
+			for (const user of channel.users) {
+				notifications.push({
+					dateToSend: video.snippet.publishedAt,
+					sent: true,
+					notificationId: `${user}${video.snippet.resourceId.videoId}`,
+					user,
+					type: "youtube",
+					info: {
+						displayName: video.snippet.channelTitle,
+						thumbnail: video.snippet.thumbnails.medium.url,
+						videoTitle: video.snippet.title,
+						videoId: video.snippet.resourceId.videoId,
+						channelId: video.snippet.channelId,
+					},
+				});
 			}
 		}
+
+		notificationsToAdd.push(addNotifications(notifications));
 	}
 
 

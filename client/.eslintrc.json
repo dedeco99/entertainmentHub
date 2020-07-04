@@ -158,10 +158,7 @@
 		// "capitalized-comments": "error",
 		"comma-dangle": [
 			"error",
-			"always-multiline",
-			{
-				"functions": "never"
-			}
+			"always-multiline"
 		],
 		"comma-spacing": "error",
 		"comma-style": "error",
