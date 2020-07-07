@@ -8,6 +8,7 @@ const NotificationSchema = new Schema({
 	type: { type: String, required: true },
 	info: {
 		displayName: { type: String },
+		thumbnail: { type: String },
 
 		// TV
 		season: { type: Number },
@@ -16,6 +17,7 @@ const NotificationSchema = new Schema({
 		// Youtube
 		videoTitle: { type: String },
 		videoId: { type: String },
+		channelId: { type: String },
 	},
 }, { timestamps: { createdAt: "_created", updatedAt: "_modified" } });
 
