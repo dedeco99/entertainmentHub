@@ -123,6 +123,11 @@ async function cronjob(page = 0) {
 
 	const playlists = await getChannelsPlaylist(channelsString);
 
+	if (playlists.status === 403) {
+		console.error(playlists.body.message);
+		return false;
+	}
+
 	const requests = [];
 	for (const playlist of playlists) {
 		const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlist.contentDetails.relatedPlaylists.uploads}&maxResults=3&key=${process.env.youtubeKey}`;
@@ -151,29 +156,31 @@ async function cronjob(page = 0) {
 
 	const notificationsToAdd = [];
 	for (const video of items) {
-		const notifications = [];
-		const channel = channels.find(c => c._id === video.snippet.channelId);
+		if (diff(video.snippet.publishedAt, "hours") <= 3) {
+			const notifications = [];
+			const channel = channels.find(c => c._id === video.snippet.channelId);
 
-		if (channel) {
-			for (const user of channel.users) {
-				notifications.push({
-					dateToSend: video.snippet.publishedAt,
-					sent: true,
-					notificationId: `${user}${video.snippet.resourceId.videoId}`,
-					user,
-					type: "youtube",
-					info: {
-						displayName: video.snippet.channelTitle,
-						thumbnail: video.snippet.thumbnails.medium.url,
-						videoTitle: video.snippet.title,
-						videoId: video.snippet.resourceId.videoId,
-						channelId: video.snippet.channelId,
-					},
-				});
+			if (channel) {
+				for (const user of channel.users) {
+					notifications.push({
+						dateToSend: video.snippet.publishedAt,
+						sent: true,
+						notificationId: `${user}${video.snippet.resourceId.videoId}`,
+						user,
+						type: "youtube",
+						info: {
+							displayName: video.snippet.channelTitle,
+							thumbnail: video.snippet.thumbnails.medium.url,
+							videoTitle: video.snippet.title,
+							videoId: video.snippet.resourceId.videoId,
+							channelId: video.snippet.channelId,
+						},
+					});
+				}
 			}
-		}
 
-		notificationsToAdd.push(addNotifications(notifications));
+			notificationsToAdd.push(addNotifications(notifications));
+		}
 	}
 
 
