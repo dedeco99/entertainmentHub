@@ -1,3 +1,5 @@
+const rssParser = require("rss-converter");
+
 const { response, api } = require("../utils/request");
 const errors = require("../utils/errors");
 const { diff } = require("../utils/utils");
@@ -87,22 +89,9 @@ async function addToWatchLater(event) {
 	return response(200, "Video saved to watch later", true);
 }
 
-async function getChannelsPlaylist(channel) {
-	const url = `https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id=${channel}&maxResults=50&key=${process.env.youtubeKey}`;
-
-	const res = await api({ method: "get", url });
-
-	if (res.status === 403) return errors.youtubeForbidden;
-
-	const json = res.data;
-
-	return json.items;
-}
-
-async function cronjob(page = 0) {
-	let hasMore = false;
-
-	let channels = await Channel.aggregate([
+async function cronjob() {
+	const channels = await Channel.aggregate([
+		{ $match: { platform: "youtube" } },
 		{
 			$group: {
 				_id: "$channelId",
@@ -111,82 +100,71 @@ async function cronjob(page = 0) {
 			},
 		},
 		{ $sort: { _id: 1 } },
-		{ $skip: page ? page * 50 : 0 },
 	]);
 
-	if (channels.length > 50) {
-		hasMore = true;
-		channels = channels.slice(0, 50);
+	let requests = [];
+	for (const channel of channels) {
+		const request = rssParser.toJson(`https://www.youtube.com/feeds/videos.xml?channel_id=${channel._id}`);
+
+		requests.push(request);
 	}
 
-	const channelsString = channels.map(channel => channel._id).join(",");
+	let responses = await Promise.all(requests);
 
-	const playlists = await getChannelsPlaylist(channelsString);
-
-	if (playlists.status === 403) {
-		console.error(playlists.body.message);
-		return false;
+	let items = [];
+	for (const res of responses) {
+		items = items.concat(res.items.filter(i => diff(i.published, "hours") <= 3));
 	}
 
-	const requests = [];
-	for (const playlist of playlists) {
-		const url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${playlist.contentDetails.relatedPlaylists.uploads}&maxResults=3&key=${process.env.youtubeKey}`;
+	requests = [];
+	let remainingItems = items;
+	while (remainingItems.length > 0) {
+		const paginatedItems = remainingItems.slice(0, 50);
+		remainingItems = remainingItems.slice(50, remainingItems.length);
+		const videoIds = paginatedItems.map(i => i.yt_videoId);
+
+		const url = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds.join(",")}&key=${process.env.youtubeKey}`;
 
 		requests.push(api({ method: "get", url }));
 	}
 
-	const responses = await Promise.all(requests);
+	responses = await Promise.all(requests);
 
-	let items = [];
+	let videoDurationItems = [];
 	for (const res of responses) {
-		items = items.concat(res.data.items);
+		videoDurationItems = videoDurationItems.concat(res.data.items.slice(0, 3));
 	}
-
-	/*
-	// Video length can't be implemented because of api quotas
-	const videoIds = items.map(i => i.snippet.resourceId.videoId);
-
-	const url = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds.join(",")}
-								&key=${process.env.youtubeKey}`;
-
-	const res = await api({ method: "get", url });
-
-	const json = res.data;
-	*/
 
 	const notificationsToAdd = [];
 	for (const video of items) {
-		if (diff(video.snippet.publishedAt, "hours") <= 3) {
-			const notifications = [];
-			const channel = channels.find(c => c._id === video.snippet.channelId);
+		const notifications = [];
+		const channel = channels.find(c => c._id === video.yt_channelId);
+		const videoDurationItem = videoDurationItems.find(v => v.id === video.yt_videoId);
 
-			if (channel) {
-				for (const user of channel.users) {
-					notifications.push({
-						dateToSend: video.snippet.publishedAt,
-						sent: true,
-						notificationId: `${user}${video.snippet.resourceId.videoId}`,
-						user,
-						type: "youtube",
-						info: {
-							displayName: video.snippet.channelTitle,
-							thumbnail: video.snippet.thumbnails.medium.url,
-							videoTitle: video.snippet.title,
-							videoId: video.snippet.resourceId.videoId,
-							channelId: video.snippet.channelId,
-						},
-					});
-				}
+		if (channel) {
+			for (const user of channel.users) {
+				notifications.push({
+					dateToSend: video.published,
+					sent: true,
+					notificationId: `${user}${video.yt_videoId}`,
+					user,
+					type: "youtube",
+					info: {
+						displayName: video.author.name,
+						thumbnail: video.media_group.media_thumbnail_url,
+						duration: videoDurationItem.contentDetails.duration,
+						videoTitle: video.title,
+						videoId: video.yt_videoId,
+						channelId: video.yt_channelId,
+					},
+				});
 			}
-
-			notificationsToAdd.push(addNotifications(notifications));
 		}
+
+		notificationsToAdd.push(addNotifications(notifications));
 	}
 
-
 	if (notificationsToAdd.length) await Promise.all(notificationsToAdd);
-
-	if (hasMore) await cronjob(page + 1);
 
 	return true;
 }
