@@ -9,6 +9,7 @@ const NotificationSchema = new Schema({
 	info: {
 		displayName: { type: String },
 		thumbnail: { type: String },
+		duration: { type: String },
 
 		// TV
 		season: { type: Number },
