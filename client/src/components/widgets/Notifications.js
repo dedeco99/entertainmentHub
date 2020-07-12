@@ -14,6 +14,7 @@ import Menu from "@material-ui/core/Menu";
 import MenuItem from "@material-ui/core/MenuItem";
 import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
+import Link from "@material-ui/core/Link";
 import CircularProgress from "@material-ui/core/CircularProgress";
 
 import AnimatedList from "../.partials/AnimatedList";
@@ -147,19 +148,28 @@ class Notifications extends Component {
 		this.setState({ notificationAnchorEl: null });
 	}
 
+	formatVideoDuration(duration) {
+		if (!duration || duration === "P0D") return "Live";
+
+		const values = duration.substring(2).slice(0, -1).split(/[HM]/g);
+		for (let i = 1; i < values.length; i++) {
+			if (values[i].length < 2) values[i] = `0${values[i]}`;
+		}
+
+		return values.join(":");
+	}
+
 	renderNotificationType(type) {
 		switch (type) {
 			case "tv":
 				return <i className="material-icons">{"tv"}</i>;
-			case "youtube":
-				return <i className="icofont-youtube-play" />;
 			default:
 				return <i className="material-icons">{"notifications"}</i>;
 		}
 	}
 
 	getNotificationContent(notification) {
-		const { displayName, season, number, videoTitle } = notification.info;
+		const { displayName, season, number } = notification.info;
 
 		switch (notification.type) {
 			case "tv":
@@ -170,11 +180,6 @@ class Notifications extends Component {
 					title: displayName,
 					subtitle: `${seasonLabel}${episodeLabel}`,
 				};
-			case "youtube":
-				return {
-					title: displayName,
-					subtitle: videoTitle,
-				};
 			default:
 				return {
 					title: <i className="material-icons">{notification.info.message}</i>,
@@ -184,31 +189,63 @@ class Notifications extends Component {
 	}
 
 	renderNotificationContent(notification) {
-		const { title, subtitle } = this.getNotificationContent(notification);
-
-		return (
-			<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
-				<Typography variant="body1" title={title} noWrap> {title} </Typography>
-				<Typography variant="body2" title={subtitle} noWrap> {subtitle} </Typography>
-				<Typography variant="caption"> {formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")} </Typography>
-			</Box>
-		);
-	}
-
-	renderNotificationList() {
-		const { notificationState } = this.context;
-		const { notifications } = notificationState;
 		const { classes } = this.props;
 
-		return (
-			<AnimatedList>
-				{notifications.map(notification => (
-					<ListItem key={notification._id} button divider>
+		switch (notification.type) {
+			case "youtube":
+				return (
+					<>
+						<Box position="relative" flexShrink="0" width="100px" mr={2}>
+							<img src={notification.info.thumbnail} width="100%" alt="Video thumbnail" />
+							<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
+								<Typography variant="caption"> {this.formatVideoDuration(notification.info.duration)} </Typography>
+							</Box>
+						</Box>
+						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
+							<Typography variant="body1" title={notification.info.videoTitle} noWrap>
+								<Link href={`https://www.youtube.com/watch?v=${notification.info.videoId}`} target="_blank" rel="noreferrer" color="inherit">
+									{notification.info.videoTitle}
+								</Link>
+							</Typography>
+							<Typography variant="body2" title={notification.info.displayName} noWrap>
+								<Link href={`https://www.youtube.com/channel/${notification.info.channelId}`} target="_blank" rel="noreferrer" color="inherit">
+									{notification.info.displayName}
+								</Link>
+							</Typography>
+							<Typography variant="caption"> {formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")} </Typography>
+						</Box>
+					</>
+				);
+			default:
+				const { title, subtitle } = this.getNotificationContent(notification);
+
+				return (
+					<>
 						<ListItemAvatar>
 							<Avatar className={classes.avatar}>
 								{this.renderNotificationType(notification.type)}
 							</Avatar>
 						</ListItemAvatar>
+						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
+							<Typography variant="body1" title={title} noWrap> {title} </Typography>
+							<Typography variant="body2" title={subtitle} noWrap> {subtitle} </Typography>
+							<Typography variant="caption"> {formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")} </Typography>
+						</Box>
+					</>
+				);
+		}
+	}
+
+	renderNotificationList() {
+		const { notificationState } = this.context;
+		const { notifications } = notificationState;
+
+		console.log(notifications);
+
+		return (
+			<AnimatedList>
+				{notifications.map(notification => (
+					<ListItem key={notification._id} divider>
 						{this.renderNotificationContent(notification)}
 						<ListItemSecondaryAction onClick={e => this.handleOptionsClick(e, notification)}>
 							<IconButton edge="end">
