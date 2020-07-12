@@ -163,6 +163,8 @@ class Notifications extends Component {
 		switch (type) {
 			case "tv":
 				return <i className="material-icons">{"tv"}</i>;
+			case "youtube":
+				return <i className="icofont-youtube-play" />;
 			default:
 				return <i className="material-icons">{"notifications"}</i>;
 		}
@@ -195,12 +197,20 @@ class Notifications extends Component {
 			case "youtube":
 				return (
 					<>
-						<Box position="relative" flexShrink="0" width="100px" mr={2}>
-							<img src={notification.info.thumbnail} width="100%" alt="Video thumbnail" />
-							<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
-								<Typography variant="caption"> {this.formatVideoDuration(notification.info.duration)} </Typography>
+						{notification.info.channelId ? (
+							<Box position="relative" flexShrink="0" width="100px" mr={2}>
+								<img src={notification.info.thumbnail} width="100%" alt="Video thumbnail" />
+								<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
+									<Typography variant="caption"> {this.formatVideoDuration(notification.info.duration)} </Typography>
+								</Box>
 							</Box>
-						</Box>
+						) : (
+							<Box display="flex" justifyContent="center" flexShrink="0" width="100px" mr={2}>
+								<Avatar className={classes.avatar}>
+									{this.renderNotificationType(notification.type)}
+								</Avatar>
+							</Box>
+						)}
 						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
 							<Typography variant="body1" title={notification.info.videoTitle} noWrap>
 								<Link href={`https://www.youtube.com/watch?v=${notification.info.videoId}`} target="_blank" rel="noreferrer" color="inherit">
@@ -221,11 +231,11 @@ class Notifications extends Component {
 
 				return (
 					<>
-						<ListItemAvatar>
+						<Box display="flex" justifyContent="center" flexShrink="0" width="100px" mr={2}>
 							<Avatar className={classes.avatar}>
 								{this.renderNotificationType(notification.type)}
 							</Avatar>
-						</ListItemAvatar>
+						</Box>
 						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
 							<Typography variant="body1" title={title} noWrap> {title} </Typography>
 							<Typography variant="body2" title={subtitle} noWrap> {subtitle} </Typography>
@@ -239,8 +249,6 @@ class Notifications extends Component {
 	renderNotificationList() {
 		const { notificationState } = this.context;
 		const { notifications } = notificationState;
-
-		console.log(notifications);
 
 		return (
 			<AnimatedList>
