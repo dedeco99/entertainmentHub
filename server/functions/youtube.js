@@ -151,7 +151,7 @@ async function cronjob() {
 					type: "youtube",
 					info: {
 						displayName: video.author.name,
-						thumbnail: video.media_group.media_thumbnail_url,
+						thumbnail: video.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),
 						duration: videoDurationItem.contentDetails.duration,
 						videoTitle: video.title,
 						videoId: video.yt_videoId,

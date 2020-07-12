@@ -5,7 +5,6 @@ import InfiniteScroll from "react-infinite-scroller";
 
 import Zoom from "@material-ui/core/Zoom";
 import ListItem from "@material-ui/core/ListItem";
-import ListItemAvatar from "@material-ui/core/ListItemAvatar";
 import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
 import IconButton from "@material-ui/core/IconButton";
 import Avatar from "@material-ui/core/Avatar";
@@ -197,7 +196,7 @@ class Notifications extends Component {
 			case "youtube":
 				return (
 					<>
-						{notification.info.channelId ? (
+						{notification.info.thumbnail ? (
 							<Box position="relative" flexShrink="0" width="100px" mr={2}>
 								<img src={notification.info.thumbnail} width="100%" alt="Video thumbnail" />
 								<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
