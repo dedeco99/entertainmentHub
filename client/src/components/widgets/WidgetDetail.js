@@ -5,7 +5,6 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
-import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import Chip from "@material-ui/core/Chip";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
@@ -100,7 +99,7 @@ function WidgetDetail({ open, onClose }) {
 	}
 
 	function renderCitiesInput(params) {
-		return <TextField {...params} label="City" variant="outlined" fullWidth margin="normal" />;
+		return <Input {...params} label="City" variant="outlined" fullWidth margin="normal" />;
 	}
 
 	function renderCoinsOptionLabel(option) {
@@ -108,7 +107,7 @@ function WidgetDetail({ open, onClose }) {
 	}
 
 	function renderCoinsInput(params) {
-		return <TextField {...params} label="Coins" variant="outlined" fullWidth margin="normal" />;
+		return <Input {...params} label="Coins" variant="outlined" fullWidth margin="normal" />;
 	}
 
 	function renderTags(value, getTagProps) {
