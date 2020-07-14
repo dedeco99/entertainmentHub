@@ -1,4 +1,6 @@
-import React, { Component } from "react";
+import React, { useContext, useState } from "react";
+import PropTypes from "prop-types";
+
 import Container from "@material-ui/core/Container";
 import Button from "@material-ui/core/Button";
 
@@ -8,52 +10,41 @@ import Input from "../.partials/Input";
 
 import { login } from "../../api/auth";
 
-class Login extends Component {
-	constructor() {
-		super();
-		this.state = {
-			email: "",
-			password: "",
-		};
+function Login({ history }) {
+	const { dispatch } = useContext(UserContext);
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
 
-		this.handleChange = this.handleChange.bind(this);
-		this.handleSubmit = this.handleSubmit.bind(this);
-		this.handleKeyPress = this.handleKeyPress.bind(this);
+	function handleEmailChange(e) {
+		setEmail(e.target.value);
 	}
 
-	handleChange(e) {
-		this.setState({ [e.target.id]: e.target.value });
+	function handlePasswordChange(e) {
+		setPassword(e.target.value);
 	}
 
-	async handleSubmit() {
-		const { dispatch } = this.context;
-		const { email, password } = this.state;
+	async function handleSubmit(e) {
+		e.preventDefault();
+
 		const response = await login({ email, password });
 
 		if (response.status < 400) {
 			dispatch({ type: "SET_USER", user: { ...response.data.user, token: response.data.token } });
 
-			window.location.replace("/");
+			history.push("/");
 		}
 	}
 
-	handleKeyPress(event) {
-		if (event.key === "Enter") this.handleSubmit();
-	}
-
-	render() {
-		const { email, password } = this.state;
-
-		return (
-			<Container maxWidth="xs">
+	return (
+		<Container maxWidth="xs">
+			<form onSubmit={handleSubmit}>
 				<h2>{"Login"}</h2>
 				<Input
 					id="email"
 					type="email"
 					label="Email"
 					value={email}
-					onChange={this.handleChange}
-					onKeyPress={this.handleKeyPress}
+					onChange={handleEmailChange}
 					margin="normal"
 					variant="outlined"
 					fullWidth
@@ -65,8 +56,7 @@ class Login extends Component {
 					type="password"
 					label="Password"
 					value={password}
-					onChange={this.handleChange}
-					onKeyPress={this.handleKeyPress}
+					onChange={handlePasswordChange}
 					margin="normal"
 					variant="outlined"
 					fullWidth
@@ -74,18 +64,20 @@ class Login extends Component {
 				/>
 				<br /><br />
 				<Button
-					onClick={this.handleSubmit}
+					type="submit"
 					className="outlined-button"
 					variant="outlined"
 					fullWidth
 				>
 					{"Login"}
 				</Button>
-			</Container>
-		);
-	}
+			</form>
+		</Container>
+	);
 }
 
-Login.contextType = UserContext;
+Login.propTypes = {
+	history: PropTypes.object.isRequired,
+};
 
 export default Login;

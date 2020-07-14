@@ -11,8 +11,7 @@ li {
 }
 
 .main {
-	padding-left: 65px;
-	padding-right: 10px;
+	padding: 75px 25px 15px 65px;
 }
 
 .nav-item {
@@ -63,21 +62,6 @@ li {
 .go-back-up {
 	bottom: 25px;
 	right: 25px;
-	position: fixed;
-}
-
-.navbar-brand {
-	left: 0px;
-	bottom: -3px;
-	position: absolute;
-}
-
-.appMenu {
-	background-color: #222;
-	width: 50px;
-	height: 100%;
-	top: 0px;
-	margin-top: 64px;
 	position: fixed;
 }
 

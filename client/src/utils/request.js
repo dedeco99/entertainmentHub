@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 async function api({ method, url, data, headers = {}, message = false }) {
 	const user = JSON.parse(localStorage.getItem("user"));
 
-	if (user.token) headers.Authorization = `Bearer ${user.token}`;
+	if (user && user.token) headers.Authorization = `Bearer ${user.token}`;
 
 	try {
 		const res = await axios.request({ method, url, data, headers });

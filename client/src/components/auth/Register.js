@@ -1,4 +1,6 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
+import PropTypes from "prop-types";
+
 import Container from "@material-ui/core/Container";
 import Button from "@material-ui/core/Button";
 
@@ -6,49 +8,38 @@ import Input from "../.partials/Input";
 
 import { register } from "../../api/auth";
 
-class Register extends Component {
-	constructor() {
-		super();
-		this.state = {
-			email: "",
-			password: "",
-		};
+function Register({ history }) {
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
 
-		this.handleChange = this.handleChange.bind(this);
-		this.handleSubmit = this.handleSubmit.bind(this);
-		this.handleKeyPress = this.handleKeyPress.bind(this);
+	function handleEmailChange(e) {
+		setEmail(e.target.value);
 	}
 
-	handleChange(e) {
-		this.setState({ [e.target.id]: e.target.value });
+	function handlePasswordChange(e) {
+		setPassword(e.target.value);
 	}
 
-	async handleSubmit() {
-		const { email, password } = this.state;
+	async function handleSubmit(e) {
+		e.preventDefault();
+
 		const response = await register({ email, password });
 
-		if (response.status < 400) {
-			window.location.replace("/login");
+		if (response.status === 201) {
+			history.push("/login");
 		}
 	}
 
-	handleKeyPress(event) {
-		if (event.key === "Enter") this.handleSubmit();
-	}
-
-	render() {
-		const { email, password } = this.state;
-
-		return (
-			<Container maxWidth="xs">
+	return (
+		<Container maxWidth="xs">
+			<form onSubmit={handleSubmit}>
 				<h2>{"Register"}</h2>
 				<Input
 					id="email"
 					type="email"
 					label="Email"
 					value={email}
-					onChange={this.handleChange}
-					onKeyPress={this.handleKeyPress}
+					onChange={handleEmailChange}
 					margin="normal"
 					variant="outlined"
 					fullWidth
@@ -60,8 +51,7 @@ class Register extends Component {
 					type="password"
 					label="Password"
 					value={password}
-					onChange={this.handleChange}
-					onKeyPress={this.handleKeyPress}
+					onChange={handlePasswordChange}
 					margin="normal"
 					variant="outlined"
 					fullWidth
@@ -69,16 +59,20 @@ class Register extends Component {
 				/>
 				<br /><br />
 				<Button
-					onClick={this.handleSubmit}
+					type="submit"
 					className="outlined-button"
 					variant="outlined"
 					fullWidth
 				>
 					{"Register"}
 				</Button>
-			</Container>
-		);
-	}
+			</form>
+		</Container>
+	);
 }
+
+Register.propTypes = {
+	history: PropTypes.object.isRequired,
+};
 
 export default Register;
