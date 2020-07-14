@@ -5,14 +5,11 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
-import FormControl from "@material-ui/core/FormControl";
-import InputLabel from "@material-ui/core/InputLabel";
-import Select from "@material-ui/core/Select";
-import TextField from "@material-ui/core/TextField";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import Chip from "@material-ui/core/Chip";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Checkbox from "@material-ui/core/Checkbox";
+import MenuItem from "@material-ui/core/MenuItem";
 
 import Input from "../.partials/Input";
 
@@ -81,7 +78,7 @@ function WidgetDetail({ open, onClose }) {
 	}
 
 	function handleChange(e) {
-		if (e.target.id.includes("info")) {
+		if (e.target.id && e.target.id.includes("info")) {
 			setInfo({ ...info, [e.target.id.replace("info.", "")]: e.target.value });
 		} else {
 			setType(e.target.value);
@@ -107,7 +104,7 @@ function WidgetDetail({ open, onClose }) {
 	}
 
 	function renderCitiesInput(params) {
-		return <TextField {...params} label="City" variant="outlined" fullWidth margin="normal" />;
+		return <Input {...params} label="City" variant="outlined" fullWidth margin="normal" />;
 	}
 
 	function renderCoinsOptionLabel(option) {
@@ -115,7 +112,7 @@ function WidgetDetail({ open, onClose }) {
 	}
 
 	function renderCoinsInput(params) {
-		return <TextField {...params} label="Coins" variant="outlined" fullWidth margin="normal" />;
+		return <Input {...params} label="Coins" variant="outlined" fullWidth margin="normal" />;
 	}
 
 	function renderTags(value, getTagProps) {
@@ -177,6 +174,7 @@ function WidgetDetail({ open, onClose }) {
 						className={classes.autocomplete}
 						getOptionLabel={renderCitiesOptionLabel}
 						renderInput={renderCitiesInput}
+						fullWidth
 					/>
 				);
 			case "crypto":
@@ -192,6 +190,7 @@ function WidgetDetail({ open, onClose }) {
 						className={classes.autocomplete}
 						getOptionLabel={renderCoinsOptionLabel}
 						renderInput={renderCoinsInput}
+						fullWidth
 					/>
 				);
 			default: return null;
@@ -203,28 +202,28 @@ function WidgetDetail({ open, onClose }) {
 			aria-labelledby="alert-dialog-title"
 			aria-describedby="alert-dialog-description"
 			open={open}
+			fullWidth
+			maxWidth="xs"
 		>
 			<DialogTitle id="simple-dialog-title">{"New Widget"}</DialogTitle>
 			<DialogContent>
-				<FormControl variant="outlined">
-					<InputLabel htmlFor="outlined-age-native-simple">{"Type"}</InputLabel>
-					<Select
-						native
-						label="Type"
-						id="type"
-						value={type}
-						onChange={handleChange}
-						fullWidth
-						required
-					>
-						<option value="notifications">{"Notifications"}</option>
-						<option value="reddit">{"Reddit"}</option>
-						<option value="twitch">{"Twitch"}</option>
-						<option value="weather">{"Weather"}</option>
-						<option value="crypto">{"Crypto"}</option>
-						<option value="tv">{"TV"}</option>
-					</Select>
-				</FormControl>
+				<Input
+					label="Type"
+					id="type"
+					value={type}
+					onChange={handleChange}
+					variant="outlined"
+					select
+					fullWidth
+					required
+				>
+					<MenuItem value="notifications">{"Notifications"}</MenuItem>
+					<MenuItem value="reddit">{"Reddit"}</MenuItem>
+					<MenuItem value="twitch">{"Twitch"}</MenuItem>
+					<MenuItem value="weather">{"Weather"}</MenuItem>
+					<MenuItem value="crypto">{"Crypto"}</MenuItem>
+					<MenuItem value="tv">{"TV"}</MenuItem>
+				</Input>
 				{renderFields()}
 			</DialogContent>
 			<DialogActions>
