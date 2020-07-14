@@ -33,6 +33,9 @@ function WidgetDetail({ open, onClose }) {
 	const [cities, setCities] = useState([]);
 	const [coins, setCoins] = useState([]);
 
+	const [selectedCity, setSelectedCity] = useState(null);
+	const [selectedCoins, setSelectedCoins] = useState([]);
+
 	function handleGetCities(e, filter) {
 		if (!filter) return;
 
@@ -52,6 +55,7 @@ function WidgetDetail({ open, onClose }) {
 	function handleSelectCity(e, city) {
 		if (!city) return;
 
+		setSelectedCity(city);
 		setInfo({ city: city.name, country: city.country, lat: city.lat, lon: city.lon });
 	}
 
@@ -71,8 +75,9 @@ function WidgetDetail({ open, onClose }) {
 		setTypingTimeout(timeout);
 	}
 
-	function handleSelectCoin(e, selectedCoins) {
-		setInfo({ coins: selectedCoins.map(coin => coin.symbol).join(",") });
+	function handleSelectCoin(e, sCoins) {
+		setSelectedCoins(sCoins);
+		setInfo({ coins: sCoins.map(coin => coin.symbol).join(",") });
 	}
 
 	function handleChange(e) {
@@ -165,6 +170,7 @@ function WidgetDetail({ open, onClose }) {
 			case "weather":
 				return (
 					<Autocomplete
+						value={selectedCity}
 						options={cities || []}
 						onInputChange={handleGetCities}
 						onChange={handleSelectCity}
@@ -176,6 +182,7 @@ function WidgetDetail({ open, onClose }) {
 			case "crypto":
 				return (
 					<Autocomplete
+						value={selectedCoins}
 						multiple
 						limitTags={2}
 						renderTags={renderTags}
