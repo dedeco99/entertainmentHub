@@ -17,7 +17,7 @@ function LoggedInLinks({ classes }) {
 		<div>
 			<NotificationDropdown />
 			<NavLink className={`nav-item ${classes.navBtn}`} to="/settings">
-				<IconButton>
+				<IconButton color="primary">
 					<i className="icofont-ui-user" />
 				</IconButton>
 			</NavLink>

@@ -74,7 +74,7 @@ class Sidebar extends Component {
 						<ListItemText primary={option.displayName} />
 						{menu && menu.length ?
 							<ListItemSecondaryAction id={option[idField]} onClick={this.setAnchorEl}>
-								<IconButton edge="end">
+								<IconButton color="primary" edge="end">
 									<i className="material-icons">{"more_vert"}</i>
 								</IconButton>
 							</ListItemSecondaryAction> : null}

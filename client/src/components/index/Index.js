@@ -39,7 +39,7 @@ class Index extends Component {
 							open={openWidgetDetail}
 							onClose={this.handleWidgetDetailClose}
 						/>
-						<IconButton onClick={this.handleWidgetDetailOpen}>
+						<IconButton color="primary" onClick={this.handleWidgetDetailOpen}>
 							<i className="icofont-ui-add" />
 						</IconButton>
 						<WidgetEditMode />

@@ -1,7 +1,6 @@
 const tv = () => ({
 	searchBtn: {
 		width: "100% !important",
-		backgroundColor: "#222",
 	},
 	outlinedBtn: {
 		marginTop: 10,

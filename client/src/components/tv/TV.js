@@ -319,6 +319,7 @@ class TV extends Component {
 		return (
 			<div align="center">
 				<Fab
+					color="primary"
 					onClick={this.handleShowSearchBlock}
 					variant="extended"
 					size="medium"

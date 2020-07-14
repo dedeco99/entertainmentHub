@@ -39,6 +39,7 @@ const notifications = () => ({
 		paddingRight: 8,
 	},
 	avatar: {
+		color: "white",
 		backgroundColor: "#444",
 	},
 });

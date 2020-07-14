@@ -255,7 +255,7 @@ class Notifications extends Component {
 					<ListItem key={notification._id} divider>
 						{this.renderNotificationContent(notification)}
 						<ListItemSecondaryAction onClick={e => this.handleOptionsClick(e, notification)}>
-							<IconButton edge="end">
+							<IconButton color="primary" edge="end">
 								<i className="material-icons">{"more_vert"}</i>
 							</IconButton>
 						</ListItemSecondaryAction>
@@ -345,7 +345,7 @@ class Notifications extends Component {
 									</MenuItem>
 								))}
 							</Menu>
-							<IconButton onClick={this.handleToggleHistory}>
+							<IconButton color="primary" onClick={this.handleToggleHistory}>
 								<i className="material-icons">
 									{history ? "notifications" : "history"}
 								</i>

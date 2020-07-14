@@ -121,7 +121,7 @@ class Subscriptions extends Component {
 							</InfiniteScroll>
 						</Box>
 						<Box display="flex" justifyContent="flex-end" className={classes.modalFooter}>
-							<Button variant="contained" onClick={this.addChannels}>{"Submit"}</Button>
+							<Button color="primary" variant="contained" onClick={this.addChannels}>{"Submit"}</Button>
 						</Box>
 					</Paper>
 				</Fade>

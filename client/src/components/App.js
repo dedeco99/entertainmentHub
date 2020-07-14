@@ -25,20 +25,50 @@ import goBackUp from "../img/go_back_up.png";
 
 import { createMuiTheme } from "@material-ui/core/styles";
 import { ThemeProvider } from "@material-ui/styles";
+import { CssBaseline } from "@material-ui/core";
 
 const theme = createMuiTheme({
 	palette: {
-		type: "dark",
-	},
-	overrides: {
-		MuiButton: {
-			contained: {
-				backgroundColor: "white",
-				"& span": {
-					color: "black !important",
-				},
-			},
+		common: {
+			black: "#000",
+			white: "#fff",
 		},
+		background: {
+			paper: "rgba(66, 66, 66, 1)",
+			default: "#111",
+		},
+		primary: {
+			light: "rgba(255, 255, 255, 0.7)",
+			main: "rgba(255, 255, 255, 1)",
+			dark: "rgba(255, 255, 255, 0.5)",
+			contrastText: "rgba(0, 0, 0, 1)",
+		},
+		secondary: {
+			light: "#ff4081",
+			main: "#f50057",
+			dark: "#c51162",
+			contrastText: "#fff",
+		},
+		error: {
+			light: "#e57373",
+			main: "#f44336",
+			dark: "#d32f2f",
+			contrastText: "#fff",
+		},
+		text: {
+			primary: "rgba(255, 255, 255, 1)",
+			secondary: "rgba(255, 255, 255, 0.7)",
+			disabled: "rgba(255, 255, 255, 0.5)",
+			hint: "rgba(255, 255, 255, 0.3)",
+		},
+		action: {
+			active: "#fff",
+			hover: "rgba(255, 255, 255, 0.08)",
+			selected: "rgba(255, 255, 255, 0.16)",
+			disabled: "rgba(255, 255, 255, 0.3)",
+			disabledBackground: "rgba(255, 255, 255, 0.12)",
+		},
+		divider: "rgba(255, 255, 255, 0.12)",
 	},
 });
 
@@ -112,6 +142,7 @@ class App extends Component {
 	render() {
 		return (
 			<ThemeProvider theme={theme}>
+				<CssBaseline />
 				<UserContextProvider>
 					<NotificationContextProvider>
 						<BrowserRouter>

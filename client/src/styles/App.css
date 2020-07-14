@@ -1,15 +1,3 @@
-*{
-	color:white !important;
-}
-
-body {
-	background-color: #111;
-}
-
-li {
-	cursor: pointer;
-}
-
 .main {
 	padding: 75px 25px 15px 65px;
 }

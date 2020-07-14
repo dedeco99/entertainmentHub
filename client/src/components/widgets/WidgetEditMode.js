@@ -12,7 +12,7 @@ function EditModeToggle() {
 	}
 
 	return (
-		<IconButton onClick={handleToggleEdit}>
+		<IconButton color="primary" onClick={handleToggleEdit}>
 			<i className="icofont-ui-edit" />
 		</IconButton>
 	);

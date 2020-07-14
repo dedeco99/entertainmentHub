@@ -11,6 +11,7 @@ import { UserContext } from "../../contexts/UserContext";
 import { getApps } from "../../api/apps";
 
 import { appMenu as styles } from "../../styles/Header";
+import { Typography } from "@material-ui/core";
 
 class AppMenu extends Component {
 	constructor() {
@@ -80,7 +81,9 @@ class AppMenu extends Component {
 					selected={selectedMenu === app.platform}
 					className={classes.appItem}
 				>
-					<i className={app.icon} />
+					<Typography color="textPrimary">
+						<i className={app.icon} />
+					</Typography>
 				</ListItem >
 			</NavLink>
 		));

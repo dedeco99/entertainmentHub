@@ -29,7 +29,7 @@ function Header() {
 					<Link to="/" className={classes.brand}>
 						<img src={logo} id="logo" width="60px" alt="Logo" />
 					</Link>
-					<Typography variant="h6" className={classes.title}>
+					<Typography color="textPrimary" variant="h6" className={classes.title}>
 						{"EntertainmentHub"}
 					</Typography>
 					{links}

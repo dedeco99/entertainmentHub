@@ -109,7 +109,7 @@ class Youtube extends Component {
 		return (
 			<Grid container spacing={2}>
 				<Grid item sm={3} md={2}>
-					<IconButton onClick={this.handleOpenModal}>
+					<IconButton color="primary" onClick={this.handleOpenModal}>
 						<i className="icofont-ui-add" />
 					</IconButton>
 					<Sidebar
