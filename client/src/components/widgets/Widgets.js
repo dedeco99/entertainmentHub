@@ -141,6 +141,7 @@ class Widgets extends Component {
 					>
 						<Widget
 							id={widget._id}
+							type={widget.type}
 							content={widgetInfo.content}
 							borderColor={widgetInfo.borderColor}
 							editText={widgetInfo.editText}

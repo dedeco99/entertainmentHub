@@ -1,20 +1,23 @@
 import React, { useContext } from "react";
 import PropTypes from "prop-types";
+import { NavLink } from "react-router-dom";
 
 import Zoom from "@material-ui/core/Zoom";
 import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 
+import { UserContext } from "../../contexts/UserContext";
 import { WidgetContext } from "../../contexts/WidgetContext";
 
 import { deleteWidget } from "../../api/widgets";
 
 import { widget as useStyles } from "../../styles/Widgets";
 
-function Widget({ id, content, borderColor, editText, editIcon, editMode }) {
+function Widget({ id, type, content, borderColor, editText, editIcon, editMode }) {
 	const classes = useStyles({ borderColor });
 	const { dispatch } = useContext(WidgetContext);
+	const { user } = useContext(UserContext);
 
 	async function handleDelete() {
 		const response = await deleteWidget(id);
@@ -38,6 +41,25 @@ function Widget({ id, content, borderColor, editText, editIcon, editMode }) {
 		);
 	}
 
+	const nonAppWidgets = ["notifications", "weather", "crypto"];
+	const hasApp = user.apps.find(app => app.platform === type || nonAppWidgets.includes(type));
+
+	if (!hasApp) {
+		return (
+			<Zoom in>
+				<div className={classes.root}>
+					<i className={`${editIcon} icofont-2x`} />
+					<Typography variant="subtitle2">
+						{editText}
+					</Typography>
+					<Typography variant="subtitle2">
+						<NavLink to="/settings">{"App is missing. Click here to add it"}</NavLink>
+					</Typography>
+				</div>
+			</Zoom>
+		);
+	}
+
 	return (
 		<Zoom in>
 			<Box className={classes.root}>
@@ -49,6 +71,7 @@ function Widget({ id, content, borderColor, editText, editIcon, editMode }) {
 
 Widget.propTypes = {
 	id: PropTypes.string.isRequired,
+	type: PropTypes.string.isRequired,
 	content: PropTypes.node.isRequired,
 	borderColor: PropTypes.string,
 	editText: PropTypes.string.isRequired,

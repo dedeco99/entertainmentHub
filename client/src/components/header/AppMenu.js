@@ -39,6 +39,7 @@ class AppMenu extends Component {
 	}
 
 	async getApps() {
+		const { dispatch } = this.context;
 		const { allApps } = this.state;
 
 		const redirected = localStorage.getItem("redirected");
@@ -49,6 +50,8 @@ class AppMenu extends Component {
 			const userApps = allApps.filter(app => response.data.find(appR => appR.platform === app.platform));
 
 			const currentApp = allApps.find(app => app.endpoint === window.location.pathname);
+
+			dispatch({ type: "SET_APPS", apps: response.data });
 
 			this.setState({
 				apps: userApps,

@@ -4,6 +4,12 @@ export const userReducer = (state, action) => {
 			localStorage.setItem("user", JSON.stringify(action.user));
 
 			return action.user;
+		case "SET_APPS":
+			const user = { ...state, apps: action.apps };
+
+			localStorage.setItem("user", JSON.stringify(user));
+
+			return user;
 		default:
 			return state;
 	}

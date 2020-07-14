@@ -13,6 +13,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 
 import Input from "../.partials/Input";
 
+import { UserContext } from "../../contexts/UserContext";
 import { WidgetContext } from "../../contexts/WidgetContext";
 
 import { getCities } from "../../api/weather";
@@ -24,6 +25,7 @@ import { widgetDetail as useStyles } from "../../styles/Widgets";
 function WidgetDetail({ open, onClose }) {
 	const classes = useStyles();
 	const { dispatch } = useContext(WidgetContext);
+	const { user } = useContext(UserContext);
 	const [type, setType] = useState("notifications");
 	const [info, setInfo] = useState({});
 	const [typingTimeout, setTypingTimeout] = useState(null);
@@ -197,6 +199,36 @@ function WidgetDetail({ open, onClose }) {
 		}
 	}
 
+	function renderTypes() {
+		let types = [
+			{ value: "notifications", displayName: "Notifications" },
+			{ value: "reddit", displayName: "Reddit" },
+			{ value: "twitch", displayName: "Twitch" },
+			{ value: "weather", displayName: "Weather" },
+			{ value: "crypto", displayName: "Crypto" },
+			{ value: "tv", displayName: "TV" },
+		];
+
+		const nonAppWidgets = ["notifications", "weather", "crypto"];
+		const appTypes = user.apps.map(a => a.platform).concat(nonAppWidgets);
+		types = types.filter(t => appTypes.includes(t.value));
+
+		return (
+			<Input
+				label="Type"
+				id="type"
+				value={type}
+				onChange={handleChange}
+				variant="outlined"
+				select
+				fullWidth
+				required
+			>
+				{types.map(t => <MenuItem key={t.value} value={t.value}>{t.displayName}</MenuItem>)}
+			</Input>
+		);
+	}
+
 	return (
 		<Dialog
 			aria-labelledby="alert-dialog-title"
@@ -207,23 +239,7 @@ function WidgetDetail({ open, onClose }) {
 		>
 			<DialogTitle id="simple-dialog-title">{"New Widget"}</DialogTitle>
 			<DialogContent>
-				<Input
-					label="Type"
-					id="type"
-					value={type}
-					onChange={handleChange}
-					variant="outlined"
-					select
-					fullWidth
-					required
-				>
-					<MenuItem value="notifications">{"Notifications"}</MenuItem>
-					<MenuItem value="reddit">{"Reddit"}</MenuItem>
-					<MenuItem value="twitch">{"Twitch"}</MenuItem>
-					<MenuItem value="weather">{"Weather"}</MenuItem>
-					<MenuItem value="crypto">{"Crypto"}</MenuItem>
-					<MenuItem value="tv">{"TV"}</MenuItem>
-				</Input>
+				{renderTypes()}
 				{renderFields()}
 			</DialogContent>
 			<DialogActions>
