@@ -76,6 +76,7 @@ class Subscriptions extends Component {
 							<ListItemText id={labelId} primary={channel.displayName} />
 							<ListItemSecondaryAction>
 								<Checkbox
+									color="primary"
 									edge="end"
 									onChange={() => this.handleSubscriptionCheckbox(channel.channelId)}
 									checked={Boolean(checkedChannels.find(c => c.channelId === channel.channelId))}

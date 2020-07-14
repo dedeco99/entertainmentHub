@@ -154,6 +154,7 @@ function WidgetDetail({ open, onClose }) {
 						<FormControlLabel
 							control={
 								<Checkbox
+									color="primary"
 									id="info.listView"
 									checked={info.listView === "true"}
 									value={info.listView !== "true"}
