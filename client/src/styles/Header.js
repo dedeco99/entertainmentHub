@@ -1,7 +1,14 @@
-const header = () => ({
+import { makeStyles } from "@material-ui/styles";
+
+const header = makeStyles({
 	appBar: {
 		backgroundColor: "#222",
 		marginBottom: 20,
+	},
+	brand: {
+		left: 0,
+		bottom: -3,
+		position: "absolute",
 	},
 	title: {
 		flexGrow: 1,
@@ -48,6 +55,15 @@ const settings = () => ({
 });
 
 const appMenu = () => ({
+	root: {
+		backgroundColor: "#222",
+		width: "50px",
+		height: "100%",
+		top: 0,
+		left: 0,
+		marginTop: 65,
+		position: "fixed",
+	},
 	appItem: {
 		paddingLeft: 10,
 	},

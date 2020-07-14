@@ -7,8 +7,6 @@ async function register(user) {
 		data: user,
 	});
 
-	if (res.status === 201) window.location.replace("/login");
-
 	return res;
 }
 

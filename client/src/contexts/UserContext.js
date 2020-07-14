@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useEffect } from "react";
+import React, { createContext, useReducer } from "react";
 import PropTypes from "prop-types";
 
 import { userReducer } from "../reducers/UserReducer";
@@ -10,10 +10,6 @@ const UserContextProvider = ({ children }) => {
 		const localData = localStorage.getItem("user");
 		return localData ? JSON.parse(localData) : {};
 	});
-
-	useEffect(() => {
-		localStorage.setItem("user", JSON.stringify(user));
-	}, [user]);
 
 	return (
 		<UserContext.Provider value={{ user, dispatch }}>

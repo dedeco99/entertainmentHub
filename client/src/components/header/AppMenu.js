@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { withStyles } from "@material-ui/styles";
 import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
+
+import { withStyles } from "@material-ui/styles";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 
@@ -45,10 +46,7 @@ class AppMenu extends Component {
 		const response = await getApps();
 
 		if (response.data && response.data.length) {
-			// eslint-disable-next-line arrow-body-style
-			const userApps = allApps.filter(app => {
-				return response.data.find(appR => appR.platform === app.platform);
-			});
+			const userApps = allApps.filter(app => response.data.find(appR => appR.platform === app.platform));
 
 			const currentApp = allApps.find(app => app.endpoint === window.location.pathname);
 
@@ -108,11 +106,12 @@ class AppMenu extends Component {
 
 	render() {
 		const { user } = this.context;
+		const { classes } = this.props;
 
 		if (user && user.token) {
 			return (
-				<div className="appMenu">
-					<List className="list-menu" >
+				<div className={classes.root}>
+					<List>
 						{this.renderAppList()}
 						{this.renderAddMoreApps()}
 					</List>
