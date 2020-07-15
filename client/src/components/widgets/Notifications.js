@@ -15,6 +15,7 @@ import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import Link from "@material-ui/core/Link";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import { motion } from "framer-motion";
 
 import AnimatedList from "../.partials/AnimatedList";
 
@@ -25,6 +26,23 @@ import { addToWatchLater } from "../../api/youtube";
 import { formatDate } from "../../utils/utils";
 
 import { notifications as styles } from "../../styles/Widgets";
+
+const noNotificationVariant = {
+	hidden: {
+		y: -100,
+		opacity: 0,
+	},
+	visible: {
+		opacity: 1,
+		y: 0,
+		transition: {
+			delay: 0.7,
+			when: "beforeChildren",
+			type: "tween",
+		},
+	},
+};
+
 
 class Notifications extends Component {
 	constructor() {
@@ -248,21 +266,33 @@ class Notifications extends Component {
 	renderNotificationList() {
 		const { notificationState } = this.context;
 		const { notifications } = notificationState;
+		const noNotificationMessage = "You have no notifications";
+
+		if (notifications.length > 0) {
+			return (
+				<AnimatedList>
+					{notifications.map(notification => (
+						<ListItem key={notification._id} divider>
+							{this.renderNotificationContent(notification)}
+							<ListItemSecondaryAction onClick={e => this.handleOptionsClick(e, notification)}>
+								<IconButton edge="end">
+									<i className="material-icons">{"more_vert"}</i>
+								</IconButton>
+							</ListItemSecondaryAction>
+						</ListItem>
+					))}
+				</AnimatedList>
+			);
+		}
 
 		return (
-			<AnimatedList>
-				{notifications.map(notification => (
-					<ListItem key={notification._id} divider>
-						{this.renderNotificationContent(notification)}
-						<ListItemSecondaryAction onClick={e => this.handleOptionsClick(e, notification)}>
-							<IconButton edge="end">
-								<i className="material-icons">{"more_vert"}</i>
-							</IconButton>
-						</ListItemSecondaryAction>
-					</ListItem>
-				))}
-			</AnimatedList>
+			<Box>
+				<motion.div variants={noNotificationVariant} initial="hidden" animate="visible">
+					<h3> { noNotificationMessage } </h3>
+				</motion.div>
+			</Box>
 		);
+
 	}
 
 	renderLoadingMore() {
@@ -352,7 +382,7 @@ class Notifications extends Component {
 							</IconButton>
 						</Box>
 					</Box>
-					<Box style={{ overflow: "auto" }}>
+					<Box display="flex" alignItems="center" justifyContent="center" height="100%" style={{ overflow: "auto" }}>
 						<InfiniteScroll
 							loadMore={this.getNotifications}
 							hasMore={hasMore}
