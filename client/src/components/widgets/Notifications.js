@@ -286,7 +286,7 @@ class Notifications extends Component {
 		}
 
 		return (
-			<Box>
+			<Box display="flex" alignItems="center" justifyContent="center">
 				<motion.div variants={noNotificationVariant} initial="hidden" animate="visible">
 					<h3> { noNotificationMessage } </h3>
 				</motion.div>
@@ -382,8 +382,9 @@ class Notifications extends Component {
 							</IconButton>
 						</Box>
 					</Box>
-					<Box display="flex" alignItems="center" justifyContent="center" height="100%" style={{ overflow: "auto" }}>
+					<Box display="flex" flexWrap="wrap" alignItems="center" justifyContent="center" height="100%" style={{ overflow: "auto" }}>
 						<InfiniteScroll
+							style={{ minWidth: "100%"}}
 							loadMore={this.getNotifications}
 							hasMore={hasMore}
 							useWindow={false}
