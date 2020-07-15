@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/styles";
 import InfiniteScroll from "react-infinite-scroller";
+import { motion } from "framer-motion";
 
 import Zoom from "@material-ui/core/Zoom";
 import ListItem from "@material-ui/core/ListItem";
@@ -15,7 +16,6 @@ import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import Link from "@material-ui/core/Link";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import { motion } from "framer-motion";
 
 import AnimatedList from "../.partials/AnimatedList";
 
@@ -26,23 +26,6 @@ import { addToWatchLater } from "../../api/youtube";
 import { formatDate } from "../../utils/utils";
 
 import { notifications as styles } from "../../styles/Widgets";
-
-const noNotificationVariant = {
-	hidden: {
-		y: -100,
-		opacity: 0,
-	},
-	visible: {
-		opacity: 1,
-		y: 0,
-		transition: {
-			delay: 0.7,
-			when: "beforeChildren",
-			type: "tween",
-		},
-	},
-};
-
 
 class Notifications extends Component {
 	constructor() {
@@ -266,9 +249,23 @@ class Notifications extends Component {
 	renderNotificationList() {
 		const { notificationState } = this.context;
 		const { notifications } = notificationState;
-		const noNotificationMessage = "You have no notifications";
 
-		if (notifications.length > 0) {
+		const noNotificationVariant = {
+			hidden: {
+				y: -100,
+				opacity: 0,
+			},
+			visible: {
+				opacity: 1,
+				y: 0,
+				transition: {
+					delay: 0.7,
+					type: "spring",
+				},
+			},
+		};
+
+		if (notifications.length) {
 			return (
 				<AnimatedList>
 					{notifications.map(notification => (
@@ -287,12 +284,11 @@ class Notifications extends Component {
 
 		return (
 			<Box display="flex" alignItems="center" justifyContent="center">
-				<motion.div variants={noNotificationVariant} initial="hidden" animate="visible">
-					<h3> { noNotificationMessage } </h3>
-				</motion.div>
+				<motion.h3 variants={noNotificationVariant} initial="hidden" animate="visible">
+					{"You have no notifications"}
+				</motion.h3>
 			</Box>
 		);
-
 	}
 
 	renderLoadingMore() {
@@ -384,7 +380,7 @@ class Notifications extends Component {
 					</Box>
 					<Box display="flex" flexWrap="wrap" alignItems="center" justifyContent="center" height="100%" style={{ overflow: "auto" }}>
 						<InfiniteScroll
-							style={{ minWidth: "100%"}}
+							style={{ minWidth: "100%" }}
 							loadMore={this.getNotifications}
 							hasMore={hasMore}
 							useWindow={false}

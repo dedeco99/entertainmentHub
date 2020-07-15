@@ -3,13 +3,13 @@ import { withStyles } from "@material-ui/styles";
 import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
 
-import { UserContext } from "../../contexts/UserContext";
-
 import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import Tooltip from "@material-ui/core/Tooltip";
 
 import NotificationDropdown from "./NotificationDropdown";
+
+import { UserContext } from "../../contexts/UserContext";
 
 import { logout } from "../../api/auth";
 
@@ -17,7 +17,7 @@ import { loggedInLinks as styles } from "../../styles/Header";
 
 function LoggedInLinks({ classes }) {
 	const { user } = useContext(UserContext);
-	console.log(user);
+
 	return (
 		<div>
 			<NotificationDropdown />
