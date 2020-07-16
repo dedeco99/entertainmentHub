@@ -28,8 +28,8 @@ function LoggedInLinks({ classes }) {
 					</IconButton>
 				</Tooltip>
 			</NavLink>
-			<NavLink className="nav-item" to="/logout" onClick={logout}>
-				<Button className="outlined-button" variant="outlined">{"Logout"}</Button>
+			<NavLink to="/logout" onClick={logout}>
+				<Button color="primary" variant="outlined">{"Logout"}</Button>
 			</NavLink>
 		</div>
 	);

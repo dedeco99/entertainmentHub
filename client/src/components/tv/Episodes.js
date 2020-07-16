@@ -62,7 +62,8 @@ class Episodes extends Component {
 				<Grid item sm={3} md={2}>
 					<Button
 						onClick={this.handleGetPassedEpisodes}
-						className={`outlined-button ${classes.episodesBtn}`}
+						className={classes.episodesBtn}
+						color="primary"
 						variant="outlined"
 						fullWidth
 					>
@@ -72,7 +73,8 @@ class Episodes extends Component {
 				<Grid item sm={3} md={2}>
 					<Button
 						onClick={this.handleGetFutureEpisodes}
-						className={`outlined-button ${classes.episodesBtn}`}
+						className={classes.episodesBtn}
+						color="primary"
 						variant="outlined"
 						fullWidth
 					>

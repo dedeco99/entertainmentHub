@@ -1,43 +1,33 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
 import Grid from "@material-ui/core/Grid";
 import InfiniteScroll from "react-infinite-scroller";
 
+import { banners as useStyles } from "../../styles/TV";
+
 import loadingGif from "../../img/loading3.gif";
 import placeholder from "../../img/noimage.png";
 
-class Banners extends Component {
-	constructor() {
-		super();
-		this.state = {
-			loadingAddSeries: false,
-		};
+function Banners({ series, getMore, hasMore, allSeries, addSeries }) {
+	const classes = useStyles();
+	const [loadingAddSeries, setLoadingAddSeries] = useState(false);
 
-		this.renderAddIcon = this.renderAddIcon.bind(this);
-		this.handleAddSeries = this.handleAddSeries.bind(this);
-	}
-
-	async handleAddSeries(e) {
-		const { series, addSeries } = this.props;
-
-		this.setState({ loadingAddSeries: true });
+	async function handleAddSeries(e) {
+		setLoadingAddSeries(true);
 
 		const seriesToAdd = series.find(s => s.id.toString() === e.target.id);
 
 		await addSeries(seriesToAdd);
 
-		this.setState({ loadingAddSeries: false });
+		setLoadingAddSeries(false);
 	}
 
-	renderAddIcon(s) {
-		const { allSeries } = this.props;
-		const { loadingAddSeries } = this.state;
-
+	function renderAddIcon(s) {
 		const seriesIds = allSeries.map(us => us.seriesId);
 
 		if (loadingAddSeries) {
 			return (
-				<span className="add-series-icon">
+				<span className={classes.addSeriesIcon}>
 					<img src={loadingGif} height="48px" alt="Loading..." />
 				</span>
 			);
@@ -45,8 +35,8 @@ class Banners extends Component {
 			return (
 				<i
 					id={s.id}
-					className="add-series-icon icofont-ui-add icofont-3x"
-					onClick={this.handleAddSeries}
+					className={`${classes.addSeriesIcon} icofont-ui-add icofont-3x`}
+					onClick={handleAddSeries}
 				/>
 			);
 		}
@@ -54,7 +44,7 @@ class Banners extends Component {
 		return null;
 	}
 
-	renderSeriesBlock(series) {
+	function renderSeriesBlock(series) {
 		if (!series || !series.length) return <div />;
 
 		return (
@@ -65,8 +55,8 @@ class Banners extends Component {
 							item xs={6} sm={4} md={3} lg={2} xl={1}
 							key={s.id}
 						>
-							<div className="add-series-container">
-								{this.renderAddIcon(s)}
+							<div className={classes.addSeriesContainer}>
+								{renderAddIcon(s)}
 								<img
 									src={s.image.substr(s.image.length - 4) === "null" ? placeholder : s.image}
 									width="100%"
@@ -80,19 +70,15 @@ class Banners extends Component {
 		);
 	}
 
-	render() {
-		const { series, getMore, hasMore } = this.props;
-
-		return (
-			<InfiniteScroll
-				pageStart={0}
-				loadMore={getMore}
-				hasMore={hasMore}
-			>
-				{this.renderSeriesBlock(series)}
-			</InfiniteScroll>
-		);
-	}
+	return (
+		<InfiniteScroll
+			pageStart={0}
+			loadMore={getMore}
+			hasMore={hasMore}
+		>
+			{renderSeriesBlock(series)}
+		</InfiniteScroll>
+	);
 }
 
 Banners.propTypes = {

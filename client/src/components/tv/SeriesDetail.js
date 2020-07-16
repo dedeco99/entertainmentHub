@@ -59,7 +59,7 @@ class SeriesDetail extends Component {
 				<br /><br />
 				<Button
 					onClick={this.handleSubmit}
-					className="outlined-button"
+					color="primary"
 					variant="outlined"
 					fullWidth
 				>

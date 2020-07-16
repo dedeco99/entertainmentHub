@@ -419,7 +419,7 @@ class Notifications extends Component {
 									</MenuItem>
 								))}
 							</Menu>
-							<IconButton onClick={this.handleToggleHistory}>
+							<IconButton color="primary" onClick={this.handleToggleHistory}>
 								<i className="material-icons">
 									{history ? "notifications" : "history"}
 								</i>

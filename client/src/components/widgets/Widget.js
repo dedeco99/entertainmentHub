@@ -30,7 +30,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, editMode }
 	if (editMode) {
 		return (
 			<div className={classes.root}>
-				<IconButton className={classes.delete} onClick={handleDelete}>
+				<IconButton color="primary" className={classes.delete} onClick={handleDelete}>
 					<i className="icofont-ui-delete" />
 				</IconButton>
 				<i className={`${editIcon} icofont-2x`} />

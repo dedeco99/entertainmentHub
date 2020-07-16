@@ -329,7 +329,8 @@ class TV extends Component {
 				</Fab>
 				<Button
 					onClick={this.handleShowPopularBlock}
-					className={`outlined-button ${classes.outlinedBtn}`}
+					className={classes.outlinedBtn}
+					color="primary"
 					variant="outlined"
 					fullWidth
 				>
@@ -337,7 +338,8 @@ class TV extends Component {
 				</Button>
 				<Button
 					onClick={this.handleShowAllBlock}
-					className={`outlined-button ${classes.outlinedBtn}`}
+					className={classes.outlinedBtn}
+					color="primary"
 					variant="outlined"
 					fullWidth
 				>
