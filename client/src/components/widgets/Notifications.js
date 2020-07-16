@@ -25,7 +25,7 @@ import { getNotifications, patchNotifications, deleteNotifications } from "../..
 import { addToWatchLater } from "../../api/youtube";
 import { formatDate } from "../../utils/utils";
 
-import { notifications as styles, notifications } from "../../styles/Widgets";
+import { notifications as styles } from "../../styles/Widgets";
 
 class Notifications extends Component {
 	constructor() {
@@ -45,7 +45,7 @@ class Notifications extends Component {
 			notificationAnchorEl: null,
 			selectedNotification: null,
 
-			showLoadingNotifications: { id: null, showLoading: false, showMenu: true },
+			actionLoading: false,
 		};
 
 		this.getNotifications = this.getNotifications.bind(this);
@@ -60,9 +60,6 @@ class Notifications extends Component {
 		this.handleHideNotification = this.handleHideNotification.bind(this);
 		this.handleRestoreNotification = this.handleRestoreNotification.bind(this);
 		this.handleWatchLaterOption = this.handleWatchLaterOption.bind(this);
-
-		this.handleStateArray = this.handleStateArray.bind(this);
-		this.handleChangeIdNotification = this.handleChangeIdNotification.bind(this);
 	}
 
 	componentDidMount() {
@@ -103,7 +100,7 @@ class Notifications extends Component {
 		const { dispatch } = this.context;
 		const { selectedNotification, history } = this.state;
 
-		this.handleStateArray(true, false);
+		this.setState({ actionLoading: true });
 
 		const response = history
 			? await deleteNotifications(selectedNotification._id)
@@ -111,38 +108,38 @@ class Notifications extends Component {
 
 		if (response.data) {
 			dispatch({ type: "DELETE_NOTIFICATION", notification: response.data });
-
-			this.handleStateArray(false, true);
 		}
+
+		this.setState({ actionLoading: false });
 	}
 
 	async handleRestoreNotification() {
 		const { dispatch } = this.context;
 		const { selectedNotification } = this.state;
-		this.handleStateArray(true, false);
+
+		this.setState({ actionLoading: true });
 
 		const response = await patchNotifications(selectedNotification._id, true);
 
-
 		if (response.data) {
 			dispatch({ type: "DELETE_NOTIFICATION", notification: response.data });
-
-			this.handleStateArray(false, true);
 		}
+
+		this.setState({ actionLoading: false });
 	}
 
 	async handleWatchLaterOption() {
 		const { selectedNotification } = this.state;
 
-		this.handleStateArray(true, false);
+		this.setState({ actionLoading: true });
 
 		const response = await addToWatchLater(selectedNotification.info.videoId);
 
 		if (response.status === 200 || response.status === 409) {
 			await this.handleHideNotification();
-
-			this.handleStateArray(false, true);
 		}
+
+		this.setState({ actionLoading: false });
 	}
 
 	handleToggleHistory() {
@@ -176,30 +173,6 @@ class Notifications extends Component {
 	handleCloseOptions() {
 		this.setState({ notificationAnchorEl: null });
 	}
-
-	handleChangeIdNotification(notificationId) {
-		const { showLoadingNotifications } = this.state;
-
-		showLoadingNotifications.id = notificationId;
-
-		this.setState({
-			showLoadingNotifications,
-		});
-
-		console.log(showLoadingNotifications);
-	}
-
-	handleStateArray(showLoading, showMenu) {
-		const { showLoadingNotifications } = this.state;
-
-		showLoadingNotifications.showMenu = showMenu;
-		showLoadingNotifications.showLoading = showLoading;
-
-		this.setState({ showLoadingNotifications });
-
-		console.log(showLoadingNotifications);
-	}
-
 
 	formatVideoDuration(duration) {
 		if (!duration || duration === "P0D") return "Live";
@@ -244,13 +217,14 @@ class Notifications extends Component {
 	}
 
 	renderNotificationAction(notification) {
-		const { showLoadingNotifications } = this.state;
+		const { selectedNotification, actionLoading } = this.state;
 
-
-		if (showLoadingNotifications.id === notification._id && showLoadingNotifications.showLoading) return <CircularProgress />;
+		if (selectedNotification && selectedNotification._id === notification._id && actionLoading) {
+			return <CircularProgress />;
+		}
 
 		return (
-			<ListItemSecondaryAction id={notification._id} onClick={e => { this.handleOptionsClick(e, notification); this.handleChangeIdNotification(notification._id) }}>
+			<ListItemSecondaryAction id={notification._id} onClick={e => this.handleOptionsClick(e, notification)}>
 				<IconButton edge="end">
 					<i className="material-icons">{"more_vert"}</i>
 				</IconButton>
