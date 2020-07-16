@@ -41,9 +41,12 @@ class Youtube extends Component {
 	}
 
 	async getSubscriptions() {
+		const { history } = this.props;
 		const { channels, subscriptions, page, after } = this.state;
 
 		const response = await getSubscriptions(after);
+
+		if (response.status === 401) return history.push("/settings");
 
 		if (response.data && response.data.length) {
 			const newSubscriptions = page === 0 ? response.data : subscriptions.concat(response.data);
@@ -55,6 +58,8 @@ class Youtube extends Component {
 				hasMoreSubscriptions: !(response.data.length < 25),
 			});
 		}
+
+		return null;
 	}
 
 	async getChannels() {
@@ -135,7 +140,7 @@ class Youtube extends Component {
 }
 
 Youtube.propTypes = {
-	classes: PropTypes.object.isRequired,
+	history: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(Youtube);

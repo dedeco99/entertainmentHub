@@ -402,7 +402,7 @@ class Notifications extends Component {
 					<Box
 						display="flex"
 						flexWrap="wrap"
-						alignItems={!notifications.length && "center"}
+						alignItems={notifications.length ? "initial" : "center"}
 						justifyContent="center"
 						height="100%"
 						style={{ overflow: "auto" }}
