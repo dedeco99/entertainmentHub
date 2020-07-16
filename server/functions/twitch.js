@@ -7,12 +7,18 @@ const Channel = require("../models/channel");
 async function getAccessToken(user, grantType) {
 	const app = await App.findOne({ user: user._id, platform: "twitch" }).lean();
 
-	if (!app) return errors.notFound;
+	if (!app) return errors.twitchRefreshToken;
 
 	const url = `https://id.twitch.tv/oauth2/token?client_id=${process.env.twitchClientId}&client_secret=${process.env.twitchSecret}&refresh_token=${app.refreshToken}&grant_type=${grantType}`;
 
 	const res = await api({ method: "post", url });
 	const json = res.data;
+
+	if (res.status === 400) {
+		await App.deleteOne({ _id: app._id });
+
+		return errors.twitchRefreshToken;
+	}
 
 	return json.access_token;
 }
@@ -28,6 +34,8 @@ async function getStreams(event) {
 	const channelsString = `user_id=${channels.map(c => c.channelId).join("&user_id=")}`;
 
 	const accessToken = await getAccessToken(user, "client_credentials");
+
+	if (accessToken.status === 401) return errors.twitchRefreshToken;
 
 	let url = `https://api.twitch.tv/helix/streams?${channelsString}`;
 	if (after) url += `&after=${after}`;
@@ -78,6 +86,8 @@ async function getFollows(event) {
 	const { after } = query;
 
 	const accessToken = await getAccessToken(user, "refresh_token");
+
+	if (accessToken.status === 401) return errors.twitchRefreshToken;
 
 	let url = "https://api.twitch.tv/helix/users";
 

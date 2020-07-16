@@ -27,9 +27,15 @@ class Twitch extends Component {
 	}
 
 	async getStreams() {
+		const { history } = this.props;
+
 		const response = await getStreams();
 
+		if (response.status === 401) return history.push("/settings");
+
 		this.setState({ streams: response.data, open: true });
+
+		return null;
 	}
 
 	renderStreamsList() {
@@ -68,6 +74,7 @@ class Twitch extends Component {
 }
 
 Twitch.propTypes = {
+	history: PropTypes.object.isRequired,
 	classes: PropTypes.object.isRequired,
 };
 
