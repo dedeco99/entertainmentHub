@@ -9,7 +9,7 @@ const SocketClient = () => {
 	const { dispatch } = useContext(NotificationContext);
 
 	useEffect(() => {
-		const socket = socketio("http://entertainmenthub.ddns.net:5000", { transports: ["websocket"] });
+		const socket = socketio("https://entertainmenthub.ddns.net:5000", { transports: ["websocket"] });
 
 		socket.on("connect", () => {
 			socket.emit("bind", user);

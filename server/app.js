@@ -1,4 +1,6 @@
 const express = require("express");
+const https = require("https");
+const fs = require("fs");
 const path = require("path");
 const morgan = require("morgan");
 const socketio = require("socket.io");
@@ -132,9 +134,11 @@ app.get("*/", (req, res) => {
 	res.sendFile(path.join(`${__dirname}/build/index.html`));
 });
 
-const server = app.listen(app.get("port"), () => {
-	console.log("Listening on port", app.get("port"));
-});
+const server = https.createServer({
+	key: fs.readFileSync("./ssl/key.pem"),
+	cert: fs.readFileSync("./ssl/cert.pem"),
+	passphrase: process.env.sslPassphrase,
+}, app).listen(app.get("port"), () => console.log("Listening on port", app.get("port")));
 
 const io = socketio(server, { origins: "*:*", transports: ["websocket"] });
 io.sockets.on("connection", socket => {
