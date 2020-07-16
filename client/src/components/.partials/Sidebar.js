@@ -47,7 +47,9 @@ class Sidebar extends Component {
 
 		if (loading) {
 			return (
-				<div className="loading" align="center"><img src={loadingGif} alt="Loading..." /></div>
+				<div className={classes.loading} align="center">
+					<img className={classes.loadingImg}  src={loadingGif} alt="Loading..." />
+				</div>
 			);
 		} else {
 			return (
@@ -57,7 +59,7 @@ class Sidebar extends Component {
 	}
 
 	render() {
-		const { options, idField, menu, initialSelected } = this.props;
+		const { classes, options, idField, menu, initialSelected } = this.props;
 		const { selectedMenu, anchorEl, currentId } = this.state;
 
 		let optionsList = this.renderLoading();
@@ -84,7 +86,7 @@ class Sidebar extends Component {
 		}
 
 		return (
-			<List className="list-menu" >
+			<List className={classes.listMenu}>
 				{optionsList}
 				{menu ?
 					<StyledMenu

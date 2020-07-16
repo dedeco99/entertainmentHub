@@ -43,7 +43,7 @@ class Categories extends Component {
 		});
 
 		return (
-			<List className="list-menu horizontal">
+			<List className={`${classes.listMenu} ${classes.horizontal}`}>
 				{optionsList}
 			</List>
 		);

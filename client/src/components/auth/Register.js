@@ -60,7 +60,7 @@ function Register({ history }) {
 				<br /><br />
 				<Button
 					type="submit"
-					className="outlined-button"
+					color="primary"
 					variant="outlined"
 					fullWidth
 				>

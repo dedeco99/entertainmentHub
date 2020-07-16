@@ -16,13 +16,13 @@ function LoggedInLinks({ classes }) {
 	return (
 		<div>
 			<NotificationDropdown />
-			<NavLink className={`nav-item ${classes.navBtn}`} to="/settings">
+			<NavLink className={classes.navBtn} to="/settings">
 				<IconButton color="primary">
 					<i className="icofont-ui-user" />
 				</IconButton>
 			</NavLink>
-			<NavLink className="nav-item" to="/logout" onClick={logout}>
-				<Button className="outlined-button" variant="outlined">{"Logout"}</Button>
+			<NavLink to="/logout" onClick={logout}>
+				<Button color="primary" variant="outlined">{"Logout"}</Button>
 			</NavLink>
 		</div>
 	);
