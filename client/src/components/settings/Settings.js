@@ -171,7 +171,7 @@ class Settings extends Component {
 				<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={app.key}>
 					<div className={classes.appsContainer}>
 						<img src={images[app.key]} width="100%" alt={app.displayName} />
-						<i className="delete material-icons" id={app.id} onClick={this.handleDeleteApp}>
+						<i className={`${classes.delete} material-icons`} id={app.id} onClick={this.handleDeleteApp}>
 							{"delete"}
 						</i>
 					</div>
@@ -263,7 +263,7 @@ class Settings extends Component {
 			<div>
 				<Grid container spacing={2}>
 					<Grid item xs={12} sm={4} md={3} lg={2}>
-						<List className="list-menu">
+						<List className={classes.listMenu}>
 							<ListItem
 								button
 								selected={selectedMenu === 0}

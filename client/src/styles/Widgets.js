@@ -11,8 +11,11 @@ const widget = makeStyles({
 		flexDirection: "column",
 		border: `1px solid ${props.borderColor || "#424242"}`,
 		borderRadius: "3px",
-		overflow: "hidden",
 	}),
+	refresh: {
+		padding: 10,
+		cursor: "pointer",
+	},
 	delete: {
 		top: 0,
 		right: 0,
@@ -34,11 +37,11 @@ const notifications = () => ({
 	},
 	header: {
 		backgroundColor: "#424242",
-		padding: 5,
 		paddingLeft: 16,
 		paddingRight: 8,
 	},
 	avatar: {
+		color: "white",
 		backgroundColor: "#444",
 	},
 });

@@ -5,11 +5,11 @@ import Button from "@material-ui/core/Button";
 function LoggedOutLinks() {
 	return (
 		<div>
-			<NavLink className="nav-item" to="/register" style={{ marginRight: 20 }}>
-				<Button className="outlined-button" variant="outlined">{"Register"}</Button>
+			<NavLink to="/register" style={{ marginRight: 20 }}>
+				<Button color="primary" variant="outlined">{"Register"}</Button>
 			</NavLink>
-			<NavLink className="nav-item" to="/login">
-				<Button className="outlined-button" variant="outlined">{"Login"}</Button>
+			<NavLink to="/login">
+				<Button color="primary" variant="outlined">{"Login"}</Button>
 			</NavLink>
 		</div>
 	);

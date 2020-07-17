@@ -44,6 +44,8 @@ class Notifications extends Component {
 			selectedIndex: 0,
 			notificationAnchorEl: null,
 			selectedNotification: null,
+
+			actionLoading: false,
 		};
 
 		this.getNotifications = this.getNotifications.bind(this);
@@ -98,6 +100,8 @@ class Notifications extends Component {
 		const { dispatch } = this.context;
 		const { selectedNotification, history } = this.state;
 
+		this.setState({ actionLoading: true });
+
 		const response = history
 			? await deleteNotifications(selectedNotification._id)
 			: await patchNotifications(selectedNotification._id, false);
@@ -105,27 +109,37 @@ class Notifications extends Component {
 		if (response.data) {
 			dispatch({ type: "DELETE_NOTIFICATION", notification: response.data });
 		}
+
+		this.setState({ actionLoading: false });
 	}
 
 	async handleRestoreNotification() {
 		const { dispatch } = this.context;
 		const { selectedNotification } = this.state;
 
+		this.setState({ actionLoading: true });
+
 		const response = await patchNotifications(selectedNotification._id, true);
 
 		if (response.data) {
 			dispatch({ type: "DELETE_NOTIFICATION", notification: response.data });
 		}
+
+		this.setState({ actionLoading: false });
 	}
 
 	async handleWatchLaterOption() {
 		const { selectedNotification } = this.state;
+
+		this.setState({ actionLoading: true });
 
 		const response = await addToWatchLater(selectedNotification.info.videoId);
 
 		if (response.status === 200 || response.status === 409) {
 			await this.handleHideNotification();
 		}
+
+		this.setState({ actionLoading: false });
 	}
 
 	handleToggleHistory() {
@@ -200,6 +214,22 @@ class Notifications extends Component {
 					subtitle: "Message",
 				};
 		}
+	}
+
+	renderNotificationAction(notification) {
+		const { selectedNotification, actionLoading } = this.state;
+
+		if (selectedNotification && selectedNotification._id === notification._id && actionLoading) {
+			return <CircularProgress />;
+		}
+
+		return (
+			<ListItemSecondaryAction id={notification._id} onClick={e => this.handleOptionsClick(e, notification)}>
+				<IconButton edge="end">
+					<i className="material-icons">{"more_vert"}</i>
+				</IconButton>
+			</ListItemSecondaryAction>
+		);
 	}
 
 	renderNotificationContent(notification) {
@@ -277,17 +307,14 @@ class Notifications extends Component {
 			},
 		};
 
+
 		if (notifications.length) {
 			return (
 				<AnimatedList>
 					{notifications.map(notification => (
 						<ListItem key={notification._id} divider>
 							{this.renderNotificationContent(notification)}
-							<ListItemSecondaryAction onClick={e => this.handleOptionsClick(e, notification)}>
-								<IconButton edge="end">
-									<i className="material-icons">{"more_vert"}</i>
-								</IconButton>
-							</ListItemSecondaryAction>
+							{this.renderNotificationAction(notification)}
 						</ListItem>
 					))}
 				</AnimatedList>
@@ -392,7 +419,7 @@ class Notifications extends Component {
 									</MenuItem>
 								))}
 							</Menu>
-							<IconButton onClick={this.handleToggleHistory}>
+							<IconButton color="primary" onClick={this.handleToggleHistory}>
 								<i className="material-icons">
 									{history ? "notifications" : "history"}
 								</i>
@@ -402,7 +429,7 @@ class Notifications extends Component {
 					<Box
 						display="flex"
 						flexWrap="wrap"
-						alignItems={!notifications.length && "center"}
+						alignItems={notifications.length ? "initial" : "center"}
 						justifyContent="center"
 						height="100%"
 						style={{ overflow: "auto" }}
