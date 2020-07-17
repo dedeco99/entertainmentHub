@@ -77,6 +77,7 @@ const appMenu = () => ({
 	},
 	appLink: {
 		textDecoration: "none",
+		color: "white",
 	},
 	appItem: {
 		paddingLeft: 10,

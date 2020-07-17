@@ -21,6 +21,9 @@ const widget = makeStyles({
 		right: 0,
 		position: "absolute",
 	},
+	appLink: {
+		color: "white",
+	},
 });
 
 const widgetDetail = makeStyles({
@@ -255,8 +258,8 @@ const crypto = () => ({
 		maxWidth: 60,
 	},
 	listImage: {
-		height: 16,
-		width: 16,
+		height: 32,
+		width: 32,
 		padding: 5,
 	},
 	singleRoot: {

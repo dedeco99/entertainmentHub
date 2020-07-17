@@ -100,6 +100,7 @@ class AppMenu extends Component {
 
 		return (
 			<NavLink
+				className={classes.appLink}
 				to={"/settings"}
 				onClick={() => this.handleAppClick("settings")}
 			>

@@ -121,7 +121,7 @@ function WidgetDetail({ open, onClose }) {
 		if (!value) return [];
 
 		return value.map((option, index) => (
-			<Chip key={option.symbol} label={option.symbol} {...getTagProps({ index })} />
+			<Chip key={option.symbol} color="primary" label={option.symbol} {...getTagProps({ index })} />
 		));
 	}
 
