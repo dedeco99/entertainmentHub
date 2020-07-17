@@ -14,12 +14,30 @@ import { WidgetContext } from "../../contexts/WidgetContext";
 import { deleteWidget } from "../../api/widgets";
 
 import { widget as useStyles } from "../../styles/Widgets";
+import { AnimatePresence, motion } from "framer-motion";
+
+const variants = {
+	hidden: {
+		y: 50,
+		top: -45,
+		right: 0,
+		position: "absolute",
+		zIndex: -1,
+	},
+	visible: {
+		y: 0,
+	},
+	exit: {
+		y: 50,
+	},
+};
 
 function Widget({ id, type, content, borderColor, editText, editIcon, editMode }) {
 	const classes = useStyles({ borderColor });
 	const { dispatch } = useContext(WidgetContext);
 	const { user } = useContext(UserContext);
 	const [refreshToken, setRefreshToken] = useState(new Date());
+	const [hovered, setHovered] = useState(false);
 
 	async function handleDelete() {
 		const response = await deleteWidget(id);
@@ -68,13 +86,32 @@ function Widget({ id, type, content, borderColor, editText, editIcon, editMode }
 
 	return (
 		<Zoom in>
-			<Box position="relative" className={classes.root}>
+			<Box
+				className={classes.root}
+				onMouseEnter={() => setHovered(true)}
+				onMouseLeave={() => setHovered(false)}
+			>
 				{React.cloneElement(content, { key: refreshToken })}
-				<Paper component={Box} className="widgetOptions" p={1} display="none" position="absolute" top="-42px" right="0px">
-					<IconButton size="small" onClick={handleRefresh}>
-						<i className="icofont-refresh" />
-					</IconButton>
-				</Paper>
+				<AnimatePresence>
+					{hovered && (
+						<motion.div
+							variants={variants}
+							initial="hidden"
+							animate="visible"
+							exit="exit"
+						>
+							<Paper
+								component={Box}
+								className={classes.refresh}
+								onClick={handleRefresh}
+							>
+								<IconButton size="small">
+									<i className="icofont-refresh" />
+								</IconButton>
+							</Paper>
+						</motion.div>
+					)}
+				</AnimatePresence>
 			</Box>
 		</Zoom>
 	);

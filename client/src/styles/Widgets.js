@@ -11,10 +11,11 @@ const widget = makeStyles({
 		flexDirection: "column",
 		border: `1px solid ${props.borderColor || "#424242"}`,
 		borderRadius: "3px",
-		"&:hover .widgetOptions": {
-			display: "block",
-		}
 	}),
+	refresh: {
+		padding: 10,
+		cursor: "pointer",
+	},
 	delete: {
 		top: 0,
 		right: 0,
