@@ -11,7 +11,9 @@ const widget = makeStyles({
 		flexDirection: "column",
 		border: `1px solid ${props.borderColor || "#424242"}`,
 		borderRadius: "3px",
-		overflow: "hidden",
+		"&:hover .widgetOptions": {
+			display: "block",
+		}
 	}),
 	delete: {
 		top: 0,
