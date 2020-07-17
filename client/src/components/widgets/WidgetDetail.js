@@ -13,8 +13,8 @@ import MenuItem from "@material-ui/core/MenuItem";
 
 import Input from "../.partials/Input";
 
-import { UserContext } from "../../contexts/UserContext";
 import { WidgetContext } from "../../contexts/WidgetContext";
+import { UserContext } from "../../contexts/UserContext";
 
 import { getCities } from "../../api/weather";
 import { getCoins } from "../../api/crypto";
@@ -211,7 +211,7 @@ function WidgetDetail({ open, onClose }) {
 		];
 
 		const nonAppWidgets = ["notifications", "weather", "crypto"];
-		const appTypes = user.apps.map(a => a.platform).concat(nonAppWidgets);
+		const appTypes = user.apps ? user.apps.map(a => a.platform).concat(nonAppWidgets) : nonAppWidgets;
 		types = types.filter(t => appTypes.includes(t.value));
 
 		return (
