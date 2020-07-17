@@ -142,14 +142,10 @@ class Settings extends Component {
 
 	handleAnimations() {
 		const { settings } = this.state;
-		console.log("Antes Setting:", settings);
-
 
 		settings.animations = !settings.animations;
 
-
 		this.setState({ settings });
-		console.log("Depois Setting:", settings);
 	}
 
 	handleBorderColor() {
@@ -214,8 +210,8 @@ class Settings extends Component {
 						control={
 							<Checkbox
 								checked={settings.useCustomScrollbar || false}
-								onChange={this.handleChangeScrollbar}
 								color="primary"
+								onChange={this.handleChangeScrollbar}
 							/>
 						}
 						label="Use custom scrollbar"
@@ -223,22 +219,22 @@ class Settings extends Component {
 					<FormControlLabel
 						control={
 							<Checkbox
-								checked={(settings.animations !== false)}
-								onChange={this.handleAnimations}
+								checked={settings.animations || false}
 								color="primary"
+								onChange={this.handleAnimations}
 							/>
 						}
-						label="Use Animations on Widgets"
+						label="Animations"
 					/>
 					<FormControlLabel
 						control={
 							<Checkbox
 								checked={settings.borderColor || false}
-								onChange={this.handleBorderColor}
 								color="primary"
+								onChange={this.handleBorderColor}
 							/>
 						}
-						label="Enable Border Color on Widgets"
+						label="Border color on widgets"
 					/>
 				</FormControl>
 				<Button variant="contained" onClick={this.handleSubmitSettings}> {"Apply"} </Button>

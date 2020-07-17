@@ -34,10 +34,10 @@ const childVariants = {
 function AnimatedList({ children }) {
 	const { user } = useContext(UserContext);
 	
-	if(!user.settings.animated) {
+	if(user.settings && !user.settings.animations) {
 		return (
 			<List>
-				{children.map(child => <div key={child.key}>{child}</div>)}
+				{children}
 			</List>
 		);
 	}

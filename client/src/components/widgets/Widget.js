@@ -16,7 +16,7 @@ import { widget as useStyles } from "../../styles/Widgets";
 function Widget({ id, content, borderColor, editText, editIcon, editMode }) {
 	const { user } = useContext(UserContext);
 
-	const classes = useStyles({ borderColor: (user.settings.borderColor ? borderColor : null) });
+	const classes = useStyles({ borderColor: (user.settings && user.settings.borderColor ? borderColor : null) });
 	const { dispatch } = useContext(WidgetContext);
 
 	async function handleDelete() {
