@@ -80,6 +80,8 @@ class Settings extends Component {
 
 		this.handleListClick = this.handleListClick.bind(this);
 		this.handleChangeScrollbar = this.handleChangeScrollbar.bind(this);
+		this.handleAnimations = this.handleAnimations.bind(this);
+		this.handleBorderColor = this.handleBorderColor.bind(this);
 		this.handleSubmitSettings = this.handleSubmitSettings.bind(this);
 	}
 
@@ -138,6 +140,27 @@ class Settings extends Component {
 		this.setState({ settings });
 	}
 
+	handleAnimations() {
+		const { settings } = this.state;
+		console.log("Antes Setting:", settings);
+
+
+		settings.animations = !settings.animations;
+
+
+		this.setState({ settings });
+		console.log("Depois Setting:", settings);
+	}
+
+	handleBorderColor() {
+		const { settings } = this.state;
+
+		settings.borderColor = !settings.borderColor;
+
+		this.setState({ settings });
+	}
+
+
 	renderApp(app) {
 		const { classes } = this.props;
 		const images = {
@@ -192,9 +215,30 @@ class Settings extends Component {
 							<Checkbox
 								checked={settings.useCustomScrollbar || false}
 								onChange={this.handleChangeScrollbar}
+								color="primary"
 							/>
 						}
 						label="Use custom scrollbar"
+					/>
+					<FormControlLabel
+						control={
+							<Checkbox
+								checked={(settings.animations !== false)}
+								onChange={this.handleAnimations}
+								color="primary"
+							/>
+						}
+						label="Use Animations on Widgets"
+					/>
+					<FormControlLabel
+						control={
+							<Checkbox
+								checked={settings.borderColor || false}
+								onChange={this.handleBorderColor}
+								color="primary"
+							/>
+						}
+						label="Enable Border Color on Widgets"
 					/>
 				</FormControl>
 				<Button variant="contained" onClick={this.handleSubmitSettings}> {"Apply"} </Button>
