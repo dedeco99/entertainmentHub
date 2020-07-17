@@ -7,13 +7,16 @@ import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 
 import { WidgetContext } from "../../contexts/WidgetContext";
+import { UserContext } from "../../contexts/UserContext";
 
 import { deleteWidget } from "../../api/widgets";
 
 import { widget as useStyles } from "../../styles/Widgets";
 
 function Widget({ id, content, borderColor, editText, editIcon, editMode }) {
-	const classes = useStyles({ borderColor });
+	const { user } = useContext(UserContext);
+
+	const classes = useStyles({ borderColor: (user.settings.borderColor ? borderColor : null) });
 	const { dispatch } = useContext(WidgetContext);
 
 	async function handleDelete() {
