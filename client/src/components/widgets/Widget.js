@@ -8,8 +8,8 @@ import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 
-import { UserContext } from "../../contexts/UserContext";
 import { WidgetContext } from "../../contexts/WidgetContext";
+import { UserContext } from "../../contexts/UserContext";
 
 import { deleteWidget } from "../../api/widgets";
 
@@ -33,9 +33,9 @@ const variants = {
 };
 
 function Widget({ id, type, content, borderColor, editText, editIcon, editMode }) {
-	const classes = useStyles({ borderColor });
 	const { dispatch } = useContext(WidgetContext);
 	const { user } = useContext(UserContext);
+	const classes = useStyles({ borderColor: (user.settings && user.settings.borderColor ? borderColor : null) });
 	const [refreshToken, setRefreshToken] = useState(new Date());
 	const [hovered, setHovered] = useState(false);
 

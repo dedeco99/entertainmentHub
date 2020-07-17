@@ -5,6 +5,8 @@ const UserSchema = new Schema({
 	password: { type: String, default: "" },
 	settings: {
 		useCustomScrollbar: { type: Boolean, default: false },
+		animations: { type: Boolean, default: true },
+		borderColor: { type: Boolean, default: false },
 	},
 }, { timestamps: { createdAt: "_created", updatedAt: "_modified" } });
 

@@ -80,6 +80,8 @@ class Settings extends Component {
 
 		this.handleListClick = this.handleListClick.bind(this);
 		this.handleChangeScrollbar = this.handleChangeScrollbar.bind(this);
+		this.handleAnimations = this.handleAnimations.bind(this);
+		this.handleBorderColor = this.handleBorderColor.bind(this);
 		this.handleSubmitSettings = this.handleSubmitSettings.bind(this);
 	}
 
@@ -138,6 +140,23 @@ class Settings extends Component {
 		this.setState({ settings });
 	}
 
+	handleAnimations() {
+		const { settings } = this.state;
+
+		settings.animations = !settings.animations;
+
+		this.setState({ settings });
+	}
+
+	handleBorderColor() {
+		const { settings } = this.state;
+
+		settings.borderColor = !settings.borderColor;
+
+		this.setState({ settings });
+	}
+
+
 	renderApp(app) {
 		const { classes } = this.props;
 		const images = {
@@ -191,10 +210,31 @@ class Settings extends Component {
 						control={
 							<Checkbox
 								checked={settings.useCustomScrollbar || false}
+								color="primary"
 								onChange={this.handleChangeScrollbar}
 							/>
 						}
 						label="Use custom scrollbar"
+					/>
+					<FormControlLabel
+						control={
+							<Checkbox
+								checked={settings.animations || false}
+								color="primary"
+								onChange={this.handleAnimations}
+							/>
+						}
+						label="Animations"
+					/>
+					<FormControlLabel
+						control={
+							<Checkbox
+								checked={settings.borderColor || false}
+								color="primary"
+								onChange={this.handleBorderColor}
+							/>
+						}
+						label="Border color on widgets"
 					/>
 				</FormControl>
 				<Button variant="contained" onClick={this.handleSubmitSettings}> {"Apply"} </Button>
