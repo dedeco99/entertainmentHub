@@ -60,7 +60,7 @@ class NotificationDropdown extends Component {
 			<ClickAwayListener onClickAway={this.handleClickAway}>
 				<div className={classes.wrapper}>
 					<Badge badgeContent={total} max={999} overlap="circle" color="error">
-						<IconButton onClick={this.handleClick}>
+						<IconButton color="primary" onClick={this.handleClick}>
 							<i className="icofont-alarm" />
 						</IconButton>
 					</Badge>

@@ -8,7 +8,7 @@ const App = require("../models/app");
 async function getAccessToken(user) {
 	const app = await App.findOne({ user: user._id, platform: "reddit" }).lean();
 
-	if (!app) return errors.notFound;
+	if (!app) return errors.redditRefreshToken;
 
 	const url = `https://www.reddit.com/api/v1/access_token?refresh_token=${app.refreshToken}&grant_type=refresh_token`;
 
@@ -20,14 +20,13 @@ async function getAccessToken(user) {
 	};
 
 	const res = await api({ method: "post", url, headers });
+	const json = res.data;
 
 	if (res.status === 400) {
-		await App.deleteOne({ user: user._id, platform: "reddit" });
+		await App.deleteOne({ _id: app._id });
 
 		return errors.redditRefreshToken;
 	}
-
-	const json = res.data;
 
 	return json.access_token;
 }
@@ -81,6 +80,8 @@ function formatResponse(json) {
 
 async function isSubreddit(subreddit, user) {
 	const accessToken = await getAccessToken(user);
+
+	if (accessToken.status === 401) return errors.redditRefreshToken;
 
 	const url = `https://oauth.reddit.com/api/search_reddit_names?query=${subreddit}&exact=true`;
 
@@ -151,6 +152,8 @@ async function getPosts(event) {
 
 	const accessToken = await getAccessToken(user);
 
+	if (accessToken.status === 401) return errors.redditRefreshToken;
+
 	let url = `https://oauth.reddit.com/r/${subreddit}/${category}`;
 	if (after) url += `?after=${after}`;
 
@@ -176,6 +179,9 @@ async function getSearch(event) {
 	const { after } = query;
 
 	const accessToken = await getAccessToken(user);
+
+	if (accessToken.status === 401) return errors.redditRefreshToken;
+
 	let url = `https://oauth.reddit.com/r/${subreddit}/search?q=${search}&restrict_sr=1&type=link&sort=new`;
 	if (after) url += `&after=${after}`;
 

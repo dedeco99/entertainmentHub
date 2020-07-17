@@ -31,14 +31,15 @@ async function getNotifications(event) {
 }
 
 async function patchNotification(event) {
-	const { params } = event;
+	const { params, body } = event;
 	const { id } = params;
+	const { active } = body;
 
 	let notification = null;
 	try {
 		notification = await Notification.findOneAndUpdate(
 			{ _id: id },
-			{ active: false },
+			{ active },
 			{ new: true },
 		);
 	} catch (e) {

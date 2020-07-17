@@ -1,7 +1,8 @@
+import { makeStyles } from "@material-ui/styles";
+
 const tv = () => ({
 	searchBtn: {
 		width: "100% !important",
-		backgroundColor: "#222",
 	},
 	outlinedBtn: {
 		marginTop: 10,
@@ -48,9 +49,24 @@ const episode = () => ({
 	},
 });
 
+const banners = makeStyles({
+	addSeriesContainer: {
+		position: "relative",
+		display: "inline-block",
+		textAlign: "center",
+	},
+	addSeriesIcon: {
+		position: "absolute",
+		bottom: "50%",
+		right: "50%",
+		margin: "0px -25px -15px 0px",
+		cursor: "pointer",
+	},
+});
 
 export {
 	tv,
 	episodes,
 	episode,
+	banners,
 };

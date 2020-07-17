@@ -36,11 +36,11 @@ const notifications = () => ({
 	},
 	header: {
 		backgroundColor: "#424242",
-		padding: 5,
 		paddingLeft: 16,
 		paddingRight: 8,
 	},
 	avatar: {
+		color: "white",
 		backgroundColor: "#444",
 	},
 });

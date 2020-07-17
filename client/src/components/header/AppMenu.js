@@ -11,6 +11,7 @@ import { UserContext } from "../../contexts/UserContext";
 import { getApps } from "../../api/apps";
 
 import { appMenu as styles } from "../../styles/Header";
+import { Typography } from "@material-ui/core";
 
 class AppMenu extends Component {
 	constructor() {
@@ -39,6 +40,7 @@ class AppMenu extends Component {
 	}
 
 	async getApps() {
+		const { dispatch } = this.context;
 		const { allApps } = this.state;
 
 		const redirected = localStorage.getItem("redirected");
@@ -49,6 +51,8 @@ class AppMenu extends Component {
 			const userApps = allApps.filter(app => response.data.find(appR => appR.platform === app.platform));
 
 			const currentApp = allApps.find(app => app.endpoint === window.location.pathname);
+
+			dispatch({ type: "SET_APPS", apps: response.data });
 
 			this.setState({
 				apps: userApps,
@@ -70,7 +74,7 @@ class AppMenu extends Component {
 
 		return apps.map(app => (
 			<NavLink
-				className="nav-item"
+				className={classes.appLink}
 				key={app.platform}
 				to={app.endpoint}
 				onClick={() => this.handleAppClick(app.platform)}
@@ -80,24 +84,26 @@ class AppMenu extends Component {
 					selected={selectedMenu === app.platform}
 					className={classes.appItem}
 				>
-					<i className={app.icon} />
+					<Typography color="textPrimary">
+						<i className={app.icon} />
+					</Typography>
 				</ListItem >
 			</NavLink>
 		));
 	}
 
 	renderAddMoreApps() {
+		const { classes } = this.props;
 		const { apps, allApps } = this.state;
 
 		if (apps.length === allApps.length) return null;
 
 		return (
 			<NavLink
-				className="nav-item"
 				to={"/settings"}
 				onClick={() => this.handleAppClick("settings")}
 			>
-				<ListItem button style={{ paddingLeft: 10 }}>
+				<ListItem button className={classes.appItem}>
 					<i className="icofont-plus-circle icofont-2x" />
 				</ListItem >
 			</NavLink>

@@ -76,6 +76,7 @@ class Subscriptions extends Component {
 							<ListItemText id={labelId} primary={channel.displayName} />
 							<ListItemSecondaryAction>
 								<Checkbox
+									color="primary"
 									edge="end"
 									onChange={() => this.handleSubscriptionCheckbox(channel.channelId)}
 									checked={Boolean(checkedChannels.find(c => c.channelId === channel.channelId))}
@@ -121,7 +122,7 @@ class Subscriptions extends Component {
 							</InfiniteScroll>
 						</Box>
 						<Box display="flex" justifyContent="flex-end" className={classes.modalFooter}>
-							<Button variant="contained" onClick={this.addChannels}>{"Submit"}</Button>
+							<Button color="primary" variant="contained" onClick={this.addChannels}>{"Submit"}</Button>
 						</Box>
 					</Paper>
 				</Fade>
