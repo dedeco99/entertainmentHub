@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useContext } from "react";
 import { motion } from "framer-motion";
+
+import { UserContext } from "../../contexts/UserContext";
 
 import List from "@material-ui/core/List";
 
@@ -30,6 +32,16 @@ const childVariants = {
 };
 
 function AnimatedList({ children }) {
+	const { user } = useContext(UserContext);
+	
+	if(!user.settings.animated) {
+		return (
+			<List>
+				{children.map(child => <div key={child.key}>{child}</div>)}
+			</List>
+		);
+	}
+
 	return (
 		<List>
 			<motion.div variants={containerVariants} initial="hidden" animate="visible">
@@ -37,6 +49,7 @@ function AnimatedList({ children }) {
 			</motion.div>
 		</List>
 	);
+	
 }
 
 export default AnimatedList;
