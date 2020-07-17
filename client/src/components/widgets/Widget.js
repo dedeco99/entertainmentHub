@@ -77,7 +77,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, editMode }
 						{editText}
 					</Typography>
 					<Typography variant="subtitle2">
-						<NavLink to="/settings">{"App is missing. Click here to add it"}</NavLink>
+						<NavLink className={classes.appLink} to="/settings">{"App is missing. Click here to add it"}</NavLink>
 					</Typography>
 				</div>
 			</Zoom>
