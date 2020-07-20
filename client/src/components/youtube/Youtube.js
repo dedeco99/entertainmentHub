@@ -7,9 +7,11 @@ import Grid from "@material-ui/core/Grid";
 
 import Sidebar from "../.partials/Sidebar";
 import Subscriptions from "../.partials/Subscriptions";
+import ChannelGroups from "../youtube/ChannelGroups";
 
 import { getSubscriptions } from "../../api/youtube";
 import { getChannels, addChannels, deleteChannel } from "../../api/channels";
+
 
 import { youtube as styles } from "../../styles/Youtube";
 
@@ -25,6 +27,7 @@ class Youtube extends Component {
 			after: null,
 
 			openModal: false,
+			openChannelGroups: false,
 		};
 
 		this.getSubscriptions = this.getSubscriptions.bind(this);
@@ -33,6 +36,9 @@ class Youtube extends Component {
 
 		this.handleOpenModal = this.handleOpenModal.bind(this);
 		this.handleCloseModal = this.handleCloseModal.bind(this);
+
+		this.handleChannelGroupsOpen = this.handleChannelGroupsOpen.bind(this);
+		this.handleChannelGroupsClose = this.handleChannelGroupsClose.bind(this);
 	}
 
 	async componentDidMount() {
@@ -105,8 +111,17 @@ class Youtube extends Component {
 		this.setState({ openModal: false });
 	}
 
+	handleChannelGroupsOpen() {
+		this.setState({ openChannelGroups: true });
+	}
+
+	handleChannelGroupsClose() {
+		this.setState({ openChannelGroups: false });
+	}
+
+
 	render() {
-		const { openModal } = this.state;
+		const { openModal, openChannelGroups } = this.state;
 		const { loadingChannels, channels, subscriptions, hasMoreSubscriptions } = this.state;
 
 		const menuOptions = [{ displayName: "Delete", onClick: this.deleteChannel }];
@@ -125,7 +140,15 @@ class Youtube extends Component {
 						noResultsMessage={"No channels"}
 					/>
 				</Grid>
-				<Grid item sm={9} md={10} lg={10} />
+				<Grid item sm={9} md={10} lg={10}>
+					<ChannelGroups
+						open={openChannelGroups}
+						onClose={this.handleChannelGroupsClose}
+					/>
+					<IconButton color="primary" onClick={this.handleChannelGroupsOpen}>
+						<i className="icofont-ui-add" />
+					</IconButton>
+				</Grid>
 				<Subscriptions
 					open={openModal}
 					onClose={this.handleCloseModal}
