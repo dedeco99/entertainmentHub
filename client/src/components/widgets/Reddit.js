@@ -59,15 +59,16 @@ class Reddit extends Component {
 	}
 
 	hasMultipleSubs() {
-		const { subreddit } = this.props;
-		this.setState({ multipleSubs: subreddit.includes("+") });
+		const { subreddit, listView } = this.props;
+
+		this.setState({ multipleSubs: subreddit.includes("+"), showListView: listView });
 	}
 
 	async getPosts() {
 		const { subreddit, search } = this.props;
 		const { posts, page, after } = this.state;
-		let response = null;
 
+		let response = null;
 		if (search) {
 			response = await getSearch(subreddit, search, after);
 		} else {
@@ -148,7 +149,7 @@ class Reddit extends Component {
 					<Box display="flex">
 						<Box display="flex" flexDirection="column" flexGrow={1}>
 							<Typography display="block" title={post.title} variant="body1">
-								{post.title}
+								{this.htmlEscape(post.title)}
 							</Typography>
 							{multipleSubs && (
 								<Typography display="block" title={post.subreddit} variant="caption">
@@ -158,9 +159,11 @@ class Reddit extends Component {
 						</Box>
 						{post.gilded > 0 && (
 							<Box display="flex" p={1}>
-								<Badge badgeContent={post.gilded} color="error" classes={{ badge: classes.gildedBadge }}>
-									<img src={redditGold} height={16} width={16} alt="reddit gold" />
-								</Badge>
+								{post.gilded > 1 ? (
+									<Badge badgeContent={post.gilded} color="error" classes={{ badge: classes.gildedBadge }}>
+										<img src={redditGold} height={16} width={16} alt="reddit gold" />
+									</Badge>
+								) : <img src={redditGold} height={16} width={16} alt="reddit gold" />}
 							</Box>
 						)}
 					</Box>
@@ -175,7 +178,11 @@ class Reddit extends Component {
 			<Zoom in={open}>
 				<Box display="flex" flexDirection="column" className={classes.singleWrapper}>
 					<Box display="flex" className={classes.singleHeader} alignItems="center">
-						<Typography variant="subtitle1"> {`r/${subreddit}`} </Typography>
+						<Typography variant="subtitle1">
+							<Link href={`https://reddit.com/r/${subreddit}`} target="_blank" rel="noreferrer" color="inherit">
+								{`r/${subreddit}`}
+							</Link>
+						</Typography>
 					</Box>
 					<Box display="flex" flexGrow={1} className={classes.singleContent}>
 						<InfiniteScroll
@@ -185,7 +192,7 @@ class Reddit extends Component {
 							useWindow={false}
 							loader={this.renderLoadingMore()}
 						>
-							<List> {postsList} </List>
+							<List>{postsList}</List>
 						</InfiniteScroll>
 					</Box>
 				</Box>
@@ -216,6 +223,7 @@ class Reddit extends Component {
 					component="img"
 					src={post.url}
 					className={classes.media}
+					onClick={this.handleOpenExpandedView}
 				/>
 			);
 			expandedContent = <img src={post.url} alt={post.url} />;
@@ -286,11 +294,15 @@ class Reddit extends Component {
 						<Box display="flex" flexDirection="column">
 							{multipleSubs && (
 								<Typography variant="caption">
-									{`r/${post.subreddit}`}
+									<Link href={`https://reddit.com/r/${post.subreddit}`} target="_blank" rel="noreferrer" color="inherit">
+										{`r/${post.subreddit}`}
+									</Link>
 								</Typography>
 							)}
 							<Typography variant="h6">
-								{post.title}
+								<Link href={post.permalink} target="_blank" rel="noreferrer" color="inherit">
+									{this.htmlEscape(post.title)}
+								</Link>
 							</Typography>
 						</Box>
 						<Box display="flex">
@@ -312,7 +324,7 @@ class Reddit extends Component {
 						className={classes.textContent}
 						dangerouslySetInnerHTML={{ __html: this.htmlEscape(post.text) }}
 					/>
-				</Box>
+				</Box >
 			);
 		}
 
@@ -324,17 +336,16 @@ class Reddit extends Component {
 				>
 					<Typography>
 						<Link href={post.permalink} target="_blank" rel="noreferrer" color="inherit">
-							{post.title}
+							{this.htmlEscape(post.title)}
 						</Link>
 					</Typography>
 				</div>
 				{multipleSubs && (
-					<div
-						className={`${classes.overlay} ${classes.subreddit}`}
-						title={post.subreddit}
-					>
-						{`r/${post.subreddit}`}
-					</div>
+					<Typography className={`${classes.overlay} ${classes.subreddit}`} title={post.subreddit}>
+						<Link href={`https://reddit.com/r/${post.subreddit}`} target="_blank" rel="noreferrer" color="inherit">
+							{`r/${post.subreddit}`}
+						</Link>
+					</Typography>
 				)}
 				<div className={`${classes.overlay} ${classes.comments}`}>
 					<i className="icofont-comment" />
@@ -375,7 +386,6 @@ class Reddit extends Component {
 							display="flex"
 							flexGrow={1}
 							className={classes.content}
-							onClick={isMedia ? this.handleOpenExpandedView : null}
 						>
 							{isMedia ? info : null}
 							{content}
@@ -422,6 +432,7 @@ Reddit.propTypes = {
 	classes: PropTypes.object.isRequired,
 	subreddit: PropTypes.string.isRequired,
 	search: PropTypes.string,
+	listView: PropTypes.bool,
 };
 
 export default withStyles(styles)(Reddit);
