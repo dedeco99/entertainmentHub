@@ -53,9 +53,13 @@ class Reddit extends Component {
 	}
 
 	async componentDidMount() {
+		this.hasMultipleSubs();
+		await this.getPosts();
+	}
+
+	hasMultipleSubs() {
 		const { subreddit } = this.props;
 		this.setState({ multipleSubs: subreddit.includes("+") });
-		await this.getPosts();
 	}
 
 	async getPosts() {
