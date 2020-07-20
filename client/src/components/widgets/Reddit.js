@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/styles";
+import InfiniteScroll from "react-infinite-scroller";
 
 import Zoom from "@material-ui/core/Zoom";
 import CardMedia from "@material-ui/core/CardMedia";
@@ -13,8 +14,7 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import Chip from "@material-ui/core/Chip";
 import Link from "@material-ui/core/Link";
-
-import CustomScrollbar from "../.partials/CustomScrollbar";
+import CircularProgress from "@material-ui/core/CircularProgress";
 
 import { getPosts, getSearch } from "../../api/reddit";
 import { formatDate } from "../../utils/utils";
@@ -28,12 +28,18 @@ class Reddit extends Component {
 		super();
 		this.state = {
 			posts: [],
+			after: null,
+			page: 0,
+			hasMorePosts: false,
+
 			num: 0,
 
 			open: false,
 			expandedView: false,
 			showListView: true,
 		};
+
+		this.getPosts = this.getPosts.bind(this);
 
 		this.handleShowPreviousPost = this.handleShowPreviousPost.bind(this);
 		this.handleShowNextPost = this.handleShowNextPost.bind(this);
@@ -46,24 +52,31 @@ class Reddit extends Component {
 	}
 
 	async componentDidMount() {
-		const { subreddit, search, listView } = this.props;
-
-		await this.getPosts(subreddit, search, listView);
+		await this.getPosts();
 	}
 
-	async getPosts(subreddit, search, listView) {
+	async getPosts() {
+		const { subreddit, search } = this.props;
+		const { posts, page, after } = this.state;
 		let response = null;
 
 		if (search) {
-			response = await getSearch(subreddit, search);
+			response = await getSearch(subreddit, search, after);
 		} else {
-			response = await getPosts(subreddit);
+			response = await getPosts(subreddit, after);
 		}
 
 		if (response.data) {
 			response.data = response.data.filter(post => !post.stickied);
+			const newPosts = page === 0 ? response.data : posts.concat(response.data);
 
-			this.setState({ posts: response.data, open: true, showListView: listView });
+			this.setState({
+				posts: newPosts,
+				page: page + 1,
+				after: response.data[response.data.length - 1].after,
+				hasMorePosts: !(response.data.length < 25),
+				open: true,
+			});
 		}
 	}
 
@@ -83,9 +96,10 @@ class Reddit extends Component {
 		if (num > 0) this.setState({ num: num - 1 });
 	}
 
-	handleShowNextPost() {
+	async handleShowNextPost() {
 		const { num, posts } = this.state;
 
+		if (num === posts.length - 2) await this.getPosts();
 		if (num < posts.length - 1) this.setState({ num: num + 1 });
 	}
 
@@ -105,11 +119,17 @@ class Reddit extends Component {
 		this.setState({ showListView: false, num: position });
 	}
 
+	renderLoadingMore() {
+		return (
+			<Box key={0} display="flex" alignItems="center" justifyContent="center">
+				<CircularProgress />
+			</Box>
+		);
+	}
+
 	renderListView() {
 		const { classes, subreddit } = this.props;
-		const { open, posts } = this.state;
-
-		console.log(posts);
+		const { open, posts, hasMorePosts } = this.state;
 
 		const postsList = posts.map((post, index) => (
 			<ListItem key={post.id} button divider onClick={() => this.handleCheckPost(index)}>
@@ -139,9 +159,15 @@ class Reddit extends Component {
 						<Typography variant="subtitle1"> {`r/${subreddit}`} </Typography>
 					</Box>
 					<Box display="flex" flexGrow={1} className={classes.singleContent}>
-						<CustomScrollbar>
+						<InfiniteScroll
+							initialLoad={false}
+							loadMore={this.getPosts}
+							hasMore={hasMorePosts}
+							useWindow={false}
+							loader={this.renderLoadingMore()}
+						>
 							<List> {postsList} </List>
-						</CustomScrollbar>
+						</InfiniteScroll>
 					</Box>
 				</Box>
 			</Zoom>
@@ -364,7 +390,6 @@ Reddit.propTypes = {
 	classes: PropTypes.object.isRequired,
 	subreddit: PropTypes.string.isRequired,
 	search: PropTypes.string,
-	listView: PropTypes.bool,
 };
 
 export default withStyles(styles)(Reddit);
