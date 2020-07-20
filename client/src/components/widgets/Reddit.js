@@ -31,6 +31,7 @@ class Reddit extends Component {
 			after: null,
 			page: 0,
 			hasMorePosts: false,
+			multipleSubs: false,
 
 			num: 0,
 
@@ -52,6 +53,8 @@ class Reddit extends Component {
 	}
 
 	async componentDidMount() {
+		const { subreddit } = this.props;
+		this.setState({ multipleSubs: subreddit.includes("+") });
 		await this.getPosts();
 	}
 
@@ -129,7 +132,7 @@ class Reddit extends Component {
 
 	renderListView() {
 		const { classes, subreddit } = this.props;
-		const { open, posts, hasMorePosts } = this.state;
+		const { open, posts, hasMorePosts, multipleSubs } = this.state;
 
 		const postsList = posts.map((post, index) => (
 			<ListItem key={post.id} button divider onClick={() => this.handleCheckPost(index)}>
@@ -138,10 +141,15 @@ class Reddit extends Component {
 						{formatDate(post.created * 1000, null, true)}
 					</Typography>
 					<Box display="flex">
-						<Box display="flex" flexGrow={1} alignItems="center">
+						<Box display="flex" flexDirection="column" flexGrow={1}>
 							<Typography display="block" title={post.title} variant="body1">
 								{post.title}
 							</Typography>
+							{multipleSubs && (
+								<Typography display="block" title={post.subreddit} variant="caption">
+									{`r/${post.subreddit}`}
+								</Typography>
+							)}
 						</Box>
 						{post.gilded > 0 ? (<Box display="flex" p={1}> <img src={redditGold} height={16} width={16} alt="reddit gold" /> </Box>) : null}
 					</Box>
@@ -177,7 +185,7 @@ class Reddit extends Component {
 	// eslint-disable-next-line max-lines-per-function,complexity
 	renderSingleView() {
 		const { classes } = this.props;
-		const { posts, num, open, expandedView } = this.state;
+		const { posts, num, open, expandedView, multipleSubs } = this.state;
 
 		if (!posts || !posts.length) return null;
 
@@ -264,7 +272,12 @@ class Reddit extends Component {
 			content = (
 				<Box display="flex" flexDirection="column" className={classes.widthFix}>
 					<Box display="flex" flexDirection="column" className={classes.textHeader}>
-						<Box display="flex">
+						<Box display="flex" flexDirection="column">
+							{multipleSubs && (
+								<Typography variant="caption">
+									{`r/${post.subreddit}`}
+								</Typography>
+							)}
 							<Typography variant="h6">
 								{post.title}
 							</Typography>
@@ -304,6 +317,14 @@ class Reddit extends Component {
 						</Link>
 					</Typography>
 				</div>
+				{multipleSubs && (
+					<div
+						className={`${classes.overlay} ${classes.subreddit}`}
+						title={post.subreddit}
+					>
+						{`r/${post.subreddit}`}
+					</div>
+				)}
 				<div className={`${classes.overlay} ${classes.comments}`}>
 					<i className="icofont-comment" />
 					{` ${post.comments}`}

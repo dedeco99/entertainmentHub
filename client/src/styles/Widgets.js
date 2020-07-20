@@ -77,6 +77,10 @@ const reddit = () => ({
 		overflow: "hidden",
 		textOverflow: "ellipsis",
 	},
+	subreddit: {
+		top: "40px",
+		left: "5px",
+	},
 	comments: {
 		bottom: "35px",
 		left: "5px",
