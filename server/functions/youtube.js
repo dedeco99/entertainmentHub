@@ -56,6 +56,36 @@ async function getSubscriptions(event) {
 	return response(200, "Youtube subscriptions found", channels);
 }
 
+async function getVideos(event) {
+	const { query } = event;
+	const { channels } = query;
+
+	const requests = [];
+	for (const channel of channels.split(",")) {
+		const request = rssParser.toJson(`https://www.youtube.com/feeds/videos.xml?channel_id=${channel}`);
+
+		requests.push(request);
+	}
+
+	const responses = await Promise.all(requests);
+
+	let items = [];
+	for (const res of responses) {
+		items = items.concat(res.items);
+	}
+
+	items = items.map(i => ({
+		published: i.published,
+		displayName: i.author.name,
+		thumbnail: i.media_group.media_thumbnail_url,
+		videoTitle: i.title,
+		videoId: i.yt_videoId,
+		channelId: i.yt_channelId,
+	})).sort((a, b) => new Date(b.published) - new Date(a.published));
+
+	return response(200, "Youtube videos found", items);
+}
+
 async function addToWatchLater(event) {
 	const { params, user } = event;
 	const { id } = params;
@@ -170,6 +200,7 @@ async function cronjob() {
 
 module.exports = {
 	getSubscriptions,
+	getVideos,
 	addToWatchLater,
 	cronjob,
 };
