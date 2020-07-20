@@ -84,7 +84,7 @@ class ChannelGroupDetail extends Component {
 	}
 
 	renderChannelInput(params) {
-		return <Input {...params} label="Channel" variant="outlined" fullWidth margin="normal" />;
+		return <Input {...params} label="Channels" variant="outlined" fullWidth margin="normal" />;
 	}
 
 	renderTags(value, getTagProps) {
@@ -110,11 +110,11 @@ class ChannelGroupDetail extends Component {
 					fullWidth
 					maxWidth="xs"
 				>
-					<DialogTitle id="simple-dialog-title">{"Add Channel Group"}</DialogTitle>
+					<DialogTitle id="simple-dialog-title">{"New Channel Group"}</DialogTitle>
 					<DialogContent>
 						<Input
 							type="text"
-							label="Channel Group"
+							label="Name"
 							margin="normal"
 							variant="outlined"
 							fullWidth
@@ -122,7 +122,7 @@ class ChannelGroupDetail extends Component {
 							onChange={this.handleChannelGroup}
 						/>
 						<Autocomplete
-							id="Channels"
+							id="Channel"
 							multiple
 							limitTags={2}
 							renderTags={this.renderTags}
