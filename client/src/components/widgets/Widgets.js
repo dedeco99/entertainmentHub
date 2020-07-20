@@ -126,7 +126,7 @@ class Widgets extends Component {
 		const { widgets, editMode } = widgetState;
 
 		if (widgets && widgets.length) {
-			return widgets.map(widget => {
+			return widgets.sort((a, b) => a.y - b.y).map(widget => {
 				const widgetInfo = widgetsInfo[widget.type](widget);
 
 				return (
@@ -141,6 +141,7 @@ class Widgets extends Component {
 					>
 						<Widget
 							id={widget._id}
+							type={widget.type}
 							content={widgetInfo.content}
 							borderColor={widgetInfo.borderColor}
 							editText={widgetInfo.editText}

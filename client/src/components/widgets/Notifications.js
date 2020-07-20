@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/styles";
 import InfiniteScroll from "react-infinite-scroller";
+import { motion } from "framer-motion";
 
 import Zoom from "@material-ui/core/Zoom";
 import ListItem from "@material-ui/core/ListItem";
@@ -43,6 +44,8 @@ class Notifications extends Component {
 			selectedIndex: 0,
 			notificationAnchorEl: null,
 			selectedNotification: null,
+
+			actionLoading: false,
 		};
 
 		this.getNotifications = this.getNotifications.bind(this);
@@ -55,6 +58,7 @@ class Notifications extends Component {
 		this.handleCloseOptions = this.handleCloseOptions.bind(this);
 
 		this.handleHideNotification = this.handleHideNotification.bind(this);
+		this.handleRestoreNotification = this.handleRestoreNotification.bind(this);
 		this.handleWatchLaterOption = this.handleWatchLaterOption.bind(this);
 	}
 
@@ -96,23 +100,46 @@ class Notifications extends Component {
 		const { dispatch } = this.context;
 		const { selectedNotification, history } = this.state;
 
+		this.setState({ actionLoading: true });
+
 		const response = history
 			? await deleteNotifications(selectedNotification._id)
-			: await patchNotifications(selectedNotification._id);
+			: await patchNotifications(selectedNotification._id, false);
 
 		if (response.data) {
 			dispatch({ type: "DELETE_NOTIFICATION", notification: response.data });
 		}
+
+		this.setState({ actionLoading: false });
+	}
+
+	async handleRestoreNotification() {
+		const { dispatch } = this.context;
+		const { selectedNotification } = this.state;
+
+		this.setState({ actionLoading: true });
+
+		const response = await patchNotifications(selectedNotification._id, true);
+
+		if (response.data) {
+			dispatch({ type: "DELETE_NOTIFICATION", notification: response.data });
+		}
+
+		this.setState({ actionLoading: false });
 	}
 
 	async handleWatchLaterOption() {
 		const { selectedNotification } = this.state;
+
+		this.setState({ actionLoading: true });
 
 		const response = await addToWatchLater(selectedNotification.info.videoId);
 
 		if (response.status === 200 || response.status === 409) {
 			await this.handleHideNotification();
 		}
+
+		this.setState({ actionLoading: false });
 	}
 
 	handleToggleHistory() {
@@ -189,6 +216,22 @@ class Notifications extends Component {
 		}
 	}
 
+	renderNotificationAction(notification) {
+		const { selectedNotification, actionLoading } = this.state;
+
+		if (selectedNotification && selectedNotification._id === notification._id && actionLoading) {
+			return <CircularProgress />;
+		}
+
+		return (
+			<ListItemSecondaryAction id={notification._id} onClick={e => this.handleOptionsClick(e, notification)}>
+				<IconButton edge="end">
+					<i className="material-icons">{"more_vert"}</i>
+				</IconButton>
+			</ListItemSecondaryAction>
+		);
+	}
+
 	renderNotificationContent(notification) {
 		const { classes } = this.props;
 
@@ -249,19 +292,41 @@ class Notifications extends Component {
 		const { notificationState } = this.context;
 		const { notifications } = notificationState;
 
+		const noNotificationVariant = {
+			hidden: {
+				y: -100,
+				opacity: 0,
+			},
+			visible: {
+				opacity: 1,
+				y: 0,
+				transition: {
+					delay: 0.7,
+					type: "spring",
+				},
+			},
+		};
+
+
+		if (notifications.length) {
+			return (
+				<AnimatedList>
+					{notifications.map(notification => (
+						<ListItem key={notification._id} divider>
+							{this.renderNotificationContent(notification)}
+							{this.renderNotificationAction(notification)}
+						</ListItem>
+					))}
+				</AnimatedList>
+			);
+		}
+
 		return (
-			<AnimatedList>
-				{notifications.map(notification => (
-					<ListItem key={notification._id} divider>
-						{this.renderNotificationContent(notification)}
-						<ListItemSecondaryAction onClick={e => this.handleOptionsClick(e, notification)}>
-							<IconButton edge="end">
-								<i className="material-icons">{"more_vert"}</i>
-							</IconButton>
-						</ListItemSecondaryAction>
-					</ListItem>
-				))}
-			</AnimatedList>
+			<Box display="flex" alignItems="center" justifyContent="center">
+				<motion.h3 variants={noNotificationVariant} initial="hidden" animate="visible">
+					{"You have no notifications"}
+				</motion.h3>
+			</Box>
 		);
 	}
 
@@ -274,9 +339,16 @@ class Notifications extends Component {
 	}
 
 	getNotificationActions() {
-		const { selectedNotification } = this.state;
+		const { selectedNotification, history } = this.state;
 
 		if (selectedNotification) {
+			if (history) {
+				return [
+					{ name: "Restore", onClick: this.handleRestoreNotification },
+					{ name: "Delete", onClick: this.handleHideNotification },
+				];
+			}
+
 			switch (selectedNotification.type) {
 				case "youtube":
 					return [
@@ -292,6 +364,8 @@ class Notifications extends Component {
 
 
 	render() {
+		const { notificationState } = this.context;
+		const { notifications } = notificationState;
 		const { classes, height } = this.props;
 		const {
 			open,
@@ -345,15 +419,23 @@ class Notifications extends Component {
 									</MenuItem>
 								))}
 							</Menu>
-							<IconButton onClick={this.handleToggleHistory}>
+							<IconButton color="primary" onClick={this.handleToggleHistory}>
 								<i className="material-icons">
 									{history ? "notifications" : "history"}
 								</i>
 							</IconButton>
 						</Box>
 					</Box>
-					<Box style={{ overflow: "auto" }}>
+					<Box
+						display="flex"
+						flexWrap="wrap"
+						alignItems={notifications.length ? "initial" : "center"}
+						justifyContent="center"
+						height="100%"
+						style={{ overflow: "auto" }}
+					>
 						<InfiniteScroll
+							style={{ minWidth: "100%" }}
 							loadMore={this.getNotifications}
 							hasMore={hasMore}
 							useWindow={false}

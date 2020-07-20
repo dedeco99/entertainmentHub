@@ -52,6 +52,17 @@ const settings = () => ({
 			alignSelf: "flex-end",
 		},
 	},
+	listMenu: {
+		backgroundColor: "#222",
+		padding: 0,
+	},
+	delete: {
+		position: "absolute",
+		fontSize: "2em",
+		top: 5,
+		right: 5,
+		cursor: "pointer",
+	},
 });
 
 const appMenu = () => ({
@@ -63,6 +74,10 @@ const appMenu = () => ({
 		left: 0,
 		marginTop: 65,
 		position: "fixed",
+	},
+	appLink: {
+		textDecoration: "none",
+		color: "white",
 	},
 	appItem: {
 		paddingLeft: 10,

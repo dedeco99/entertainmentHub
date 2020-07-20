@@ -80,6 +80,8 @@ class Settings extends Component {
 
 		this.handleListClick = this.handleListClick.bind(this);
 		this.handleChangeScrollbar = this.handleChangeScrollbar.bind(this);
+		this.handleAnimations = this.handleAnimations.bind(this);
+		this.handleBorderColor = this.handleBorderColor.bind(this);
 		this.handleSubmitSettings = this.handleSubmitSettings.bind(this);
 	}
 
@@ -138,6 +140,23 @@ class Settings extends Component {
 		this.setState({ settings });
 	}
 
+	handleAnimations() {
+		const { settings } = this.state;
+
+		settings.animations = !settings.animations;
+
+		this.setState({ settings });
+	}
+
+	handleBorderColor() {
+		const { settings } = this.state;
+
+		settings.borderColor = !settings.borderColor;
+
+		this.setState({ settings });
+	}
+
+
 	renderApp(app) {
 		const { classes } = this.props;
 		const images = {
@@ -152,7 +171,7 @@ class Settings extends Component {
 				<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={app.key}>
 					<div className={classes.appsContainer}>
 						<img src={images[app.key]} width="100%" alt={app.displayName} />
-						<i className="delete material-icons" id={app.id} onClick={this.handleDeleteApp}>
+						<i className={`${classes.delete} material-icons`} id={app.id} onClick={this.handleDeleteApp}>
 							{"delete"}
 						</i>
 					</div>
@@ -191,10 +210,31 @@ class Settings extends Component {
 						control={
 							<Checkbox
 								checked={settings.useCustomScrollbar || false}
+								color="primary"
 								onChange={this.handleChangeScrollbar}
 							/>
 						}
 						label="Use custom scrollbar"
+					/>
+					<FormControlLabel
+						control={
+							<Checkbox
+								checked={settings.animations || false}
+								color="primary"
+								onChange={this.handleAnimations}
+							/>
+						}
+						label="Animations"
+					/>
+					<FormControlLabel
+						control={
+							<Checkbox
+								checked={settings.borderColor || false}
+								color="primary"
+								onChange={this.handleBorderColor}
+							/>
+						}
+						label="Border color on widgets"
 					/>
 				</FormControl>
 				<Button variant="contained" onClick={this.handleSubmitSettings}> {"Apply"} </Button>
@@ -223,7 +263,7 @@ class Settings extends Component {
 			<div>
 				<Grid container spacing={2}>
 					<Grid item xs={12} sm={4} md={3} lg={2}>
-						<List className="list-menu">
+						<List className={classes.listMenu}>
 							<ListItem
 								button
 								selected={selectedMenu === 0}

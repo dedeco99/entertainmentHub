@@ -11,12 +11,18 @@ const widget = makeStyles({
 		flexDirection: "column",
 		border: `1px solid ${props.borderColor || "#424242"}`,
 		borderRadius: "3px",
-		overflow: "hidden",
 	}),
+	refresh: {
+		padding: 10,
+		cursor: "pointer",
+	},
 	delete: {
 		top: 0,
 		right: 0,
 		position: "absolute",
+	},
+	appLink: {
+		color: "white",
 	},
 });
 
@@ -34,11 +40,11 @@ const notifications = () => ({
 	},
 	header: {
 		backgroundColor: "#424242",
-		padding: 5,
 		paddingLeft: 16,
 		paddingRight: 8,
 	},
 	avatar: {
+		color: "white",
 		backgroundColor: "#444",
 	},
 });
@@ -257,8 +263,8 @@ const crypto = () => ({
 		maxWidth: 60,
 	},
 	listImage: {
-		height: 16,
-		width: 16,
+		height: 32,
+		width: 32,
 		padding: 5,
 	},
 	singleRoot: {

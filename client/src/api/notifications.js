@@ -14,10 +14,11 @@ async function getNotifications(page, history, filter) {
 	return res;
 }
 
-async function patchNotifications(id) {
+async function patchNotifications(id, active) {
 	const res = await api({
 		method: "patch",
 		url: `/api/notifications/${id}`,
+		data: { active },
 	});
 
 	return res;

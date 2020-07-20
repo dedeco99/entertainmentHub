@@ -136,7 +136,7 @@ const server = app.listen(app.get("port"), () => {
 	console.log("Listening on port", app.get("port"));
 });
 
-const io = socketio(server, { origins: "*:*", transports: ["websocket"] });
+const io = socketio(server, { transports: ["websocket"] });
 io.sockets.on("connection", socket => {
 	console.log("Connected", socket.id);
 
