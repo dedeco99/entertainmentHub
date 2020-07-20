@@ -12,6 +12,7 @@ import Typography from "@material-ui/core/Typography";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 import Chip from "@material-ui/core/Chip";
+import Link from "@material-ui/core/Link";
 
 import CustomScrollbar from "../.partials/CustomScrollbar";
 
@@ -30,15 +31,12 @@ class Reddit extends Component {
 			num: 0,
 
 			open: false,
-			showInfo: true,
 			expandedView: false,
 			showListView: true,
 		};
 
 		this.handleShowPreviousPost = this.handleShowPreviousPost.bind(this);
 		this.handleShowNextPost = this.handleShowNextPost.bind(this);
-		this.handleShowInfo = this.handleShowInfo.bind(this);
-		this.handleHideInfo = this.handleHideInfo.bind(this);
 
 		this.handleCloseExpandedView = this.handleCloseExpandedView.bind(this);
 		this.handleOpenExpandedView = this.handleOpenExpandedView.bind(this);
@@ -91,14 +89,6 @@ class Reddit extends Component {
 		if (num < posts.length - 1) this.setState({ num: num + 1 });
 	}
 
-	handleShowInfo() {
-		this.setState({ showInfo: true });
-	}
-
-	handleHideInfo() {
-		this.setState({ showInfo: false });
-	}
-
 	handleCloseExpandedView() {
 		this.setState({ expandedView: false });
 	}
@@ -118,6 +108,8 @@ class Reddit extends Component {
 	renderListView() {
 		const { classes, subreddit } = this.props;
 		const { open, posts } = this.state;
+
+		console.log(posts);
 
 		const postsList = posts.map((post, index) => (
 			<ListItem key={post.id} button divider onClick={() => this.handleCheckPost(index)}>
@@ -159,7 +151,7 @@ class Reddit extends Component {
 	// eslint-disable-next-line max-lines-per-function,complexity
 	renderSingleView() {
 		const { classes } = this.props;
-		const { posts, num, open, showInfo, expandedView } = this.state;
+		const { posts, num, open, expandedView } = this.state;
 
 		if (!posts || !posts.length) return null;
 
@@ -247,7 +239,9 @@ class Reddit extends Component {
 				<Box display="flex" flexDirection="column" className={classes.widthFix}>
 					<Box display="flex" flexDirection="column" className={classes.textHeader}>
 						<Box display="flex">
-							<Typography variant="h6"> {post.title} </Typography>
+							<Typography variant="h6">
+								{post.title}
+							</Typography>
 						</Box>
 						<Box display="flex">
 							<Box display="flex" flexGrow={1}>
@@ -275,17 +269,25 @@ class Reddit extends Component {
 		const info = (
 			<div>
 				<div
-					className={`${classes.overlay} ${classes.title} ${!showInfo && classes.hide}`}
+					className={`${classes.overlay} ${classes.title}`}
 					title={post.title}
 				>
-					{post.title}
+					<Typography>
+						<Link href={post.permalink} target="_blank" rel="noreferrer" color="inherit">
+							{post.title}
+						</Link>
+					</Typography>
 				</div>
-				<div className={`${classes.overlay} ${classes.score} ${!showInfo && classes.hide}`}>
+				<div className={`${classes.overlay} ${classes.comments}`}>
+					<i className="icofont-comment" />
+					{` ${post.comments}`}
+				</div>
+				<div className={`${classes.overlay} ${classes.score}`}>
 					<i className="icofont-caret-up" />
 					{post.score}
 					<i className="icofont-caret-down" />
 				</div>
-				<div className={`${classes.overlay} ${classes.date} ${!showInfo && classes.hide}`}>
+				<div className={`${classes.overlay} ${classes.date}`}>
 					{formatDate(post.created * 1000, null, true)}
 				</div>
 			</div >
@@ -304,7 +306,6 @@ class Reddit extends Component {
 							onClose={this.handleCloseExpandedView}
 							closeAfterTransition
 							BackdropComponent={Backdrop}
-							BackdropProps={{ invisible: true }}
 						>
 							<Fade in={expandedView}>
 								<div className={classes.expandedView} onClick={this.handleCloseExpandedView}>
@@ -316,8 +317,6 @@ class Reddit extends Component {
 							display="flex"
 							flexGrow={1}
 							className={classes.content}
-							onMouseEnter={this.handleHideInfo}
-							onMouseLeave={this.handleShowInfo}
 							onClick={isMedia ? this.handleOpenExpandedView : null}
 						>
 							{isMedia ? info : null}

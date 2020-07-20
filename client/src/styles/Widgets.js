@@ -77,6 +77,10 @@ const reddit = () => ({
 		overflow: "hidden",
 		textOverflow: "ellipsis",
 	},
+	comments: {
+		bottom: "35px",
+		left: "5px",
+	},
 	score: {
 		bottom: "5px",
 		left: "5px",
@@ -84,9 +88,6 @@ const reddit = () => ({
 	date: {
 		bottom: "5px",
 		right: "5px",
-	},
-	hide: {
-		display: "none",
 	},
 	textHeader: {
 		padding: 16,
