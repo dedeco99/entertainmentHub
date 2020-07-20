@@ -2,16 +2,14 @@ import React, { Component } from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/styles";
 
-import IconButton from "@material-ui/core/IconButton";
 import Grid from "@material-ui/core/Grid";
 
 import Sidebar from "../.partials/Sidebar";
 import Subscriptions from "../.partials/Subscriptions";
-import ChannelGroups from "../youtube/ChannelGroups";
+import ChannelGroupDetail from "./ChannelGroupDetail";
 
 import { getSubscriptions } from "../../api/youtube";
 import { getChannels, addChannels, deleteChannel } from "../../api/channels";
-
 
 import { youtube as styles } from "../../styles/Youtube";
 
@@ -25,20 +23,11 @@ class Youtube extends Component {
 			hasMoreSubscriptions: false,
 			page: 0,
 			after: null,
-
-			openModal: false,
-			openChannelGroups: false,
 		};
 
 		this.getSubscriptions = this.getSubscriptions.bind(this);
 		this.addChannels = this.addChannels.bind(this);
 		this.deleteChannel = this.deleteChannel.bind(this);
-
-		this.handleOpenModal = this.handleOpenModal.bind(this);
-		this.handleCloseModal = this.handleCloseModal.bind(this);
-
-		this.handleChannelGroupsOpen = this.handleChannelGroupsOpen.bind(this);
-		this.handleChannelGroupsClose = this.handleChannelGroupsClose.bind(this);
 	}
 
 	async componentDidMount() {
@@ -103,25 +92,7 @@ class Youtube extends Component {
 		}
 	}
 
-	handleOpenModal() {
-		this.setState({ openModal: true });
-	}
-
-	handleCloseModal() {
-		this.setState({ openModal: false });
-	}
-
-	handleChannelGroupsOpen() {
-		this.setState({ openChannelGroups: true });
-	}
-
-	handleChannelGroupsClose() {
-		this.setState({ openChannelGroups: false });
-	}
-
-
 	render() {
-		const { openModal, openChannelGroups } = this.state;
 		const { loadingChannels, channels, subscriptions, hasMoreSubscriptions } = this.state;
 
 		const menuOptions = [{ displayName: "Delete", onClick: this.deleteChannel }];
@@ -129,9 +100,12 @@ class Youtube extends Component {
 		return (
 			<Grid container spacing={2}>
 				<Grid item sm={3} md={2}>
-					<IconButton color="primary" onClick={this.handleOpenModal}>
-						<i className="icofont-ui-add" />
-					</IconButton>
+					<Subscriptions
+						subscriptions={subscriptions}
+						getSubscriptions={this.getSubscriptions}
+						hasMoreSubscriptions={hasMoreSubscriptions}
+						addChannels={this.addChannels}
+					/>
 					<Sidebar
 						options={channels}
 						idField="_id"
@@ -139,24 +113,8 @@ class Youtube extends Component {
 						loading={loadingChannels}
 						noResultsMessage={"No channels"}
 					/>
+					<ChannelGroupDetail />
 				</Grid>
-				<Grid item sm={9} md={10} lg={10}>
-					<ChannelGroups
-						open={openChannelGroups}
-						onClose={this.handleChannelGroupsClose}
-					/>
-					<IconButton color="primary" onClick={this.handleChannelGroupsOpen}>
-						<i className="icofont-ui-add" />
-					</IconButton>
-				</Grid>
-				<Subscriptions
-					open={openModal}
-					onClose={this.handleCloseModal}
-					subscriptions={subscriptions}
-					getSubscriptions={this.getSubscriptions}
-					hasMoreSubscriptions={hasMoreSubscriptions}
-					addChannels={this.addChannels}
-				/>
 			</Grid>
 		);
 	}

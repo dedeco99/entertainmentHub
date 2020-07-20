@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/styles";
 import InfiniteScroll from "react-infinite-scroller";
 
-import Fade from "@material-ui/core/Fade";
+import IconButton from "@material-ui/core/IconButton";
 import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import List from "@material-ui/core/List";
@@ -26,10 +26,14 @@ class Subscriptions extends Component {
 
 		this.state = {
 			checkedChannels: [],
+
+			openModal: false,
 		};
 
 		this.addChannels = this.addChannels.bind(this);
 
+		this.handleOpenModal = this.handleOpenModal.bind(this);
+		this.handleCloseModal = this.handleCloseModal.bind(this);
 		this.handleSubscriptionCheckbox = this.handleSubscriptionCheckbox.bind(this);
 	}
 
@@ -40,6 +44,14 @@ class Subscriptions extends Component {
 		await addChannels(checkedChannels);
 
 		this.setState({ checkedChannels: [] });
+	}
+
+	handleOpenModal() {
+		this.setState({ openModal: true });
+	}
+
+	handleCloseModal() {
+		this.setState({ openModal: false });
 	}
 
 	handleSubscriptionCheckbox(channelId) {
@@ -99,17 +111,21 @@ class Subscriptions extends Component {
 	}
 
 	render() {
-		const { classes, open, onClose, getSubscriptions, hasMoreSubscriptions } = this.props;
+		const { openModal } = this.state;
+		const { classes, getSubscriptions, hasMoreSubscriptions } = this.props;
 
 		return (
-			<Modal
-				className={classes.modal}
-				open={open}
-				onClose={onClose}
-				closeAfterTransition
-				BackdropComponent={Backdrop}
-			>
-				<Fade in={open}>
+			<div>
+				<IconButton color="primary" onClick={this.handleOpenModal}>
+					<i className="icofont-ui-add" />
+				</IconButton>
+				<Modal
+					className={classes.modal}
+					open={openModal}
+					onClose={this.handleCloseModal}
+					closeAfterTransition
+					BackdropComponent={Backdrop}
+				>
 					<Paper variant="outlined" className={classes.modalContent}>
 						<Box flexGrow={1} style={{ overflow: "auto" }}>
 							<InfiniteScroll
@@ -125,16 +141,14 @@ class Subscriptions extends Component {
 							<Button color="primary" variant="contained" onClick={this.addChannels}>{"Submit"}</Button>
 						</Box>
 					</Paper>
-				</Fade>
-			</Modal>
+				</Modal>
+			</div>
 		);
 	}
 }
 
 Subscriptions.propTypes = {
 	classes: PropTypes.object.isRequired,
-	open: PropTypes.bool.isRequired,
-	onClose: PropTypes.func.isRequired,
 	subscriptions: PropTypes.array.isRequired,
 	addChannels: PropTypes.func.isRequired,
 	getSubscriptions: PropTypes.func.isRequired,

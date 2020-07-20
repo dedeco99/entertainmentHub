@@ -1,6 +1,6 @@
 import React, { Component } from "react";
-import PropTypes from "prop-types";
 
+import IconButton from "@material-ui/core/IconButton";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -14,8 +14,7 @@ import Input from "../.partials/Input";
 import { getChannels } from "../../api/channels";
 import { addChannelsGroup } from "../../api/channelGroup";
 
-
-class ChannelGroups extends Component {
+class ChannelGroupDetail extends Component {
 	constructor(props) {
 		super(props);
 
@@ -23,10 +22,14 @@ class ChannelGroups extends Component {
 			channels: [],
 			selectedChannels: [],
 			channelGroup: "",
+
+			openModal: false,
 		};
 
 		this.getChannels = this.getChannels.bind(this);
 
+		this.handleOpenModal = this.handleOpenModal.bind(this);
+		this.handleCloseModal = this.handleCloseModal.bind(this);
 		this.handleSubmitChannelsGroup = this.handleSubmitChannelsGroup.bind(this);
 		this.handleGetChannels = this.handleGetChannels.bind(this);
 		this.handleChannelGroup = this.handleChannelGroup.bind(this);
@@ -48,6 +51,22 @@ class ChannelGroups extends Component {
 		}
 	}
 
+	handleOpenModal() {
+		this.setState({ openModal: true });
+	}
+
+	handleCloseModal() {
+		this.setState({ openModal: false });
+	}
+
+	handleGetChannels(e, channels) {
+		this.setState({ selectedChannels: channels });
+	}
+
+	handleChannelGroup(e) {
+		this.setState({ channelGroup: e.target.value });
+	}
+
 	async handleSubmitChannelsGroup() {
 		const { channelGroup, selectedChannels } = this.state;
 
@@ -58,14 +77,6 @@ class ChannelGroups extends Component {
 		if (response.status < 400) {
 			window.location.replace("/youtube");
 		}
-	}
-
-	handleGetChannels(e, channels) {
-		this.setState({ selectedChannels: channels });
-	}
-
-	handleChannelGroup(e) {
-		this.setState({ channelGroup: e.target.value });
 	}
 
 	renderChannelsOptionLabel(option) {
@@ -85,59 +96,57 @@ class ChannelGroups extends Component {
 	}
 
 	render() {
-		const { open, onClose } = this.props;
-		const { channels } = this.state;
-
+		const { openModal, channels } = this.state;
 
 		return (
-			<Dialog
-				aria-labelledby="alert-dialog-title"
-				aria-describedby="alert-dialog-description"
-				open={open}
-				fullWidth
-				maxWidth="xs"
-			>
-				<DialogTitle id="simple-dialog-title">{"Add Channel Group"}</DialogTitle>
-				<DialogContent>
-					<Input
-						type="text"
-						label="Channel Group"
-						margin="normal"
-						variant="outlined"
-						fullWidth
-						required
-						onChange={this.handleChannelGroup}
-					/>
-					<Autocomplete
-						id="Channels"
-						multiple
-						limitTags={2}
-						renderTags={this.renderTags}
-						onChange={this.handleGetChannels}
-						options={channels || []}
-						renderInput={this.renderChannelInput}
-						getOptionLabel={(option) => option.displayName}
-						fullWidth
-						required
-						label="Channels"
-					/>
-				</DialogContent>
-				<DialogActions>
-					<Button onClick={onClose} color="primary">
-						{"Close"}
-					</Button>
-					<Button color="primary" autoFocus onClick={this.handleSubmitChannelsGroup}>
-						{"Add"}
-					</Button>
-				</DialogActions>
-			</Dialog>
+			<div>
+				<IconButton color="primary" onClick={this.handleOpenModal}>
+					<i className="icofont-ui-add" />
+				</IconButton>
+				<Dialog
+					aria-labelledby="alert-dialog-title"
+					aria-describedby="alert-dialog-description"
+					open={openModal}
+					fullWidth
+					maxWidth="xs"
+				>
+					<DialogTitle id="simple-dialog-title">{"Add Channel Group"}</DialogTitle>
+					<DialogContent>
+						<Input
+							type="text"
+							label="Channel Group"
+							margin="normal"
+							variant="outlined"
+							fullWidth
+							required
+							onChange={this.handleChannelGroup}
+						/>
+						<Autocomplete
+							id="Channels"
+							multiple
+							limitTags={2}
+							renderTags={this.renderTags}
+							onChange={this.handleGetChannels}
+							options={channels || []}
+							renderInput={this.renderChannelInput}
+							getOptionLabel={option => option.displayName}
+							fullWidth
+							required
+							label="Channels"
+						/>
+					</DialogContent>
+					<DialogActions>
+						<Button onClick={this.handleCloseModal} color="primary">
+							{"Close"}
+						</Button>
+						<Button color="primary" autoFocus onClick={this.handleSubmitChannelsGroup}>
+							{"Add"}
+						</Button>
+					</DialogActions>
+				</Dialog>
+			</div>
 		);
 	}
 }
 
-ChannelGroups.propTypes = {
-	open: PropTypes.bool.isRequired,
-	onClose: PropTypes.func.isRequired,
-};
-
-export default ChannelGroups;
+export default ChannelGroupDetail;

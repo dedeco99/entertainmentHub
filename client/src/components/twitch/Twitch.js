@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 
-import IconButton from "@material-ui/core/IconButton";
 import Grid from "@material-ui/core/Grid";
 
 import Sidebar from "../.partials/Sidebar";
@@ -19,16 +18,11 @@ class Twitch extends Component {
 			hasMoreFollows: false,
 			page: 0,
 			after: null,
-
-			openModal: false,
 		};
 
 		this.getFollows = this.getFollows.bind(this);
 		this.addChannels = this.addChannels.bind(this);
 		this.deleteChannel = this.deleteChannel.bind(this);
-
-		this.handleOpenModal = this.handleOpenModal.bind(this);
-		this.handleCloseModal = this.handleCloseModal.bind(this);
 	}
 
 	async componentDidMount() {
@@ -88,16 +82,7 @@ class Twitch extends Component {
 		}
 	}
 
-	handleOpenModal() {
-		this.setState({ openModal: true });
-	}
-
-	handleCloseModal() {
-		this.setState({ openModal: false });
-	}
-
 	render() {
-		const { openModal } = this.state;
 		const { loadingChannels, channels, follows, hasMoreFollows } = this.state;
 
 		const menuOptions = [{ displayName: "Delete", onClick: this.deleteChannel }];
@@ -105,9 +90,12 @@ class Twitch extends Component {
 		return (
 			<Grid container spacing={2}>
 				<Grid item sm={3} md={2}>
-					<IconButton color="primary" onClick={this.handleOpenModal}>
-						<i className="icofont-ui-add" />
-					</IconButton>
+					<Subscriptions
+						subscriptions={follows}
+						getSubscriptions={this.getFollows}
+						hasMoreSubscriptions={hasMoreFollows}
+						addChannels={this.addChannels}
+					/>
 					<Sidebar
 						options={channels}
 						idField="_id"
@@ -117,14 +105,6 @@ class Twitch extends Component {
 					/>
 				</Grid>
 				<Grid item sm={9} md={10} lg={10} />
-				<Subscriptions
-					open={openModal}
-					onClose={this.handleCloseModal}
-					subscriptions={follows}
-					getSubscriptions={this.getFollows}
-					hasMoreSubscriptions={hasMoreFollows}
-					addChannels={this.addChannels}
-				/>
 			</Grid>
 		);
 	}
