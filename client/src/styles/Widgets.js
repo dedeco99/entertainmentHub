@@ -171,6 +171,12 @@ const reddit = () => ({
 			marginBottom: 5,
 		},
 	},
+	gildedBadge: {
+		padding: "0 2px",
+		height: "15px",
+		minWidth: "15px",
+		fontSize: "0.6rem",
+	},
 });
 
 const weather = () => ({

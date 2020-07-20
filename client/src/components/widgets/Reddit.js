@@ -15,6 +15,7 @@ import ListItem from "@material-ui/core/ListItem";
 import Chip from "@material-ui/core/Chip";
 import Link from "@material-ui/core/Link";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import Badge from "@material-ui/core/Badge";
 
 import { getPosts, getSearch } from "../../api/reddit";
 import { formatDate } from "../../utils/utils";
@@ -155,7 +156,13 @@ class Reddit extends Component {
 								</Typography>
 							)}
 						</Box>
-						{post.gilded > 0 ? (<Box display="flex" p={1}> <img src={redditGold} height={16} width={16} alt="reddit gold" /> </Box>) : null}
+						{post.gilded > 0 && (
+							<Box display="flex" p={1}>
+								<Badge badgeContent={post.gilded} color="error" classes={{ badge: classes.gildedBadge }}>
+									<img src={redditGold} height={16} width={16} alt="reddit gold" />
+								</Badge>
+							</Box>
+						)}
 					</Box>
 					<Box display="flex" flexWrap="wrap" className={classes.flairs}>
 						{post.flairs.map(flair => <Chip key={flair} size="small" label={flair} />)}
