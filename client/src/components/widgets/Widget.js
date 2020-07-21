@@ -1,6 +1,8 @@
 import React, { useContext, useState } from "react";
 import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
+import { makeStyles } from "@material-ui/styles";
+import { AnimatePresence, motion } from "framer-motion";
 
 import Zoom from "@material-ui/core/Zoom";
 import Box from "@material-ui/core/Box";
@@ -13,8 +15,9 @@ import { UserContext } from "../../contexts/UserContext";
 
 import { deleteWidget } from "../../api/widgets";
 
-import { widget as useStyles } from "../../styles/Widgets";
-import { AnimatePresence, motion } from "framer-motion";
+import { widget as styles } from "../../styles/Widgets";
+
+const useStyles = makeStyles(styles);
 
 const variants = {
 	hidden: {

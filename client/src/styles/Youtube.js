@@ -1,4 +1,4 @@
-const youtube = () => ({
+const youtube = {
 	root: {
 		width: "100%",
 	},
@@ -19,8 +19,19 @@ const youtube = () => ({
 		backgroundColor: "#424242",
 		padding: 8,
 	},
-});
+};
+
+const feed = {
+	header: {
+		backgroundColor: "#424242",
+		paddingTop: 10,
+		paddingBottom: 10,
+		paddingLeft: 16,
+		width: "100%",
+	},
+};
 
 export {
 	youtube,
+	feed,
 };

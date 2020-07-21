@@ -4,7 +4,7 @@ const ChannelGroupSchema = new Schema({
 	user: { type: Schema.ObjectId, ref: "User", required: true },
 	platform: { type: String, required: true },
 	displayName: { type: String, default: "", required: true },
-	channels: [{ type: Schema.ObjectId, ref: "Channel" }],
+	channels: [{ type: String }],
 }, { timestamps: { createdAt: "_created", updatedAt: "_modified" } });
 
 const ChannelGroup = model("ChannelGroup", ChannelGroupSchema);

@@ -107,9 +107,9 @@ app.delete("/api/channelgroups/:id", token, (req, res) => middleware(req, res, c
 
 app.get("/api/youtube/subscriptions", token, (req, res) => middleware(req, res, youtube.getSubscriptions));
 
-app.post("/api/youtube/watchlater/:id", token, (req, res) => middleware(req, res, youtube.addToWatchLater));
+app.get("/api/youtube/videos/:channels", token, (req, res) => middleware(req, res, youtube.getVideos));
 
-// app.get("/api/youtube/channels/:channel/", token, (req, res) => middleware(req, res, youtube.getPosts));
+app.post("/api/youtube/watchlater/:id", token, (req, res) => middleware(req, res, youtube.addToWatchLater));
 
 app.get("/api/twitch/streams", token, (req, res) => middleware(req, res, twitch.getStreams));
 

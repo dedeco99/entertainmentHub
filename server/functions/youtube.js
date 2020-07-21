@@ -57,8 +57,8 @@ async function getSubscriptions(event) {
 }
 
 async function getVideos(event) {
-	const { query } = event;
-	const { channels } = query;
+	const { params } = event;
+	const { channels } = params;
 
 	const requests = [];
 	for (const channel of channels.split(",")) {

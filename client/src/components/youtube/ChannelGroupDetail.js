@@ -12,7 +12,7 @@ import Chip from "@material-ui/core/Chip";
 import Input from "../.partials/Input";
 
 import { getChannels } from "../../api/channels";
-import { addChannelsGroup } from "../../api/channelGroup";
+import { addChannelGroup } from "../../api/channelGroups";
 
 class ChannelGroupDetail extends Component {
 	constructor(props) {
@@ -60,7 +60,7 @@ class ChannelGroupDetail extends Component {
 	}
 
 	handleGetChannels(e, channels) {
-		this.setState({ selectedChannels: channels });
+		this.setState({ selectedChannels: channels.map(c => c.channelId) });
 	}
 
 	handleChannelGroup(e) {
@@ -72,11 +72,7 @@ class ChannelGroupDetail extends Component {
 
 		if (channelGroup === "" || selectedChannels.length === 0) return;
 
-		const response = await addChannelsGroup("youtube", channelGroup, selectedChannels);
-
-		if (response.status < 400) {
-			window.location.replace("/youtube");
-		}
+		await addChannelGroup("youtube", channelGroup, selectedChannels);
 	}
 
 	renderChannelsOptionLabel(option) {

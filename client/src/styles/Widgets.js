@@ -1,6 +1,6 @@
 import { makeStyles } from "@material-ui/styles";
 
-const widget = makeStyles({
+const widget = {
 	root: props => ({
 		backgroundColor: "#212121",
 		height: "100%",
@@ -24,7 +24,7 @@ const widget = makeStyles({
 	appLink: {
 		color: "white",
 	},
-});
+};
 
 const widgetDetail = makeStyles({
 	autocomplete: {

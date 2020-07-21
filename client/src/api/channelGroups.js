@@ -1,6 +1,6 @@
 import { api } from "../utils/request";
 
-async function getChannelsGroup(platform) {
+async function getChannelGroups(platform) {
 	const res = await api({
 		method: "get",
 		url: `api/channelgroups/${platform}`,
@@ -9,7 +9,7 @@ async function getChannelsGroup(platform) {
 	return res;
 }
 
-async function addChannelsGroup(platform, displayName, channels) {
+async function addChannelGroup(platform, displayName, channels) {
 	const res = await api({
 		method: "post",
 		url: `api/channelgroups/${platform}`,
@@ -31,7 +31,7 @@ async function deleteChannelGroup(id) {
 }
 
 export {
-	getChannelsGroup,
-	addChannelsGroup,
+	getChannelGroups,
+	addChannelGroup,
 	deleteChannelGroup,
 };
