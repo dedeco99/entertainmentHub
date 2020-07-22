@@ -79,6 +79,7 @@ class ChannelGroupDetail extends Component {
 
 		if (response.status === 201) {
 			dispatch({ type: "ADD_CHANNEL_GROUP", channelGroup: response.data });
+			this.setState({ openModal: false });
 		}
 	}
 
