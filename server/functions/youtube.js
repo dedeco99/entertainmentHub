@@ -36,7 +36,7 @@ async function getSubscriptions(event) {
 
 	if (accessToken.status === 401) return errors.youtubeRefreshToken;
 
-	let url = "https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&maxResults=25";
+	let url = "https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&order=alphabetical&maxResults=20";
 	if (after) url += `&pageToken=${after}`;
 
 	const headers = {

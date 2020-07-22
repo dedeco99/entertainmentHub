@@ -11,6 +11,8 @@ import Chip from "@material-ui/core/Chip";
 
 import Input from "../.partials/Input";
 
+import { YoutubeContext } from "../../contexts/YoutubeContext";
+
 import { getChannels } from "../../api/channels";
 import { addChannelGroup } from "../../api/channelGroups";
 
@@ -68,11 +70,16 @@ class ChannelGroupDetail extends Component {
 	}
 
 	async handleSubmitChannelsGroup() {
+		const { dispatch } = this.context;
 		const { channelGroup, selectedChannels } = this.state;
 
 		if (channelGroup === "" || selectedChannels.length === 0) return;
 
-		await addChannelGroup("youtube", channelGroup, selectedChannels);
+		const response = await addChannelGroup("youtube", channelGroup, selectedChannels);
+
+		if (response.status === 201) {
+			dispatch({ type: "ADD_CHANNEL_GROUP", channelGroup: response.data });
+		}
 	}
 
 	renderChannelsOptionLabel(option) {
@@ -144,5 +151,7 @@ class ChannelGroupDetail extends Component {
 		);
 	}
 }
+
+ChannelGroupDetail.contextType = YoutubeContext;
 
 export default ChannelGroupDetail;

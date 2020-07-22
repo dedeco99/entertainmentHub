@@ -4,6 +4,7 @@ const header = makeStyles({
 	appBar: {
 		backgroundColor: "#222",
 		marginBottom: 20,
+		zIndex: 0,
 	},
 	brand: {
 		left: 0,

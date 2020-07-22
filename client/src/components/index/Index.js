@@ -6,7 +6,6 @@ import Widgets from "../widgets/Widgets";
 import WidgetEditMode from "../widgets/WidgetEditMode";
 
 import { UserContext } from "../../contexts/UserContext";
-import WidgetContextProvider from "../../contexts/WidgetContext";
 
 class Index extends Component {
 	constructor() {
@@ -33,19 +32,15 @@ class Index extends Component {
 
 		return (
 			<div>
-				<WidgetContextProvider>
-					<div>
-						<WidgetDetail
-							open={openWidgetDetail}
-							onClose={this.handleWidgetDetailClose}
-						/>
-						<IconButton color="primary" onClick={this.handleWidgetDetailOpen}>
-							<i className="icofont-ui-add" />
-						</IconButton>
-						<WidgetEditMode />
-						<Widgets />
-					</div>
-				</WidgetContextProvider>
+				<WidgetDetail
+					open={openWidgetDetail}
+					onClose={this.handleWidgetDetailClose}
+				/>
+				<IconButton color="primary" onClick={this.handleWidgetDetailOpen}>
+					<i className="icofont-ui-add" />
+				</IconButton>
+				<WidgetEditMode />
+				<Widgets />
 			</div>
 		);
 	}
