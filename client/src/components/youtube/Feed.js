@@ -68,7 +68,6 @@ class Feed extends Component {
 		}
 	}
 
-
 	render() {
 		const { classes, channelGroup } = this.props;
 		const { videos, open, anchorOptionsMenu } = this.state;
@@ -122,7 +121,6 @@ class Feed extends Component {
 		);
 	}
 }
-
 
 Feed.contextType = YoutubeContext;
 

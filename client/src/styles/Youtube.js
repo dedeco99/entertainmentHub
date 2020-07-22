@@ -24,8 +24,6 @@ const youtube = {
 const feed = {
 	header: {
 		backgroundColor: "#424242",
-		paddingTop: 10,
-		paddingBottom: 10,
 		paddingLeft: 16,
 		width: "100%",
 	},
