@@ -41,14 +41,13 @@ async function editChannelGroup(event) {
 
 	let channelGroup = null;
 	try {
-		channelGroup = await ChannelGroup.findOneAndUpdate({ _id: id }, { displayName, channels });
+		channelGroup = await ChannelGroup.findOneAndUpdate({ _id: id }, { displayName, channels }, { new: true });
 	} catch (e) {
 		return errors.notFound;
 	}
 
 	if (!channelGroup) return errors.notFound;
-
-	return response(201, "Channel group created", channelGroup);
+	return response(200, "Channel group updated", channelGroup);
 }
 
 async function deleteChannelGroup(event) {

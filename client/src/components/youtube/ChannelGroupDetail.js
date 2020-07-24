@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import PropTypes from "prop-types";
 
 import IconButton from "@material-ui/core/IconButton";
 import Dialog from "@material-ui/core/Dialog";
@@ -8,13 +9,14 @@ import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import Chip from "@material-ui/core/Chip";
+import MenuItem from "@material-ui/core/MenuItem";
 
 import Input from "../.partials/Input";
 
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 
 import { getChannels } from "../../api/channels";
-import { addChannelGroup } from "../../api/channelGroups";
+import { addChannelGroup, editChannelGroup } from "../../api/channelGroups";
 
 class ChannelGroupDetail extends Component {
 	constructor(props) {
@@ -33,16 +35,27 @@ class ChannelGroupDetail extends Component {
 		this.handleOpenModal = this.handleOpenModal.bind(this);
 		this.handleCloseModal = this.handleCloseModal.bind(this);
 		this.handleSubmitChannelsGroup = this.handleSubmitChannelsGroup.bind(this);
+		this.handleUpdateChannelsGroup = this.handleUpdateChannelsGroup.bind(this);
 		this.handleGetChannels = this.handleGetChannels.bind(this);
 		this.handleChannelGroup = this.handleChannelGroup.bind(this);
 
 		this.renderChannelsOptionLabel = this.renderChannelsOptionLabel.bind(this);
 		this.renderChannelInput = this.renderChannelInput.bind(this);
 		this.renderTags = this.renderTags.bind(this);
+		this.renderEditMode = this.renderEditMode.bind(this);
 	}
 
 	async componentDidMount() {
 		await this.getChannels();
+
+		const { channels } = this.state;
+		const { selectedChannelGroup } = this.props;
+		const selected = selectedChannelGroup ? selectedChannelGroup.channels : [];
+		const channelGroupTitle = selectedChannelGroup ? selectedChannelGroup.displayName : "";
+		this.setState({
+			selectedChannels: channels.filter(channel => selected.includes(channel.channelId)),
+			channelGroup: channelGroupTitle,
+		});
 	}
 
 	async getChannels() {
@@ -62,7 +75,7 @@ class ChannelGroupDetail extends Component {
 	}
 
 	handleGetChannels(e, channels) {
-		this.setState({ selectedChannels: channels.map(c => c.channelId) });
+		this.setState({ selectedChannels: channels });
 	}
 
 	handleChannelGroup(e) {
@@ -75,10 +88,24 @@ class ChannelGroupDetail extends Component {
 
 		if (channelGroup === "" || selectedChannels.length === 0) return;
 
-		const response = await addChannelGroup("youtube", channelGroup, selectedChannels);
+		const response = await addChannelGroup("youtube", channelGroup, selectedChannels.map(c => c.channelId));
 
 		if (response.status === 201) {
 			dispatch({ type: "ADD_CHANNEL_GROUP", channelGroup: response.data });
+			this.setState({ openModal: false });
+		}
+	}
+
+	async handleUpdateChannelsGroup(channelId) {
+		const { dispatch } = this.context;
+		const { channelGroup, selectedChannels } = this.state;
+
+		if (channelGroup === "" || selectedChannels.length === 0 || channelId === null) return;
+
+		const response = await editChannelGroup(channelId, channelGroup, selectedChannels.map(c => c.channelId));
+
+		if (response.status === 200) {
+			dispatch({ type: "EDIT_CHANNEL_GROUP", channelGroup: response.data });
 			this.setState({ openModal: false });
 		}
 	}
@@ -99,14 +126,39 @@ class ChannelGroupDetail extends Component {
 		));
 	}
 
+	renderEditMode() {
+		const { openEditMode } = this.props;
+
+		if (openEditMode) {
+			return (
+				<MenuItem onClick={this.handleOpenModal}>
+					{"Edit"}
+				</MenuItem>
+			);
+		}
+
+		return (
+			<IconButton color="primary" onClick={this.handleOpenModal}>
+				<i className="icofont-ui-add" />
+			</IconButton>
+		);
+	}
+
 	render() {
-		const { openModal, channels } = this.state;
+		const { channels, channelGroup, selectedChannels, openModal } = this.state;
+		const { openEditMode, selectedChannelGroup } = this.props;
+		console.log(selectedChannelGroup);
+
+		const title = openEditMode ? "Edit Channel Group" : "New Channel Group";
+
+		const channelId = selectedChannelGroup ? selectedChannelGroup._id : null;
+
+		const buttonTitle = openEditMode ? "Update" : "Add";
+		const onClickFunction = openEditMode ? () => this.handleUpdateChannelsGroup(channelId) : this.handleSubmitChannelsGroup;
 
 		return (
 			<div>
-				<IconButton color="primary" onClick={this.handleOpenModal}>
-					<i className="icofont-ui-add" />
-				</IconButton>
+				{this.renderEditMode()}
 				<Dialog
 					aria-labelledby="alert-dialog-title"
 					aria-describedby="alert-dialog-description"
@@ -114,13 +166,14 @@ class ChannelGroupDetail extends Component {
 					fullWidth
 					maxWidth="xs"
 				>
-					<DialogTitle id="simple-dialog-title">{"New Channel Group"}</DialogTitle>
+					<DialogTitle id="simple-dialog-title">{title}</DialogTitle>
 					<DialogContent>
 						<Input
 							type="text"
 							label="Name"
 							margin="normal"
 							variant="outlined"
+							defaultValue={channelGroup}
 							fullWidth
 							required
 							onChange={this.handleChannelGroup}
@@ -128,6 +181,8 @@ class ChannelGroupDetail extends Component {
 						<Autocomplete
 							id="Channel"
 							multiple
+							disableCloseOnSelect
+							value={selectedChannels}
 							limitTags={2}
 							renderTags={this.renderTags}
 							onChange={this.handleGetChannels}
@@ -143,8 +198,8 @@ class ChannelGroupDetail extends Component {
 						<Button onClick={this.handleCloseModal} color="primary">
 							{"Close"}
 						</Button>
-						<Button color="primary" autoFocus onClick={this.handleSubmitChannelsGroup}>
-							{"Add"}
+						<Button color="primary" autoFocus onClick={onClickFunction}>
+							{buttonTitle}
 						</Button>
 					</DialogActions>
 				</Dialog>
@@ -154,5 +209,10 @@ class ChannelGroupDetail extends Component {
 }
 
 ChannelGroupDetail.contextType = YoutubeContext;
+
+ChannelGroupDetail.propTypes = {
+	openEditMode: PropTypes.bool.isRequired,
+	selectedChannelGroup: PropTypes.object,
+};
 
 export default ChannelGroupDetail;

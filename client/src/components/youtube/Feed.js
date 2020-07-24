@@ -14,6 +14,8 @@ import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { getVideos } from "../../api/youtube";
 import { deleteChannelGroup } from "../../api/channelGroups";
 
+import ChannelGroupDetail from "./ChannelGroupDetail";
+
 import { widget as widgetStyles } from "../../styles/Widgets";
 import { feed as feedStyles } from "../../styles/Youtube";
 
@@ -28,6 +30,7 @@ class Feed extends Component {
 
 			open: false,
 			anchorOptionsMenu: null,
+
 		};
 
 		this.openOptionsMenu = this.openOptionsMenu.bind(this);
@@ -38,6 +41,14 @@ class Feed extends Component {
 
 	componentDidMount() {
 		this.getVideos();
+	}
+
+	componentDidUpdate(prevProps) {
+		const { channelGroup } = this.props;
+
+		if (channelGroup !== prevProps.channelGroup) {
+			this.getVideos();
+		}
 	}
 
 	async getVideos() {
@@ -91,9 +102,7 @@ class Feed extends Component {
 								keepMounted
 								onClose={this.closeOptionsMenu}
 							>
-								<MenuItem>
-									{"Edit"}
-								</MenuItem>
+								<ChannelGroupDetail openEditMode selectedChannelGroup={channelGroup} />
 								<MenuItem onClick={() => this.deleteChannelGroup(channelGroup._id)}>
 									{"Delete"}
 								</MenuItem>
@@ -117,7 +126,7 @@ class Feed extends Component {
 						))}
 					</Box>
 				</Box>
-			</Zoom >
+			</Zoom>
 		);
 	}
 }

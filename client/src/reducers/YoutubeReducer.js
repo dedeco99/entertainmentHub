@@ -46,6 +46,10 @@ export const youtubeReducer = (state, action) => {
 			channelGroups.push(action.channelGroup);
 
 			return { ...state, channelGroups };
+		case "EDIT_CHANNEL_GROUP":
+			channelGroups = [...channelGroups.filter(c => c._id !== action.channelGroup._id), action.channelGroup];
+
+			return { ...state, channelGroups };
 		case "DELETE_CHANNEL_GROUP":
 			channelGroups = channelGroups.filter(c => c._id !== action.channelGroup._id);
 

@@ -20,6 +20,17 @@ async function addChannelGroup(platform, displayName, channels) {
 	return res;
 }
 
+async function editChannelGroup(id, displayName, channels) {
+	const res = await api({
+		method: "put",
+		url: `api/channelgroups/${id}`,
+		data: { displayName, channels },
+		message: true,
+	});
+
+	return res;
+}
+
 async function deleteChannelGroup(id) {
 	const res = await api({
 		method: "delete",
@@ -33,5 +44,6 @@ async function deleteChannelGroup(id) {
 export {
 	getChannelGroups,
 	addChannelGroup,
+	editChannelGroup,
 	deleteChannelGroup,
 };
