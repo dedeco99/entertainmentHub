@@ -105,8 +105,6 @@ const reddit = () => ({
 		borderBottom: "1px solid #424242",
 	},
 	textContent: {
-		padding: 16,
-		paddingTop: 0,
 		boxSizing: "border-box",
 		"& p": {
 			fontSize: "1rem",
@@ -144,6 +142,14 @@ const reddit = () => ({
 			objectFit: "contain",
 			height: "100%",
 			width: "100%",
+		},
+	},
+	expandedBtn: {
+		height: "100%",
+		padding: "12px",
+		color: "white",
+		"&:hover": {
+			backgroundColor: "#212121",
 		},
 	},
 	header: {

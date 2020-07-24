@@ -7,7 +7,6 @@ import Zoom from "@material-ui/core/Zoom";
 import CardMedia from "@material-ui/core/CardMedia";
 import Box from "@material-ui/core/Box";
 import Modal from "@material-ui/core/Modal";
-import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
 import Typography from "@material-ui/core/Typography";
 import List from "@material-ui/core/List";
@@ -16,6 +15,8 @@ import Chip from "@material-ui/core/Chip";
 import Link from "@material-ui/core/Link";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Badge from "@material-ui/core/Badge";
+import Divider from "@material-ui/core/Divider";
+import Paper from "@material-ui/core/Paper";
 
 import { getPosts, getSearch } from "../../api/reddit";
 import { formatDate } from "../../utils/utils";
@@ -143,19 +144,14 @@ class Reddit extends Component {
 		const postsList = posts.map((post, index) => (
 			<ListItem key={post.id} button divider onClick={() => this.handleCheckPost(index)}>
 				<Box display="flex" flex="1 1 auto" minWidth={0} flexDirection="column">
-					<Typography display="block" variant="caption">
-						{formatDate(post.created * 1000, null, true)}
-					</Typography>
+					<Box display="flex" flexWrap="wrap" className={classes.flairs}>
+						{post.flairs.map(flair => <Chip key={flair} size="small" label={flair} />)}
+					</Box>
 					<Box display="flex">
 						<Box display="flex" flexDirection="column" flexGrow={1}>
 							<Typography display="block" title={post.title} variant="body1">
 								{this.htmlEscape(post.title)}
 							</Typography>
-							{multipleSubs && (
-								<Typography display="block" title={post.subreddit} variant="caption">
-									{`r/${post.subreddit}`}
-								</Typography>
-							)}
 						</Box>
 						{post.gilded > 0 && (
 							<Box display="flex" p={1}>
@@ -167,9 +163,15 @@ class Reddit extends Component {
 							</Box>
 						)}
 					</Box>
-					<Box display="flex" flexWrap="wrap" className={classes.flairs}>
-						{post.flairs.map(flair => <Chip key={flair} size="small" label={flair} />)}
-					</Box>
+					{multipleSubs ? (
+						<Typography display="inline" title={post.subreddit} variant="caption">
+							{`r/${post.subreddit} • ${formatDate(post.created * 1000, null, true)}`}
+						</Typography>
+					) : (
+						<Typography display="inline" variant="caption">
+							{formatDate(post.created * 1000, null, true)}
+						</Typography>
+					)}
 				</Box>
 			</ListItem>
 		));
@@ -320,15 +322,25 @@ class Reddit extends Component {
 							</Box>
 						</Box>
 					</Box>
-					<div
-						className={classes.textContent}
-						dangerouslySetInnerHTML={{ __html: this.htmlEscape(post.text) }}
-					/>
+					<Box p={2}>
+						{post.text === "null" ? (
+							<Typography>
+								<Link href={post.url} target="_blank" rel="noreferrer" color="inherit">
+									{post.url}
+								</Link>
+							</Typography>
+						) : (
+							<div
+								className={classes.textContent}
+								dangerouslySetInnerHTML={{ __html: this.htmlEscape(post.text) }}
+							/>
+						)}
+					</Box>
 				</Box >
 			);
 		}
 
-		const info = (
+		const info_v1 = (
 			<div>
 				<div
 					className={`${classes.overlay} ${classes.title}`}
@@ -362,6 +374,45 @@ class Reddit extends Component {
 			</div >
 		);
 
+		const info_v2 = (
+			<Box>
+				<Divider />
+				<Box p={1}>
+					<Typography>
+						<Link href={post.permalink} target="_blank" rel="noreferrer" color="inherit">
+							{this.htmlEscape(post.title)}
+						</Link>
+					</Typography>
+					{multipleSubs && (
+						<Typography variant="caption" title={post.subreddit}>
+							<Link href={`https://reddit.com/r/${post.subreddit}`} target="_blank" rel="noreferrer" color="inherit">
+								{`r/${post.subreddit}`}
+							</Link>
+						</Typography>
+					)}
+					<Box display="flex" flexWrap="wrap" className={classes.flairs}>
+						{post.flairs.map(flair => <Chip key={flair} size="small" label={flair} />)}
+					</Box>
+					<Box display="flex">
+						<Box flexGrow={1}>
+							<i className="icofont-caret-up" />
+							{post.score}
+							<i className="icofont-caret-down" />
+						</Box>
+						<Box flexGrow={1}>
+							<i className="icofont-comment" />
+							{` ${post.comments}`}
+						</Box>
+						<Box flexGrow={1}>
+							<Typography variant="caption">
+								{formatDate(post.created * 1000, null, true)}
+							</Typography>
+						</Box>
+					</Box>
+				</Box>
+			</Box>
+		);
+
 		return (
 			<Zoom in={open}>
 				<Box
@@ -374,21 +425,31 @@ class Reddit extends Component {
 							open={expandedView}
 							onClose={this.handleCloseExpandedView}
 							closeAfterTransition
-							BackdropComponent={Backdrop}
 						>
 							<Fade in={expandedView}>
-								<div className={classes.expandedView} onClick={this.handleCloseExpandedView}>
+								<Paper component={Box} position="relative" className={classes.expandedView}>
+									<Box position="absolute" top="0px" left="0px" className={classes.expandedBtn} onClick={this.handleShowPreviousPost}>
+										<Box display="flex" alignItems="center" height="100%">
+											<i className="icofont-arrow-left icofont-3x" />
+										</Box>
+									</Box>
 									{expandedContent}
-								</div>
+									<Box position="absolute" top="0px" right="0px" className={classes.expandedBtn} onClick={this.handleShowNextPost}>
+										<Box display="flex" alignItems="center" height="100%">
+											<i className="icofont-arrow-right icofont-3x" />
+										</Box>
+									</Box>
+								</Paper>
 							</Fade>
 						</Modal>
 						<Box
 							display="flex"
+							flexDirection="column"
 							flexGrow={1}
 							className={classes.content}
 						>
-							{isMedia ? info : null}
 							{content}
+							{isMedia && info_v2}
 						</Box>
 						<Box display="flex" className={classes.arrows}>
 							<Box
