@@ -3,7 +3,7 @@ import { Responsive, WidthProvider } from "react-grid-layout";
 
 import Widget from "../widgets/Widget";
 import Notifications from "../widgets/Notifications";
-import Reddit from "../widgets/Reddit";
+import Reddit from "../widgets/reddit/Reddit";
 import Twitch from "../widgets/Twitch";
 import Weather from "../widgets/Weather";
 import TV from "../widgets/TV";
@@ -25,11 +25,7 @@ const widgetsInfo = {
 	}),
 	reddit: widget => ({
 		content: (
-			<Reddit
-				subreddit={widget.info.subreddit}
-				search={widget.info.search}
-				listView={widget.info.listView}
-			/>
+			<Reddit subreddit={widget.info.subreddit} search={widget.info.search} listView={widget.info.listView} />
 		),
 		borderColor: "#ff4500",
 		editText: `r/${widget.info.subreddit}`,
@@ -47,12 +43,7 @@ const widgetsInfo = {
 	}),
 	weather: widget => ({
 		content: (
-			<Weather
-				city={widget.info.city}
-				country={widget.info.country}
-				lat={widget.info.lat}
-				lon={widget.info.lon}
-			/>
+			<Weather city={widget.info.city} country={widget.info.country} lat={widget.info.lat} lon={widget.info.lon} />
 		),
 		editText: "Weather",
 		editIcon: "icofont-cloud",
@@ -126,31 +117,33 @@ class Widgets extends Component {
 		const { widgets, editMode } = widgetState;
 
 		if (widgets && widgets.length) {
-			return widgets.sort((a, b) => a.y - b.y).map(widget => {
-				const widgetInfo = widgetsInfo[widget.type](widget);
+			return widgets
+				.sort((a, b) => a.y - b.y)
+				.map(widget => {
+					const widgetInfo = widgetsInfo[widget.type](widget);
 
-				return (
-					<div
-						key={widget._id}
-						data-grid={{
-							x: widget.x,
-							y: widget.y,
-							...widgetInfo.dimensions,
-							...widgetInfo.restrictions,
-						}}
-					>
-						<Widget
-							id={widget._id}
-							type={widget.type}
-							content={widgetInfo.content}
-							borderColor={widgetInfo.borderColor}
-							editText={widgetInfo.editText}
-							editIcon={widgetInfo.editIcon}
-							editMode={editMode}
-						/>
-					</div>
-				);
-			});
+					return (
+						<div
+							key={widget._id}
+							data-grid={{
+								x: widget.x,
+								y: widget.y,
+								...widgetInfo.dimensions,
+								...widgetInfo.restrictions,
+							}}
+						>
+							<Widget
+								id={widget._id}
+								type={widget.type}
+								content={widgetInfo.content}
+								borderColor={widgetInfo.borderColor}
+								editText={widgetInfo.editText}
+								editIcon={widgetInfo.editIcon}
+								editMode={editMode}
+							/>
+						</div>
+					);
+				});
 		}
 
 		return null;
