@@ -48,6 +48,11 @@ function ChannelGroupDetail({ channelGroup }) {
 
 	function handleCloseModal() {
 		setOpen(false);
+
+		if (channelGroup) {
+			setName(channelGroup.displayName);
+			setSelectedChannels(channels.filter(c => channelGroup.channels.includes(c.channelId)));
+		}
 	}
 
 	function handleName(e) {
