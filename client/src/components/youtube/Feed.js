@@ -1,6 +1,6 @@
-import React, { Component } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { withStyles } from "@material-ui/styles";
+import { makeStyles } from "@material-ui/core";
 
 import Zoom from "@material-ui/core/Zoom";
 import Box from "@material-ui/core/Box";
@@ -19,59 +19,37 @@ import ChannelGroupDetail from "./ChannelGroupDetail";
 import { widget as widgetStyles } from "../../styles/Widgets";
 import { feed as feedStyles } from "../../styles/Youtube";
 
-const styles = { ...widgetStyles, ...feedStyles };
+const useStyles = makeStyles({ ...widgetStyles, ...feedStyles });
 
-class Feed extends Component {
-	constructor() {
-		super();
+function Feed({ channelGroup }) {
+	const classes = useStyles();
+	const { dispatch } = useContext(YoutubeContext);
+	const [videos, setVideos] = useState([]);
+	const [open, setOpen] = useState(false);
+	const [anchorOptionsMenu, setAnchorOptionsMenu] = useState(null);
 
-		this.state = {
-			videos: [],
+	useEffect(() => {
+		async function fetchData() {
+			const response = await getVideos(channelGroup.channels.join(","));
 
-			open: false,
-			anchorOptionsMenu: null,
-
-		};
-
-		this.openOptionsMenu = this.openOptionsMenu.bind(this);
-		this.closeOptionsMenu = this.closeOptionsMenu.bind(this);
-
-		this.deleteChannelGroup = this.deleteChannelGroup.bind(this);
-	}
-
-	componentDidMount() {
-		this.getVideos();
-	}
-
-	componentDidUpdate(prevProps) {
-		const { channelGroup } = this.props;
-
-		if (channelGroup !== prevProps.channelGroup) {
-			this.getVideos();
+			if (response.data && response.data.length) {
+				setVideos(response.data);
+				setOpen(true);
+			}
 		}
+
+		fetchData();
+	}, [channelGroup]);
+
+	function openOptionsMenu(e) {
+		setAnchorOptionsMenu(e.currentTarget);
 	}
 
-	async getVideos() {
-		const { channelGroup } = this.props;
-
-		const response = await getVideos(channelGroup.channels.join(","));
-
-		if (response.data && response.data.length) {
-			this.setState({ videos: response.data, open: true });
-		}
+	function closeOptionsMenu() {
+		setAnchorOptionsMenu(null);
 	}
 
-	openOptionsMenu(e) {
-		this.setState({ anchorOptionsMenu: e.currentTarget });
-	}
-
-	closeOptionsMenu() {
-		this.setState({ anchorOptionsMenu: null });
-	}
-
-	async deleteChannelGroup(channelGroupId) {
-		const { dispatch } = this.context;
-
+	async function deleteChannelGroupCall(channelGroupId) {
 		const response = await deleteChannelGroup(channelGroupId);
 
 		if (response.status === 200) {
@@ -79,63 +57,55 @@ class Feed extends Component {
 		}
 	}
 
-	render() {
-		const { classes, channelGroup } = this.props;
-		const { videos, open, anchorOptionsMenu } = this.state;
-
-		return (
-			<Zoom in={open}>
-				<Box display="flex" flexDirection="column" className={classes.root}>
-					<Box display="flex" alignItems="center" className={classes.header}>
-						<Box display="flex" flexGrow={1}>
-							<Typography variant="subtitle1">
-								{channelGroup.displayName}
-							</Typography>
-						</Box>
-						<Box display="flex" justifyContent="flex-end">
-							<IconButton onClick={e => this.openOptionsMenu(e)}>
-								<i className="material-icons">{"more_vert"}</i>
-							</IconButton>
-							<Menu
-								anchorEl={anchorOptionsMenu}
-								open={Boolean(anchorOptionsMenu)}
-								keepMounted
-								onClose={this.closeOptionsMenu}
-							>
-								<ChannelGroupDetail openEditMode selectedChannelGroup={channelGroup} />
-								<MenuItem onClick={() => this.deleteChannelGroup(channelGroup._id)}>
-									{"Delete"}
-								</MenuItem>
-							</Menu>
-						</Box>
+	return (
+		<Zoom in={open}>
+			<Box display="flex" flexDirection="column" className={classes.root}>
+				<Box display="flex" alignItems="center" className={classes.header}>
+					<Box display="flex" flexGrow={1}>
+						<Typography variant="subtitle1">
+							{channelGroup.displayName}
+						</Typography>
 					</Box>
-					<Box
-						display="flex"
-						flexWrap="wrap"
-						justifyContent="center"
-						height="100%"
-						style={{ overflow: "auto", padding: 10 }}
-					>
-						{videos.map(video => (
-							<div key={video.videoId}>
-								{video.videoTitle}<br />
-								{video.displayName}<br />
-								{video.published}<br />
-								<br />
-							</div>
-						))}
+					<Box display="flex" justifyContent="flex-end">
+						<IconButton onClick={openOptionsMenu}>
+							<i className="material-icons">{"more_vert"}</i>
+						</IconButton>
+						<Menu
+							anchorEl={anchorOptionsMenu}
+							open={Boolean(anchorOptionsMenu)}
+							keepMounted
+							onClose={closeOptionsMenu}
+						>
+							<ChannelGroupDetail channelGroup={channelGroup} />
+							<MenuItem onClick={() => deleteChannelGroupCall(channelGroup._id)}>
+								{"Delete"}
+							</MenuItem>
+						</Menu>
 					</Box>
 				</Box>
-			</Zoom>
-		);
-	}
+				<Box
+					display="flex"
+					flexWrap="wrap"
+					justifyContent="center"
+					height="100%"
+					style={{ overflow: "auto", padding: 10 }}
+				>
+					{videos.map(video => (
+						<div key={video.videoId}>
+							{video.videoTitle}<br />
+							{video.displayName}<br />
+							{video.published}<br />
+							<br />
+						</div>
+					))}
+				</Box>
+			</Box>
+		</Zoom>
+	);
 }
 
-Feed.contextType = YoutubeContext;
-
 Feed.propTypes = {
-	classes: PropTypes.object.isRequired,
 	channelGroup: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(Feed);
+export default Feed;

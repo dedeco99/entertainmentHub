@@ -47,6 +47,7 @@ async function editChannelGroup(event) {
 	}
 
 	if (!channelGroup) return errors.notFound;
+
 	return response(200, "Channel group updated", channelGroup);
 }
 

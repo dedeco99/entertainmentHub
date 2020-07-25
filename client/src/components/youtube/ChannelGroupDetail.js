@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import IconButton from "@material-ui/core/IconButton";
@@ -18,107 +18,77 @@ import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { getChannels } from "../../api/channels";
 import { addChannelGroup, editChannelGroup } from "../../api/channelGroups";
 
-class ChannelGroupDetail extends Component {
-	constructor(props) {
-		super(props);
+function ChannelGroupDetail({ channelGroup }) {
+	const { dispatch } = useContext(YoutubeContext);
+	const [channels, setChannels] = useState([]);
+	const [selectedChannels, setSelectedChannels] = useState([]);
+	const [name, setName] = useState("");
+	const [open, setOpen] = useState(false);
 
-		this.state = {
-			channels: [],
-			selectedChannels: [],
-			channelGroup: "",
+	useEffect(() => {
+		async function fetchData() {
+			const response = await getChannels("youtube");
 
-			openModal: false,
-		};
+			if (response.data && response.data.length) {
+				setChannels(response.data);
 
-		this.getChannels = this.getChannels.bind(this);
-
-		this.handleOpenModal = this.handleOpenModal.bind(this);
-		this.handleCloseModal = this.handleCloseModal.bind(this);
-		this.handleSubmitChannelsGroup = this.handleSubmitChannelsGroup.bind(this);
-		this.handleUpdateChannelsGroup = this.handleUpdateChannelsGroup.bind(this);
-		this.handleGetChannels = this.handleGetChannels.bind(this);
-		this.handleChannelGroup = this.handleChannelGroup.bind(this);
-
-		this.renderChannelsOptionLabel = this.renderChannelsOptionLabel.bind(this);
-		this.renderChannelInput = this.renderChannelInput.bind(this);
-		this.renderTags = this.renderTags.bind(this);
-		this.renderEditMode = this.renderEditMode.bind(this);
-	}
-
-	async componentDidMount() {
-		await this.getChannels();
-
-		const { channels } = this.state;
-		const { selectedChannelGroup } = this.props;
-		const selected = selectedChannelGroup ? selectedChannelGroup.channels : [];
-		const channelGroupTitle = selectedChannelGroup ? selectedChannelGroup.displayName : "";
-		this.setState({
-			selectedChannels: channels.filter(channel => selected.includes(channel.channelId)),
-			channelGroup: channelGroupTitle,
-		});
-	}
-
-	async getChannels() {
-		const response = await getChannels("youtube");
-
-		if (response.data && response.data.length) {
-			this.setState({ channels: response.data });
+				if (channelGroup) {
+					setName(channelGroup.displayName);
+					setSelectedChannels(response.data.filter(c => channelGroup.channels.includes(c.channelId)));
+				}
+			}
 		}
+
+		fetchData();
+	}, []); // eslint-disable-line
+
+	function handleOpenModal() {
+		setOpen(true);
 	}
 
-	handleOpenModal() {
-		this.setState({ openModal: true });
+	function handleCloseModal() {
+		setOpen(false);
 	}
 
-	handleCloseModal() {
-		this.setState({ openModal: false });
+	function handleName(e) {
+		setName(e.target.value);
 	}
 
-	handleGetChannels(e, channels) {
-		this.setState({ selectedChannels: channels });
+	function handleSelectedChannels(e, selected) {
+		setSelectedChannels(selected);
 	}
 
-	handleChannelGroup(e) {
-		this.setState({ channelGroup: e.target.value });
-	}
+	async function handleSubmit() {
+		if (!name || !selectedChannels.length) return;
 
-	async handleSubmitChannelsGroup() {
-		const { dispatch } = this.context;
-		const { channelGroup, selectedChannels } = this.state;
-
-		if (channelGroup === "" || selectedChannels.length === 0) return;
-
-		const response = await addChannelGroup("youtube", channelGroup, selectedChannels.map(c => c.channelId));
+		const response = await addChannelGroup("youtube", name, selectedChannels.map(c => c.channelId));
 
 		if (response.status === 201) {
 			dispatch({ type: "ADD_CHANNEL_GROUP", channelGroup: response.data });
-			this.setState({ openModal: false });
+			setOpen(false);
 		}
 	}
 
-	async handleUpdateChannelsGroup(channelId) {
-		const { dispatch } = this.context;
-		const { channelGroup, selectedChannels } = this.state;
+	async function handleUpdate() {
+		if (!channelGroup || !name || !selectedChannels.length) return;
 
-		if (channelGroup === "" || selectedChannels.length === 0 || channelId === null) return;
-
-		const response = await editChannelGroup(channelId, channelGroup, selectedChannels.map(c => c.channelId));
+		const response = await editChannelGroup(channelGroup._id, name, selectedChannels.map(c => c.channelId));
 
 		if (response.status === 200) {
 			dispatch({ type: "EDIT_CHANNEL_GROUP", channelGroup: response.data });
-			this.setState({ openModal: false });
+			setOpen(false);
 		}
 	}
 
-	renderChannelsOptionLabel(option) {
+	function renderOptionLabel(option) {
 		return `${option.displayName}`;
 	}
 
-	renderChannelInput(params) {
+	function renderInput(params) {
 		return <Input {...params} label="Channels" variant="outlined" fullWidth margin="normal" />;
 	}
 
-	renderTags(value, getTagProps) {
+	function renderTags(value, getTagProps) {
 		if (!value) return [];
 
 		return value.map((option, index) => (
@@ -126,57 +96,46 @@ class ChannelGroupDetail extends Component {
 		));
 	}
 
-	renderEditMode() {
-		const { openEditMode } = this.props;
-
-		if (openEditMode) {
+	function renderEditMode() {
+		if (channelGroup) {
 			return (
-				<MenuItem onClick={this.handleOpenModal}>
+				<MenuItem onClick={handleOpenModal}>
 					{"Edit"}
 				</MenuItem>
 			);
 		}
 
 		return (
-			<IconButton color="primary" onClick={this.handleOpenModal}>
+			<IconButton color="primary" onClick={handleOpenModal}>
 				<i className="icofont-ui-add" />
 			</IconButton>
 		);
 	}
 
-	render() {
-		const { channels, channelGroup, selectedChannels, openModal } = this.state;
-		const { openEditMode, selectedChannelGroup } = this.props;
-		console.log(selectedChannelGroup);
-
-		const title = openEditMode ? "Edit Channel Group" : "New Channel Group";
-
-		const channelId = selectedChannelGroup ? selectedChannelGroup._id : null;
-
-		const buttonTitle = openEditMode ? "Update" : "Add";
-		const onClickFunction = openEditMode ? () => this.handleUpdateChannelsGroup(channelId) : this.handleSubmitChannelsGroup;
-
-		return (
-			<div>
-				{this.renderEditMode()}
-				<Dialog
-					aria-labelledby="alert-dialog-title"
-					aria-describedby="alert-dialog-description"
-					open={openModal}
-					fullWidth
-					maxWidth="xs"
-				>
-					<DialogTitle id="simple-dialog-title">{title}</DialogTitle>
+	return (
+		<div>
+			{renderEditMode()}
+			<Dialog
+				aria-labelledby="alert-dialog-title"
+				aria-describedby="alert-dialog-description"
+				open={open}
+				fullWidth
+				maxWidth="xs"
+			>
+				<div>
+					<DialogTitle id="simple-dialog-title">
+						{channelGroup ? "Edit Channel Group" : "New Channel Group"}
+					</DialogTitle>
 					<DialogContent>
 						<Input
 							type="text"
 							label="Name"
 							margin="normal"
 							variant="outlined"
-							defaultValue={channelGroup}
+							defaultValue={name}
 							fullWidth
 							required
-							onChange={this.handleChannelGroup}
+							onChange={handleName}
 						/>
 						<Autocomplete
 							id="Channel"
@@ -184,35 +143,32 @@ class ChannelGroupDetail extends Component {
 							disableCloseOnSelect
 							value={selectedChannels}
 							limitTags={2}
-							renderTags={this.renderTags}
-							onChange={this.handleGetChannels}
+							renderTags={renderTags}
+							onChange={handleSelectedChannels}
 							options={channels || []}
-							renderInput={this.renderChannelInput}
-							getOptionLabel={option => option.displayName}
+							renderInput={renderInput}
+							getOptionLabel={renderOptionLabel}
 							fullWidth
 							required
 							label="Channels"
 						/>
 					</DialogContent>
 					<DialogActions>
-						<Button onClick={this.handleCloseModal} color="primary">
+						<Button onClick={handleCloseModal} color="primary">
 							{"Close"}
 						</Button>
-						<Button color="primary" autoFocus onClick={onClickFunction}>
-							{buttonTitle}
+						<Button color="primary" autoFocus onClick={channelGroup ? handleUpdate : handleSubmit}>
+							{channelGroup ? "Update" : "Add"}
 						</Button>
 					</DialogActions>
-				</Dialog>
-			</div>
-		);
-	}
+				</div>
+			</Dialog>
+		</div>
+	);
 }
 
-ChannelGroupDetail.contextType = YoutubeContext;
-
 ChannelGroupDetail.propTypes = {
-	openEditMode: PropTypes.bool.isRequired,
-	selectedChannelGroup: PropTypes.object,
+	channelGroup: PropTypes.object,
 };
 
 export default ChannelGroupDetail;

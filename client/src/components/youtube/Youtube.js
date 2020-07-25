@@ -14,7 +14,7 @@ function Youtube({ history }) {
 			<Grid item sm={3} md={2}>
 				<Subscriptions history={history} platform="youtube" />
 				<Channels platform="youtube" />
-				<ChannelGroupDetail openEditMode={false} />
+				<ChannelGroupDetail />
 			</Grid>
 			<Grid item sm={9} md={10}>
 				<Feeds />
