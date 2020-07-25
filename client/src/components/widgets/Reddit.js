@@ -237,8 +237,10 @@ class Reddit extends Component {
 					frameBorder={0}
 					allowFullScreen
 					className={classes.media}
+					scrolling="no"
 				/>
 			);
+			expandedContent = content;
 		} else if (post.domain === "imgur.com") {
 			const imgurId = post.url.substr(post.url.lastIndexOf("/") + 1);
 
@@ -253,8 +255,10 @@ class Reddit extends Component {
 					className={classes.media}
 					frameBorder={0}
 					allowFullScreen
+					scrolling="no"
 				/>
 			);
+			expandedContent = content;
 		} else if (post.domain === "i.imgur.com" && post.url.substr(post.url.lastIndexOf(".") + 1) === "gifv") {
 			content = (
 				<CardMedia
@@ -264,6 +268,7 @@ class Reddit extends Component {
 					controls
 				/>
 			);
+			expandedContent = content;
 		} else if (post.domain === "v.redd.it") {
 			content = (
 				<CardMedia
@@ -273,6 +278,7 @@ class Reddit extends Component {
 					controls
 				/>
 			);
+			expandedContent = content;
 		} else if (post.domain === "youtube.com" || post.domain === "youtu.be") {
 			const videoId = post.url.includes("?v=")
 				? post.url.substr(post.url.lastIndexOf("?v=") + 3)
@@ -288,6 +294,7 @@ class Reddit extends Component {
 					allowFullScreen
 				/>
 			);
+			expandedContent = content;
 		} else {
 			isMedia = false;
 			content = (
@@ -338,6 +345,7 @@ class Reddit extends Component {
 					</Box>
 				</Box >
 			);
+			expandedContent = content;
 		}
 
 		const info_v1 = (
@@ -375,7 +383,7 @@ class Reddit extends Component {
 		);
 
 		const info_v2 = (
-			<Box>
+			<Box width="100%" position="absolute" top="100%" left="0">
 				<Divider />
 				<Box p={1}>
 					<Typography>
@@ -394,16 +402,20 @@ class Reddit extends Component {
 						{post.flairs.map(flair => <Chip key={flair} size="small" label={flair} />)}
 					</Box>
 					<Box display="flex">
-						<Box flexGrow={1}>
-							<i className="icofont-caret-up" />
-							{post.score}
-							<i className="icofont-caret-down" />
+						<Box display="flex" flexGrow={1} justifyContent="center">
+							<Typography variant="caption">
+								<i className="icofont-caret-up" />
+								{post.score}
+								<i className="icofont-caret-down" />
+							</Typography>
 						</Box>
-						<Box flexGrow={1}>
-							<i className="icofont-comment" />
-							{` ${post.comments}`}
+						<Box display="flex" flexGrow={1} justifyContent="center">
+							<Typography variant="caption">
+								<i className="icofont-comment" />
+								{` ${post.comments}`}
+							</Typography>
 						</Box>
-						<Box flexGrow={1}>
+						<Box display="flex" flexGrow={1} justifyContent="center">
 							<Typography variant="caption">
 								{formatDate(post.created * 1000, null, true)}
 							</Typography>
@@ -427,14 +439,16 @@ class Reddit extends Component {
 							closeAfterTransition
 						>
 							<Fade in={expandedView}>
-								<Paper component={Box} position="relative" className={classes.expandedView}>
-									<Box position="absolute" top="0px" left="0px" className={classes.expandedBtn} onClick={this.handleShowPreviousPost}>
+								<Paper component={Box} display="flex" className={classes.expandedView}>
+									<Box className={classes.expandedBtn} onClick={this.handleShowPreviousPost}>
 										<Box display="flex" alignItems="center" height="100%">
 											<i className="icofont-arrow-left icofont-3x" />
 										</Box>
 									</Box>
-									{expandedContent}
-									<Box position="absolute" top="0px" right="0px" className={classes.expandedBtn} onClick={this.handleShowNextPost}>
+									<Box position="relative" height="100%" flexGrow={1} style={{ overflow: "auto" }}>
+										{expandedContent}
+									</Box>
+									<Box className={classes.expandedBtn} onClick={this.handleShowNextPost}>
 										<Box display="flex" alignItems="center" height="100%">
 											<i className="icofont-arrow-right icofont-3x" />
 										</Box>

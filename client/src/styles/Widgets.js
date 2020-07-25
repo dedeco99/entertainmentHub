@@ -64,6 +64,10 @@ const reddit = () => ({
 		position: "relative",
 	},
 	media: {
+		position: "absolute",
+		top: "0",
+		left: "0",
+		display: "block",
 		width: "100%",
 		height: "100%",
 		objectFit: "contain",
@@ -139,6 +143,7 @@ const reddit = () => ({
 		width: "90%",
 		outline: "none",
 		"& img": {
+			display: "block",
 			objectFit: "contain",
 			height: "100%",
 			width: "100%",
@@ -148,6 +153,7 @@ const reddit = () => ({
 		height: "100%",
 		padding: "12px",
 		color: "white",
+		backgroundColor: "#3d3d3d",
 		"&:hover": {
 			backgroundColor: "#212121",
 		},
