@@ -4,6 +4,7 @@ const header = makeStyles({
 	appBar: {
 		backgroundColor: "#222",
 		marginBottom: 20,
+		zIndex: 0,
 	},
 	brand: {
 		left: 0,
@@ -84,10 +85,4 @@ const appMenu = () => ({
 	},
 });
 
-export {
-	header,
-	loggedInLinks,
-	notificationDropdown,
-	settings,
-	appMenu,
-};
+export { header, loggedInLinks, notificationDropdown, settings, appMenu };

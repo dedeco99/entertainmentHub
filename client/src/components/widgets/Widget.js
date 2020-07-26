@@ -8,6 +8,8 @@ import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 
+import WidgetDetail from "../widgets/WidgetDetail";
+
 import { WidgetContext } from "../../contexts/WidgetContext";
 import { UserContext } from "../../contexts/UserContext";
 
@@ -17,27 +19,93 @@ import { widget as useStyles } from "../../styles/Widgets";
 import { AnimatePresence, motion } from "framer-motion";
 
 const variants = {
-	hidden: {
+	hiddenR: {
+		y: 50,
+		top: -45,
+		right: 150,
+		position: "absolute",
+		zIndex: -1,
+	},
+	hiddenA: {
+		y: 50,
+		top: -45,
+		right: 100,
+		position: "absolute",
+		zIndex: -1,
+	},
+	hiddenE: {
+		y: 50,
+		top: -45,
+		right: 50,
+		position: "absolute",
+		zIndex: -1,
+	},
+	hiddenD: {
 		y: 50,
 		top: -45,
 		right: 0,
 		position: "absolute",
 		zIndex: -1,
 	},
-	visible: {
+	visibleR: {
+		y: 0,
+		transition: {
+			delay: 0.15,
+		},
+	},
+	visibleA: {
+		y: 0,
+		transition: {
+			delay: 0.1,
+		},
+	},
+	visibleE: {
+		y: 0,
+		transition: {
+			delay: 0.05,
+		},
+	},
+	visibleD: {
 		y: 0,
 	},
-	exit: {
+	exitR: {
 		y: 50,
+	},
+	exitA: {
+		y: 50,
+		transition: {
+			delay: 0.05,
+		},
+	},
+	exitE: {
+		y: 50,
+		transition: {
+			delay: 0.1,
+		},
+	},
+	exitD: {
+		y: 50,
+		transition: {
+			delay: 0.15,
+		},
 	},
 };
 
 function Widget({ id, type, content, borderColor, editText, editIcon, editMode }) {
 	const { dispatch } = useContext(WidgetContext);
 	const { user } = useContext(UserContext);
-	const classes = useStyles({ borderColor: (user.settings && user.settings.borderColor ? borderColor : null) });
+	const classes = useStyles({ borderColor: user.settings && user.settings.borderColor ? borderColor : null });
 	const [refreshToken, setRefreshToken] = useState(new Date());
 	const [hovered, setHovered] = useState(false);
+	const [openWidgetDetail, setOpenWidgetDetail] = useState(false);
+
+	function handleRefresh() {
+		setRefreshToken(new Date());
+	}
+
+	function handleEdit() {
+		dispatch({ type: "SET_EDIT_MODE", editMode: !editMode });
+	}
 
 	async function handleDelete() {
 		const response = await deleteWidget(id);
@@ -47,71 +115,78 @@ function Widget({ id, type, content, borderColor, editText, editIcon, editMode }
 		}
 	}
 
-	function handleRefresh() {
-		setRefreshToken(new Date());
+	function handleShowActions() {
+		setHovered(true);
 	}
 
-	if (editMode) {
-		return (
-			<div className={classes.root}>
-				<IconButton color="primary" className={classes.delete} onClick={handleDelete}>
-					<i className="icofont-ui-delete" />
-				</IconButton>
-				<i className={`${editIcon} icofont-2x`} />
-				<Typography variant="subtitle2">
-					{editText}
-				</Typography>
-			</div>
-		);
+	function handleHideActions() {
+		setHovered(false);
+	}
+
+	function handleWidgetDetailOpen() {
+		setOpenWidgetDetail(true);
+	}
+
+	function handleWidgetDetailClose() {
+		setOpenWidgetDetail(false);
 	}
 
 	const nonAppWidgets = ["notifications", "weather", "crypto"];
 	const hasApp = user.apps.find(app => app.platform === type || nonAppWidgets.includes(type));
 
-	if (!hasApp) {
-		return (
-			<Zoom in>
-				<div className={classes.root}>
-					<i className={`${editIcon} icofont-2x`} />
-					<Typography variant="subtitle2">
-						{editText}
-					</Typography>
-					<Typography variant="subtitle2">
-						<NavLink className={classes.appLink} to="/settings">{"App is missing. Click here to add it"}</NavLink>
-					</Typography>
-				</div>
-			</Zoom>
-		);
-	}
-
 	return (
 		<Zoom in>
-			<Box
-				className={classes.root}
-				onMouseEnter={() => setHovered(true)}
-				onMouseLeave={() => setHovered(false)}
-			>
-				{React.cloneElement(content, { key: refreshToken })}
+			<Box className={classes.root} onMouseEnter={handleShowActions} onMouseLeave={handleHideActions}>
+				{editMode || !hasApp ? (
+					<>
+						<i className={`${editIcon} icofont-2x`} />
+						<Typography variant="subtitle2">{editText}</Typography>
+						{!hasApp && (
+							<Typography variant="subtitle2">
+								<NavLink className={classes.appLink} to="/settings">
+									{"App is missing. Click here to add it"}
+								</NavLink>
+							</Typography>
+						)}
+					</>
+				) : (
+					React.cloneElement(content, { key: refreshToken })
+				)}
 				<AnimatePresence>
 					{hovered && (
-						<motion.div
-							variants={variants}
-							initial="hidden"
-							animate="visible"
-							exit="exit"
-						>
-							<Paper
-								component={Box}
-								className={classes.refresh}
-								onClick={handleRefresh}
-							>
-								<IconButton size="small">
-									<i className="icofont-refresh" />
-								</IconButton>
-							</Paper>
-						</motion.div>
+						<>
+							<motion.div variants={variants} initial="hiddenR" animate="visibleR" exit="exitR">
+								<Paper component={Box} className={classes.action} onClick={handleRefresh}>
+									<IconButton size="small">
+										<i className="icofont-refresh" />
+									</IconButton>
+								</Paper>
+							</motion.div>
+							<motion.div variants={variants} initial="hiddenA" animate="visibleA" exit="exitA">
+								<Paper component={Box} className={classes.action} onClick={handleWidgetDetailOpen}>
+									<IconButton size="small">
+										<i className="icofont-ui-add" />
+									</IconButton>
+								</Paper>
+							</motion.div>
+							<motion.div variants={variants} initial="hiddenE" animate="visibleE" exit="exitE">
+								<Paper component={Box} className={classes.action} onClick={handleEdit}>
+									<IconButton size="small">
+										<i className="icofont-ui-edit" />
+									</IconButton>
+								</Paper>
+							</motion.div>
+							<motion.div variants={variants} initial="hiddenD" animate="visibleD" exit="exitD">
+								<Paper component={Box} className={classes.action} onClick={handleDelete}>
+									<IconButton size="small">
+										<i className="icofont-ui-delete" />
+									</IconButton>
+								</Paper>
+							</motion.div>
+						</>
 					)}
 				</AnimatePresence>
+				<WidgetDetail open={openWidgetDetail} onClose={handleWidgetDetailClose} />
 			</Box>
 		</Zoom>
 	);

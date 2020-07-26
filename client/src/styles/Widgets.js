@@ -12,7 +12,7 @@ const widget = makeStyles({
 		border: `1px solid ${props.borderColor || "#424242"}`,
 		borderRadius: "3px",
 	}),
-	refresh: {
+	action: {
 		padding: 10,
 		cursor: "pointer",
 	},
@@ -337,13 +337,4 @@ const twitch = () => ({
 	},
 });
 
-export {
-	widget,
-	widgetDetail,
-	notifications,
-	reddit,
-	weather,
-	tv,
-	crypto,
-	twitch,
-};
+export { widget, widgetDetail, notifications, reddit, weather, tv, crypto, twitch };
