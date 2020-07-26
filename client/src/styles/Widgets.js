@@ -1,6 +1,23 @@
-import { makeStyles } from "@material-ui/styles";
+const widgets = {
+	root: {
+		width: "100%",
+		height: "100%",
+		display: "flex",
+		justifyContent: "center",
+		alignItems: "center",
+		flexDirection: "column",
+		paddingTop: "50%",
+		cursor: "pointer",
+	},
+	addWidget: {
+		display: "flex",
+		justifyContent: "center",
+		alignItems: "center",
+		paddingTop: 25,
+	},
+};
 
-const widget = makeStyles({
+const widget = {
 	root: props => ({
 		backgroundColor: "#212121",
 		height: "100%",
@@ -12,7 +29,7 @@ const widget = makeStyles({
 		border: `1px solid ${props.borderColor || "#424242"}`,
 		borderRadius: "3px",
 	}),
-	refresh: {
+	action: {
 		padding: 10,
 		cursor: "pointer",
 	},
@@ -24,13 +41,13 @@ const widget = makeStyles({
 	appLink: {
 		color: "white",
 	},
-});
+};
 
-const widgetDetail = makeStyles({
+const widgetDetail = {
 	autocomplete: {
 		width: 300,
 	},
-});
+};
 
 const notifications = () => ({
 	root: {
@@ -337,13 +354,4 @@ const twitch = () => ({
 	},
 });
 
-export {
-	widget,
-	widgetDetail,
-	notifications,
-	reddit,
-	weather,
-	tv,
-	crypto,
-	twitch,
-};
+export { widgets, widget, widgetDetail, notifications, reddit, weather, tv, crypto, twitch };
