@@ -1,22 +1,23 @@
 import React, { useContext, useState } from "react";
 import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 
+import { makeStyles } from "@material-ui/core";
 import Zoom from "@material-ui/core/Zoom";
 import Box from "@material-ui/core/Box";
 import Paper from "@material-ui/core/Paper";
 import Typography from "@material-ui/core/Typography";
 import IconButton from "@material-ui/core/IconButton";
 
-import WidgetDetail from "../widgets/WidgetDetail";
-
 import { WidgetContext } from "../../contexts/WidgetContext";
 import { UserContext } from "../../contexts/UserContext";
 
 import { deleteWidget } from "../../api/widgets";
 
-import { widget as useStyles } from "../../styles/Widgets";
-import { AnimatePresence, motion } from "framer-motion";
+import { widget as styles } from "../../styles/Widgets";
+
+const useStyles = makeStyles(styles);
 
 const variants = {
 	hiddenR: {
@@ -91,13 +92,12 @@ const variants = {
 	},
 };
 
-function Widget({ id, type, content, borderColor, editText, editIcon, editMode }) {
+function Widget({ id, type, content, borderColor, editText, editIcon, editMode, handleWidgetDetailOpen }) {
 	const { dispatch } = useContext(WidgetContext);
 	const { user } = useContext(UserContext);
 	const classes = useStyles({ borderColor: user.settings && user.settings.borderColor ? borderColor : null });
 	const [refreshToken, setRefreshToken] = useState(new Date());
 	const [hovered, setHovered] = useState(false);
-	const [openWidgetDetail, setOpenWidgetDetail] = useState(false);
 
 	function handleRefresh() {
 		setRefreshToken(new Date());
@@ -123,16 +123,10 @@ function Widget({ id, type, content, borderColor, editText, editIcon, editMode }
 		setHovered(false);
 	}
 
-	function handleWidgetDetailOpen() {
-		setOpenWidgetDetail(true);
-	}
-
-	function handleWidgetDetailClose() {
-		setOpenWidgetDetail(false);
-	}
-
 	const nonAppWidgets = ["notifications", "weather", "crypto"];
-	const hasApp = user.apps.find(app => app.platform === type || nonAppWidgets.includes(type));
+	const hasApp = user.apps
+		? user.apps.find(app => app.platform === type || nonAppWidgets.includes(type))
+		: nonAppWidgets.includes(type);
 
 	return (
 		<Zoom in>
@@ -186,7 +180,6 @@ function Widget({ id, type, content, borderColor, editText, editIcon, editMode }
 						</>
 					)}
 				</AnimatePresence>
-				<WidgetDetail open={openWidgetDetail} onClose={handleWidgetDetailClose} />
 			</Box>
 		</Zoom>
 	);
@@ -200,6 +193,7 @@ Widget.propTypes = {
 	editText: PropTypes.string.isRequired,
 	editIcon: PropTypes.string.isRequired,
 	editMode: PropTypes.bool.isRequired,
+	handleWidgetDetailOpen: PropTypes.func.isRequired,
 };
 
 export default Widget;
