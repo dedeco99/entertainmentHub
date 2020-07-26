@@ -166,7 +166,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, editMode, 
 							<motion.div variants={variants} initial="hiddenE" animate="visibleE" exit="exitE">
 								<Paper component={Box} className={classes.action} onClick={handleEdit}>
 									<IconButton size="small">
-										<i className="icofont-ui-edit" />
+										<i className="icofont-expand" />
 									</IconButton>
 								</Paper>
 							</motion.div>
