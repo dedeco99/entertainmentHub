@@ -219,11 +219,11 @@
 		"no-mixed-spaces-and-tabs": "error",
 		"no-multi-assign": "error",
 		"no-multiple-empty-lines": [
-            "error",
-            {
-                "max": 1
-            }
-        ],
+			"error",
+			{
+				"max": 1
+			}
+		],
 		"no-negated-condition": "error",
 		"no-nested-ternary": "error",
 		"no-new-object": "error",

@@ -1,9 +1,9 @@
 import React, { useContext, useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 
-import Widget from "../widgets/Widget";
 import Feed from "./Feed";
 
+import { WidgetContext } from "../../contexts/WidgetContext";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 
 import { getChannelGroups } from "../../api/channelGroups";
@@ -11,6 +11,8 @@ import { getChannelGroups } from "../../api/channelGroups";
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 function Feeds() {
+	const { widgetState } = useContext(WidgetContext);
+	const { editMode } = widgetState;
 	const { state, dispatch } = useContext(YoutubeContext);
 	const { channelGroups } = state;
 
@@ -37,14 +39,7 @@ function Feeds() {
 					h: 4,
 				}}
 			>
-				<Widget
-					id={channelGroup._id}
-					type={"youtube"}
-					content={<Feed channelGroup={channelGroup} />}
-					editText={"Youtube"}
-					editIcon={"icofont-youtube-play"}
-					editMode={false}
-				/>
+				<Feed channelGroup={channelGroup} />
 			</div>
 		));
 	}
@@ -54,8 +49,8 @@ function Feeds() {
 			className="layout"
 			breakpoints={{ xl: 1870, lg: 1230, md: 910, sm: 550, xs: 430, xxs: 0 }}
 			cols={{ xl: 6, lg: 4, md: 3, sm: 2, xs: 1, xxs: 1 }}
-			isDraggable
-			isResizable
+			isDraggable={editMode}
+			isResizable={editMode}
 			compactType="horizontal"
 		>
 			{renderFeeds()}

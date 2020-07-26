@@ -1,7 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
-import IconButton from "@material-ui/core/IconButton";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -9,7 +8,6 @@ import DialogActions from "@material-ui/core/DialogActions";
 import Button from "@material-ui/core/Button";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 import Chip from "@material-ui/core/Chip";
-import MenuItem from "@material-ui/core/MenuItem";
 
 import Input from "../.partials/Input";
 
@@ -18,12 +16,11 @@ import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { getChannels } from "../../api/channels";
 import { addChannelGroup, editChannelGroup } from "../../api/channelGroups";
 
-function ChannelGroupDetail({ channelGroup }) {
+function ChannelGroupDetail({ open, channelGroup, onClose }) {
 	const { dispatch } = useContext(YoutubeContext);
 	const [channels, setChannels] = useState([]);
 	const [selectedChannels, setSelectedChannels] = useState([]);
 	const [name, setName] = useState("");
-	const [open, setOpen] = useState(false);
 
 	useEffect(() => {
 		async function fetchData() {
@@ -42,12 +39,8 @@ function ChannelGroupDetail({ channelGroup }) {
 		fetchData();
 	}, []); // eslint-disable-line
 
-	function handleOpenModal() {
-		setOpen(true);
-	}
-
 	function handleCloseModal() {
-		setOpen(false);
+		onClose();
 
 		if (channelGroup) {
 			setName(channelGroup.displayName);
@@ -66,22 +59,26 @@ function ChannelGroupDetail({ channelGroup }) {
 	async function handleSubmit() {
 		if (!name || !selectedChannels.length) return;
 
-		const response = await addChannelGroup("youtube", name, selectedChannels.map(c => c.channelId));
+		const mappedChannels = selectedChannels.map(c => c.channelId);
+
+		const response = await addChannelGroup("youtube", name, mappedChannels);
 
 		if (response.status === 201) {
 			dispatch({ type: "ADD_CHANNEL_GROUP", channelGroup: response.data });
-			setOpen(false);
+			onClose();
 		}
 	}
 
 	async function handleUpdate() {
 		if (!channelGroup || !name || !selectedChannels.length) return;
 
-		const response = await editChannelGroup(channelGroup._id, name, selectedChannels.map(c => c.channelId));
+		const mappedChannels = selectedChannels.map(c => c.channelId);
+
+		const response = await editChannelGroup(channelGroup._id, name, mappedChannels);
 
 		if (response.status === 200) {
 			dispatch({ type: "EDIT_CHANNEL_GROUP", channelGroup: response.data });
-			setOpen(false);
+			onClose();
 		}
 	}
 
@@ -97,29 +94,18 @@ function ChannelGroupDetail({ channelGroup }) {
 		if (!value) return [];
 
 		return value.map((option, index) => (
-			<Chip key={option._id} value={option._id} color="primary" label={option.displayName} {...getTagProps({ index })} />
+			<Chip
+				key={option._id}
+				value={option._id}
+				color="primary"
+				label={option.displayName}
+				{...getTagProps({ index })}
+			/>
 		));
-	}
-
-	function renderEditMode() {
-		if (channelGroup) {
-			return (
-				<MenuItem onClick={handleOpenModal}>
-					{"Edit"}
-				</MenuItem>
-			);
-		}
-
-		return (
-			<IconButton color="primary" onClick={handleOpenModal}>
-				<i className="icofont-ui-add" />
-			</IconButton>
-		);
 	}
 
 	return (
 		<div>
-			{renderEditMode()}
 			<Dialog
 				aria-labelledby="alert-dialog-title"
 				aria-describedby="alert-dialog-description"
@@ -173,7 +159,9 @@ function ChannelGroupDetail({ channelGroup }) {
 }
 
 ChannelGroupDetail.propTypes = {
+	open: PropTypes.bool.isRequired,
 	channelGroup: PropTypes.object,
+	onClose: PropTypes.func.isRequired,
 };
 
 export default ChannelGroupDetail;

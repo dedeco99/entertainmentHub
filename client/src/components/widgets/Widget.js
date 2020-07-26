@@ -13,35 +13,21 @@ import IconButton from "@material-ui/core/IconButton";
 import { WidgetContext } from "../../contexts/WidgetContext";
 import { UserContext } from "../../contexts/UserContext";
 
-import { deleteWidget } from "../../api/widgets";
-
 import { widget as styles } from "../../styles/Widgets";
 
 const useStyles = makeStyles(styles);
 
 const variants = {
-	hiddenR: {
+	hidden: {
 		y: 50,
-		top: -45,
-		right: 100,
-		position: "absolute",
-		zIndex: -1,
-	},
-	hiddenE: {
-		y: 50,
-		top: -45,
-		right: 50,
-		position: "absolute",
-		zIndex: -1,
-	},
-	hiddenD: {
-		y: 50,
-		top: -45,
-		right: 0,
-		position: "absolute",
-		zIndex: -1,
 	},
 	visibleR: {
+		y: 0,
+		transition: {
+			delay: 0.15,
+		},
+	},
+	visibleM: {
 		y: 0,
 		transition: {
 			delay: 0.1,
@@ -59,21 +45,27 @@ const variants = {
 	exitR: {
 		y: 50,
 	},
-	exitE: {
+	exitM: {
 		y: 50,
 		transition: {
 			delay: 0.05,
 		},
 	},
-	exitD: {
+	exitE: {
 		y: 50,
 		transition: {
 			delay: 0.1,
 		},
 	},
+	exitD: {
+		y: 50,
+		transition: {
+			delay: 0.15,
+		},
+	},
 };
 
-function Widget({ id, type, content, borderColor, editText, editIcon }) {
+function Widget({ id, type, content, borderColor, editText, editIcon, onEdit, onDelete }) {
 	const { widgetState, dispatch } = useContext(WidgetContext);
 	const { editMode } = widgetState;
 	const { user } = useContext(UserContext);
@@ -85,16 +77,16 @@ function Widget({ id, type, content, borderColor, editText, editIcon }) {
 		setRefreshToken(new Date());
 	}
 
-	function handleEdit() {
+	function handleMove() {
 		dispatch({ type: "SET_EDIT_MODE", editMode: !editMode });
 	}
 
-	async function handleDelete() {
-		const response = await deleteWidget(id);
+	function handleEdit() {
+		onEdit(id);
+	}
 
-		if (response.status < 400) {
-			dispatch({ type: "DELETE_WIDGET", widget: response.data });
-		}
+	function handleDelete() {
+		onDelete(id);
 	}
 
 	function handleShowActions() {
@@ -130,29 +122,40 @@ function Widget({ id, type, content, borderColor, editText, editIcon }) {
 				)}
 				<AnimatePresence>
 					{hovered && (
-						<>
-							<motion.div variants={variants} initial="hiddenR" animate="visibleR" exit="exitR">
+						<div className={classes.actions}>
+							<motion.div variants={variants} initial="hidden" animate="visibleR" exit="exitR">
 								<Paper component={Box} className={classes.action} onClick={handleRefresh}>
 									<IconButton size="small">
 										<i className="icofont-refresh" />
 									</IconButton>
 								</Paper>
 							</motion.div>
-							<motion.div variants={variants} initial="hiddenE" animate="visibleE" exit="exitE">
-								<Paper component={Box} className={classes.action} onClick={handleEdit}>
+							<motion.div variants={variants} initial="hidden" animate="visibleM" exit="exitM">
+								<Paper component={Box} className={classes.action} onClick={handleMove}>
 									<IconButton size="small">
 										<i className="icofont-expand" />
 									</IconButton>
 								</Paper>
 							</motion.div>
-							<motion.div variants={variants} initial="hiddenD" animate="visibleD" exit="exitD">
-								<Paper component={Box} className={classes.action} onClick={handleDelete}>
-									<IconButton size="small">
-										<i className="icofont-ui-delete" />
-									</IconButton>
-								</Paper>
-							</motion.div>
-						</>
+							{onEdit && (
+								<motion.div variants={variants} initial="hidden" animate="visibleE" exit="exitE">
+									<Paper component={Box} className={classes.action} onClick={handleEdit}>
+										<IconButton size="small">
+											<i className="icofont-ui-edit" />
+										</IconButton>
+									</Paper>
+								</motion.div>
+							)}
+							{onDelete && (
+								<motion.div variants={variants} initial="hidden" animate="visibleD" exit="exitD">
+									<Paper component={Box} className={classes.action} onClick={handleDelete}>
+										<IconButton size="small">
+											<i className="icofont-ui-delete" />
+										</IconButton>
+									</Paper>
+								</motion.div>
+							)}
+						</div>
 					)}
 				</AnimatePresence>
 			</Box>
@@ -167,6 +170,8 @@ Widget.propTypes = {
 	borderColor: PropTypes.string,
 	editText: PropTypes.string.isRequired,
 	editIcon: PropTypes.string.isRequired,
+	onEdit: PropTypes.func,
+	onDelete: PropTypes.func,
 };
 
 export default Widget;
