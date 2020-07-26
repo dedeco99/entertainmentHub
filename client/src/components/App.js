@@ -90,8 +90,7 @@ class App extends Component {
 
 			const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
 
-			const height = document.documentElement.scrollHeight -
-				document.documentElement.clientHeight;
+			const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
 
 			const scrolled = winScroll / height;
 
@@ -156,14 +155,9 @@ class App extends Component {
 								<TwitchContextProvider>
 									<BrowserRouter>
 										<Header />
-										<div className={classes.main}>
-											{this.renderRoutes()}
-										</div>
+										<div className={classes.main}>{this.renderRoutes()}</div>
 										{this.renderGoBackUpButton()}
-										<ToastContainer
-											position="bottom-right"
-											newestOnTop
-										/>
+										<ToastContainer position="bottom-right" newestOnTop />
 										<SocketClient />
 									</BrowserRouter>
 								</TwitchContextProvider>

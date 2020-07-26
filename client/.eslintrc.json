@@ -6,10 +6,7 @@
 		"node": true,
 		"jest": true
 	},
-	"extends": [
-		"eslint:recommended",
-		"plugin:react/recommended"
-	],
+	"extends": ["eslint:recommended", "plugin:react/recommended"],
 	"settings": {
 		"react": {
 			"createClass": "createReactClass",
@@ -29,9 +26,7 @@
 		},
 		"sourceType": "module"
 	},
-	"plugins": [
-		"react"
-	],
+	"plugins": ["react"],
 	"rules": {
 		/* possible errors */
 		"no-await-in-loop": "warn",
@@ -54,18 +49,12 @@
 		"array-callback-return": "error",
 		"block-scoped-var": "error",
 		// "class-methods-use-this": "error",
-		"complexity": [
-			"warn",
-			15
-		],
+		"complexity": ["warn", 15],
 		"consistent-return": "error",
 		// "curly": "error",
 		"default-case": "error",
 		// "default-param-last": "error",
-		"dot-location": [
-			"error",
-			"property"
-		],
+		"dot-location": ["error", "property"],
 		"dot-notation": "error",
 		"eqeqeq": "error",
 		// "guard-for-in": "error",
@@ -123,10 +112,7 @@
 		"wrap-iife": "error",
 		"yoda": "error",
 		/* variables */
-		"init-declarations": [
-			"error",
-			"always"
-		],
+		"init-declarations": ["error", "always"],
 		"no-label-var": "error",
 		"no-restricted-globals": "error",
 		"no-shadow": "warn",
@@ -148,18 +134,12 @@
 		/* style */
 		"array-bracket-newline": "error",
 		"array-bracket-spacing": "error",
-		"array-element-newline": [
-			"error",
-			"consistent"
-		],
+		"array-element-newline": ["error", "consistent"],
 		"block-spacing": "error",
 		"brace-style": "error",
 		"camelcase": "error",
 		// "capitalized-comments": "error",
-		"comma-dangle": [
-			"error",
-			"always-multiline"
-		],
+		"comma-dangle": ["error", "always-multiline"],
 		"comma-spacing": "error",
 		"comma-style": "error",
 		"computed-property-spacing": "error",
@@ -174,10 +154,7 @@
 				"allowArrowFunctions": true
 			}
 		],
-		"function-call-argument-newline": [
-			"error",
-			"consistent"
-		],
+		"function-call-argument-newline": ["error", "consistent"],
 		"function-paren-newline": "error",
 		"id-blacklist": "error",
 		// "id-length": "error",
@@ -202,6 +179,7 @@
 			"warn",
 			{
 				"code": 115,
+				"tabWidth": 2,
 				"ignoreStrings": true,
 				"ignoreTemplateLiterals": true
 			}
@@ -222,10 +200,7 @@
 		],
 		// "max-statements": "error",
 		"max-statements-per-line": "error",
-		"multiline-comment-style": [
-			"error",
-			"bare-block"
-		],
+		"multiline-comment-style": ["error", "bare-block"],
 		// "multiline-ternary": "error",
 		// "new-cap": "error",
 		"new-parens": "error",
@@ -262,10 +237,7 @@
 		"no-whitespace-before-property": "error",
 		"nonblock-statement-body-position": "error",
 		"object-curly-newline": "error",
-		"object-curly-spacing": [
-			"error",
-			"always"
-		],
+		"object-curly-spacing": ["error", "always"],
 		"object-property-newline": [
 			"error",
 			{
@@ -276,24 +248,12 @@
 		"one-var-declaration-per-line": "error",
 		"operator-assignment": "error",
 		"operator-linebreak": "error",
-		"padded-blocks": [
-			"error",
-			"never"
-		],
+		"padded-blocks": ["error", "never"],
 		"padding-line-between-statements": "error",
 		"prefer-object-spread": "error",
-		"quote-props": [
-			"error",
-			"as-needed"
-		],
-		"quotes": [
-			"error",
-			"double"
-		],
-		"semi": [
-			"error",
-			"always"
-		],
+		"quote-props": ["error", "as-needed"],
+		"quotes": ["error", "double"],
+		"semi": ["error", "always"],
 		"semi-spacing": "error",
 		"semi-style": "error",
 		// "sort-keys": "error",
@@ -317,10 +277,7 @@
 		"wrap-regex": "error",
 		/* ecmascript */
 		"arrow-body-style": "warn",
-		"arrow-parens": [
-			"error",
-			"as-needed"
-		],
+		"arrow-parens": ["error", "as-needed"],
 		"arrow-spacing": "error",
 		"generator-star-spacing": "error",
 		// "no-confusing-arrow": "error",
@@ -414,14 +371,8 @@
 		// "react/jsx-filename-extension": "error",
 		"react/jsx-first-prop-new-line": "error",
 		"react/jsx-handler-names": "warn",
-		"react/jsx-indent": [
-			"error",
-			"tab"
-		],
-		"react/jsx-indent-props": [
-			"error",
-			"tab"
-		],
+		"react/jsx-indent": ["error", "tab"],
+		"react/jsx-indent-props": ["error", "tab"],
 		"react/jsx-key": "error", // recommended
 		// "react/jsx-max-depth": "warn",
 		// "react/jsx-max-props-per-line": "error",
