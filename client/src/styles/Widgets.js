@@ -64,6 +64,10 @@ const reddit = () => ({
 		position: "relative",
 	},
 	media: {
+		position: "absolute",
+		top: "0",
+		left: "0",
+		display: "block",
 		width: "100%",
 		height: "100%",
 		objectFit: "contain",
@@ -83,6 +87,14 @@ const reddit = () => ({
 		overflow: "hidden",
 		textOverflow: "ellipsis",
 	},
+	subreddit: {
+		top: "40px",
+		left: "5px",
+	},
+	comments: {
+		bottom: "35px",
+		left: "5px",
+	},
 	score: {
 		bottom: "5px",
 		left: "5px",
@@ -91,17 +103,12 @@ const reddit = () => ({
 		bottom: "5px",
 		right: "5px",
 	},
-	hide: {
-		display: "none",
-	},
 	textHeader: {
 		padding: 16,
 		boxSizing: "border-box",
 		borderBottom: "1px solid #424242",
 	},
 	textContent: {
-		padding: 16,
-		paddingTop: 0,
 		boxSizing: "border-box",
 		"& p": {
 			fontSize: "1rem",
@@ -136,9 +143,19 @@ const reddit = () => ({
 		width: "90%",
 		outline: "none",
 		"& img": {
+			display: "block",
 			objectFit: "contain",
 			height: "100%",
 			width: "100%",
+		},
+	},
+	expandedBtn: {
+		height: "100%",
+		padding: "12px",
+		color: "white",
+		backgroundColor: "#3d3d3d",
+		"&:hover": {
+			backgroundColor: "#212121",
 		},
 	},
 	header: {
@@ -165,6 +182,12 @@ const reddit = () => ({
 			marginRight: 5,
 			marginBottom: 5,
 		},
+	},
+	gildedBadge: {
+		padding: "0 2px",
+		height: "15px",
+		minWidth: "15px",
+		fontSize: "0.6rem",
 	},
 });
 
