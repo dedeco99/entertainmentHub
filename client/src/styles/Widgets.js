@@ -9,6 +9,12 @@ const widgets = {
 		paddingTop: "50%",
 		cursor: "pointer",
 	},
+	addWidget: {
+		display: "flex",
+		justifyContent: "center",
+		alignItems: "center",
+		paddingTop: 25,
+	},
 };
 
 const widget = {

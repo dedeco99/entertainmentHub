@@ -5,6 +5,8 @@ import { makeStyles } from "@material-ui/core";
 import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import CircularProgress from "@material-ui/core/CircularProgress";
+import Tooltip from "@material-ui/core/Tooltip";
+import Fab from "@material-ui/core/Fab";
 
 import Widget from "../widgets/Widget";
 import Notifications from "../widgets/Notifications";
@@ -152,8 +154,6 @@ function Widgets() {
 							borderColor={widgetInfo.borderColor}
 							editText={widgetInfo.editText}
 							editIcon={widgetInfo.editIcon}
-							editMode={editMode}
-							handleWidgetDetailOpen={handleWidgetDetailOpen}
 						/>
 					</div>
 				);
@@ -170,14 +170,7 @@ function Widgets() {
 
 	return (
 		<>
-			{!widgets || !widgets.length ? (
-				<Box className={classes.root} onClick={handleWidgetDetailOpen}>
-					<i className="icofont-ui-add icofont-3x" />
-					<Typography variant="subtitle2" style={{ paddingTop: 10 }}>
-						{"Add Widget"}
-					</Typography>
-				</Box>
-			) : (
+			{widgets && widgets.length ? (
 				<ResponsiveGridLayout
 					className="layout"
 					breakpoints={{ xl: 1870, lg: 1230, md: 910, sm: 550, xs: 430, xxs: 0 }}
@@ -189,8 +182,15 @@ function Widgets() {
 				>
 					{renderWidgets()}
 				</ResponsiveGridLayout>
-			)}
+			) : null}
 			<WidgetDetail open={openWidgetDetail} onClose={handleWidgetDetailClose} />
+			<Box className={classes.addWidget}>
+				<Tooltip title="Add Widget">
+					<Fab onClick={handleWidgetDetailOpen}>
+						<span className="material-icons">{"add"}</span>
+					</Fab>
+				</Tooltip>
+			</Box>
 		</>
 	);
 }

@@ -23,13 +23,6 @@ const variants = {
 	hiddenR: {
 		y: 50,
 		top: -45,
-		right: 150,
-		position: "absolute",
-		zIndex: -1,
-	},
-	hiddenA: {
-		y: 50,
-		top: -45,
 		right: 100,
 		position: "absolute",
 		zIndex: -1,
@@ -51,12 +44,6 @@ const variants = {
 	visibleR: {
 		y: 0,
 		transition: {
-			delay: 0.15,
-		},
-	},
-	visibleA: {
-		y: 0,
-		transition: {
 			delay: 0.1,
 		},
 	},
@@ -72,28 +59,23 @@ const variants = {
 	exitR: {
 		y: 50,
 	},
-	exitA: {
+	exitE: {
 		y: 50,
 		transition: {
 			delay: 0.05,
 		},
 	},
-	exitE: {
+	exitD: {
 		y: 50,
 		transition: {
 			delay: 0.1,
 		},
 	},
-	exitD: {
-		y: 50,
-		transition: {
-			delay: 0.15,
-		},
-	},
 };
 
-function Widget({ id, type, content, borderColor, editText, editIcon, editMode, handleWidgetDetailOpen }) {
-	const { dispatch } = useContext(WidgetContext);
+function Widget({ id, type, content, borderColor, editText, editIcon }) {
+	const { widgetState, dispatch } = useContext(WidgetContext);
+	const { editMode } = widgetState;
 	const { user } = useContext(UserContext);
 	const classes = useStyles({ borderColor: user.settings && user.settings.borderColor ? borderColor : null });
 	const [refreshToken, setRefreshToken] = useState(new Date());
@@ -156,13 +138,6 @@ function Widget({ id, type, content, borderColor, editText, editIcon, editMode, 
 									</IconButton>
 								</Paper>
 							</motion.div>
-							<motion.div variants={variants} initial="hiddenA" animate="visibleA" exit="exitA">
-								<Paper component={Box} className={classes.action} onClick={handleWidgetDetailOpen}>
-									<IconButton size="small">
-										<i className="icofont-ui-add" />
-									</IconButton>
-								</Paper>
-							</motion.div>
 							<motion.div variants={variants} initial="hiddenE" animate="visibleE" exit="exitE">
 								<Paper component={Box} className={classes.action} onClick={handleEdit}>
 									<IconButton size="small">
@@ -192,8 +167,6 @@ Widget.propTypes = {
 	borderColor: PropTypes.string,
 	editText: PropTypes.string.isRequired,
 	editIcon: PropTypes.string.isRequired,
-	editMode: PropTypes.bool.isRequired,
-	handleWidgetDetailOpen: PropTypes.func.isRequired,
 };
 
 export default Widget;

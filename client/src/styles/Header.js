@@ -5,6 +5,7 @@ const header = makeStyles({
 		backgroundColor: "#222",
 		marginBottom: 20,
 		zIndex: 0,
+		position: "absolute",
 	},
 	brand: {
 		left: 0,
@@ -73,7 +74,7 @@ const appMenu = () => ({
 		height: "100%",
 		top: 0,
 		left: 0,
-		marginTop: 65,
+		paddingTop: 60,
 		position: "fixed",
 	},
 	appLink: {
