@@ -74,7 +74,7 @@ function ChannelGroupDetail({ open, channelGroup, onClose }) {
 
 		const mappedChannels = selectedChannels.map(c => c.channelId);
 
-		const response = await editChannelGroup(channelGroup._id, name, mappedChannels);
+		const response = await editChannelGroup({ ...channelGroup, displayName: name, channels: mappedChannels });
 
 		if (response.status === 200) {
 			dispatch({ type: "EDIT_CHANNEL_GROUP", channelGroup: response.data });

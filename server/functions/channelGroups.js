@@ -8,7 +8,9 @@ async function getChannelGroups(event) {
 	const { platform } = params;
 
 	const channelGroups = await ChannelGroup.find({ user: user._id, platform })
-		.collation({ locale: "en" }).sort({ displayName: 1 }).lean();
+		.collation({ locale: "en" })
+		.sort({ displayName: 1 })
+		.lean();
 
 	return response(200, "Channel groups found", channelGroups);
 }
@@ -35,13 +37,17 @@ async function addChannelGroup(event) {
 async function editChannelGroup(event) {
 	const { params, body } = event;
 	const { id } = params;
-	const { displayName, channels } = body;
+	const { displayName, channels, x, y, width, height } = body;
 
 	if (!displayName || !channels || !channels.length) return errors.requiredFieldsMissing;
 
 	let channelGroup = null;
 	try {
-		channelGroup = await ChannelGroup.findOneAndUpdate({ _id: id }, { displayName, channels }, { new: true });
+		channelGroup = await ChannelGroup.findOneAndUpdate(
+			{ _id: id },
+			{ displayName, channels, x, y, width, height },
+			{ new: true },
+		);
 	} catch (e) {
 		return errors.notFound;
 	}

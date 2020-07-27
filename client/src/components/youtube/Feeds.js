@@ -6,7 +6,7 @@ import Feed from "./Feed";
 import { WidgetContext } from "../../contexts/WidgetContext";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 
-import { getChannelGroups } from "../../api/channelGroups";
+import { getChannelGroups, editChannelGroup } from "../../api/channelGroups";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -28,20 +28,50 @@ function Feeds() {
 		fetchData();
 	}, []); // eslint-disable-line
 
+	async function handleEditFeed(updatedFeeds) {
+		for (const updatedFeed of updatedFeeds) {
+			const feedToUpdate = channelGroups.find(w => w._id === updatedFeed.i);
+
+			if (
+				feedToUpdate.x !== updatedFeed.x ||
+				feedToUpdate.y !== updatedFeed.y ||
+				feedToUpdate.width !== updatedFeed.w ||
+				feedToUpdate.height !== updatedFeed.h
+			) {
+				feedToUpdate.x = updatedFeed.x;
+				feedToUpdate.y = updatedFeed.y;
+				feedToUpdate.width = updatedFeed.w;
+				feedToUpdate.height = updatedFeed.h;
+
+				const response = await editChannelGroup(feedToUpdate);
+
+				if (response.status < 400) {
+					dispatch({ type: "EDIT_CHANNEL_GROUP", channelGroup: response.data });
+				}
+			}
+		}
+	}
+
 	function renderFeeds() {
-		return channelGroups.map(channelGroup => (
-			<div
-				key={channelGroup._id}
-				data-grid={{
-					x: 0,
-					y: 0,
-					w: 1,
-					h: 4,
-				}}
-			>
-				<Feed channelGroup={channelGroup} />
-			</div>
-		));
+		return channelGroups
+			.sort((a, b) => a.y - b.y)
+			.map(channelGroup => (
+				<div
+					key={channelGroup._id}
+					data-grid={{
+						x: channelGroup.x,
+						y: channelGroup.y,
+						w: channelGroup.width || 1,
+						h: channelGroup.height || 4,
+						minW: 1,
+						minH: 4,
+						maxW: 2,
+						maxH: 8,
+					}}
+				>
+					<Feed channelGroup={channelGroup} />
+				</div>
+			));
 	}
 
 	return (
@@ -52,6 +82,8 @@ function Feeds() {
 			isDraggable={editMode}
 			isResizable={editMode}
 			compactType="horizontal"
+			onDragStop={handleEditFeed}
+			onResizeStop={handleEditFeed}
 		>
 			{renderFeeds()}
 		</ResponsiveGridLayout>
