@@ -13,30 +13,19 @@ import Input from "../.partials/Input";
 
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 
-import { getChannels } from "../../api/channels";
 import { addChannelGroup, editChannelGroup } from "../../api/channelGroups";
 
 function ChannelGroupDetail({ open, channelGroup, onClose }) {
-	const { dispatch } = useContext(YoutubeContext);
-	const [channels, setChannels] = useState([]);
+	const { state, dispatch } = useContext(YoutubeContext);
+	const { channels } = state;
 	const [selectedChannels, setSelectedChannels] = useState([]);
 	const [name, setName] = useState("");
 
 	useEffect(() => {
-		async function fetchData() {
-			const response = await getChannels("youtube");
-
-			if (response.data && response.data.length) {
-				setChannels(response.data);
-
-				if (channelGroup) {
-					setName(channelGroup.displayName);
-					setSelectedChannels(response.data.filter(c => channelGroup.channels.includes(c.channelId)));
-				}
-			}
+		if (channelGroup) {
+			setName(channelGroup.displayName);
+			setSelectedChannels(channels.filter(c => channelGroup.channels.includes(c.channelId)));
 		}
-
-		fetchData();
 	}, []); // eslint-disable-line
 
 	function handleCloseModal() {
