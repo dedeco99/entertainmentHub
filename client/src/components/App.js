@@ -23,6 +23,8 @@ import Apps from "./settings/Apps";
 import UserContextProvider from "../contexts/UserContext";
 import NotificationContextProvider from "../contexts/NotificationContext";
 import WidgetContextProvider from "../contexts/WidgetContext";
+import YoutubeContextProvider from "../contexts/YoutubeContext";
+import TwitchContextProvider from "../contexts/TwitchContext";
 
 import goBackUp from "../img/go_back_up.png";
 
@@ -149,13 +151,17 @@ class App extends Component {
 				<UserContextProvider>
 					<NotificationContextProvider>
 						<WidgetContextProvider>
-							<BrowserRouter>
-								<Header />
-								<div className={classes.main}>{this.renderRoutes()}</div>
-								{this.renderGoBackUpButton()}
-								<ToastContainer position="bottom-right" newestOnTop />
-								<SocketClient />
-							</BrowserRouter>
+							<YoutubeContextProvider>
+								<TwitchContextProvider>
+									<BrowserRouter>
+										<Header />
+										<div className={classes.main}>{this.renderRoutes()}</div>
+										{this.renderGoBackUpButton()}
+										<ToastContainer position="bottom-right" newestOnTop />
+										<SocketClient />
+									</BrowserRouter>
+								</TwitchContextProvider>
+							</YoutubeContextProvider>
 						</WidgetContextProvider>
 					</NotificationContextProvider>
 				</UserContextProvider>

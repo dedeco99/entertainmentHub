@@ -3,7 +3,6 @@ import { Responsive, WidthProvider } from "react-grid-layout";
 
 import { makeStyles } from "@material-ui/core";
 import Box from "@material-ui/core/Box";
-import Typography from "@material-ui/core/Typography";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import Tooltip from "@material-ui/core/Tooltip";
 import Fab from "@material-ui/core/Fab";
@@ -19,7 +18,7 @@ import WidgetDetail from "../widgets/WidgetDetail";
 
 import { WidgetContext } from "../../contexts/WidgetContext";
 
-import { getWidgets, editWidget } from "../../api/widgets";
+import { getWidgets, editWidget, deleteWidget } from "../../api/widgets";
 
 import { widgets as styles } from "../../styles/Widgets";
 
@@ -131,6 +130,14 @@ function Widgets() {
 		}
 	}
 
+	async function handleDeleteWidget(id) {
+		const response = await deleteWidget(id);
+
+		if (response.status < 400) {
+			dispatch({ type: "DELETE_WIDGET", widget: response.data });
+		}
+	}
+
 	function renderWidgets() {
 		return widgets
 			.sort((a, b) => a.y - b.y)
@@ -154,6 +161,7 @@ function Widgets() {
 							borderColor={widgetInfo.borderColor}
 							editText={widgetInfo.editText}
 							editIcon={widgetInfo.editIcon}
+							onDelete={handleDeleteWidget}
 						/>
 					</div>
 				);

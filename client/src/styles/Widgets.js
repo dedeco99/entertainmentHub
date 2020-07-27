@@ -29,8 +29,17 @@ const widget = {
 		border: `1px solid ${props.borderColor || "#424242"}`,
 		borderRadius: "3px",
 	}),
+	actions: {
+		top: -45,
+		right: 0,
+		position: "absolute",
+		zIndex: -1,
+		display: "flex",
+		flexDirection: "row",
+	},
 	action: {
 		padding: 10,
+		marginLeft: 5,
 		cursor: "pointer",
 	},
 	delete: {
