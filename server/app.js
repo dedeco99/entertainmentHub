@@ -41,10 +41,11 @@ app.set("port", process.env.PORT || 5000);
 
 morgan.token("date", () => formatDate(Date.now(), "hh:mm:ss"));
 
-app.use(morgan(
-	":date :status :method :url :response-time ms",
-	{ skip: req => req.originalUrl.includes(".css") || req.originalUrl.includes(".ico") },
-));
+const Morgan = morgan(":date :status :method :url :response-time ms", {
+	skip: req => req.originalUrl.includes(".css") || req.originalUrl.includes(".ico"),
+});
+
+app.use(Morgan);
 
 app.use(express.static(path.join(__dirname, "build")));
 
@@ -85,7 +86,7 @@ app.get("/api/crypto", token, (req, res) => middleware(req, res, crypto.getCoins
 
 app.get("/api/crypto/:coins", token, (req, res) => middleware(req, res, crypto.getPrices));
 
-app.get("/api/reddit", token, (req, res) => middleware(req, res, reddit.getSubreddits));
+app.get("/api/reddit/subreddits", token, (req, res) => middleware(req, res, reddit.getSubreddits));
 
 app.get("/api/reddit/:subreddit/:category", token, (req, res) => middleware(req, res, reddit.getPosts));
 

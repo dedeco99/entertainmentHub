@@ -1,5 +1,14 @@
 import { api } from "../utils/request";
 
+async function getSubreddits() {
+	const res = await api({
+		method: "get",
+		url: "/api/reddit/subreddits",
+	});
+
+	return res;
+}
+
 async function getPosts(subreddit, after) {
 	const res = await api({
 		method: "get",
@@ -18,7 +27,4 @@ async function getSearch(subreddit, search, after) {
 	return res;
 }
 
-export {
-	getPosts,
-	getSearch,
-};
+export { getSubreddits, getPosts, getSearch };
