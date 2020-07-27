@@ -65,8 +65,8 @@ function Feeds() {
 						h: channelGroup.height || 4,
 						minW: 1,
 						minH: 4,
-						maxW: 2,
-						maxH: 8,
+						maxW: 1,
+						maxH: 7,
 					}}
 				>
 					<Feed channelGroup={channelGroup} />

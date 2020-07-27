@@ -29,6 +29,13 @@ const feed = {
 		paddingLeft: 16,
 		width: "100%",
 	},
+	videoTitle: {
+		overflow: "hidden",
+		textOverflow: "ellipsis",
+		display: "-webkit-box",
+		WebkitLineClamp: 2,
+		WebkitBoxOrient: "vertical",
+	},
 };
 
 export { youtube, feed };
