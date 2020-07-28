@@ -22,7 +22,12 @@ class Crypto extends Component {
 		this.state = {
 			loaded: false,
 			crypto: [],
+			showListView: true,
+			selectedCoin: 0,
 		};
+
+		this.handleCheckCoin = this.handleCheckCoin.bind(this);
+		this.handleCheckList = this.handleCheckList.bind(this);
 	}
 
 	async componentDidMount() {
@@ -34,7 +39,7 @@ class Crypto extends Component {
 	async getCrypto(coins) {
 		const response = await getCrypto(coins);
 
-		this.setState({ loaded: true, crypto: response.data });
+		this.setState({ loaded: true, crypto: response.data, showListView: response.data.length > 1 });
 	}
 
 	simplifyNumber(num) {
@@ -57,6 +62,14 @@ class Crypto extends Component {
 		return "--";
 	}
 
+	handleCheckCoin(position) {
+		this.setState({ showListView: false, selectedCoin: position });
+	}
+
+	handleCheckList() {
+		this.setState({ showListView: true });
+	}
+
 	renderPrice(price) {
 		return `€${Math.floor(price) === 0 ? price.toFixed(3) : price.toFixed(2)}`;
 	}
@@ -71,53 +84,70 @@ class Crypto extends Component {
 	}
 
 	renderSingleView() {
-		const { classes } = this.props;
-		const { loaded, crypto } = this.state;
+		const { classes, widgetDimensions } = this.props;
+		const { loaded, crypto, selectedCoin } = this.state;
+
+		const coin = crypto[selectedCoin];
+
+		if (widgetDimensions.h === 1 && widgetDimensions.w === 1) {
+			return (
+				<Zoom in={loaded}>
+					<Box display="flex" flexDirection="column" alignItems="center">
+						<Box display="flex" alignItems="center" mb={1}>
+							<img src={coin.image} alt="icon-crypto" />
+						</Box>
+						<Box display="flex" alignItems="center">
+							<Typography variant="h6">{this.renderPrice(coin.price)}</Typography>
+						</Box>
+					</Box>
+				</Zoom>
+			);
+		}
 
 		return (
 			<Zoom in={loaded}>
-				<Box display="flex" flexDirection="column" className={classes.singleRoot}>
-					<Box display="flex" alignItems="center" className={classes.singleHeader}>
+				<Box display="flex" flexDirection="column" justifyContent="center" className={classes.singleRoot}>
+					<Box display="flex" alignItems="center" className={classes.singleHeader} onClick={crypto.length > 1 ? this.handleCheckList : null}>
 						<Box display="flex">
-							<img src={crypto.image} alt="icon-crypto" className={classes.singleImage} />
+							<img src={coin.image} alt="icon-crypto" className={classes.singleImage} />
 						</Box>
 						<Box display="flex" flexGrow={1} flexDirection="column">
-							<Typography variant="h5">{crypto.symbol}</Typography>
-							<Typography variant="subtitle1">{crypto.name}</Typography>
+							<Typography variant="h5">{coin.symbol}</Typography>
+							<Typography variant="subtitle1">{coin.name}</Typography>
 						</Box>
 						<Box display="flex">
-							<Typography variant="h6">{this.renderPrice(crypto.price)}</Typography>
+							<Typography variant="h6">{this.renderPrice(coin.price)}</Typography>
 						</Box>
 					</Box>
 					<Box display="flex" flexDirection="column" flex="1" justifyContent="center" className={classes.singleContent}>
 						<Box display="flex" flex="1">
 							<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
 								<Typography variant="caption">{"Market Cap"}</Typography>
-								<Typography variant="subtitle1">{`${this.simplifyNumber(crypto.marketCap)}`}</Typography>
+								<Typography variant="subtitle1">{`${this.simplifyNumber(coin.marketCap)}`}</Typography>
 							</Box>
 							<Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" className={classes.singlePercentage}>
 								<Typography variant="caption">{"% 1h"}</Typography>
-								{this.renderPercentages("subtitle1", crypto.change1h)}
+								{this.renderPercentages("subtitle1", coin.change1h)}
 							</Box>
 						</Box>
 						<Box display="flex" flex="1">
 							<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
 								<Typography variant="caption">{"Volume (24h)"}</Typography>
-								<Typography variant="subtitle1">{`${this.simplifyNumber(crypto.volume)}`}</Typography>
+								<Typography variant="subtitle1">{`${this.simplifyNumber(coin.volume)}`}</Typography>
 							</Box>
 							<Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" className={classes.singlePercentage}>
 								<Typography variant="caption">{"% 24h"}</Typography>
-								{this.renderPercentages("subtitle1", crypto.change24h)}
+								{this.renderPercentages("subtitle1", coin.change24h)}
 							</Box>
 						</Box>
 						<Box display="flex" flex="1">
 							<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
 								<Typography variant="caption">{"Circulating Supply"}</Typography>
-								<Typography variant="subtitle1">{`${this.simplifyNumber(crypto.circulatingSupply).substr(1)} ${crypto.symbol}`}</Typography>
+								<Typography variant="subtitle1">{`${this.simplifyNumber(coin.circulatingSupply).substr(1)} ${coin.symbol}`}</Typography>
 							</Box>
 							<Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" className={classes.singlePercentage}>
 								<Typography variant="caption">{"% 7d"}</Typography>
-								{this.renderPercentages("subtitle1", crypto.change7d)}
+								{this.renderPercentages("subtitle1", coin.change7d)}
 							</Box>
 						</Box>
 					</Box>
@@ -135,8 +165,8 @@ class Crypto extends Component {
 				<TableContainer className={classes.root}>
 					<Table>
 						<TableBody>
-							{crypto.map(c => (
-								<TableRow key={c.rank}>
+							{crypto.map((c, index) => (
+								<TableRow key={c.rank} onClick={() => this.handleCheckCoin(index)}>
 									<TableCell className={classes.cell}>
 										<img src={c.image} alt="icon-crypto" className={classes.listImage} />
 									</TableCell>
@@ -184,19 +214,18 @@ class Crypto extends Component {
 	}
 
 	render() {
-		const { loaded, crypto } = this.state;
+		const { loaded, showListView } = this.state;
 
 		if (!loaded) return null;
 
-		if (crypto.length) return this.renderListView();
-
-		return this.renderSingleView();
+		return (showListView ? this.renderListView() : this.renderSingleView());
 	}
 }
 
 Crypto.propTypes = {
 	classes: PropTypes.object.isRequired,
 	coins: PropTypes.string.isRequired,
+	widgetDimensions: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(Crypto);

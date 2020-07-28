@@ -32,7 +32,7 @@ const variants = {
 	},
 };
 
-function Widget({ id, type, content, borderColor, editText, editIcon, editMode }) {
+function Widget({ id, type, content, borderColor, editText, editIcon, editMode, widgetDimensions }) {
 	const { dispatch } = useContext(WidgetContext);
 	const { user } = useContext(UserContext);
 	const classes = useStyles({ borderColor: (user.settings && user.settings.borderColor ? borderColor : null) });
@@ -91,7 +91,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, editMode }
 				onMouseEnter={() => setHovered(true)}
 				onMouseLeave={() => setHovered(false)}
 			>
-				{React.cloneElement(content, { key: refreshToken })}
+				{React.cloneElement(content, { key: refreshToken, widgetDimensions })}
 				<AnimatePresence>
 					{hovered && (
 						<motion.div
@@ -125,6 +125,7 @@ Widget.propTypes = {
 	editText: PropTypes.string.isRequired,
 	editIcon: PropTypes.string.isRequired,
 	editMode: PropTypes.bool.isRequired,
+	widgetDimensions: PropTypes.object.isRequired,
 };
 
 export default Widget;

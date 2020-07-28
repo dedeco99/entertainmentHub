@@ -70,16 +70,22 @@ const widgetsInfo = {
 		content: <Crypto coins={widget.info.coins} />,
 		editText: "Crypto",
 		editIcon: "icofont-bitcoin",
-		dimensions: { w: widget.width || 1, h: widget.height || 2 },
-		restrictions: { minW: 1, minH: 2, maxW: 3, maxH: 6 },
+		dimensions: { w: widget.width || 1, h: widget.height || 1 },
+		restrictions: { minW: 1, minH: 1, maxW: 3, maxH: 6 },
 	}),
 };
 
 class Widgets extends Component {
 	constructor() {
 		super();
+		this.state = {
+			rowHeight: 150,
+			layouts: {},
+		};
 
 		this.handleEditWidget = this.handleEditWidget.bind(this);
+		this.handleWidthChange = this.handleWidthChange.bind(this);
+		this.handleLayoutChange = this.handleLayoutChange.bind(this);
 	}
 
 	async componentDidMount() {
@@ -121,6 +127,17 @@ class Widgets extends Component {
 		}
 	}
 
+	handleWidthChange(containerWidth, margin, cols, containerPadding) {
+		this.setState({
+			rowHeight: (containerWidth - (margin[0] * (cols - 1)) - (containerPadding[0] * 2)) / cols,
+		});
+	}
+
+	handleLayoutChange(layout, layouts) {
+		// TODO Probably save layouts
+		this.setState({ layouts });
+	}
+
 	renderWidgets() {
 		const { widgetState } = this.context;
 		const { widgets, editMode } = widgetState;
@@ -147,6 +164,7 @@ class Widgets extends Component {
 							editText={widgetInfo.editText}
 							editIcon={widgetInfo.editIcon}
 							editMode={editMode}
+							widgetDimensions={widgetInfo.dimensions}
 						/>
 					</div>
 				);
@@ -157,21 +175,27 @@ class Widgets extends Component {
 	}
 
 	render() {
+		const { rowHeight, layouts } = this.state;
 		const { widgetState } = this.context;
 		const { editMode } = widgetState;
 
 		return (
-			<ResponsiveGridLayout
-				className="layout"
-				breakpoints={{ xl: 1870, lg: 1230, md: 910, sm: 550, xs: 430, xxs: 0 }}
-				cols={{ xl: 6, lg: 4, md: 3, sm: 2, xs: 1, xxs: 1 }}
-				isDraggable={editMode}
-				isResizable={editMode}
-				onDragStop={this.handleEditWidget}
-				onResizeStop={this.handleEditWidget}
-			>
-				{this.renderWidgets()}
-			</ResponsiveGridLayout>
+			<div>
+				<ResponsiveGridLayout
+					className="layout"
+					cols={{ xl: 8, lg: 8, md: 4, sm: 3, xs: 2, xxs: 1 }}
+					isDraggable={editMode}
+					isResizable={editMode}
+					onDragStop={this.handleEditWidget}
+					onResizeStop={this.handleEditWidget}
+					onWidthChange={this.handleWidthChange}
+					rowHeight={rowHeight}
+					layouts={layouts}
+					onLayoutChange={this.handleLayoutChange}
+				>
+					{this.renderWidgets()}
+				</ResponsiveGridLayout>
+			</div>
 		);
 	}
 }

@@ -94,7 +94,7 @@ async function getPrices(event) {
 
 	coinsInfo.sort((a, b) => a.rank <= b.rank ? -1 : 1);
 
-	return response(200, "Coin found", coinsInfo.length === 1 ? coinsInfo[0] : coinsInfo);
+	return response(200, "Coin found", coinsInfo);
 }
 
 module.exports = {
