@@ -1,5 +1,7 @@
 import React, { useState, useContext } from "react";
 import PropTypes from "prop-types";
+
+import { makeStyles } from "@material-ui/core";
 import Dialog from "@material-ui/core/Dialog";
 import DialogTitle from "@material-ui/core/DialogTitle";
 import DialogContent from "@material-ui/core/DialogContent";
@@ -20,7 +22,9 @@ import { getCities } from "../../api/weather";
 import { getCoins } from "../../api/crypto";
 import { addWidget } from "../../api/widgets";
 
-import { widgetDetail as useStyles } from "../../styles/Widgets";
+import { widgetDetail as styles } from "../../styles/Widgets";
+
+const useStyles = makeStyles(styles);
 
 function WidgetDetail({ open, onClose }) {
 	const classes = useStyles();
@@ -196,7 +200,8 @@ function WidgetDetail({ open, onClose }) {
 						fullWidth
 					/>
 				);
-			default: return null;
+			default:
+				return null;
 		}
 	}
 
@@ -225,7 +230,11 @@ function WidgetDetail({ open, onClose }) {
 				fullWidth
 				required
 			>
-				{types.map(t => <MenuItem key={t.value} value={t.value}>{t.displayName}</MenuItem>)}
+				{types.map(t => (
+					<MenuItem key={t.value} value={t.value}>
+						{t.displayName}
+					</MenuItem>
+				))}
 			</Input>
 		);
 	}

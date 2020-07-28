@@ -111,21 +111,25 @@ async function getFollows(event) {
 		after: json.pagination.cursor,
 	}));
 
-	const channelsString = `id=${channels.map(c => c.channelId).join("&id=")}`;
+	if (channels.length) {
+		const channelsString = `id=${channels.map(c => c.channelId).join("&id=")}`;
 
-	url = `https://api.twitch.tv/helix/users?${channelsString}`;
+		url = `https://api.twitch.tv/helix/users?${channelsString}`;
 
-	res = await api({ method: "get", url, headers });
-	json = res.data;
+		res = await api({ method: "get", url, headers });
+		json = res.data;
 
-	channels = channels.map(follow => {
-		const channel = json.data.find(c => c.id === follow.channelId);
+		channels = channels.map(follow => {
+			const channel = json.data.find(c => c.id === follow.channelId);
 
-		return {
-			...follow,
-			logo: channel && channel.profile_image_url,
-		};
-	});
+			return {
+				...follow,
+				logo: channel && channel.profile_image_url,
+			};
+		}).sort((a, b) => (
+			a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1
+		));
+	}
 
 	return response(200, "Twitch followed channels found", channels);
 }

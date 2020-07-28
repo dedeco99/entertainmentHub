@@ -1,17 +1,28 @@
-import React, { Component } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
+
+import { makeStyles } from "@material-ui/core";
+import Box from "@material-ui/core/Box";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import Tooltip from "@material-ui/core/Tooltip";
+import Fab from "@material-ui/core/Fab";
 
 import Widget from "../widgets/Widget";
 import Notifications from "../widgets/Notifications";
-import Reddit from "../widgets/Reddit";
+import Reddit from "../widgets/reddit/Reddit";
 import Twitch from "../widgets/Twitch";
 import Weather from "../widgets/Weather";
 import TV from "../widgets/TV";
 import Crypto from "../widgets/Crypto";
+import WidgetDetail from "../widgets/WidgetDetail";
 
 import { WidgetContext } from "../../contexts/WidgetContext";
 
-import { getWidgets, editWidget } from "../../api/widgets";
+import { getWidgets, editWidget, deleteWidget } from "../../api/widgets";
+
+import { widgets as styles } from "../../styles/Widgets";
+
+const useStyles = makeStyles(styles);
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -25,11 +36,7 @@ const widgetsInfo = {
 	}),
 	reddit: widget => ({
 		content: (
-			<Reddit
-				subreddit={widget.info.subreddit}
-				search={widget.info.search}
-				listView={widget.info.listView}
-			/>
+			<Reddit subreddit={widget.info.subreddit} search={widget.info.search} listView={widget.info.listView} />
 		),
 		borderColor: "#ff4500",
 		editText: `r/${widget.info.subreddit}`,
@@ -47,12 +54,7 @@ const widgetsInfo = {
 	}),
 	weather: widget => ({
 		content: (
-			<Weather
-				city={widget.info.city}
-				country={widget.info.country}
-				lat={widget.info.lat}
-				lon={widget.info.lon}
-			/>
+			<Weather city={widget.info.city} country={widget.info.country} lat={widget.info.lat} lon={widget.info.lon} />
 		),
 		editText: "Weather",
 		editIcon: "icofont-cloud",
@@ -75,35 +77,38 @@ const widgetsInfo = {
 	}),
 };
 
-class Widgets extends Component {
-	constructor() {
-		super();
-		this.state = {
-			rowHeight: 150,
-			layouts: {},
-		};
+function Widgets() {
+	const classes = useStyles();
+	const { widgetState, dispatch } = useContext(WidgetContext);
+	const { widgets, editMode } = widgetState;
+	const [loading, setLoading] = useState(false);
+	const [openWidgetDetail, setOpenWidgetDetail] = useState(false);
+	const [rowHeight, setRowHeight] = useState(150);
+	const [layouts, setLayouts] = useState({});
 
-		this.handleEditWidget = this.handleEditWidget.bind(this);
-		this.handleWidthChange = this.handleWidthChange.bind(this);
-		this.handleLayoutChange = this.handleLayoutChange.bind(this);
+	useEffect(() => {
+		async function fetchData() {
+			setLoading(true);
+
+			const response = await getWidgets();
+
+			dispatch({ type: "SET_WIDGETS", widgets: response.data });
+
+			setLoading(false);
+		}
+
+		fetchData();
+	}, []); // eslint-disable-line
+
+	function handleWidgetDetailOpen() {
+		setOpenWidgetDetail(true);
 	}
 
-	async componentDidMount() {
-		await this.getWidgets();
+	function handleWidgetDetailClose() {
+		setOpenWidgetDetail(false);
 	}
 
-	async getWidgets() {
-		const { dispatch } = this.context;
-
-		const response = await getWidgets();
-
-		dispatch({ type: "SET_WIDGETS", widgets: response.data });
-	}
-
-	async handleEditWidget(updatedWidgets) {
-		const { widgetState, dispatch } = this.context;
-		const { widgets } = widgetState;
-
+	async function handleEditWidget(updatedWidgets) {
 		for (const updatedWidget of updatedWidgets) {
 			const widgetToUpdate = widgets.find(w => w._id === updatedWidget.i);
 
@@ -127,23 +132,28 @@ class Widgets extends Component {
 		}
 	}
 
-	handleWidthChange(containerWidth, margin, cols, containerPadding) {
-		this.setState({
-			rowHeight: (containerWidth - (margin[0] * (cols - 1)) - (containerPadding[0] * 2)) / cols,
-		});
+	function handleWidthChange(containerWidth, margin, cols, containerPadding) {
+		// prettier-ignore
+		setRowHeight((containerWidth - (margin[0] * (cols - 1)) - (containerPadding[0] * 2)) / cols);
 	}
 
-	handleLayoutChange(layout, layouts) {
+	function handleLayoutChange(layout, layouts) {
 		// TODO Probably save layouts
-		this.setState({ layouts });
+		setLayouts(layouts);
 	}
 
-	renderWidgets() {
-		const { widgetState } = this.context;
-		const { widgets, editMode } = widgetState;
+	async function handleDeleteWidget(id) {
+		const response = await deleteWidget(id);
 
-		if (widgets && widgets.length) {
-			return widgets.sort((a, b) => a.y - b.y).map(widget => {
+		if (response.status < 400) {
+			dispatch({ type: "DELETE_WIDGET", widget: response.data });
+		}
+	}
+
+	function renderWidgets() {
+		return widgets
+			.sort((a, b) => a.y - b.y)
+			.map(widget => {
 				const widgetInfo = widgetsInfo[widget.type](widget);
 
 				return (
@@ -163,43 +173,50 @@ class Widgets extends Component {
 							borderColor={widgetInfo.borderColor}
 							editText={widgetInfo.editText}
 							editIcon={widgetInfo.editIcon}
-							editMode={editMode}
 							widgetDimensions={widgetInfo.dimensions}
+							onDelete={handleDeleteWidget}
 						/>
 					</div>
 				);
 			});
-		}
-
-		return null;
 	}
 
-	render() {
-		const { rowHeight, layouts } = this.state;
-		const { widgetState } = this.context;
-		const { editMode } = widgetState;
-
+	if (loading) {
 		return (
-			<div>
-				<ResponsiveGridLayout
-					className="layout"
-					cols={{ xl: 8, lg: 8, md: 4, sm: 3, xs: 2, xxs: 1 }}
-					isDraggable={editMode}
-					isResizable={editMode}
-					onDragStop={this.handleEditWidget}
-					onResizeStop={this.handleEditWidget}
-					onWidthChange={this.handleWidthChange}
-					rowHeight={rowHeight}
-					layouts={layouts}
-					onLayoutChange={this.handleLayoutChange}
-				>
-					{this.renderWidgets()}
-				</ResponsiveGridLayout>
-			</div>
+			<Box className={classes.root}>
+				<CircularProgress />
+			</Box>
 		);
 	}
-}
 
-Widgets.contextType = WidgetContext;
+	return (
+		<>
+			{widgets && widgets.length ? (
+				<ResponsiveGridLayout
+					className="layout"
+					cols={{ xl: 8, lg: 8, md: 7, sm: 4, xs: 3, xxs: 2 }}
+					isDraggable={editMode}
+					isResizable={editMode}
+					onDragStop={handleEditWidget}
+					onResizeStop={handleEditWidget}
+					onWidthChange={handleWidthChange}
+					rowHeight={rowHeight}
+					layouts={layouts}
+					onLayoutChange={handleLayoutChange}
+				>
+					{renderWidgets()}
+				</ResponsiveGridLayout>
+			) : null}
+			<WidgetDetail open={openWidgetDetail} onClose={handleWidgetDetailClose} />
+			<Box className={classes.addWidget}>
+				<Tooltip title="Add Widget">
+					<Fab onClick={handleWidgetDetailOpen}>
+						<span className="material-icons">{"add"}</span>
+					</Fab>
+				</Tooltip>
+			</Box>
+		</>
+	);
+}
 
 export default Widgets;

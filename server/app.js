@@ -17,6 +17,7 @@ const weather = require("./functions/weather");
 const crypto = require("./functions/crypto");
 const reddit = require("./functions/reddit");
 const channels = require("./functions/channels");
+const channelGroups = require("./functions/channelGroups");
 const youtube = require("./functions/youtube");
 const twitch = require("./functions/twitch");
 const tv = require("./functions/tv");
@@ -96,11 +97,19 @@ app.post("/api/channels/:platform", token, (req, res) => middleware(req, res, ch
 
 app.delete("/api/channels/:id", token, (req, res) => middleware(req, res, channels.deleteChannel));
 
+app.get("/api/channelgroups/:platform", token, (req, res) => middleware(req, res, channelGroups.getChannelGroups));
+
+app.post("/api/channelgroups/:platform", token, (req, res) => middleware(req, res, channelGroups.addChannelGroup));
+
+app.put("/api/channelgroups/:id", token, (req, res) => middleware(req, res, channelGroups.editChannelGroup));
+
+app.delete("/api/channelgroups/:id", token, (req, res) => middleware(req, res, channelGroups.deleteChannelGroup));
+
 app.get("/api/youtube/subscriptions", token, (req, res) => middleware(req, res, youtube.getSubscriptions));
 
-app.post("/api/youtube/watchlater/:id", token, (req, res) => middleware(req, res, youtube.addToWatchLater));
+app.get("/api/youtube/videos/:channels", token, (req, res) => middleware(req, res, youtube.getVideos));
 
-// app.get("/api/youtube/channels/:channel/", token, (req, res) => middleware(req, res, youtube.getPosts));
+app.post("/api/youtube/watchlater/:id", token, (req, res) => middleware(req, res, youtube.addToWatchLater));
 
 app.get("/api/twitch/streams", token, (req, res) => middleware(req, res, twitch.getStreams));
 

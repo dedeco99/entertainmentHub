@@ -9,6 +9,15 @@ async function getSubscriptions(after) {
 	return res;
 }
 
+async function getVideos(channels) {
+	const res = await api({
+		method: "get",
+		url: `api/youtube/videos/${channels}`,
+	});
+
+	return res;
+}
+
 async function addToWatchLater(id) {
 	const res = await api({
 		method: "post",
@@ -21,5 +30,6 @@ async function addToWatchLater(id) {
 
 export {
 	getSubscriptions,
+	getVideos,
 	addToWatchLater,
 };

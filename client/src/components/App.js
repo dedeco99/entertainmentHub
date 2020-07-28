@@ -22,6 +22,9 @@ import Apps from "./settings/Apps";
 
 import UserContextProvider from "../contexts/UserContext";
 import NotificationContextProvider from "../contexts/NotificationContext";
+import WidgetContextProvider from "../contexts/WidgetContext";
+import YoutubeContextProvider from "../contexts/YoutubeContext";
+import TwitchContextProvider from "../contexts/TwitchContext";
 
 import goBackUp from "../img/go_back_up.png";
 
@@ -87,8 +90,7 @@ class App extends Component {
 
 			const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
 
-			const height = document.documentElement.scrollHeight -
-				document.documentElement.clientHeight;
+			const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
 
 			const scrolled = winScroll / height;
 
@@ -148,18 +150,19 @@ class App extends Component {
 				<CssBaseline />
 				<UserContextProvider>
 					<NotificationContextProvider>
-						<BrowserRouter>
-							<Header />
-							<div className={classes.main}>
-								{this.renderRoutes()}
-							</div>
-							{this.renderGoBackUpButton()}
-							<ToastContainer
-								position="bottom-right"
-								newestOnTop
-							/>
-							<SocketClient />
-						</BrowserRouter>
+						<WidgetContextProvider>
+							<YoutubeContextProvider>
+								<TwitchContextProvider>
+									<BrowserRouter>
+										<Header />
+										<div className={classes.main}>{this.renderRoutes()}</div>
+										{this.renderGoBackUpButton()}
+										<ToastContainer position="bottom-right" newestOnTop />
+										<SocketClient />
+									</BrowserRouter>
+								</TwitchContextProvider>
+							</YoutubeContextProvider>
+						</WidgetContextProvider>
 					</NotificationContextProvider>
 				</UserContextProvider>
 			</ThemeProvider>
