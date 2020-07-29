@@ -1,18 +1,18 @@
 import { api } from "../utils/request";
 
-async function getPosts(subreddit) {
+async function getPosts(subreddit, after) {
 	const res = await api({
 		method: "get",
-		url: `/api/reddit/${subreddit}/hot`,
+		url: `/api/reddit/${subreddit}/hot${after ? `?after=${after}` : ""}`,
 	});
 
 	return res;
 }
 
-async function getSearch(subreddit, search) {
+async function getSearch(subreddit, search, after) {
 	const res = await api({
 		method: "get",
-		url: `/api/reddit/${subreddit}/search/${search}`,
+		url: `/api/reddit/${subreddit}/search/${search}${after ? `?after=${after}` : ""}`,
 	});
 
 	return res;

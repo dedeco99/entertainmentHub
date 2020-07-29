@@ -23,7 +23,7 @@ import { NotificationContext } from "../../contexts/NotificationContext";
 
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
 import { addToWatchLater } from "../../api/youtube";
-import { formatDate } from "../../utils/utils";
+import { formatDate, formatVideoDuration } from "../../utils/utils";
 
 import { notifications as styles } from "../../styles/Widgets";
 
@@ -174,17 +174,6 @@ class Notifications extends Component {
 		this.setState({ notificationAnchorEl: null });
 	}
 
-	formatVideoDuration(duration) {
-		if (!duration || duration === "P0D") return "Live";
-
-		const values = duration.substring(2).slice(0, -1).split(/[HM]/g);
-		for (let i = 1; i < values.length; i++) {
-			if (values[i].length < 2) values[i] = `0${values[i]}`;
-		}
-
-		return values.join(":");
-	}
-
 	renderNotificationType(type) {
 		switch (type) {
 			case "tv":
@@ -243,7 +232,7 @@ class Notifications extends Component {
 							<Box position="relative" flexShrink="0" width="100px" mr={2}>
 								<img src={notification.info.thumbnail} width="100%" alt="Video thumbnail" />
 								<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
-									<Typography variant="caption"> {this.formatVideoDuration(notification.info.duration)} </Typography>
+									<Typography variant="caption"> {formatVideoDuration(notification.info.duration)} </Typography>
 								</Box>
 							</Box>
 						) : (

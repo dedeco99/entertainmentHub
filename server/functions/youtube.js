@@ -28,6 +28,31 @@ async function getAccessToken(user) {
 	return json.access_token;
 }
 
+async function getVideoDuration(items) {
+	const requests = [];
+	let remainingItems = items;
+
+	while (remainingItems.length > 0) {
+		const paginatedItems = remainingItems.slice(0, 50);
+		remainingItems = remainingItems.slice(50, remainingItems.length);
+		const videoIds = paginatedItems.map(i => i.yt_videoId);
+
+		// prettier-ignore
+		const url = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds.join(",")}&key=${process.env.youtubeKey}`;
+
+		requests.push(api({ method: "get", url }));
+	}
+
+	const responses = await Promise.all(requests);
+
+	let videoDurationItems = [];
+	for (const res of responses) {
+		videoDurationItems = videoDurationItems.concat(res.data.items);
+	}
+
+	return videoDurationItems;
+}
+
 async function getSubscriptions(event) {
 	const { query, user } = event;
 	const { after } = query;
@@ -36,7 +61,8 @@ async function getSubscriptions(event) {
 
 	if (accessToken.status === 401) return errors.youtubeRefreshToken;
 
-	let url = "https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&maxResults=25";
+	// prettier-ignore
+	let url = "https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&order=alphabetical&maxResults=20";
 	if (after) url += `&pageToken=${after}`;
 
 	const headers = {
@@ -54,6 +80,51 @@ async function getSubscriptions(event) {
 	}));
 
 	return response(200, "Youtube subscriptions found", channels);
+}
+
+async function getVideos(event) {
+	const { params } = event;
+	const { channels } = params;
+
+	const requests = [];
+	for (const channel of channels.split(",")) {
+		const request = rssParser.toJson(`https://www.youtube.com/feeds/videos.xml?channel_id=${channel}`);
+
+		requests.push(request);
+	}
+
+	const responses = await Promise.all(requests);
+
+	let items = [];
+	for (const res of responses) {
+		items = items.concat(res.items);
+	}
+
+	const videoDurationItems = await getVideoDuration(items);
+
+	function calculateLikes(i) {
+		return (
+			i.media_group.media_community.media_starRating_count *
+			(i.media_group.media_community.media_starRating_average / 5)
+		);
+	}
+
+	items = items
+		.map(i => ({
+			published: i.published,
+			displayName: i.author.name,
+			thumbnail: i.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),
+			videoTitle: i.title,
+			videoId: i.yt_videoId,
+			channelId: i.yt_channelId,
+			views: i.media_group.media_community.media_statistics_views,
+			likes: Math.round(calculateLikes(i)),
+			dislikes: Math.round(i.media_group.media_community.media_starRating_count - calculateLikes(i)),
+			duration: videoDurationItems.find(v => v.id === i.yt_videoId).contentDetails.duration,
+		}))
+		.sort((a, b) => new Date(b.published) - new Date(a.published));
+
+	return response(200, "Youtube videos found", items);
 }
 
 async function addToWatchLater(event) {
@@ -101,38 +172,21 @@ async function cronjob() {
 		{ $sort: { _id: 1 } },
 	]);
 
-	let requests = [];
+	const requests = [];
 	for (const channel of channels) {
 		const request = rssParser.toJson(`https://www.youtube.com/feeds/videos.xml?channel_id=${channel._id}`);
 
 		requests.push(request);
 	}
 
-	let responses = await Promise.all(requests);
+	const responses = await Promise.all(requests);
 
 	let items = [];
 	for (const res of responses) {
 		items = items.concat(res.items.filter(i => diff(i.published, "hours") <= 3));
 	}
 
-	requests = [];
-	let remainingItems = items;
-	while (remainingItems.length > 0) {
-		const paginatedItems = remainingItems.slice(0, 50);
-		remainingItems = remainingItems.slice(50, remainingItems.length);
-		const videoIds = paginatedItems.map(i => i.yt_videoId);
-
-		const url = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds.join(",")}&key=${process.env.youtubeKey}`;
-
-		requests.push(api({ method: "get", url }));
-	}
-
-	responses = await Promise.all(requests);
-
-	let videoDurationItems = [];
-	for (const res of responses) {
-		videoDurationItems = videoDurationItems.concat(res.data.items.slice(0, 3));
-	}
+	const videoDurationItems = await getVideoDuration(items);
 
 	const notificationsToAdd = [];
 	for (const video of items) {
@@ -170,6 +224,7 @@ async function cronjob() {
 
 module.exports = {
 	getSubscriptions,
+	getVideos,
 	addToWatchLater,
 	cronjob,
 };
