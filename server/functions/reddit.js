@@ -99,7 +99,7 @@ async function isSubreddit(subreddit, user) {
 
 async function getSubreddits(event) {
 	const { query, user } = event;
-	const { after } = query;
+	const { filter, after } = query;
 
 	const accessToken = await getAccessToken(user);
 
@@ -107,6 +107,10 @@ async function getSubreddits(event) {
 
 	let url = "https://oauth.reddit.com/subreddits/mine/subscriber";
 	if (after) url += `?after=${after}`;
+
+	if (filter) {
+		url = `https://oauth.reddit.com/subreddits/search?q=${filter}`;
+	}
 
 	const headers = {
 		"User-Agent": "Entertainment-Hub by dedeco99",
@@ -116,15 +120,17 @@ async function getSubreddits(event) {
 	const res = await api({ method: "get", url, headers });
 	const json = res.data;
 
-	const subreddits = json.data.children
-		.map(subreddit => ({
-			displayName: subreddit.data.display_name,
-			subscribers: subreddit.data.subscribers,
-			nsfw: subreddit.data.over18,
-			created: subreddit.data.created,
-			after: json.after,
-		}))
-		.sort((a, b) => (a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1));
+	const subreddits = json.data.children.map(subreddit => ({
+		displayName: subreddit.data.display_name,
+		subscribers: subreddit.data.subscribers,
+		nsfw: subreddit.data.over18,
+		created: subreddit.data.created,
+		after: json.after,
+	}));
+
+	if (!filter) {
+		subreddits.sort((a, b) => (a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1));
+	}
 
 	return response(200, "Subreddits found", subreddits);
 }

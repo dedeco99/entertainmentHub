@@ -1,26 +1,28 @@
 import React, { useContext, useEffect } from "react";
+import PropTypes from "prop-types";
 import { Responsive, WidthProvider } from "react-grid-layout";
 
 import Feed from "./Feed";
 
 import { WidgetContext } from "../../contexts/WidgetContext";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
+import { RedditContext } from "../../contexts/RedditContext";
 
 import { getChannelGroups, editChannelGroup } from "../../api/channelGroups";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
-function Feeds() {
+function Feeds({ platform }) {
 	const { widgetState } = useContext(WidgetContext);
 	const { editMode } = widgetState;
-	const { state, dispatch } = useContext(YoutubeContext);
+	const { state, dispatch } = useContext(platform === "youtube" ? YoutubeContext : RedditContext);
 	const { channelGroups } = state;
 
 	useEffect(() => {
 		async function fetchData() {
-			const response = await getChannelGroups("youtube");
+			const response = await getChannelGroups(platform);
 
-			if (response.data && response.data.length) {
+			if (response.status === 200) {
 				dispatch({ type: "SET_CHANNEL_GROUPS", channelGroups: response.data });
 			}
 		}
@@ -63,10 +65,12 @@ function Feeds() {
 						y: channelGroup.y,
 						w: channelGroup.width || 1,
 						h: channelGroup.height || 4,
+						/*
 						minW: 1,
 						minH: 4,
 						maxW: 1,
 						maxH: 7,
+						*/
 					}}
 				>
 					<Feed channelGroup={channelGroup} />
@@ -89,5 +93,9 @@ function Feeds() {
 		</ResponsiveGridLayout>
 	);
 }
+
+Feeds.propTypes = {
+	platform: PropTypes.string.isRequired,
+};
 
 export default Feeds;
