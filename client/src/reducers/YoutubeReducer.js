@@ -1,11 +1,9 @@
 export const youtubeReducer = (state, action) => {
-	let { subscriptions, channels, channelGroups } = state;
+	let { subscriptions, channels, feeds } = state;
 
 	switch (action.type) {
 		case "SET_SUBSCRIPTIONS":
-			subscriptions = action.subscriptions.filter(s => (
-				!channels.map(c => c.channelId).includes(s.channelId)
-			));
+			subscriptions = action.subscriptions.filter(s => !channels.map(c => c.channelId).includes(s.channelId));
 
 			return { ...state, subscriptions };
 		case "ADD_SUBSCRIPTION":
@@ -17,43 +15,39 @@ export const youtubeReducer = (state, action) => {
 
 			return { ...state, subscriptions };
 		case "SET_CHANNELS":
-			subscriptions = subscriptions.filter(s => (
-				channels.map(c => c.channelId).includes(s.channelId)
-			));
+			subscriptions = subscriptions.filter(s => channels.map(c => c.channelId).includes(s.channelId));
 
 			return { ...state, subscriptions, channels: action.channels };
 		case "ADD_CHANNEL":
-			channels = [...channels, ...action.channel].sort((a, b) => (
-				a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1
-			));
+			channels = [...channels, ...action.channel].sort((a, b) =>
+				a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1,
+			);
 
-			subscriptions = subscriptions.filter(s => (
-				!channels.map(c => c.channelId).includes(s.channelId)
-			));
+			subscriptions = subscriptions.filter(s => !channels.map(c => c.channelId).includes(s.channelId));
 
 			return { ...state, subscriptions, channels };
 		case "DELETE_CHANNEL":
 			channels = channels.filter(c => c._id !== action.channel._id);
 
-			subscriptions = [...subscriptions, action.channel].sort((a, b) => (
-				a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1
-			));
+			subscriptions = [...subscriptions, action.channel].sort((a, b) =>
+				a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1,
+			);
 
 			return { ...state, subscriptions, channels };
-		case "SET_CHANNEL_GROUPS":
-			return { ...state, channelGroups: action.channelGroups };
-		case "ADD_CHANNEL_GROUP":
-			channelGroups.push(action.channelGroup);
+		case "SET_FEEDS":
+			return { ...state, feeds: action.feeds };
+		case "ADD_FEED":
+			feeds.push(action.feed);
 
-			return { ...state, channelGroups };
-		case "EDIT_CHANNEL_GROUP":
-			channelGroups = [...channelGroups.filter(c => c._id !== action.channelGroup._id), action.channelGroup];
+			return { ...state, feeds };
+		case "EDIT_FEED":
+			feeds = [...feeds.filter(c => c._id !== action.feed._id), action.feed];
 
-			return { ...state, channelGroups };
-		case "DELETE_CHANNEL_GROUP":
-			channelGroups = channelGroups.filter(c => c._id !== action.channelGroup._id);
+			return { ...state, feeds };
+		case "DELETE_FEED":
+			feeds = feeds.filter(c => c._id !== action.feed._id);
 
-			return { ...state, channelGroups };
+			return { ...state, feeds };
 		default:
 			return state;
 	}

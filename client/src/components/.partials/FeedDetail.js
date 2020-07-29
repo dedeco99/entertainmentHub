@@ -14,23 +14,23 @@ import Input from "./Input";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { RedditContext } from "../../contexts/RedditContext";
 
-import { addChannelGroup, editChannelGroup } from "../../api/channelGroups";
+import { addFeed, editFeed } from "../../api/feeds";
 import { getSubreddits } from "../../api/reddit";
 
-function ChannelGroupDetail({ open, channelGroup, platform, onClose }) {
+function FeedDetail({ open, feed, platform, onClose }) {
 	const { state, dispatch } = useContext(platform === "youtube" ? YoutubeContext : RedditContext);
 	const { channels } = state;
 	const [selectedChannels, setSelectedChannels] = useState([]);
 	const [name, setName] = useState("");
 	const [typingTimeout, setTypingTimeout] = useState(null);
 
-	function setChannelGroupInfo() {
-		if (channelGroup) {
-			setName(channelGroup.displayName);
+	function setFeedInfo() {
+		if (feed) {
+			setName(feed.displayName);
 			setSelectedChannels(
 				platform === "youtube"
-					? channels.filter(c => channelGroup.channels.includes(c.channelId))
-					: channelGroup.channels.map(c => ({
+					? channels.filter(c => feed.channels.includes(c.channelId))
+					: feed.channels.map(c => ({
 							displayName: c,
 					  })),
 			);
@@ -38,12 +38,12 @@ function ChannelGroupDetail({ open, channelGroup, platform, onClose }) {
 	}
 
 	useEffect(() => {
-		setChannelGroupInfo();
+		setFeedInfo();
 	}, []); // eslint-disable-line
 
 	function handleCloseModal() {
 		onClose();
-		setChannelGroupInfo();
+		setFeedInfo();
 	}
 
 	function handleGetSubreddits(e, filter) {
@@ -78,23 +78,23 @@ function ChannelGroupDetail({ open, channelGroup, platform, onClose }) {
 			? selectedChannels.map(c => c.channelId)
 			: selectedChannels.map(c => c.displayName);
 
-		const response = await addChannelGroup(platform, name, mappedChannels);
+		const response = await addFeed(platform, name, mappedChannels);
 
 		if (response.status === 201) {
-			dispatch({ type: "ADD_CHANNEL_GROUP", channelGroup: response.data });
+			dispatch({ type: "ADD_FEED", feed: response.data });
 			onClose();
 		}
 	}
 
 	async function handleUpdate() {
-		if (!channelGroup || !name || !selectedChannels.length) return;
+		if (!feed || !name || !selectedChannels.length) return;
 
 		const mappedChannels = selectedChannels.map(c => c.channelId);
 
-		const response = await editChannelGroup({ ...channelGroup, displayName: name, channels: mappedChannels });
+		const response = await editFeed({ ...feed, displayName: name, channels: mappedChannels });
 
 		if (response.status === 200) {
-			dispatch({ type: "EDIT_CHANNEL_GROUP", channelGroup: response.data });
+			dispatch({ type: "EDIT_FEED", feed: response.data });
 			onClose();
 		}
 	}
@@ -139,9 +139,7 @@ function ChannelGroupDetail({ open, channelGroup, platform, onClose }) {
 				maxWidth="xs"
 			>
 				<div>
-					<DialogTitle id="simple-dialog-title">
-						{channelGroup ? "Edit Channel Group" : "New Channel Group"}
-					</DialogTitle>
+					<DialogTitle id="simple-dialog-title">{feed ? "Edit Channel Group" : "New Channel Group"}</DialogTitle>
 					<DialogContent>
 						<Input
 							type="text"
@@ -160,7 +158,7 @@ function ChannelGroupDetail({ open, channelGroup, platform, onClose }) {
 							value={selectedChannels}
 							limitTags={2}
 							renderTags={renderTags}
-							onInputChange={platform === "reddit" && handleGetSubreddits}
+							onInputChange={platform === "reddit" ? handleGetSubreddits : null}
 							onChange={handleSelectedChannels}
 							options={channels || []}
 							renderInput={renderInput}
@@ -174,8 +172,8 @@ function ChannelGroupDetail({ open, channelGroup, platform, onClose }) {
 						<Button onClick={handleCloseModal} color="primary">
 							{"Close"}
 						</Button>
-						<Button color="primary" autoFocus onClick={channelGroup ? handleUpdate : handleSubmit}>
-							{channelGroup ? "Update" : "Add"}
+						<Button color="primary" autoFocus onClick={feed ? handleUpdate : handleSubmit}>
+							{feed ? "Update" : "Add"}
 						</Button>
 					</DialogActions>
 				</div>
@@ -184,11 +182,11 @@ function ChannelGroupDetail({ open, channelGroup, platform, onClose }) {
 	);
 }
 
-ChannelGroupDetail.propTypes = {
+FeedDetail.propTypes = {
 	open: PropTypes.bool.isRequired,
-	channelGroup: PropTypes.object,
+	feed: PropTypes.object,
 	platform: PropTypes.string.isRequired,
 	onClose: PropTypes.func.isRequired,
 };
 
-export default ChannelGroupDetail;
+export default FeedDetail;

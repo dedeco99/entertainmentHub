@@ -6,7 +6,7 @@ import IconButton from "@material-ui/core/IconButton";
 
 import Subscriptions from "../.partials/Subscriptions";
 import Channels from "../.partials/Channels";
-import ChannelGroupDetail from "../.partials/ChannelGroupDetail";
+import FeedDetail from "../.partials/FeedDetail";
 import Feeds from "../.partials/Feeds";
 
 function Youtube({ history }) {
@@ -28,7 +28,7 @@ function Youtube({ history }) {
 				<IconButton onClick={handleOpenModal}>
 					<i className="icofont-ui-add" />
 				</IconButton>
-				<ChannelGroupDetail open={openModal} platform="youtube" onClose={handleCloseModal} />
+				<FeedDetail open={openModal} platform="youtube" onClose={handleCloseModal} />
 			</Grid>
 			<Grid item sm={9} md={10}>
 				<Feeds platform="youtube" />

@@ -1,5 +1,5 @@
 export const redditReducer = (state, action) => {
-	let { subscriptions, channels, channelGroups } = state;
+	let { subscriptions, channels, feeds } = state;
 
 	switch (action.type) {
 		case "SET_SUBSCRIPTIONS":
@@ -35,20 +35,20 @@ export const redditReducer = (state, action) => {
 			));
 
 			return { ...state, subscriptions, channels };
-		case "SET_CHANNEL_GROUPS":
-			return { ...state, channelGroups: action.channelGroups };
-		case "ADD_CHANNEL_GROUP":
-			channelGroups.push(action.channelGroup);
+		case "SET_FEEDS":
+			return { ...state, feeds: action.feeds };
+		case "ADD_FEED":
+			feeds.push(action.feed);
 
-			return { ...state, channelGroups };
-		case "EDIT_CHANNEL_GROUP":
-			channelGroups = [...channelGroups.filter(c => c._id !== action.channelGroup._id), action.channelGroup];
+			return { ...state, feeds };
+		case "EDIT_FEED":
+			feeds = [...feeds.filter(c => c._id !== action.feed._id), action.feed];
 
-			return { ...state, channelGroups };
-		case "DELETE_CHANNEL_GROUP":
-			channelGroups = channelGroups.filter(c => c._id !== action.channelGroup._id);
+			return { ...state, feeds };
+		case "DELETE_FEED":
+			feeds = feeds.filter(c => c._id !== action.feed._id);
 
-			return { ...state, channelGroups };
+			return { ...state, feeds };
 		default:
 			return state;
 	}

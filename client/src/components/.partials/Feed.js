@@ -10,7 +10,7 @@ import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
 
 import Widget from "../widgets/Widget";
-import ChannelGroupDetail from "./ChannelGroupDetail";
+import FeedDetail from "./FeedDetail";
 import Post from "../reddit/Post";
 
 import { YoutubeContext } from "../../contexts/YoutubeContext";
@@ -18,7 +18,7 @@ import { RedditContext } from "../../contexts/RedditContext";
 
 import { getVideos } from "../../api/youtube";
 import { getPosts } from "../../api/reddit";
-import { deleteChannelGroup } from "../../api/channelGroups";
+import { deleteFeed } from "../../api/feeds";
 
 import { widget as widgetStyles } from "../../styles/Widgets";
 import { feed as feedStyles } from "../../styles/Youtube";
@@ -26,9 +26,9 @@ import { formatDate, formatVideoDuration } from "../../utils/utils";
 
 const useStyles = makeStyles({ ...widgetStyles, ...feedStyles });
 
-function Feed({ channelGroup }) {
+function Feed({ feed }) {
 	const classes = useStyles();
-	const { dispatch } = useContext(channelGroup.platform === "youtube" ? YoutubeContext : RedditContext);
+	const { dispatch } = useContext(feed.platform === "youtube" ? YoutubeContext : RedditContext);
 	const [posts, setPosts] = useState([]);
 	const [open, setOpen] = useState(false);
 	const [openModal, setOpenModal] = useState(false);
@@ -36,9 +36,9 @@ function Feed({ channelGroup }) {
 	useEffect(() => {
 		async function fetchData() {
 			const response =
-				channelGroup.platform === "youtube"
-					? await getVideos(channelGroup.channels.join(","))
-					: await getPosts(channelGroup.channels.join("+"));
+				feed.platform === "youtube"
+					? await getVideos(feed.channels.join(","))
+					: await getPosts(feed.channels.join("+"));
 
 			if (response.data && response.data.length) {
 				setPosts(response.data);
@@ -47,13 +47,13 @@ function Feed({ channelGroup }) {
 		}
 
 		fetchData();
-	}, [channelGroup]);
+	}, [feed]);
 
-	async function handleDeleteChannelGroup() {
-		const response = await deleteChannelGroup(channelGroup._id);
+	async function handleDeleteFeed() {
+		const response = await deleteFeed(feed._id);
 
 		if (response.status === 200) {
-			dispatch({ type: "DELETE_CHANNEL_GROUP", channelGroup: response.data });
+			dispatch({ type: "DELETE_FEED", feed: response.data });
 		}
 	}
 
@@ -118,7 +118,7 @@ function Feed({ channelGroup }) {
 	function renderPosts() {
 		return posts.map(post => (
 			<ListItem key={post.id} divider style={{ padding: 0, margin: 0 }}>
-				<Post post={post} multipleSubs={Boolean(channelGroup.channels.length)} inList />
+				<Post post={post} multipleSubs={Boolean(feed.channels.length)} inList />
 			</ListItem>
 		));
 	}
@@ -128,7 +128,7 @@ function Feed({ channelGroup }) {
 			<Zoom in={open}>
 				<Box display="flex" flexDirection="column" className={classes.root}>
 					<Box display="flex" alignItems="center" className={classes.header}>
-						<Typography variant="subtitle1">{channelGroup.displayName}</Typography>
+						<Typography variant="subtitle1">{feed.displayName}</Typography>
 					</Box>
 					<Box
 						display="flex"
@@ -137,7 +137,7 @@ function Feed({ channelGroup }) {
 						height="100%"
 						style={{ overflow: "auto", width: "inherit" }}
 					>
-						<List>{channelGroup.platform === "youtube" ? renderVideos() : renderPosts()}</List>
+						<List>{feed.platform === "youtube" ? renderVideos() : renderPosts()}</List>
 					</Box>
 				</Box>
 			</Zoom>
@@ -147,26 +147,21 @@ function Feed({ channelGroup }) {
 	return (
 		<>
 			<Widget
-				id={channelGroup._id}
+				id={feed._id}
 				type={"youtube"}
 				content={renderFeed()}
 				editText={"Youtube"}
 				editIcon={"icofont-youtube-play"}
 				onEdit={handleOpenModal}
-				onDelete={handleDeleteChannelGroup}
+				onDelete={handleDeleteFeed}
 			/>
-			<ChannelGroupDetail
-				open={openModal}
-				platform={channelGroup.platform}
-				channelGroup={channelGroup}
-				onClose={handleCloseModal}
-			/>
+			<FeedDetail open={openModal} platform={feed.platform} feed={feed} onClose={handleCloseModal} />
 		</>
 	);
 }
 
 Feed.propTypes = {
-	channelGroup: PropTypes.object.isRequired,
+	feed: PropTypes.object.isRequired,
 };
 
 export default Feed;

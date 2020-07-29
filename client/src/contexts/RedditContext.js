@@ -9,7 +9,7 @@ const RedditContextProvider = ({ children }) => {
 	const initState = {
 		subscriptions: [],
 		channels: [],
-		channelGroups: [],
+		feeds: [],
 	};
 
 	const [state, dispatch] = useReducer(redditReducer, initState);

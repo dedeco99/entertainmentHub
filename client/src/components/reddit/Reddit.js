@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import Grid from "@material-ui/core/Grid";
 import IconButton from "@material-ui/core/IconButton";
 
-import ChannelGroupDetail from "../.partials/ChannelGroupDetail";
+import FeedDetail from "../.partials/FeedDetail";
 import Feeds from "../.partials/Feeds";
 
 function Reddit() {
@@ -23,7 +23,7 @@ function Reddit() {
 				<IconButton onClick={handleOpenModal}>
 					<i className="icofont-ui-add" />
 				</IconButton>
-				<ChannelGroupDetail open={openModal} platform="reddit" onClose={handleCloseModal} />
+				<FeedDetail open={openModal} platform="reddit" onClose={handleCloseModal} />
 			</Grid>
 			<Grid item sm={9} md={10}>
 				<Feeds platform="reddit" />

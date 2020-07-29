@@ -8,7 +8,7 @@ import { WidgetContext } from "../../contexts/WidgetContext";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { RedditContext } from "../../contexts/RedditContext";
 
-import { getChannelGroups, editChannelGroup } from "../../api/channelGroups";
+import { getFeeds, editFeed } from "../../api/feeds";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -16,14 +16,14 @@ function Feeds({ platform }) {
 	const { widgetState } = useContext(WidgetContext);
 	const { editMode } = widgetState;
 	const { state, dispatch } = useContext(platform === "youtube" ? YoutubeContext : RedditContext);
-	const { channelGroups } = state;
+	const { feeds } = state;
 
 	useEffect(() => {
 		async function fetchData() {
-			const response = await getChannelGroups(platform);
+			const response = await getFeeds(platform);
 
 			if (response.status === 200) {
-				dispatch({ type: "SET_CHANNEL_GROUPS", channelGroups: response.data });
+				dispatch({ type: "SET_FEEDS", feeds: response.data });
 			}
 		}
 
@@ -32,7 +32,7 @@ function Feeds({ platform }) {
 
 	async function handleEditFeed(updatedFeeds) {
 		for (const updatedFeed of updatedFeeds) {
-			const feedToUpdate = channelGroups.find(w => w._id === updatedFeed.i);
+			const feedToUpdate = feeds.find(w => w._id === updatedFeed.i);
 
 			if (
 				feedToUpdate.x !== updatedFeed.x ||
@@ -45,26 +45,26 @@ function Feeds({ platform }) {
 				feedToUpdate.width = updatedFeed.w;
 				feedToUpdate.height = updatedFeed.h;
 
-				const response = await editChannelGroup(feedToUpdate);
+				const response = await editFeed(feedToUpdate);
 
 				if (response.status < 400) {
-					dispatch({ type: "EDIT_CHANNEL_GROUP", channelGroup: response.data });
+					dispatch({ type: "EDIT_FEED", feed: response.data });
 				}
 			}
 		}
 	}
 
 	function renderFeeds() {
-		return channelGroups
+		return feeds
 			.sort((a, b) => a.y - b.y)
-			.map(channelGroup => (
+			.map(feed => (
 				<div
-					key={channelGroup._id}
+					key={feed._id}
 					data-grid={{
-						x: channelGroup.x,
-						y: channelGroup.y,
-						w: channelGroup.width || 1,
-						h: channelGroup.height || 4,
+						x: feed.x,
+						y: feed.y,
+						w: feed.width || 1,
+						h: feed.height || 4,
 						/*
 						minW: 1,
 						minH: 4,
@@ -73,7 +73,7 @@ function Feeds({ platform }) {
 						*/
 					}}
 				>
-					<Feed channelGroup={channelGroup} />
+					<Feed feed={feed} />
 				</div>
 			));
 	}
