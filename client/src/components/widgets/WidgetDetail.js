@@ -39,6 +39,7 @@ function WidgetDetail({ open, onClose }) {
 	const [selectedCity, setSelectedCity] = useState(null);
 	const [selectedCoins, setSelectedCoins] = useState([]);
 
+
 	function handleGetCities(e, filter) {
 		if (!filter) return;
 
@@ -93,7 +94,7 @@ function WidgetDetail({ open, onClose }) {
 
 	async function handleSubmit(e) {
 		e.preventDefault();
-		console.log(onClose);
+
 		const response = await addWidget({ type, info });
 
 		if (response.status < 400) {
@@ -102,10 +103,6 @@ function WidgetDetail({ open, onClose }) {
 		}
 
 		setInfo({});
-	}
-
-	function handleKeyPress(event) {
-		if (event.key === "Enter") handleSubmit();
 	}
 
 	function renderCitiesOptionLabel(option) {
@@ -143,7 +140,6 @@ function WidgetDetail({ open, onClose }) {
 							label="Subreddit"
 							value={info.subreddit || ""}
 							onChange={handleChange}
-							onKeyPress={handleKeyPress}
 							margin="normal"
 							variant="outlined"
 							fullWidth
@@ -155,7 +151,6 @@ function WidgetDetail({ open, onClose }) {
 							label="Search"
 							value={info.search || ""}
 							onChange={handleChange}
-							onKeyPress={handleKeyPress}
 							margin="normal"
 							variant="outlined"
 							fullWidth
