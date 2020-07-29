@@ -29,10 +29,9 @@ export const redditReducer = (state, action) => {
 		case "DELETE_CHANNEL":
 			channels = channels.filter(c => c._id !== action.channel._id);
 
-			// prettier-ignore
-			subscriptions = [...subscriptions, action.channel].sort((a, b) => (
-				a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1
-			));
+			subscriptions = [...subscriptions, action.channel].sort((a, b) =>
+				a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1,
+			);
 
 			return { ...state, subscriptions, channels };
 		case "SET_FEEDS":

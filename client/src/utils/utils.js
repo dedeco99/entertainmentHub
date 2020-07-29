@@ -1,7 +1,9 @@
 import moment from "moment";
 
-function formatDate(date, format, relative) {
-	return relative ? moment(date).fromNow() : moment(date).format(format);
+function formatDate(date, format, relative, originalFormat) {
+	if (relative) return moment(date).fromNow();
+
+	return moment(date, originalFormat).format(format);
 }
 
 function formatVideoDuration(duration) {

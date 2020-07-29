@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
+import Loading from "../../.partials/Loading";
 import SingleView from "./SingleView";
 import ListView from "./ListView";
 
@@ -100,7 +101,7 @@ function Reddit({ subreddit, search, listView }) {
 		);
 	}
 
-	if (!posts || !posts.length) return null;
+	if (!open) return <Loading />;
 
 	return showListView ? renderListView() : renderSingleView();
 }
