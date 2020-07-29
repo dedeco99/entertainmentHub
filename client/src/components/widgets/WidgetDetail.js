@@ -91,7 +91,9 @@ function WidgetDetail({ open, onClose }) {
 		}
 	}
 
-	async function handleSubmit() {
+	async function handleSubmit(e) {
+		e.preventDefault();
+		
 		const response = await addWidget({ type, info });
 
 		if (response.status < 400) {
@@ -240,27 +242,29 @@ function WidgetDetail({ open, onClose }) {
 	}
 
 	return (
-		<Dialog
-			aria-labelledby="alert-dialog-title"
-			aria-describedby="alert-dialog-description"
-			open={open}
-			fullWidth
-			maxWidth="xs"
-		>
-			<DialogTitle id="simple-dialog-title">{"New Widget"}</DialogTitle>
-			<DialogContent>
-				{renderTypes()}
-				{renderFields()}
-			</DialogContent>
-			<DialogActions>
-				<Button onClick={onClose} color="primary">
-					{"Close"}
-				</Button>
-				<Button onClick={handleSubmit} color="primary" autoFocus>
-					{"Add"}
-				</Button>
-			</DialogActions>
-		</Dialog>
+			<Dialog
+				aria-labelledby="alert-dialog-title"
+				aria-describedby="alert-dialog-description"
+				open={open}
+				fullWidth
+				maxWidth="xs"
+			>
+				<form onSubmit={handleSubmit} onClick={onClose}>
+					<DialogTitle id="simple-dialog-title">{"New Widget"}</DialogTitle>
+					<DialogContent>
+						{renderTypes()}
+						{renderFields()}
+					</DialogContent>
+					<DialogActions>
+						<Button onClick={onClose} color="primary">
+							{"Close"}
+						</Button>
+						<Button type="submit" color="primary" autoFocus>
+							{"Add"}
+						</Button>
+					</DialogActions>
+				</form>
+			</Dialog>
 	);
 }
 

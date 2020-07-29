@@ -45,7 +45,9 @@ function ChannelGroupDetail({ open, channelGroup, onClose }) {
 		setSelectedChannels(selected);
 	}
 
-	async function handleSubmit() {
+	async function handleSubmit(e) {
+		e.preventDefault();
+
 		if (!name || !selectedChannels.length) return;
 
 		const mappedChannels = selectedChannels.map(c => c.channelId);
@@ -58,7 +60,9 @@ function ChannelGroupDetail({ open, channelGroup, onClose }) {
 		}
 	}
 
-	async function handleUpdate() {
+	async function handleUpdate(e) {
+		e.preventDefault();
+
 		if (!channelGroup || !name || !selectedChannels.length) return;
 
 		const mappedChannels = selectedChannels.map(c => c.channelId);
@@ -103,44 +107,46 @@ function ChannelGroupDetail({ open, channelGroup, onClose }) {
 				maxWidth="xs"
 			>
 				<div>
-					<DialogTitle id="simple-dialog-title">
-						{channelGroup ? "Edit Channel Group" : "New Channel Group"}
-					</DialogTitle>
-					<DialogContent>
-						<Input
-							type="text"
-							label="Name"
-							margin="normal"
-							variant="outlined"
-							defaultValue={name}
-							fullWidth
-							required
-							onChange={handleName}
-						/>
-						<Autocomplete
-							id="Channel"
-							multiple
-							disableCloseOnSelect
-							value={selectedChannels}
-							limitTags={2}
-							renderTags={renderTags}
-							onChange={handleSelectedChannels}
-							options={channels || []}
-							renderInput={renderInput}
-							getOptionLabel={renderOptionLabel}
-							fullWidth
-							required
-							label="Channels"
-						/>
-					</DialogContent>
-					<DialogActions>
-						<Button onClick={handleCloseModal} color="primary">
-							{"Close"}
-						</Button>
-						<Button color="primary" autoFocus onClick={channelGroup ? handleUpdate : handleSubmit}>
-							{channelGroup ? "Update" : "Add"}
-						</Button>
-					</DialogActions>
+					<form onSubmit={channelGroup ? handleUpdate : handleSubmit}>
+						<DialogTitle id="simple-dialog-title">
+							{channelGroup ? "Edit Channel Group" : "New Channel Group"}
+						</DialogTitle>
+						<DialogContent>
+							<Input
+								type="text"
+								label="Name"
+								margin="normal"
+								variant="outlined"
+								defaultValue={name}
+								fullWidth
+								required
+								onChange={handleName}
+							/>
+							<Autocomplete
+								id="Channel"
+								multiple
+								disableCloseOnSelect
+								value={selectedChannels}
+								limitTags={2}
+								renderTags={renderTags}
+								onChange={handleSelectedChannels}
+								options={channels || []}
+								renderInput={renderInput}
+								getOptionLabel={renderOptionLabel}
+								fullWidth
+								required
+								label="Channels"
+							/>
+						</DialogContent>
+						<DialogActions>
+							<Button onClick={handleCloseModal} color="primary">
+								{"Close"}
+							</Button>
+							<Button type="submit" color="primary" autoFocus>
+								{channelGroup ? "Update" : "Add"}
+							</Button>
+						</DialogActions>
+					</form>
 				</div>
 			</Dialog>
 		</div>

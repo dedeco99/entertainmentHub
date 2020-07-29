@@ -96,7 +96,9 @@ class Settings extends Component {
 		this.setState({ settings: user.settings || {} });
 	}
 
-	async handleSubmitSettings() {
+	async handleSubmitSettings(e) {
+		e.preventDefault();
+
 		const { user, dispatch } = this.context;
 		const { settings } = this.state;
 
@@ -205,39 +207,47 @@ class Settings extends Component {
 		return (
 			<div className={classes.settingsContainer}>
 				<Typography variant="h4"> {"Change settings"} </Typography>
-				<FormControl margin="normal">
-					<FormControlLabel
-						control={
-							<Checkbox
-								checked={settings.useCustomScrollbar || false}
-								color="primary"
-								onChange={this.handleChangeScrollbar}
-							/>
-						}
-						label="Use custom scrollbar"
-					/>
-					<FormControlLabel
-						control={
-							<Checkbox
-								checked={settings.animations || false}
-								color="primary"
-								onChange={this.handleAnimations}
-							/>
-						}
-						label="Animations"
-					/>
-					<FormControlLabel
-						control={
-							<Checkbox
-								checked={settings.borderColor || false}
-								color="primary"
-								onChange={this.handleBorderColor}
-							/>
-						}
-						label="Border color on widgets"
-					/>
-				</FormControl>
-				<Button variant="contained" onClick={this.handleSubmitSettings}> {"Apply"} </Button>
+				
+				<form onSubmit={this.handleSubmitSettings} style={{ display: "contents" }}>
+					<FormControl margin="normal">
+						<FormControlLabel
+							control={
+								<Checkbox
+									checked={settings.useCustomScrollbar || false}
+									color="primary"
+									onChange={this.handleChangeScrollbar}
+								/>
+							}
+							label="Use custom scrollbar"
+						/>
+						<FormControlLabel
+							control={
+								<Checkbox
+									checked={settings.animations || false}
+									color="primary"
+									onChange={this.handleAnimations}
+								/>
+							}
+							label="Animations"
+						/>
+						<FormControlLabel
+							control={
+								<Checkbox
+									checked={settings.borderColor || false}
+									color="primary"
+									onChange={this.handleBorderColor}
+								/>
+							}
+							label="Border color on widgets"
+						/>
+					</FormControl>
+					<Button 
+						type="submit"
+						variant="contained"
+					> 
+						{"Apply"} 
+					</Button>
+				</form>
 			</div>
 		);
 	}
