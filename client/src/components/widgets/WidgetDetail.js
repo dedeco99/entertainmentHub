@@ -98,6 +98,7 @@ function WidgetDetail({ open, onClose }) {
 
 		if (response.status < 400) {
 			dispatch({ type: "ADD_WIDGET", widget: response.data });
+			onClose;
 		}
 
 		setInfo({});
@@ -249,7 +250,7 @@ function WidgetDetail({ open, onClose }) {
 				fullWidth
 				maxWidth="xs"
 			>
-				<form onSubmit={handleSubmit} onClick={onClose}>
+				<form onSubmit={handleSubmit}>
 					<DialogTitle id="simple-dialog-title">{"New Widget"}</DialogTitle>
 					<DialogContent>
 						{renderTypes()}
