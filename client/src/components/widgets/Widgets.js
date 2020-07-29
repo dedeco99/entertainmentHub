@@ -72,8 +72,8 @@ const widgetsInfo = {
 		content: <Crypto coins={widget.info.coins} />,
 		editText: "Crypto",
 		editIcon: "icofont-bitcoin",
-		dimensions: { w: widget.width || 1, h: widget.height || 2 },
-		restrictions: { minW: 1, minH: 2, maxW: 3, maxH: 6 },
+		dimensions: { w: widget.width || 1, h: widget.height || 1 },
+		restrictions: { minW: 1, minH: 1, maxW: 3, maxH: 6 },
 	}),
 };
 
@@ -83,6 +83,8 @@ function Widgets() {
 	const { widgets, editMode } = widgetState;
 	const [loading, setLoading] = useState(false);
 	const [openWidgetDetail, setOpenWidgetDetail] = useState(false);
+	const [rowHeight, setRowHeight] = useState(150);
+	const [layouts, setLayouts] = useState({});
 
 	useEffect(() => {
 		async function fetchData() {
@@ -130,6 +132,16 @@ function Widgets() {
 		}
 	}
 
+	function handleWidthChange(containerWidth, margin, cols, containerPadding) {
+		// prettier-ignore
+		setRowHeight((containerWidth - (margin[0] * (cols - 1)) - (containerPadding[0] * 2)) / cols);
+	}
+
+	function handleLayoutChange(layout, layouts) {
+		// TODO Probably save layouts
+		setLayouts(layouts);
+	}
+
 	async function handleDeleteWidget(id) {
 		const response = await deleteWidget(id);
 
@@ -161,6 +173,7 @@ function Widgets() {
 							borderColor={widgetInfo.borderColor}
 							editText={widgetInfo.editText}
 							editIcon={widgetInfo.editIcon}
+							widgetDimensions={widgetInfo.dimensions}
 							onDelete={handleDeleteWidget}
 						/>
 					</div>
@@ -181,12 +194,15 @@ function Widgets() {
 			{widgets && widgets.length ? (
 				<ResponsiveGridLayout
 					className="layout"
-					breakpoints={{ xl: 1870, lg: 1230, md: 910, sm: 550, xs: 430, xxs: 0 }}
-					cols={{ xl: 6, lg: 4, md: 3, sm: 2, xs: 1, xxs: 1 }}
+					cols={{ xl: 8, lg: 8, md: 7, sm: 4, xs: 3, xxs: 2 }}
 					isDraggable={editMode}
 					isResizable={editMode}
 					onDragStop={handleEditWidget}
 					onResizeStop={handleEditWidget}
+					onWidthChange={handleWidthChange}
+					rowHeight={rowHeight}
+					layouts={layouts}
+					onLayoutChange={handleLayoutChange}
 				>
 					{renderWidgets()}
 				</ResponsiveGridLayout>

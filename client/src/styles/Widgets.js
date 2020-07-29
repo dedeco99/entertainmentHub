@@ -332,8 +332,7 @@ const crypto = () => ({
 		borderLeft: "1px solid #424242",
 	},
 	singleImage: {
-		padding: 10,
-		paddingRight: 20,
+		marginRight: 10,
 		height: 36,
 		width: 36,
 	},

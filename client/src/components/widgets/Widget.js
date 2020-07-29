@@ -65,7 +65,7 @@ const variants = {
 	},
 };
 
-function Widget({ id, type, content, borderColor, editText, editIcon, onEdit, onDelete }) {
+function Widget({ id, type, content, borderColor, editText, editIcon, widgetDimensions, onEdit, onDelete }) {
 	const { widgetState, dispatch } = useContext(WidgetContext);
 	const { editMode } = widgetState;
 	const { user } = useContext(UserContext);
@@ -118,7 +118,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, onEdit, on
 						)}
 					</>
 				) : (
-					React.cloneElement(content, { key: refreshToken })
+					React.cloneElement(content, { key: refreshToken, widgetDimensions })
 				)}
 				<AnimatePresence>
 					{hovered && (
@@ -170,6 +170,7 @@ Widget.propTypes = {
 	borderColor: PropTypes.string,
 	editText: PropTypes.string.isRequired,
 	editIcon: PropTypes.string.isRequired,
+	widgetDimensions: PropTypes.object.isRequired,
 	onEdit: PropTypes.func,
 	onDelete: PropTypes.func,
 };
