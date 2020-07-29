@@ -17,7 +17,7 @@ const weather = require("./functions/weather");
 const crypto = require("./functions/crypto");
 const reddit = require("./functions/reddit");
 const channels = require("./functions/channels");
-const channelGroups = require("./functions/channelGroups");
+const feeds = require("./functions/feeds");
 const youtube = require("./functions/youtube");
 const twitch = require("./functions/twitch");
 const tv = require("./functions/tv");
@@ -41,10 +41,11 @@ app.set("port", process.env.PORT || 5000);
 
 morgan.token("date", () => formatDate(Date.now(), "hh:mm:ss"));
 
-app.use(morgan(
-	":date :status :method :url :response-time ms",
-	{ skip: req => req.originalUrl.includes(".css") || req.originalUrl.includes(".ico") },
-));
+const Morgan = morgan(":date :status :method :url :response-time ms", {
+	skip: req => req.originalUrl.includes(".css") || req.originalUrl.includes(".ico"),
+});
+
+app.use(Morgan);
 
 app.use(express.static(path.join(__dirname, "build")));
 
@@ -85,7 +86,7 @@ app.get("/api/crypto", token, (req, res) => middleware(req, res, crypto.getCoins
 
 app.get("/api/crypto/:coins", token, (req, res) => middleware(req, res, crypto.getPrices));
 
-app.get("/api/reddit", token, (req, res) => middleware(req, res, reddit.getSubreddits));
+app.get("/api/reddit/subreddits", token, (req, res) => middleware(req, res, reddit.getSubreddits));
 
 app.get("/api/reddit/:subreddit/:category", token, (req, res) => middleware(req, res, reddit.getPosts));
 
@@ -97,13 +98,13 @@ app.post("/api/channels/:platform", token, (req, res) => middleware(req, res, ch
 
 app.delete("/api/channels/:id", token, (req, res) => middleware(req, res, channels.deleteChannel));
 
-app.get("/api/channelgroups/:platform", token, (req, res) => middleware(req, res, channelGroups.getChannelGroups));
+app.get("/api/feeds/:platform", token, (req, res) => middleware(req, res, feeds.getFeeds));
 
-app.post("/api/channelgroups/:platform", token, (req, res) => middleware(req, res, channelGroups.addChannelGroup));
+app.post("/api/feeds/:platform", token, (req, res) => middleware(req, res, feeds.addFeed));
 
-app.put("/api/channelgroups/:id", token, (req, res) => middleware(req, res, channelGroups.editChannelGroup));
+app.put("/api/feeds/:id", token, (req, res) => middleware(req, res, feeds.editFeed));
 
-app.delete("/api/channelgroups/:id", token, (req, res) => middleware(req, res, channelGroups.deleteChannelGroup));
+app.delete("/api/feeds/:id", token, (req, res) => middleware(req, res, feeds.deleteFeed));
 
 app.get("/api/youtube/subscriptions", token, (req, res) => middleware(req, res, youtube.getSubscriptions));
 

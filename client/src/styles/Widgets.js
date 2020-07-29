@@ -75,7 +75,7 @@ const notifications = () => ({
 	},
 });
 
-const reddit = () => ({
+const reddit = {
 	root: {
 		backgroundColor: "#212121",
 		width: "100%",
@@ -89,15 +89,15 @@ const reddit = () => ({
 		overflowX: "hidden",
 		position: "relative",
 	},
-	media: {
-		position: "absolute",
+	media: props => ({
+		position: props.inList ? "relative" : "absolute",
 		top: "0",
 		left: "0",
 		display: "block",
 		width: "100%",
 		height: "100%",
 		objectFit: "contain",
-	},
+	}),
 	overlay: {
 		position: "absolute",
 		color: "white",
@@ -215,7 +215,7 @@ const reddit = () => ({
 		minWidth: "15px",
 		fontSize: "0.6rem",
 	},
-});
+};
 
 const weather = () => ({
 	root: {

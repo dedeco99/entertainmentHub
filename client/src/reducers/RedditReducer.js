@@ -1,4 +1,4 @@
-export const youtubeReducer = (state, action) => {
+export const redditReducer = (state, action) => {
 	let { subscriptions, channels, feeds } = state;
 
 	switch (action.type) {
@@ -29,9 +29,10 @@ export const youtubeReducer = (state, action) => {
 		case "DELETE_CHANNEL":
 			channels = channels.filter(c => c._id !== action.channel._id);
 
-			subscriptions = [...subscriptions, action.channel].sort((a, b) =>
-				a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1,
-			);
+			// prettier-ignore
+			subscriptions = [...subscriptions, action.channel].sort((a, b) => (
+				a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1
+			));
 
 			return { ...state, subscriptions, channels };
 		case "SET_FEEDS":
