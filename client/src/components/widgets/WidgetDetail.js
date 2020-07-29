@@ -98,7 +98,6 @@ function WidgetDetail({ open, onClose }) {
 
 		if (response.status < 400) {
 			dispatch({ type: "ADD_WIDGET", widget: response.data });
-			onClose;
 		}
 
 		setInfo({});
