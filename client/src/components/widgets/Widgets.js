@@ -3,9 +3,10 @@ import { Responsive, WidthProvider } from "react-grid-layout";
 
 import { makeStyles } from "@material-ui/core";
 import Box from "@material-ui/core/Box";
-import CircularProgress from "@material-ui/core/CircularProgress";
 import Tooltip from "@material-ui/core/Tooltip";
 import Fab from "@material-ui/core/Fab";
+
+import Loading from "../.partials/Loading";
 
 import Widget from "../widgets/Widget";
 import Notifications from "../widgets/Notifications";
@@ -32,7 +33,7 @@ const widgetsInfo = {
 		editText: "Notifications",
 		editIcon: "icofont-alarm",
 		dimensions: { w: widget.width || 1, h: widget.height || 4 },
-		restrictions: { minW: 1, minH: 4, maxW: 2, maxH: 8 },
+		restrictions: { minW: 2, minH: 2, maxW: 6, maxH: 6 },
 	}),
 	reddit: widget => ({
 		content: (
@@ -42,7 +43,7 @@ const widgetsInfo = {
 		editText: `r/${widget.info.subreddit}`,
 		editIcon: "icofont-reddit",
 		dimensions: { w: widget.width || 1, h: widget.height || 2 },
-		restrictions: { minW: 1, minH: 2, maxW: 3, maxH: 6 },
+		restrictions: { minW: 2, minH: 2, maxW: 4, maxH: 6 },
 	}),
 	twitch: widget => ({
 		content: <Twitch />,
@@ -50,7 +51,7 @@ const widgetsInfo = {
 		editText: "Twitch",
 		editIcon: "icofont-twitch",
 		dimensions: { w: widget.width || 1, h: widget.height || 2 },
-		restrictions: { minW: 1, minH: 2, maxW: 3, maxH: 6 },
+		restrictions: { minW: 2, minH: 2, maxW: 4, maxH: 6 },
 	}),
 	weather: widget => ({
 		content: (
@@ -59,21 +60,21 @@ const widgetsInfo = {
 		editText: "Weather",
 		editIcon: "icofont-cloud",
 		dimensions: { w: widget.width || 1, h: widget.height || 2 },
-		restrictions: { minW: 1, minH: 2, maxW: 3, maxH: 6 },
+		restrictions: { minW: 2, minH: 1, maxW: 4, maxH: 2 },
 	}),
 	tv: widget => ({
 		content: <TV />,
 		editText: "TV",
 		editIcon: "icofont-contrast",
 		dimensions: { w: widget.width || 1, h: widget.height || 4 },
-		restrictions: { minW: 1, minH: 4, maxW: 1, maxH: 8 },
+		restrictions: { minW: 2, minH: 2, maxW: 6, maxH: 6 },
 	}),
 	crypto: widget => ({
 		content: <Crypto coins={widget.info.coins} />,
 		editText: "Crypto",
 		editIcon: "icofont-bitcoin",
 		dimensions: { w: widget.width || 1, h: widget.height || 1 },
-		restrictions: { minW: 1, minH: 1, maxW: 3, maxH: 6 },
+		restrictions: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
 	}),
 };
 
@@ -184,7 +185,7 @@ function Widgets() {
 	if (loading) {
 		return (
 			<Box className={classes.root}>
-				<CircularProgress />
+				<Loading />
 			</Box>
 		);
 	}

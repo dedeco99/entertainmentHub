@@ -7,9 +7,11 @@ import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 import Tooltip from "@material-ui/core/Tooltip";
 
-import moment from "moment";
+import Loading from "../.partials/Loading";
 
 import { getWeather } from "../../api/weather";
+
+import { formatDate } from "../../utils/utils";
 
 import { weather as styles } from "../../styles/Widgets";
 
@@ -18,7 +20,7 @@ class Weather extends Component {
 		super();
 		this.state = {
 			weather: null,
-			loaded: false,
+			open: false,
 		};
 	}
 
@@ -31,18 +33,14 @@ class Weather extends Component {
 
 		const response = await getWeather(lat, lon);
 
-		this.setState({ loaded: true, weather: response.data });
+		this.setState({ open: true, weather: response.data });
 	}
 
 	showFeelsLike() {
 		const { weather } = this.state;
 
 		if (Math.round(weather.current.feelsLike) !== Math.round(weather.current.temp)) {
-			return (
-				<Typography variant="caption">
-					{weather && `Feels Like ${Math.round(weather.current.feelsLike)}°`}
-				</Typography>
-			);
+			return <Typography variant="caption">{`Feels Like ${Math.round(weather.current.feelsLike)}°`}</Typography>;
 		}
 		return null;
 	}
@@ -73,17 +71,15 @@ class Weather extends Component {
 				flexGrow={1}
 				className={length - 1 === i ? classes.lastDay : null}
 			>
-				<Typography variant="caption">
-					{weather && moment(day.date, "DD/MM/YYYY").format("ddd")}
-				</Typography>
+				<Typography variant="caption">{formatDate(day.date, "ddd", false, "DD/MM/YYYY")}</Typography>
 				<Tooltip title={day.forecast.description} placement="top">
-					{weather && <img src={day.forecast.image} alt="Forecast" />}
+					{<img src={day.forecast.image} alt="Forecast" />}
 				</Tooltip>
 				<Typography variant="caption">
 					<i className="icofont-caret-up" />
-					{weather && `${Math.round(day.maxTemp)}° `}
+					{`${Math.round(day.maxTemp)}° `}
 					<i className="icofont-caret-down" />
-					{weather && `${Math.round(day.minTemp)}°`}
+					{`${Math.round(day.minTemp)}°`}
 				</Typography>
 			</Box>
 		));
@@ -93,32 +89,30 @@ class Weather extends Component {
 
 	render() {
 		const { classes, city, country } = this.props;
-		const { weather, loaded } = this.state;
+		const { weather, open } = this.state;
+
+		if (!open) return <Loading />;
 
 		return (
-			<Zoom in={loaded}>
+			<Zoom in={open}>
 				<Box className={classes.root}>
 					<Box display="flex" flexDirection="column" flexGrow={1} className={classes.content}>
 						<Box display="flex">
 							<Box display="flex" flexDirection="column" justifyContent="center" flexGrow={1}>
-								<Typography variant="h6">
-									{`${city}, ${country}`}
-								</Typography>
+								<Typography variant="h6">{`${city}, ${country}`}</Typography>
 								<Typography variant="subtitle1" className={classes.description}>
-									{weather && weather.current.forecast.description}
+									{weather.current.forecast.description}
 								</Typography>
 							</Box>
 							<Box display="flex" flexDirection="column" alignItems="flex-end">
-								<Typography variant="h4">
-									{weather && `${Math.round(weather.current.temp)}°`}
-								</Typography>
+								<Typography variant="h4">{`${Math.round(weather.current.temp)}°`}</Typography>
 								<Typography variant="caption">
 									<i className="icofont-caret-up" />
-									{weather && `${Math.round(weather.current.maxTemp)}° `}
+									{`${Math.round(weather.current.maxTemp)}° `}
 									<i className="icofont-caret-down" />
-									{weather && `${Math.round(weather.current.minTemp)}°`}
+									{`${Math.round(weather.current.minTemp)}°`}
 								</Typography>
-								{weather && this.showFeelsLike()}
+								{this.showFeelsLike()}
 							</Box>
 						</Box>
 						<Box display="flex" flexGrow={1}>
@@ -127,34 +121,40 @@ class Weather extends Component {
 									<Tooltip title="Clouds">
 										<i className="icofont-clouds" />
 									</Tooltip>
-									{weather && `${Math.round(weather.current.clouds)}%`}
+									{`${Math.round(weather.current.clouds)}%`}
 								</Typography>
 								<Typography variant="caption" className={classes.info}>
-									{weather && this.renderWindDirection()}
-									{weather && `${Math.round(weather.current.windSpeed)} m/s`}
+									{this.renderWindDirection()}
+									{`${Math.round(weather.current.windSpeed)} m/s`}
 								</Typography>
 							</Box>
 							<Box display="flex" justifyContent="center" alignItems="center">
-								{weather && <img src={weather.current.forecast.image} alt="Forecast" />}
+								{<img src={weather.current.forecast.image} alt="Forecast" />}
 							</Box>
-							<Box display="flex" flexDirection="column" justifyContent="center" alignItems="flex-end" flexGrow={1}>
+							<Box
+								display="flex"
+								flexDirection="column"
+								justifyContent="center"
+								alignItems="flex-end"
+								flexGrow={1}
+							>
 								<Typography variant="caption" className={classes.info}>
 									<Tooltip title="Sunrise">
 										<i className="icofont-sun-rise" />
 									</Tooltip>
-									{weather && `${weather.current.sunrise}`}
+									{`${weather.current.sunrise}`}
 								</Typography>
 								<Typography variant="caption" className={classes.info}>
 									<Tooltip title="Sunset">
 										<i className="icofont-sun-set" />
 									</Tooltip>
-									{weather && `${weather.current.sunset}`}
+									{`${weather.current.sunset}`}
 								</Typography>
 							</Box>
 						</Box>
 					</Box>
 					<Box display="flex" className={classes.nextDays}>
-						{weather && this.renderNextDays()}
+						{this.renderNextDays()}
 					</Box>
 				</Box>
 			</Zoom>
