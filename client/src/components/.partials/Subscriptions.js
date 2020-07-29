@@ -156,7 +156,7 @@ function Subscriptions({ platform, history }) {
 							loadMore={getSubscriptionsCall}
 							hasMore={pagination.hasMore}
 							useWindow={false}
-							loader={<Loading />}
+							loader={<Loading key={0} />}
 						>
 							{renderSubscriptionsList()}
 						</InfiniteScroll>

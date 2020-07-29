@@ -434,7 +434,7 @@ class Notifications extends Component {
 							loadMore={this.getNotifications}
 							hasMore={hasMore}
 							useWindow={false}
-							loader={<Loading />}
+							loader={<Loading key={0} />}
 						>
 							{this.renderNotificationList()}
 						</InfiniteScroll>

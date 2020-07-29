@@ -80,7 +80,7 @@ function ListView({ open, subreddit, posts, multipleSubs, getPosts, hasMorePosts
 						loadMore={getPosts}
 						hasMore={hasMorePosts}
 						useWindow={false}
-						loader={<Loading />}
+						loader={<Loading key={0} />}
 					>
 						<List>{postsList}</List>
 					</InfiniteScroll>
