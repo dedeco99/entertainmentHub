@@ -93,11 +93,12 @@ function WidgetDetail({ open, onClose }) {
 
 	async function handleSubmit(e) {
 		e.preventDefault();
-		
+		console.log(onClose);
 		const response = await addWidget({ type, info });
 
 		if (response.status < 400) {
 			dispatch({ type: "ADD_WIDGET", widget: response.data });
+			onClose();
 		}
 
 		setInfo({});
