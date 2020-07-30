@@ -8,10 +8,11 @@ import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
-import CircularProgress from "@material-ui/core/CircularProgress";
 import Chip from "@material-ui/core/Chip";
 import Link from "@material-ui/core/Link";
 import Badge from "@material-ui/core/Badge";
+
+import Loading from "../../.partials/Loading";
 
 import { formatDate, htmlEscape } from "../../../utils/utils";
 
@@ -23,14 +24,6 @@ const useStyles = makeStyles(styles);
 
 function ListView({ open, subreddit, posts, multipleSubs, getPosts, hasMorePosts, onShowSingleView }) {
 	const classes = useStyles();
-
-	function renderLoadingMore() {
-		return (
-			<Box key={0} display="flex" alignItems="center" justifyContent="center">
-				<CircularProgress />
-			</Box>
-		);
-	}
 
 	const postsList = posts.map((post, index) => (
 		<ListItem key={post.id} button divider onClick={() => onShowSingleView(index)}>
@@ -87,7 +80,7 @@ function ListView({ open, subreddit, posts, multipleSubs, getPosts, hasMorePosts
 						loadMore={getPosts}
 						hasMore={hasMorePosts}
 						useWindow={false}
-						loader={renderLoadingMore()}
+						loader={<Loading key={0} />}
 					>
 						<List>{postsList}</List>
 					</InfiniteScroll>

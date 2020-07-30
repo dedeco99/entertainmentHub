@@ -1,4 +1,4 @@
-export const youtubeReducer = (state, action) => {
+export const redditReducer = (state, action) => {
 	let { subscriptions, channels, feeds } = state;
 
 	switch (action.type) {

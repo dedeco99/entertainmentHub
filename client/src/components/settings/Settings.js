@@ -139,19 +139,33 @@ function Settings({ classes }) {
 							<Box flexGrow={1}>
 								<Typography> {app.displayName} </Typography>
 								{app.active ? (
-									<Typography variant="body2"> <i className="icofont-check-circled" /> {`Your ${app.displayName} is connected`} </Typography>
+									<Typography variant="body2">
+										{" "}
+										<i className="icofont-check-circled" /> {`Your ${app.displayName} is connected`}{" "}
+									</Typography>
 								) : (
-									<Typography variant="body2"> <i className="icofont-close-circled" /> {`Your ${app.displayName} is not currently connected`} </Typography>
+									<Typography variant="body2">
+										{" "}
+										<i className="icofont-close-circled" /> {`Your ${app.displayName} is not currently connected`}{" "}
+									</Typography>
 								)}
 							</Box>
 							{app.active ? (
-								<Button color="primary" variant="contained" size="small" onClick={() => handleDeleteApp(app.id)}> {"Disconnect"} </Button>
+								<Button color="primary" variant="contained" size="small" onClick={() => handleDeleteApp(app.id)}>
+									{" "}
+									{"Disconnect"}{" "}
+								</Button>
 							) : (
-								<Button color="primary" variant="contained" size="small" href={app.link} target="_self"> {"Connect"} </Button>
+								<Button color="primary" variant="contained" size="small" href={app.link} target="_self">
+									{" "}
+									{"Connect"}{" "}
+								</Button>
 							)}
 						</Box>
 						<Typography variant="caption">
-							{"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut cursus tortor nec ex sodales, vitae malesuada metus mollis. Nullam consectetur egestas fringilla. Nullam turpis sapien, sodales et ex nec, mollis vestibulum odio. Vestibulum sed dui orci."}
+							{
+								"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut cursus tortor nec ex sodales, vitae malesuada metus mollis. Nullam consectetur egestas fringilla. Nullam turpis sapien, sodales et ex nec, mollis vestibulum odio. Vestibulum sed dui orci."
+							}
 						</Typography>
 					</Box>
 				</Box>
@@ -161,11 +175,7 @@ function Settings({ classes }) {
 	}
 
 	function renderApps() {
-		return (
-			<Paper>
-				{Object.keys(apps).map(app => renderApp(apps[app]))}
-			</Paper>
-		);
+		return <Paper>{Object.keys(apps).map(app => renderApp(apps[app]))}</Paper>;
 	}
 
 	function renderSettings() {
@@ -204,7 +214,10 @@ function Settings({ classes }) {
 						label="Border color on widgets"
 					/>
 				</FormControl>
-				<Button variant="contained" onClick={handleSubmitSettings}> {"Apply"} </Button>
+				<Button variant="contained" onClick={handleSubmitSettings}>
+					{" "}
+					{"Apply"}{" "}
+				</Button>
 			</div>
 		);
 	}
@@ -225,21 +238,13 @@ function Settings({ classes }) {
 			<Grid container spacing={2}>
 				<Grid item xs={12} sm={4} md={3} lg={2}>
 					<List className={classes.listMenu}>
-						<ListItem
-							button
-							selected={selectedMenu === 0}
-							onClick={() => handleListClick(0)}
-						>
+						<ListItem button selected={selectedMenu === 0} onClick={() => handleListClick(0)}>
 							<ListItemIcon>
 								<i className={`material-icons ${classes.appIcon}`}>{"apps"}</i>
 							</ListItemIcon>
 							<ListItemText primary="Apps" />
 						</ListItem>
-						<ListItem
-							button
-							selected={selectedMenu === 1}
-							onClick={() => handleListClick(1)}
-						>
+						<ListItem button selected={selectedMenu === 1} onClick={() => handleListClick(1)}>
 							<ListItemIcon>
 								<i className={`material-icons ${classes.appIcon}`}>{"settings"}</i>
 							</ListItemIcon>
@@ -250,7 +255,7 @@ function Settings({ classes }) {
 				<Grid item xs={12} sm={8} md={9} lg={10}>
 					{renderContent()}
 				</Grid>
-			</Grid >
+			</Grid>
 		</div>
 	);
 }

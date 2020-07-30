@@ -1,6 +1,6 @@
 const { Schema, model } = require("mongoose");
 
-const ChannelGroupSchema = new Schema(
+const FeedSchema = new Schema(
 	{
 		user: { type: Schema.ObjectId, ref: "User", required: true },
 		platform: { type: String, required: true },
@@ -14,6 +14,6 @@ const ChannelGroupSchema = new Schema(
 	{ timestamps: { createdAt: "_created", updatedAt: "_modified" } },
 );
 
-const ChannelGroup = model("ChannelGroup", ChannelGroupSchema);
+const Feed = model("Feed", FeedSchema);
 
-module.exports = ChannelGroup;
+module.exports = Feed;
