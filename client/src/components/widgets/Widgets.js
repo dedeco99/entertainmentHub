@@ -191,7 +191,7 @@ function Widgets() {
 	}
 
 	return (
-		<>
+		<Box pt={5}>
 			{widgets && widgets.length ? (
 				<ResponsiveGridLayout
 					className="layout"
@@ -216,7 +216,7 @@ function Widgets() {
 					</Fab>
 				</Tooltip>
 			</Box>
-		</>
+		</Box>
 	);
 }
 
