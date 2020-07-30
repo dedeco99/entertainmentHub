@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext } from "react";
 import { withStyles } from "@material-ui/styles";
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 
 import Grid from "@material-ui/core/Grid";
 import List from "@material-ui/core/List";
@@ -23,7 +24,7 @@ import { editUser } from "../../api/users";
 
 import { settings as styles } from "../../styles/Header";
 
-function Settings({ classes }) {
+function Settings({ classes, match }) {
 	const REDIRECT = "https://entertainmenthub.ddns.net";
 
 	const { user, dispatch } = useContext(UserContext);
@@ -103,6 +104,19 @@ function Settings({ classes }) {
 		fetchData();
 	}, []); // eslint-disable-line
 
+	useEffect(() => {
+		switch (match.path) {
+			case "/settings/apps":
+				setSelectedMenu(0);
+				break;
+			case "/settings":
+				setSelectedMenu(1);
+				break;
+			default:
+				break;
+		}
+	}, [match]);
+
 	async function handleSubmitSettings() {
 		const response = await editUser({ settings });
 
@@ -115,10 +129,6 @@ function Settings({ classes }) {
 
 	async function handleDeleteApp(appId) {
 		await deleteApp(appId);
-	}
-
-	function handleListClick(index) {
-		setSelectedMenu(index);
 	}
 
 	function handleCheckboxChange(property) {
@@ -238,13 +248,13 @@ function Settings({ classes }) {
 			<Grid container spacing={2}>
 				<Grid item xs={12} sm={4} md={3} lg={2}>
 					<List className={classes.listMenu}>
-						<ListItem button selected={selectedMenu === 0} onClick={() => handleListClick(0)}>
+						<ListItem button selected={selectedMenu === 0} component={Link} to="/settings/apps">
 							<ListItemIcon>
 								<i className={`material-icons ${classes.appIcon}`}>{"apps"}</i>
 							</ListItemIcon>
 							<ListItemText primary="Apps" />
 						</ListItem>
-						<ListItem button selected={selectedMenu === 1} onClick={() => handleListClick(1)}>
+						<ListItem button selected={selectedMenu === 1} component={Link} to="/settings">
 							<ListItemIcon>
 								<i className={`material-icons ${classes.appIcon}`}>{"settings"}</i>
 							</ListItemIcon>
@@ -262,6 +272,7 @@ function Settings({ classes }) {
 
 Settings.propTypes = {
 	classes: PropTypes.object.isRequired,
+	match: PropTypes.object.isRequired,
 };
 
 export default withStyles(styles)(Settings);

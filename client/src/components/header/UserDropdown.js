@@ -40,7 +40,7 @@ function UserDropdown({ classes }) {
 	}
 
 	function handleConnectionsClick() {
-		window.location.replace("/settings");
+		window.location.replace("/settings/apps");
 	}
 
 	function handleLogoutClick() {
@@ -49,12 +49,12 @@ function UserDropdown({ classes }) {
 
 	const options = [
 		{
-			title: "User Settings",
+			title: "Settings",
 			icon: "settings",
 			handleClick: handleSettingsClick,
 		},
 		{
-			title: "App Connections",
+			title: "Apps",
 			icon: "apps",
 			handleClick: handleConnectionsClick,
 		},

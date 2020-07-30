@@ -139,6 +139,7 @@ class App extends Component {
 				<PrivateRoute exact path="/tv/:seriesId/:season" component={TV} />
 
 				<PrivateRoute exact path="/settings" component={Settings} />
+				<PrivateRoute exact path="/settings/apps" component={Settings} />
 			</Switch>
 		);
 	}
