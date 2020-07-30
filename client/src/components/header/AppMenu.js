@@ -1,6 +1,7 @@
-import React, { Component } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
-import { NavLink } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { withRouter } from "react-router";
 
 import { withStyles } from "@material-ui/styles";
 import List from "@material-ui/core/List";
@@ -13,127 +14,90 @@ import { getApps } from "../../api/apps";
 import { appMenu as styles } from "../../styles/Header";
 import { Typography } from "@material-ui/core";
 
-class AppMenu extends Component {
-	constructor() {
-		super();
-		this.state = {
-			apps: [],
+function AppMenu({ classes, location }) {
+	const { user, dispatch } = useContext(UserContext);
+	const [apps, setApps] = useState([]);
+	const [selectedMenu, setSelectedMenu] = useState(null);
 
-			allApps: [
-				{ platform: "reddit", name: "Reddit", icon: "icofont-reddit icofont-2x", endpoint: "/reddit" },
-				{ platform: "youtube", name: "Youtube", icon: "icofont-youtube-play icofont-2x", endpoint: "/youtube" },
-				{ platform: "twitch", name: "Twitch", icon: "icofont-twitch icofont-2x", endpoint: "/twitch" },
-				{ platform: "tv", name: "TV Series", icon: "icofont-monitor icofont-2x", endpoint: "/tv" },
-			],
+	const allApps = [
+		{ platform: "reddit", name: "Reddit", icon: "icofont-reddit icofont-2x", endpoint: "/reddit" },
+		{ platform: "youtube", name: "Youtube", icon: "icofont-youtube-play icofont-2x", endpoint: "/youtube" },
+		{ platform: "twitch", name: "Twitch", icon: "icofont-twitch icofont-2x", endpoint: "/twitch" },
+		{ platform: "tv", name: "TV Series", icon: "icofont-monitor icofont-2x", endpoint: "/tv" },
+	];
 
-			selectedMenu: null,
-		};
-
-		this.getApps = this.getApps.bind(this);
-		this.handleAppClick = this.handleAppClick.bind(this);
-	}
-
-	componentDidMount() {
-		const { user } = this.context;
-
-		if (user && user.token) this.getApps();
-	}
-
-	async getApps() {
-		const { dispatch } = this.context;
-		const { allApps } = this.state;
-
+	async function getAppsCall() {
 		const redirected = localStorage.getItem("redirected");
 
 		const response = await getApps();
 
 		if (response.data && response.data.length) {
 			const userApps = allApps.filter(app => response.data.find(appR => appR.platform === app.platform));
-
-			const currentApp = allApps.find(app => app.endpoint === window.location.pathname);
-
 			dispatch({ type: "SET_APPS", apps: response.data });
-
-			this.setState({
-				apps: userApps,
-				selectedMenu: currentApp ? currentApp.platform : null,
-			});
+			setApps(userApps);
 		} else if (!redirected) {
 			localStorage.setItem("redirected", true);
 			window.location.replace("/settings");
 		}
 	}
 
-	handleAppClick(id) {
-		this.setState({ selectedMenu: id });
-	}
+	useEffect(() => {
+		async function fetchData() {
+			if (user && user.token) await getAppsCall();
+		}
 
-	renderAppList() {
-		const { classes } = this.props;
-		const { apps, selectedMenu } = this.state;
+		fetchData();
+	}, []); // eslint-disable-line
 
+	useEffect(() => {
+		const currentApp = allApps.find(app => app.endpoint === location.pathname);
+		setSelectedMenu(currentApp ? currentApp.platform : null);
+	}, [allApps, location]);
+
+	function renderAppList() {
 		return apps.map(app => (
-			<NavLink
-				className={classes.appLink}
+			<ListItem
 				key={app.platform}
+				button
+				selected={selectedMenu === app.platform}
+				className={classes.appItem}
+				component={Link}
 				to={app.endpoint}
-				onClick={() => this.handleAppClick(app.platform)}
 			>
-				<ListItem
-					button
-					selected={selectedMenu === app.platform}
-					className={classes.appItem}
-				>
-					<Typography color="textPrimary">
-						<i className={app.icon} />
-					</Typography>
-				</ListItem >
-			</NavLink>
+				<Typography color="textPrimary">
+					<i className={app.icon} />
+				</Typography>
+			</ListItem >
 		));
 	}
 
-	renderAddMoreApps() {
-		const { classes } = this.props;
-		const { apps, allApps } = this.state;
-
+	function renderAddMoreApps() {
 		if (apps.length === allApps.length) return null;
 
 		return (
-			<NavLink
-				className={classes.appLink}
-				to={"/settings"}
-				onClick={() => this.handleAppClick("settings")}
-			>
-				<ListItem button className={classes.appItem}>
-					<i className="icofont-plus-circle icofont-2x" />
-				</ListItem >
-			</NavLink>
+			<ListItem button className={classes.appItem} component={Link} to="/settings/apps">
+				<i className="icofont-plus-circle icofont-2x" />
+			</ListItem >
 		);
 	}
 
-	render() {
-		const { user } = this.context;
-		const { classes } = this.props;
-
-		if (user && user.token) {
-			return (
-				<div className={classes.root}>
-					<List>
-						{this.renderAppList()}
-						{this.renderAddMoreApps()}
-					</List>
-				</div>
-			);
-		}
-
-		return <div />;
+	if (user && user.token) {
+		return (
+			<div className={classes.root}>
+				<List>
+					{renderAppList()}
+					{renderAddMoreApps()}
+				</List>
+			</div>
+		);
 	}
-}
 
-AppMenu.contextType = UserContext;
+	return <div />;
+}
 
 AppMenu.propTypes = {
 	classes: PropTypes.object.isRequired,
+	location: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(AppMenu);
+export default withRouter(withStyles(styles)(AppMenu));
