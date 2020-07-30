@@ -39,7 +39,6 @@ function WidgetDetail({ open, onClose }) {
 	const [selectedCity, setSelectedCity] = useState(null);
 	const [selectedCoins, setSelectedCoins] = useState([]);
 
-
 	function handleGetCities(e, filter) {
 		if (!filter) return;
 
