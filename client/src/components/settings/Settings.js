@@ -42,7 +42,7 @@ class Settings extends Component {
 						&state=some_state
 						&redirect_uri=${REDIRECT}/apps/reddit
 						&duration=permanent
-						&scope=read`,
+						&scope=read,mysubreddits`,
 				},
 				twitch: {
 					active: false,
@@ -158,7 +158,6 @@ class Settings extends Component {
 		this.setState({ settings });
 	}
 
-
 	renderApp(app) {
 		const { classes } = this.props;
 		const images = {
@@ -207,7 +206,6 @@ class Settings extends Component {
 		return (
 			<div className={classes.settingsContainer}>
 				<Typography variant="h4"> {"Change settings"} </Typography>
-				
 				<form onSubmit={this.handleSubmitSettings} style={{ display: "contents" }}>
 					<FormControl margin="normal">
 						<FormControlLabel
@@ -241,12 +239,7 @@ class Settings extends Component {
 							label="Border color on widgets"
 						/>
 					</FormControl>
-					<Button 
-						type="submit"
-						variant="contained"
-					> 
-						{"Apply"} 
-					</Button>
+					<Button variant="contained">{"Apply"}</Button>
 				</form>
 			</div>
 		);
@@ -274,21 +267,13 @@ class Settings extends Component {
 				<Grid container spacing={2}>
 					<Grid item xs={12} sm={4} md={3} lg={2}>
 						<List className={classes.listMenu}>
-							<ListItem
-								button
-								selected={selectedMenu === 0}
-								onClick={() => this.handleListClick(0)}
-							>
+							<ListItem button selected={selectedMenu === 0} onClick={() => this.handleListClick(0)}>
 								<ListItemIcon>
 									<i className={`material-icons ${classes.appIcon}`}>{"apps"}</i>
 								</ListItemIcon>
 								<ListItemText primary="Apps" />
 							</ListItem>
-							<ListItem
-								button
-								selected={selectedMenu === 1}
-								onClick={() => this.handleListClick(1)}
-							>
+							<ListItem button selected={selectedMenu === 1} onClick={() => this.handleListClick(1)}>
 								<ListItemIcon>
 									<i className={`material-icons ${classes.appIcon}`}>{"settings"}</i>
 								</ListItemIcon>
@@ -299,7 +284,7 @@ class Settings extends Component {
 					<Grid item xs={12} sm={8} md={9} lg={10}>
 						{this.renderContent()}
 					</Grid>
-				</Grid >
+				</Grid>
 			</div>
 		);
 	}

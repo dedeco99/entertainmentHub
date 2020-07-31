@@ -53,13 +53,9 @@ class SeriesDetail extends Component {
 						fullWidth
 						required
 					/>
-					<br /><br />
-					<Button
-						type="submit"
-						color="primary"
-						variant="outlined"
-						fullWidth
-					>
+					<br />
+					<br />
+					<Button type="submit" color="primary" variant="outlined" fullWidth>
 						{"Edit"}
 					</Button>
 				</form>

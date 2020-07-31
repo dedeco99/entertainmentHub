@@ -9,16 +9,12 @@ const YoutubeContextProvider = ({ children }) => {
 	const initState = {
 		subscriptions: [],
 		channels: [],
-		channelGroups: [],
+		feeds: [],
 	};
 
 	const [state, dispatch] = useReducer(youtubeReducer, initState);
 
-	return (
-		<YoutubeContext.Provider value={{ state, dispatch }}>
-			{children}
-		</YoutubeContext.Provider>
-	);
+	return <YoutubeContext.Provider value={{ state, dispatch }}>{children}</YoutubeContext.Provider>;
 };
 
 YoutubeContextProvider.propTypes = {

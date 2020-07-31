@@ -50,10 +50,9 @@ class Search extends Component {
 
 	handleSubmit(e) {
 		e.preventDefault();
+
 		this.getSearch();
 	}
-
-
 
 	render() {
 		const { allSeries, addSeries } = this.props;
@@ -70,11 +69,7 @@ class Search extends Component {
 						InputProps={{
 							endAdornment: (
 								<InputAdornment position="end">
-									{
-										loading
-											? <img src={loadingGif} height="25px" alt="Loading..." />
-											: <div />
-									}
+									{loading ? <img src={loadingGif} height="25px" alt="Loading..." /> : <div />}
 								</InputAdornment>
 							),
 						}}

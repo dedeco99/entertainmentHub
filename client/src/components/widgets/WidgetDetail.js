@@ -237,29 +237,29 @@ function WidgetDetail({ open, onClose }) {
 	}
 
 	return (
-			<Dialog
-				aria-labelledby="alert-dialog-title"
-				aria-describedby="alert-dialog-description"
-				open={open}
-				fullWidth
-				maxWidth="xs"
-			>
-				<form onSubmit={handleSubmit}>
-					<DialogTitle id="simple-dialog-title">{"New Widget"}</DialogTitle>
-					<DialogContent>
-						{renderTypes()}
-						{renderFields()}
-					</DialogContent>
-					<DialogActions>
-						<Button onClick={onClose} color="primary">
-							{"Close"}
-						</Button>
-						<Button type="submit" color="primary" autoFocus>
-							{"Add"}
-						</Button>
-					</DialogActions>
-				</form>
-			</Dialog>
+		<Dialog
+			aria-labelledby="alert-dialog-title"
+			aria-describedby="alert-dialog-description"
+			open={open}
+			fullWidth
+			maxWidth="xs"
+		>
+			<form onSubmit={handleSubmit}>
+				<DialogTitle id="simple-dialog-title">{"New Widget"}</DialogTitle>
+				<DialogContent>
+					{renderTypes()}
+					{renderFields()}
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={onClose} color="primary">
+						{"Close"}
+					</Button>
+					<Button type="submit" color="primary" autoFocus>
+						{"Add"}
+					</Button>
+				</DialogActions>
+			</form>
+		</Dialog>
 	);
 }
 

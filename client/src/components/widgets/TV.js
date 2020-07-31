@@ -11,6 +11,7 @@ import Zoom from "@material-ui/core/Zoom";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 
+import Loading from "../.partials/Loading";
 import CustomScrollbar from "../.partials/CustomScrollbar";
 
 import { getSeasons, getPopular } from "../../api/tv";
@@ -23,7 +24,7 @@ class TV extends Component {
 		super();
 		this.state = {
 			tabIndex: 0,
-			loaded: false,
+			open: false,
 			allEpisodes: [],
 			popular: [],
 			future: [],
@@ -48,7 +49,7 @@ class TV extends Component {
 		]);
 
 		this.setState({
-			loaded: true,
+			open: true,
 			allEpisodes: response[0].data,
 			popular: response[1].data,
 			future: response[2].data,
@@ -70,15 +71,15 @@ class TV extends Component {
 		const popularList = popular.map(serie => (
 			<ListItem key={serie.id} button divider>
 				<img src={serie.image} height="100x" alt="Series" />
-				<Typography variant="body1" className={classes.popularText}>{serie.displayName}</Typography>
-			</ListItem >
+				<Typography variant="body1" className={classes.popularText}>
+					{serie.displayName}
+				</Typography>
+			</ListItem>
 		));
 
 		return (
 			<CustomScrollbar>
-				<List>
-					{popularList}
-				</List>
+				<List>{popularList}</List>
 			</CustomScrollbar>
 		);
 	}
@@ -93,19 +94,21 @@ class TV extends Component {
 			return (
 				<ListItem className={classes.episodeList} alignItems="flex-start" key={episode._id} button divider>
 					<Box display="flex" width="100%">
-						<Typography className={classes.episodeName} variant="body1">{episode.series.displayName}</Typography>
-						<Typography className={classes.episodeDate} variant="caption">{formatDate(episode.date, "DD-MM-YYYY")}</Typography>
+						<Typography className={classes.episodeName} variant="body1">
+							{episode.series.displayName}
+						</Typography>
+						<Typography className={classes.episodeDate} variant="caption">
+							{formatDate(episode.date, "DD-MM-YYYY")}
+						</Typography>
 					</Box>
 					<Typography variant="body2">{`${seasonLabel + episodeLabel} - ${episode.title}`}</Typography>
-				</ListItem >
+				</ListItem>
 			);
 		});
 
 		return (
 			<CustomScrollbar>
-				<List>
-					{episodeList}
-				</List>
+				<List>{episodeList}</List>
 			</CustomScrollbar>
 		);
 	}
@@ -133,14 +136,21 @@ class TV extends Component {
 	}
 
 	render() {
-		const { tabIndex, loaded, allEpisodes, future, entered } = this.state;
+		const { tabIndex, open, allEpisodes, future, entered } = this.state;
 		const { classes } = this.props;
 
+		if (!open) return <Loading />;
+
 		return (
-			<Zoom in={loaded} onEntered={this.handleEntered} onExit={this.handleExit}>
+			<Zoom in={open} onEntered={this.handleEntered} onExit={this.handleExit}>
 				<div className={classes.root}>
 					<Paper square>
-						<Tabs value={entered ? tabIndex : false} onChange={this.handleChange} variant="fullWidth" classes={{ indicator: classes.indicator }}>
+						<Tabs
+							value={entered ? tabIndex : false}
+							onChange={this.handleChange}
+							variant="fullWidth"
+							classes={{ indicator: classes.indicator }}
+						>
 							<Tab label="All" className={classes.tab} {...this.a11yTabProps(0)} />
 							<Tab label="Popular" className={classes.tab} {...this.a11yTabProps(1)} />
 							<Tab label="Future" className={classes.tab} {...this.a11yTabProps(2)} />

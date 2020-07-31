@@ -12,7 +12,9 @@ async function getAccessToken(user) {
 
 	const url = `https://www.reddit.com/api/v1/access_token?refresh_token=${app.refreshToken}&grant_type=refresh_token`;
 
-	const encryptedAuth = new Buffer.from(`${process.env.redditClientId}:${process.env.redditSecret}`).toString("base64");
+	const encryptedAuth = new Buffer.from(`${process.env.redditClientId}:${process.env.redditSecret}`).toString(
+		"base64",
+	);
 	const auth = `Basic ${encryptedAuth}`;
 	const headers = {
 		"User-Agent": "Entertainment-Hub by dedeco99",
@@ -95,54 +97,42 @@ async function isSubreddit(subreddit, user) {
 	return res.status !== 404;
 }
 
-async function getSubreddits(req, res) {
-	const data = { userId: req.query.userId };
+async function getSubreddits(event) {
+	const { query, user } = event;
+	const { filter, after } = query;
 
-	const accessToken = await getAccessToken(data);
+	const accessToken = await getAccessToken(user);
 
-	const url = "https://oauth.reddit.com/subreddits/mine/subscriber";
+	if (accessToken.status === 401) return errors.redditRefreshToken;
+
+	let url = "https://oauth.reddit.com/subreddits/mine/subscriber";
+	if (after) url += `?after=${after}`;
+
+	if (filter) {
+		url = `https://oauth.reddit.com/subreddits/search?q=${filter}`;
+	}
+
 	const headers = {
 		"User-Agent": "Entertainment-Hub by dedeco99",
 		Authorization: `bearer ${accessToken}`,
 	};
 
-	try {
-		const request = await api({ method: "get", url, headers });
-		const json = JSON.parse(request);
+	const res = await api({ method: "get", url, headers });
+	const json = res.data;
 
-		const subreddits = [];
-		let all = "";
-		for (let i = 0; i < json.data.children.length; i++) {
-			let displayName = json.data.children[i].data.display_name;
-			all += `${displayName}+`;
-			displayName = displayName.charAt(0).toUpperCase() + displayName.slice(1);
-			const subreddit = {
-				id: displayName,
-				displayName,
-			};
-			subreddits.push(subreddit);
-		}
+	const subreddits = json.data.children.map(subreddit => ({
+		displayName: subreddit.data.display_name,
+		subscribers: subreddit.data.subscribers,
+		nsfw: subreddit.data.over18,
+		created: subreddit.data.created,
+		after: json.after,
+	}));
 
-		subreddits.sort((a, b) => {
-			if (a.displayName < b.displayName) return -1;
-			if (a.displayName > b.displayName) return 1;
-			return 0;
-		});
-
-		const otherSubs = [
-			{ id: "original", displayName: "Original" },
-			{ id: "popular", displayName: "Popular" },
-			{ id: "all", displayName: "All" },
-			{ id: all, displayName: "Home" },
-		];
-		otherSubs.forEach(subreddit => {
-			subreddits.unshift(subreddit);
-		});
-
-		res.json(subreddits);
-	} catch (err) {
-		res.json("Subreddit not found");
+	if (!filter) {
+		subreddits.sort((a, b) => (a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1));
 	}
+
+	return response(200, "Subreddits found", subreddits);
 }
 
 async function getPosts(event) {

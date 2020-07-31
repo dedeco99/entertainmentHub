@@ -3,9 +3,10 @@ import { Responsive, WidthProvider } from "react-grid-layout";
 
 import { makeStyles } from "@material-ui/core";
 import Box from "@material-ui/core/Box";
-import CircularProgress from "@material-ui/core/CircularProgress";
 import Tooltip from "@material-ui/core/Tooltip";
 import Fab from "@material-ui/core/Fab";
+
+import Loading from "../.partials/Loading";
 
 import Widget from "../widgets/Widget";
 import Notifications from "../widgets/Notifications";
@@ -32,7 +33,7 @@ const widgetsInfo = {
 		editText: "Notifications",
 		editIcon: "icofont-alarm",
 		dimensions: { w: widget.width || 1, h: widget.height || 4 },
-		restrictions: { minW: 1, minH: 4, maxW: 2, maxH: 8 },
+		restrictions: { minW: 2, minH: 2, maxW: 6, maxH: 6 },
 	}),
 	reddit: widget => ({
 		content: (
@@ -42,7 +43,7 @@ const widgetsInfo = {
 		editText: `r/${widget.info.subreddit}`,
 		editIcon: "icofont-reddit",
 		dimensions: { w: widget.width || 1, h: widget.height || 2 },
-		restrictions: { minW: 1, minH: 2, maxW: 3, maxH: 6 },
+		restrictions: { minW: 2, minH: 2, maxW: 4, maxH: 6 },
 	}),
 	twitch: widget => ({
 		content: <Twitch />,
@@ -50,7 +51,7 @@ const widgetsInfo = {
 		editText: "Twitch",
 		editIcon: "icofont-twitch",
 		dimensions: { w: widget.width || 1, h: widget.height || 2 },
-		restrictions: { minW: 1, minH: 2, maxW: 3, maxH: 6 },
+		restrictions: { minW: 2, minH: 2, maxW: 4, maxH: 6 },
 	}),
 	weather: widget => ({
 		content: (
@@ -59,21 +60,21 @@ const widgetsInfo = {
 		editText: "Weather",
 		editIcon: "icofont-cloud",
 		dimensions: { w: widget.width || 1, h: widget.height || 2 },
-		restrictions: { minW: 1, minH: 2, maxW: 3, maxH: 6 },
+		restrictions: { minW: 2, minH: 1, maxW: 4, maxH: 2 },
 	}),
 	tv: widget => ({
 		content: <TV />,
 		editText: "TV",
 		editIcon: "icofont-contrast",
 		dimensions: { w: widget.width || 1, h: widget.height || 4 },
-		restrictions: { minW: 1, minH: 4, maxW: 1, maxH: 8 },
+		restrictions: { minW: 2, minH: 2, maxW: 6, maxH: 6 },
 	}),
 	crypto: widget => ({
 		content: <Crypto coins={widget.info.coins} />,
 		editText: "Crypto",
 		editIcon: "icofont-bitcoin",
-		dimensions: { w: widget.width || 1, h: widget.height || 2 },
-		restrictions: { minW: 1, minH: 2, maxW: 3, maxH: 6 },
+		dimensions: { w: widget.width || 1, h: widget.height || 1 },
+		restrictions: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
 	}),
 };
 
@@ -83,6 +84,8 @@ function Widgets() {
 	const { widgets, editMode } = widgetState;
 	const [loading, setLoading] = useState(false);
 	const [openWidgetDetail, setOpenWidgetDetail] = useState(false);
+	const [rowHeight, setRowHeight] = useState(150);
+	const [layouts, setLayouts] = useState({});
 
 	useEffect(() => {
 		async function fetchData() {
@@ -130,6 +133,16 @@ function Widgets() {
 		}
 	}
 
+	function handleWidthChange(containerWidth, margin, cols, containerPadding) {
+		// prettier-ignore
+		setRowHeight((containerWidth - (margin[0] * (cols - 1)) - (containerPadding[0] * 2)) / cols);
+	}
+
+	function handleLayoutChange(layout, layouts) {
+		// TODO Probably save layouts
+		setLayouts(layouts);
+	}
+
 	async function handleDeleteWidget(id) {
 		const response = await deleteWidget(id);
 
@@ -161,6 +174,7 @@ function Widgets() {
 							borderColor={widgetInfo.borderColor}
 							editText={widgetInfo.editText}
 							editIcon={widgetInfo.editIcon}
+							widgetDimensions={widgetInfo.dimensions}
 							onDelete={handleDeleteWidget}
 						/>
 					</div>
@@ -171,7 +185,7 @@ function Widgets() {
 	if (loading) {
 		return (
 			<Box className={classes.root}>
-				<CircularProgress />
+				<Loading />
 			</Box>
 		);
 	}
@@ -181,12 +195,15 @@ function Widgets() {
 			{widgets && widgets.length ? (
 				<ResponsiveGridLayout
 					className="layout"
-					breakpoints={{ xl: 1870, lg: 1230, md: 910, sm: 550, xs: 430, xxs: 0 }}
-					cols={{ xl: 6, lg: 4, md: 3, sm: 2, xs: 1, xxs: 1 }}
+					cols={{ xl: 8, lg: 8, md: 7, sm: 4, xs: 3, xxs: 2 }}
 					isDraggable={editMode}
 					isResizable={editMode}
 					onDragStop={handleEditWidget}
 					onResizeStop={handleEditWidget}
+					onWidthChange={handleWidthChange}
+					rowHeight={rowHeight}
+					layouts={layouts}
+					onLayoutChange={handleLayoutChange}
 				>
 					{renderWidgets()}
 				</ResponsiveGridLayout>

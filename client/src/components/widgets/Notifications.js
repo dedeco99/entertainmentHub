@@ -15,7 +15,8 @@ import MenuItem from "@material-ui/core/MenuItem";
 import Box from "@material-ui/core/Box";
 import Typography from "@material-ui/core/Typography";
 import Link from "@material-ui/core/Link";
-import CircularProgress from "@material-ui/core/CircularProgress";
+
+import Loading from "../.partials/Loading";
 
 import AnimatedList from "../.partials/AnimatedList";
 
@@ -80,6 +81,7 @@ class Notifications extends Component {
 			const response = await getNotifications(page, history, filter);
 
 			if (response.data) {
+				// prettier-ignore
 				const newNotifications = page === 0
 					? response.data.notifications
 					: notifications.concat(response.data.notifications);
@@ -209,7 +211,7 @@ class Notifications extends Component {
 		const { selectedNotification, actionLoading } = this.state;
 
 		if (selectedNotification && selectedNotification._id === notification._id && actionLoading) {
-			return <CircularProgress />;
+			return <Loading />;
 		}
 
 		return (
@@ -237,23 +239,34 @@ class Notifications extends Component {
 							</Box>
 						) : (
 							<Box display="flex" justifyContent="center" flexShrink="0" width="100px" mr={2}>
-								<Avatar className={classes.avatar}>
-									{this.renderNotificationType(notification.type)}
-								</Avatar>
+								<Avatar className={classes.avatar}>{this.renderNotificationType(notification.type)}</Avatar>
 							</Box>
 						)}
 						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
 							<Typography variant="body1" title={notification.info.videoTitle} noWrap>
-								<Link href={`https://www.youtube.com/watch?v=${notification.info.videoId}`} target="_blank" rel="noreferrer" color="inherit">
+								<Link
+									href={`https://www.youtube.com/watch?v=${notification.info.videoId}`}
+									target="_blank"
+									rel="noreferrer"
+									color="inherit"
+								>
 									{notification.info.videoTitle}
 								</Link>
 							</Typography>
 							<Typography variant="body2" title={notification.info.displayName} noWrap>
-								<Link href={`https://www.youtube.com/channel/${notification.info.channelId}`} target="_blank" rel="noreferrer" color="inherit">
+								<Link
+									href={`https://www.youtube.com/channel/${notification.info.channelId}`}
+									target="_blank"
+									rel="noreferrer"
+									color="inherit"
+								>
 									{notification.info.displayName}
 								</Link>
 							</Typography>
-							<Typography variant="caption"> {formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")} </Typography>
+							<Typography variant="caption">
+								{" "}
+								{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}{" "}
+							</Typography>
 						</Box>
 					</>
 				);
@@ -263,14 +276,21 @@ class Notifications extends Component {
 				return (
 					<>
 						<Box display="flex" justifyContent="center" flexShrink="0" width="100px" mr={2}>
-							<Avatar className={classes.avatar}>
-								{this.renderNotificationType(notification.type)}
-							</Avatar>
+							<Avatar className={classes.avatar}>{this.renderNotificationType(notification.type)}</Avatar>
 						</Box>
 						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
-							<Typography variant="body1" title={title} noWrap> {title} </Typography>
-							<Typography variant="body2" title={subtitle} noWrap> {subtitle} </Typography>
-							<Typography variant="caption"> {formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")} </Typography>
+							<Typography variant="body1" title={title} noWrap>
+								{" "}
+								{title}{" "}
+							</Typography>
+							<Typography variant="body2" title={subtitle} noWrap>
+								{" "}
+								{subtitle}{" "}
+							</Typography>
+							<Typography variant="caption">
+								{" "}
+								{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}{" "}
+							</Typography>
 						</Box>
 					</>
 				);
@@ -296,7 +316,6 @@ class Notifications extends Component {
 			},
 		};
 
-
 		if (notifications.length) {
 			return (
 				<AnimatedList>
@@ -315,14 +334,6 @@ class Notifications extends Component {
 				<motion.h3 variants={noNotificationVariant} initial="hidden" animate="visible">
 					{"You have no notifications"}
 				</motion.h3>
-			</Box>
-		);
-	}
-
-	renderLoadingMore() {
-		return (
-			<Box key={0} display="flex" alignItems="center" justifyContent="center">
-				<CircularProgress />
 			</Box>
 		);
 	}
@@ -351,31 +362,28 @@ class Notifications extends Component {
 		return [];
 	}
 
-
 	render() {
 		const { notificationState } = this.context;
 		const { notifications } = notificationState;
 		const { classes, height } = this.props;
-		const {
-			open,
-			hasMore,
-			history,
-			filterAnchorEl,
-			selectedIndex,
-			notificationAnchorEl,
-		} = this.state;
+		const { open, hasMore, history, filterAnchorEl, selectedIndex, notificationAnchorEl } = this.state;
 
 		const filterOptions = ["All", "TV", "Youtube", "Reddit", "Twitch"];
 		const actions = this.getNotificationActions();
 
+		if (!open) return <Loading />;
+
 		return (
 			<Zoom in={open}>
-				<Box display="flex" flexDirection="column" className={classes.root} style={{ height: height ? height : "calc( 100vh - 200px )" }}>
+				<Box
+					display="flex"
+					flexDirection="column"
+					className={classes.root}
+					style={{ height: height ? height : "calc( 100vh - 200px )" }}
+				>
 					<Box display="flex" alignItems="center" className={classes.header}>
 						<Box display="flex" flexGrow={1}>
-							<Typography variant="subtitle1">
-								{"Notifications"}
-							</Typography>
+							<Typography variant="subtitle1">{"Notifications"}</Typography>
 						</Box>
 						<Box display="flex" justifyContent="flex-end">
 							<Button
@@ -409,9 +417,7 @@ class Notifications extends Component {
 								))}
 							</Menu>
 							<IconButton color="primary" onClick={this.handleToggleHistory}>
-								<i className="material-icons">
-									{history ? "notifications" : "history"}
-								</i>
+								<i className="material-icons">{history ? "notifications" : "history"}</i>
 							</IconButton>
 						</Box>
 					</Box>
@@ -428,7 +434,7 @@ class Notifications extends Component {
 							loadMore={this.getNotifications}
 							hasMore={hasMore}
 							useWindow={false}
-							loader={this.renderLoadingMore()}
+							loader={<Loading key={0} />}
 						>
 							{this.renderNotificationList()}
 						</InfiniteScroll>
@@ -439,22 +445,20 @@ class Notifications extends Component {
 						open={Boolean(notificationAnchorEl)}
 						onClose={this.handleCloseOptions}
 					>
-						{
-							actions.map(action => (
-								<MenuItem
-									key={action.name}
-									onClick={() => {
-										action.onClick();
-										this.handleCloseOptions();
-									}}
-								>
-									{action.name}
-								</MenuItem>
-							))
-						}
+						{actions.map(action => (
+							<MenuItem
+								key={action.name}
+								onClick={() => {
+									action.onClick();
+									this.handleCloseOptions();
+								}}
+							>
+								{action.name}
+							</MenuItem>
+						))}
 					</Menu>
 				</Box>
-			</Zoom >
+			</Zoom>
 		);
 	}
 }
