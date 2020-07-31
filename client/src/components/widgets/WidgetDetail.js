@@ -91,18 +91,17 @@ function WidgetDetail({ open, onClose }) {
 		}
 	}
 
-	async function handleSubmit() {
+	async function handleSubmit(e) {
+		e.preventDefault();
+
 		const response = await addWidget({ type, info });
 
 		if (response.status < 400) {
 			dispatch({ type: "ADD_WIDGET", widget: response.data });
+			onClose();
 		}
 
 		setInfo({});
-	}
-
-	function handleKeyPress(event) {
-		if (event.key === "Enter") handleSubmit();
 	}
 
 	function renderCitiesOptionLabel(option) {
@@ -140,7 +139,6 @@ function WidgetDetail({ open, onClose }) {
 							label="Subreddit"
 							value={info.subreddit || ""}
 							onChange={handleChange}
-							onKeyPress={handleKeyPress}
 							margin="normal"
 							variant="outlined"
 							fullWidth
@@ -152,7 +150,6 @@ function WidgetDetail({ open, onClose }) {
 							label="Search"
 							value={info.search || ""}
 							onChange={handleChange}
-							onKeyPress={handleKeyPress}
 							margin="normal"
 							variant="outlined"
 							fullWidth
@@ -247,19 +244,21 @@ function WidgetDetail({ open, onClose }) {
 			fullWidth
 			maxWidth="xs"
 		>
-			<DialogTitle id="simple-dialog-title">{"New Widget"}</DialogTitle>
-			<DialogContent>
-				{renderTypes()}
-				{renderFields()}
-			</DialogContent>
-			<DialogActions>
-				<Button onClick={onClose} color="primary">
-					{"Close"}
-				</Button>
-				<Button onClick={handleSubmit} color="primary" autoFocus>
-					{"Add"}
-				</Button>
-			</DialogActions>
+			<form onSubmit={handleSubmit}>
+				<DialogTitle id="simple-dialog-title">{"New Widget"}</DialogTitle>
+				<DialogContent>
+					{renderTypes()}
+					{renderFields()}
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={onClose} color="primary">
+						{"Close"}
+					</Button>
+					<Button type="submit" color="primary" autoFocus>
+						{"Add"}
+					</Button>
+				</DialogActions>
+			</form>
 		</Dialog>
 	);
 }

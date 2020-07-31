@@ -192,42 +192,43 @@ function Settings({ classes, match }) {
 		return (
 			<div className={classes.settingsContainer}>
 				<Typography variant="h4"> {"Change settings"} </Typography>
-				<FormControl margin="normal">
-					<FormControlLabel
-						control={
-							<Checkbox
-								checked={settings.useCustomScrollbar || false}
-								color="primary"
-								onChange={() => handleCheckboxChange("useCustomScrollbar")}
-							/>
-						}
-						label="Use custom scrollbar"
-					/>
-					<FormControlLabel
-						control={
-							<Checkbox
-								checked={settings.animations || false}
-								color="primary"
-								onChange={() => handleCheckboxChange("animations")}
-							/>
-						}
-						label="Animations"
-					/>
-					<FormControlLabel
-						control={
-							<Checkbox
-								checked={settings.borderColor || false}
-								color="primary"
-								onChange={() => handleCheckboxChange("borderColor")}
-							/>
-						}
-						label="Border color on widgets"
-					/>
-				</FormControl>
-				<Button variant="contained" onClick={handleSubmitSettings}>
-					{" "}
-					{"Apply"}{" "}
-				</Button>
+				<form onSubmit={handleSubmitSettings} style={{ display: "contents" }}>
+					<FormControl margin="normal">
+						<FormControlLabel
+							control={
+								<Checkbox
+									checked={settings.useCustomScrollbar || false}
+									color="primary"
+									onChange={() => handleCheckboxChange("useCustomScrollbar")}
+								/>
+							}
+							label="Use custom scrollbar"
+						/>
+						<FormControlLabel
+							control={
+								<Checkbox
+									checked={settings.animations || false}
+									color="primary"
+									onChange={() => handleCheckboxChange("animations")}
+								/>
+							}
+							label="Animations"
+						/>
+						<FormControlLabel
+							control={
+								<Checkbox
+									checked={settings.borderColor || false}
+									color="primary"
+									onChange={() => handleCheckboxChange("borderColor")}
+								/>
+							}
+							label="Border color on widgets"
+						/>
+					</FormControl>
+					<Button variant="contained" onClick={handleSubmitSettings}>
+						{"Apply"}
+					</Button>
+				</form>
 			</div>
 		);
 	}

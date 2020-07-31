@@ -14,7 +14,6 @@ class SeriesDetail extends Component {
 
 		this.handleChange = this.handleChange.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
-		this.handleKeyPress = this.handleKeyPress.bind(this);
 	}
 
 	componentDidMount() {
@@ -27,15 +26,13 @@ class SeriesDetail extends Component {
 		this.setState({ [e.target.id]: e.target.value });
 	}
 
-	async handleSubmit() {
+	async handleSubmit(e) {
+		e.preventDefault();
+
 		const { series, editSeries } = this.props;
 		const { title } = this.state;
 
 		await editSeries(series._id, { displayName: title });
-	}
-
-	handleKeyPress(event) {
-		if (event.key === "Enter") this.handleSubmit();
 	}
 
 	render() {
@@ -44,27 +41,24 @@ class SeriesDetail extends Component {
 		return (
 			<Container maxWidth="xs">
 				<h2>{"Series"}</h2>
-				<Input
-					id="title"
-					type="text"
-					label="Title"
-					value={title}
-					onChange={this.handleChange}
-					onKeyPress={this.handleKeyPress}
-					margin="normal"
-					variant="outlined"
-					fullWidth
-					required
-				/>
-				<br /><br />
-				<Button
-					onClick={this.handleSubmit}
-					color="primary"
-					variant="outlined"
-					fullWidth
-				>
-					{"Edit"}
-				</Button>
+				<form onSubmit={this.handleSubmit}>
+					<Input
+						id="title"
+						type="text"
+						label="Title"
+						value={title}
+						onChange={this.handleChange}
+						margin="normal"
+						variant="outlined"
+						fullWidth
+						required
+					/>
+					<br />
+					<br />
+					<Button type="submit" color="primary" variant="outlined" fullWidth>
+						{"Edit"}
+					</Button>
+				</form>
 			</Container>
 		);
 	}
