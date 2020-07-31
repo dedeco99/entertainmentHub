@@ -22,7 +22,7 @@ class Search extends Component {
 
 		this.getSearch = this.getSearch.bind(this);
 		this.handleSearch = this.handleSearch.bind(this);
-		this.handleKeyPress = this.handleKeyPress.bind(this);
+		this.handleSubmit = this.handleSubmit.bind(this);
 	}
 
 	async getSearch() {
@@ -48,8 +48,10 @@ class Search extends Component {
 		this.setState({ query: e.target.value, page: 0 });
 	}
 
-	handleKeyPress(event) {
-		if (event.key === "Enter") this.getSearch();
+	handleSubmit(e) {
+		e.preventDefault();
+
+		this.getSearch();
 	}
 
 	render() {
@@ -58,27 +60,24 @@ class Search extends Component {
 
 		return (
 			<div>
-				<Input
-					id="search"
-					label="Search"
-					value={query}
-					onChange={this.handleSearch}
-					onKeyPress={this.handleKeyPress}
-					InputProps={{
-						endAdornment: (
-							<InputAdornment position="end">
-								{
-									loading
-										? <img src={loadingGif} height="25px" alt="Loading..." />
-										: <div />
-								}
-							</InputAdornment>
-						),
-					}}
-					margin="normal"
-					variant="outlined"
-					fullWidth
-				/>
+				<form onSubmit={this.handleSubmit}>
+					<Input
+						id="search"
+						label="Search"
+						value={query}
+						onChange={this.handleSearch}
+						InputProps={{
+							endAdornment: (
+								<InputAdornment position="end">
+									{loading ? <img src={loadingGif} height="25px" alt="Loading..." /> : <div />}
+								</InputAdornment>
+							),
+						}}
+						margin="normal"
+						variant="outlined"
+						fullWidth
+					/>
+				</form>
 				<Banners
 					series={search}
 					getMore={this.getSearch}

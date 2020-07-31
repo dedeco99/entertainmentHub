@@ -70,7 +70,9 @@ function FeedDetail({ open, feed, platform, onClose }) {
 		setSelectedChannels(selected);
 	}
 
-	async function handleSubmit() {
+	async function handleSubmit(e) {
+		e.preventDefault();
+
 		if (!name || !selectedChannels.length) return;
 
 		// prettier-ignore
@@ -86,7 +88,9 @@ function FeedDetail({ open, feed, platform, onClose }) {
 		}
 	}
 
-	async function handleUpdate() {
+	async function handleUpdate(e) {
+		e.preventDefault();
+
 		if (!feed || !name || !selectedChannels.length) return;
 
 		const mappedChannels = selectedChannels.map(c => c.channelId);
@@ -130,55 +134,53 @@ function FeedDetail({ open, feed, platform, onClose }) {
 	}
 
 	return (
-		<div>
-			<Dialog
-				aria-labelledby="alert-dialog-title"
-				aria-describedby="alert-dialog-description"
-				open={open}
-				fullWidth
-				maxWidth="xs"
-			>
-				<div>
-					<DialogTitle id="simple-dialog-title">{feed ? "Edit Channel Group" : "New Channel Group"}</DialogTitle>
-					<DialogContent>
-						<Input
-							type="text"
-							label="Name"
-							margin="normal"
-							variant="outlined"
-							defaultValue={name}
-							fullWidth
-							required
-							onChange={handleName}
-						/>
-						<Autocomplete
-							id="Channel"
-							multiple
-							disableCloseOnSelect
-							value={selectedChannels}
-							limitTags={2}
-							renderTags={renderTags}
-							onInputChange={platform === "reddit" ? handleGetSubreddits : null}
-							onChange={handleSelectedChannels}
-							options={channels || []}
-							renderInput={renderInput}
-							getOptionLabel={renderOptionLabel}
-							fullWidth
-							required
-							label="Channels"
-						/>
-					</DialogContent>
-					<DialogActions>
-						<Button onClick={handleCloseModal} color="primary">
-							{"Close"}
-						</Button>
-						<Button color="primary" autoFocus onClick={feed ? handleUpdate : handleSubmit}>
-							{feed ? "Update" : "Add"}
-						</Button>
-					</DialogActions>
-				</div>
-			</Dialog>
-		</div>
+		<Dialog
+			aria-labelledby="alert-dialog-title"
+			aria-describedby="alert-dialog-description"
+			open={open}
+			fullWidth
+			maxWidth="xs"
+		>
+			<form onSubmit={feed ? handleUpdate : handleSubmit}>
+				<DialogTitle id="simple-dialog-title">{feed ? "Edit Channel Group" : "New Channel Group"}</DialogTitle>
+				<DialogContent>
+					<Input
+						type="text"
+						label="Name"
+						margin="normal"
+						variant="outlined"
+						defaultValue={name}
+						fullWidth
+						required
+						onChange={handleName}
+					/>
+					<Autocomplete
+						id="Channel"
+						multiple
+						disableCloseOnSelect
+						value={selectedChannels}
+						limitTags={2}
+						renderTags={renderTags}
+						onInputChange={platform === "reddit" ? handleGetSubreddits : null}
+						onChange={handleSelectedChannels}
+						options={channels || []}
+						renderInput={renderInput}
+						getOptionLabel={renderOptionLabel}
+						fullWidth
+						required
+						label="Channels"
+					/>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={handleCloseModal} color="primary">
+						{"Close"}
+					</Button>
+					<Button type="submit" color="primary" autoFocus>
+						{feed ? "Update" : "Add"}
+					</Button>
+				</DialogActions>
+			</form>
+		</Dialog>
 	);
 }
 
