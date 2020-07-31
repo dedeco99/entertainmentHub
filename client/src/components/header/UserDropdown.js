@@ -15,17 +15,22 @@ import {
 	Typography,
 	Box,
 	Divider,
+	Select,
+	MenuItem,
 } from "@material-ui/core";
 
 import { logout } from "../../api/auth";
 
 import { UserContext } from "../../contexts/UserContext";
 
+import { translate } from "../../utils/translations";
+
 import { userDropdown as styles } from "../../styles/Header";
 
 function UserDropdown({ classes }) {
 	const { user } = useContext(UserContext);
 	const [open, setOpen] = useState(false);
+	const [langs, setLang] = useState({ lang: "" })
 
 	function handleClick() {
 		setOpen(!open);
@@ -47,19 +52,26 @@ function UserDropdown({ classes }) {
 		logout();
 	}
 
+	function handleSelectedLang(event){
+		setLang(oldValues => ({
+			...oldValues,
+			[event.target.name]: event.target.value
+		}));
+	}
+
 	const options = [
 		{
-			title: "Settings",
+			title: translate("settings"),
 			icon: "settings",
 			handleClick: handleSettingsClick,
 		},
 		{
-			title: "Apps",
+			title: translate("apps"),
 			icon: "apps",
 			handleClick: handleConnectionsClick,
 		},
 		{
-			title: "Logout",
+			title: translate("logout"),
 			icon: "exit_to_app",
 			handleClick: handleLogoutClick,
 		},
@@ -82,6 +94,23 @@ function UserDropdown({ classes }) {
 						</Box>
 						<Divider />
 						<List disablePadding>
+							<ListItem key={"langs"}>
+								<ListItemIcon>
+									<i className="material-icons">{"flag"}</i>
+								</ListItemIcon>
+								<Select 
+									value={langs.lang}
+									displayEmpty
+									onChange={handleSelectedLang}
+									inputProps={{
+										name: "lang",
+									}}
+								>
+									<MenuItem value="">{translate("selectLanguage")}</MenuItem>
+									<MenuItem value={"pt"}>{translate("portugueseLang")}</MenuItem>
+									<MenuItem value={"en"}>{translate("englishLang")}</MenuItem>
+								</Select>
+							</ListItem>
 							{options.map(op => (
 								<ListItem key={op.title} button onClick={op.handleClick}>
 									<ListItemIcon>

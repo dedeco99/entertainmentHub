@@ -14,6 +14,8 @@ import Input from "./Input";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { RedditContext } from "../../contexts/RedditContext";
 
+import { translate } from "../../utils/translations";
+
 import { addFeed, editFeed } from "../../api/feeds";
 import { getSubreddits } from "../../api/reddit";
 
@@ -111,7 +113,7 @@ function FeedDetail({ open, feed, platform, onClose }) {
 		return (
 			<Input
 				{...params}
-				label={platform === "youtube" ? "Channels" : "Subreddits"}
+				label={platform === "youtube" ? translate("channels") : "Subreddits"}
 				variant="outlined"
 				fullWidth
 				margin="normal"
@@ -133,6 +135,14 @@ function FeedDetail({ open, feed, platform, onClose }) {
 		));
 	}
 
+	function renderDialogTitle() {
+		const loadYoutubeOrReddit = platform === "youtube"
+			? feed ? translate("editChannelGroup") : translate("newChannelGroup")
+			: feed ? translate("editReddit") : translate("newReddit")
+
+		return loadYoutubeOrReddit;
+	}
+
 	return (
 		<Dialog
 			aria-labelledby="alert-dialog-title"
@@ -142,11 +152,15 @@ function FeedDetail({ open, feed, platform, onClose }) {
 			maxWidth="xs"
 		>
 			<form onSubmit={feed ? handleUpdate : handleSubmit}>
-				<DialogTitle id="simple-dialog-title">{feed ? "Edit Channel Group" : "New Channel Group"}</DialogTitle>
+				<DialogTitle 
+					id="simple-dialog-title"
+				>
+					{renderDialogTitle()}
+				</DialogTitle>
 				<DialogContent>
 					<Input
 						type="text"
-						label="Name"
+						label={translate("name")}
 						margin="normal"
 						variant="outlined"
 						defaultValue={name}
@@ -173,10 +187,10 @@ function FeedDetail({ open, feed, platform, onClose }) {
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={handleCloseModal} color="primary">
-						{"Close"}
+						{translate("close")}
 					</Button>
 					<Button type="submit" color="primary" autoFocus>
-						{feed ? "Update" : "Add"}
+						{feed ? translate("update") : translate("add")}
 					</Button>
 				</DialogActions>
 			</form>

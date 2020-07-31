@@ -22,6 +22,8 @@ import Loading from "../.partials/Loading";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { TwitchContext } from "../../contexts/TwitchContext";
 
+import { translate } from "../../utils/translations";
+
 import { getSubscriptions } from "../../api/youtube";
 import { getFollows } from "../../api/twitch";
 import { addChannels } from "../../api/channels";
@@ -163,7 +165,7 @@ function Subscriptions({ platform, history }) {
 					</Box>
 					<Box display="flex" justifyContent="flex-end" className={classes.modalFooter}>
 						<Button color="primary" variant="contained" onClick={addChannelsCall}>
-							{"Submit"}
+							{translate("submit")}
 						</Button>
 					</Box>
 				</Paper>

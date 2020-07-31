@@ -6,6 +6,8 @@ import Sidebar from "../.partials/Sidebar";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { TwitchContext } from "../../contexts/TwitchContext";
 
+import { translate } from "../../utils/translations";
+
 import { getChannels, deleteChannel } from "../../api/channels";
 
 function Channels({ platform }) {
@@ -32,14 +34,14 @@ function Channels({ platform }) {
 		}
 	}
 
-	const menuOptions = [{ displayName: "Delete", onClick: deleteChannelCall }];
+	const menuOptions = [{ displayName: translate("delete"), onClick: deleteChannelCall }];
 
 	return (
 		<Sidebar
 			options={channels}
 			idField="_id"
 			menu={menuOptions}
-			noResultsMessage={"No channels"}
+			noResultsMessage={translate("noChannels")}
 		/>
 	);
 }

@@ -7,6 +7,8 @@ import { getSearch } from "../../api/tv";
 import Input from "../.partials/Input";
 import Banners from "./Banners";
 
+import { translate } from "../../utils/translations";
+
 import loadingGif from "../../img/loading3.gif";
 
 class Search extends Component {
@@ -63,7 +65,7 @@ class Search extends Component {
 				<form onSubmit={this.handleSubmit}>
 					<Input
 						id="search"
-						label="Search"
+						label={translate("search")}
 						value={query}
 						onChange={this.handleSearch}
 						InputProps={{

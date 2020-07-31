@@ -16,6 +16,8 @@ import { getSeries, getSeasons, getPopular, addSeries, editSeries, deleteSeries 
 
 import loadingGif from "../../img/loading3.gif";
 
+import { translate } from "../../utils/translations";
+
 import { tv as styles } from "../../styles/TV";
 
 class TV extends Component {
@@ -325,7 +327,7 @@ class TV extends Component {
 					className={classes.searchBtn}
 				>
 					<i className="material-icons">{"search"}</i>
-					{"Search"}
+					{translate("search")}
 				</Fab>
 				<Button
 					onClick={this.handleShowPopularBlock}
@@ -343,7 +345,7 @@ class TV extends Component {
 					variant="outlined"
 					fullWidth
 				>
-					{loadingAll ? <img src={loadingGif} height="25px" alt="Loading..." /> : "All"}
+					{loadingAll ? <img src={loadingGif} height="25px" alt="Loading..." /> : translate("all")}
 				</Button>
 			</div>
 		);
@@ -403,8 +405,8 @@ class TV extends Component {
 		const { loadingSeries, series, currentSeries, showModal, urlParams } = this.state;
 
 		const menuOptions = [
-			{ displayName: "Edit", onClick: e => this.handleShowModal(e, "edit") },
-			{ displayName: "Delete", onClick: this.deleteSeries },
+			{ displayName: translate("edit"), onClick: e => this.handleShowModal(e, "edit") },
+			{ displayName: translate("delete"), onClick: this.deleteSeries },
 		];
 
 		return (

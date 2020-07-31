@@ -338,19 +338,19 @@ class Notifications extends Component {
 		if (selectedNotification) {
 			if (history) {
 				return [
-					{ name: "Restore", onClick: this.handleRestoreNotification },
-					{ name: "Delete", onClick: this.handleHideNotification },
+					{ name: translate("restore"), onClick: this.handleRestoreNotification },
+					{ name: translate("delete"), onClick: this.handleHideNotification },
 				];
 			}
 
 			switch (selectedNotification.type) {
 				case "youtube":
 					return [
-						{ name: "Mark as read", onClick: this.handleHideNotification },
-						{ name: "Watch later", onClick: this.handleWatchLaterOption },
+						{ name: translate("markAsRead"), onClick: this.handleHideNotification },
+						{ name: translate("watchLater"), onClick: this.handleWatchLaterOption },
 					];
 				default:
-					return [{ name: "Mark as read", onClick: this.handleHideNotification }];
+					return [{ name: translate("markAsRead"), onClick: this.handleHideNotification }];
 			}
 		}
 		return [];

@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 import Container from "@material-ui/core/Container";
 import Button from "@material-ui/core/Button";
 
+import { translate } from "../../utils/translations";
+
 import Input from "../.partials/Input";
 
 class SeriesDetail extends Component {
@@ -45,7 +47,7 @@ class SeriesDetail extends Component {
 					<Input
 						id="title"
 						type="text"
-						label="Title"
+						label={translate("title")}
 						value={title}
 						onChange={this.handleChange}
 						margin="normal"
@@ -56,7 +58,7 @@ class SeriesDetail extends Component {
 					<br />
 					<br />
 					<Button type="submit" color="primary" variant="outlined" fullWidth>
-						{"Edit"}
+						{translate("edit")}
 					</Button>
 				</form>
 			</Container>

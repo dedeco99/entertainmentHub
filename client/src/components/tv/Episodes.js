@@ -8,6 +8,8 @@ import InfiniteScroll from "react-infinite-scroller";
 import Categories from "../.partials/Categories";
 import Episode from "./Episode";
 
+import { translate } from "../../utils/translations";
+
 import { episodes as styles } from "../../styles/TV";
 
 class Episodes extends Component {
@@ -67,7 +69,7 @@ class Episodes extends Component {
 						variant="outlined"
 						fullWidth
 					>
-						{"Passed"}
+						{translate("releasedEpisodes")}
 					</Button>
 				</Grid>
 				<Grid item sm={3} md={2}>
@@ -78,7 +80,7 @@ class Episodes extends Component {
 						variant="outlined"
 						fullWidth
 					>
-						{"Future"}
+						{translate("upcomingEpisodes")}
 					</Button>
 				</Grid>
 				<Grid item xs={12}>

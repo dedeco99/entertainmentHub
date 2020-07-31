@@ -251,13 +251,13 @@ function Settings({ classes, match }) {
 							<ListItemIcon>
 								<i className={`material-icons ${classes.appIcon}`}>{"apps"}</i>
 							</ListItemIcon>
-							<ListItemText primary="Apps" />
+							<ListItemText primary={translate("apps")} />
 						</ListItem>
 						<ListItem button selected={selectedMenu === 1} component={Link} to="/settings">
 							<ListItemIcon>
 								<i className={`material-icons ${classes.appIcon}`}>{"settings"}</i>
 							</ListItemIcon>
-							<ListItemText primary="Settings" />
+							<ListItemText primary={translate("settings")} />
 						</ListItem>
 					</List>
 				</Grid>

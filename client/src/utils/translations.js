@@ -19,9 +19,109 @@ const translations = {
 		en: "Settings",
 		pt: "Definições",
 	},
+	apps: {
+		en: "Apps",
+		pt: "Aplicações",
+	},
+	logout: {
+		en: "Logout",
+		pt: "Terminar Sessão",
+	},
+	search: {
+		en: "Search",
+		pt: "Procurar",
+	},
+	add: {
+		en: "Add",
+		pt: "Adicionar"
+	},
+	edit: {
+		en: "Edit",
+		pt: "Editar",
+	},
+	delete: {
+		en: "Delete",
+		pt: "Apagar",
+	},
+	close: {
+		en: "Close",
+		pt: "Fechar",
+	},
+	update: {
+		en: "Update",
+		pt: "Atualizar",
+	},
+	restore: {
+		en: "Restore",
+		pt: "Restaurar",
+	},
+	watchLater: {
+		en: "Watch Later",
+		pt: "Ver mais Tarde",
+	},
+	markAsRead: {
+		en: "Mark as Read",
+		pt: "Marcar como Lido",
+	},
+	submit: {
+		en: "Submit",
+		pt: "Submeter",
+	},
+	title: {
+		en: "Title",
+		pt: "Título",
+	},
+	noChannels: {
+		en: "No Channels",
+		pt: "Sem Canais",
+	},
+	channels: {
+		en: "Channels",
+		pt: "Canais",
+	},
+	newChannelGroup: {
+		en: "New Channel Group",
+		pt: "Novo Grupo de Canais",
+	},
+	editChannelGroup: {
+		en: "Edit Channel Group",
+		pt: "Editar Grupo dos Canais"
+	},
+	newReddit: {
+		en: "New Reddit",
+		pt: "Novo Reddit"
+	},
+	editReddit: {
+		en: "Edit Reddit",
+		pt: "Editar Reddit",
+	},
+	releasedEpisodes: {
+		en: "Released Episodes",
+		pt: "Episódios Lançados"
+	},
+	upcomingEpisodes: {
+		en: "Upcoming Episodes",
+		pt: "Próximos Episodios"
+	},
 	customScrollbar: {
 		en: "Custom scrollbar",
 		pt: "Scrollbar custom",
+	},
+	name: {
+		en: "Name",
+		pt: "Nome",
+	},
+	selectLanguage: {
+		en: "Select Language",
+		pt: "Selecionar Idioma",
+	},
+	portugueseLang: {
+		en: "Portuguese",
+		pt: "Português",
+	},
+	englishLang: {
+		en: "English",
+		pt: "Inglês",
 	},
 	animations: {
 		en: "Animations",
