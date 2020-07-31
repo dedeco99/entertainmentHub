@@ -4,7 +4,6 @@ const header = makeStyles({
 	appBar: {
 		backgroundColor: "#222",
 		marginBottom: 20,
-		zIndex: 0,
 		position: "absolute",
 	},
 	brand: {
@@ -19,8 +18,26 @@ const header = makeStyles({
 });
 
 const loggedInLinks = () => ({
-	navBtn: {
-		marginRight: 20,
+	wrapper: {
+		"& > div": {
+			marginLeft: 10,
+		},
+	},
+});
+
+const userDropdown = () => ({
+	avatar: {
+		color: "white",
+		backgroundColor: "#ff5722",
+	},
+	wrapper: {
+		display: "inline-block",
+		position: "relative",
+	},
+	paper: {
+		position: "absolute",
+		width: 250,
+		right: 0,
 	},
 });
 
@@ -86,4 +103,11 @@ const appMenu = () => ({
 	},
 });
 
-export { header, loggedInLinks, notificationDropdown, settings, appMenu };
+export {
+	header,
+	loggedInLinks,
+	userDropdown,
+	notificationDropdown,
+	settings,
+	appMenu,
+};

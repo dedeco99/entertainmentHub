@@ -17,7 +17,7 @@ async function addApp(platform, code) {
 		message: true,
 	});
 
-	window.location.replace("/settings");
+	window.location.replace("/settings/apps");
 }
 
 async function deleteApp(app) {
@@ -27,11 +27,7 @@ async function deleteApp(app) {
 		message: true,
 	});
 
-	window.location.replace("/settings");
+	window.location.replace("/settings/apps");
 }
 
-export {
-	getApps,
-	addApp,
-	deleteApp,
-};
+export { getApps, addApp, deleteApp };
