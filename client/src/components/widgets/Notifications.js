@@ -24,7 +24,9 @@ import { NotificationContext } from "../../contexts/NotificationContext";
 
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
 import { addToWatchLater } from "../../api/youtube";
+
 import { formatDate, formatVideoDuration } from "../../utils/utils";
+import { translate } from "../../utils/translations";
 
 import { notifications as styles } from "../../styles/Widgets";
 
@@ -263,10 +265,7 @@ class Notifications extends Component {
 									{notification.info.displayName}
 								</Link>
 							</Typography>
-							<Typography variant="caption">
-								{" "}
-								{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}{" "}
-							</Typography>
+							<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
 						</Box>
 					</>
 				);
@@ -280,17 +279,12 @@ class Notifications extends Component {
 						</Box>
 						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
 							<Typography variant="body1" title={title} noWrap>
-								{" "}
-								{title}{" "}
+								{title}
 							</Typography>
 							<Typography variant="body2" title={subtitle} noWrap>
-								{" "}
-								{subtitle}{" "}
+								{subtitle}
 							</Typography>
-							<Typography variant="caption">
-								{" "}
-								{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}{" "}
-							</Typography>
+							<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
 						</Box>
 					</>
 				);
@@ -332,7 +326,7 @@ class Notifications extends Component {
 		return (
 			<Box display="flex" alignItems="center" justifyContent="center">
 				<motion.h3 variants={noNotificationVariant} initial="hidden" animate="visible">
-					{"You have no notifications"}
+					{translate("noNotifications")}
 				</motion.h3>
 			</Box>
 		);
@@ -368,7 +362,7 @@ class Notifications extends Component {
 		const { classes, height } = this.props;
 		const { open, hasMore, history, filterAnchorEl, selectedIndex, notificationAnchorEl } = this.state;
 
-		const filterOptions = ["All", "TV", "Youtube", "Reddit", "Twitch"];
+		const filterOptions = [translate("all"), "TV", "Youtube", "Reddit", "Twitch"];
 		const actions = this.getNotificationActions();
 
 		if (!open) return <Loading />;
@@ -383,7 +377,7 @@ class Notifications extends Component {
 				>
 					<Box display="flex" alignItems="center" className={classes.header}>
 						<Box display="flex" flexGrow={1}>
-							<Typography variant="subtitle1">{"Notifications"}</Typography>
+							<Typography variant="subtitle1">{translate("notifications")}</Typography>
 						</Box>
 						<Box display="flex" justifyContent="flex-end">
 							<Button

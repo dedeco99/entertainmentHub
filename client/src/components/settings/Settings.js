@@ -22,6 +22,8 @@ import { UserContext } from "../../contexts/UserContext";
 import { getApps, deleteApp } from "../../api/apps";
 import { editUser } from "../../api/users";
 
+import { translate } from "../../utils/translations";
+
 import { settings as styles } from "../../styles/Header";
 
 function Settings({ classes, match }) {
@@ -150,25 +152,21 @@ function Settings({ classes, match }) {
 								<Typography> {app.displayName} </Typography>
 								{app.active ? (
 									<Typography variant="body2">
-										{" "}
-										<i className="icofont-check-circled" /> {`Your ${app.displayName} is connected`}{" "}
+										<i className="icofont-check-circled" /> {translate("appConnected", app.displayName)}
 									</Typography>
 								) : (
 									<Typography variant="body2">
-										{" "}
-										<i className="icofont-close-circled" /> {`Your ${app.displayName} is not currently connected`}{" "}
+										<i className="icofont-close-circled" /> {translate("appNotConnected", app.displayName)}
 									</Typography>
 								)}
 							</Box>
 							{app.active ? (
 								<Button color="primary" variant="contained" size="small" onClick={() => handleDeleteApp(app.id)}>
-									{" "}
-									{"Disconnect"}{" "}
+									{translate("disconnect")}
 								</Button>
 							) : (
 								<Button color="primary" variant="contained" size="small" href={app.link} target="_self">
-									{" "}
-									{"Connect"}{" "}
+									{translate("connect")}
 								</Button>
 							)}
 						</Box>
@@ -191,7 +189,7 @@ function Settings({ classes, match }) {
 	function renderSettings() {
 		return (
 			<div className={classes.settingsContainer}>
-				<Typography variant="h4"> {"Change settings"} </Typography>
+				<Typography variant="h4">{translate("settings")}</Typography>
 				<form onSubmit={handleSubmitSettings} style={{ display: "contents" }}>
 					<FormControl margin="normal">
 						<FormControlLabel
@@ -202,7 +200,7 @@ function Settings({ classes, match }) {
 									onChange={() => handleCheckboxChange("useCustomScrollbar")}
 								/>
 							}
-							label="Use custom scrollbar"
+							label={translate("customScrollbar")}
 						/>
 						<FormControlLabel
 							control={
@@ -212,7 +210,7 @@ function Settings({ classes, match }) {
 									onChange={() => handleCheckboxChange("animations")}
 								/>
 							}
-							label="Animations"
+							label={translate("animations")}
 						/>
 						<FormControlLabel
 							control={
@@ -222,11 +220,11 @@ function Settings({ classes, match }) {
 									onChange={() => handleCheckboxChange("borderColor")}
 								/>
 							}
-							label="Border color on widgets"
+							label={translate("borderColor")}
 						/>
 					</FormControl>
 					<Button variant="contained" onClick={handleSubmitSettings}>
-						{"Apply"}
+						{translate("save")}
 					</Button>
 				</form>
 			</div>
