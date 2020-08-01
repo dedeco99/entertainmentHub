@@ -1,7 +1,7 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { withStyles } from "@material-ui/styles";
 
+import { makeStyles } from "@material-ui/core";
 import Zoom from "@material-ui/core/Zoom";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
@@ -15,39 +15,34 @@ import { formatDate } from "../../utils/utils";
 
 import { weather as styles } from "../../styles/Widgets";
 
-class Weather extends Component {
-	constructor() {
-		super();
-		this.state = {
-			weather: null,
-			open: false,
-		};
-	}
+const useStyles = makeStyles(styles);
 
-	componentDidMount() {
-		this.getWeather();
-	}
+function Weather({ city, country, lat, lon }) {
+	const classes = useStyles();
+	const [open, setOpen] = useState(false);
+	const [weather, setWeather] = useState(false);
 
-	async getWeather() {
-		const { lat, lon } = this.props;
+	useEffect(() => {
+		async function fetchData() {
+			setOpen(false);
 
-		const response = await getWeather(lat, lon);
+			const response = await getWeather(lat, lon);
 
-		this.setState({ open: true, weather: response.data });
-	}
+			setWeather(response.data);
+			setOpen(true);
+		}
 
-	showFeelsLike() {
-		const { weather } = this.state;
+		fetchData();
+	}, [city, country, lat, lon]); // eslint-disable
 
+	function showFeelsLike() {
 		if (Math.round(weather.current.feelsLike) !== Math.round(weather.current.temp)) {
 			return <Typography variant="caption">{`Feels Like ${Math.round(weather.current.feelsLike)}°`}</Typography>;
 		}
 		return null;
 	}
 
-	renderWindDirection() {
-		const { weather } = this.state;
-
+	function renderWindDirection() {
 		const rotation = { transform: `rotate(${weather.current.windDirection}deg)` };
 
 		return (
@@ -57,10 +52,7 @@ class Weather extends Component {
 		);
 	}
 
-	renderNextDays() {
-		const { classes } = this.props;
-		const { weather } = this.state;
-
+	function renderNextDays() {
 		const nextDays = weather.daily.slice(0, 4).map((day, i, { length }) => (
 			<Box
 				key={day.date}
@@ -87,87 +79,75 @@ class Weather extends Component {
 		return nextDays;
 	}
 
-	render() {
-		const { classes, city, country } = this.props;
-		const { weather, open } = this.state;
+	if (!open) return <Loading />;
 
-		if (!open) return <Loading />;
-
-		return (
-			<Zoom in={open}>
-				<Box className={classes.root}>
-					<Box display="flex" flexDirection="column" flexGrow={1} className={classes.content}>
-						<Box display="flex">
-							<Box display="flex" flexDirection="column" justifyContent="center" flexGrow={1}>
-								<Typography variant="h6">{`${city}, ${country}`}</Typography>
-								<Typography variant="subtitle1" className={classes.description}>
-									{weather.current.forecast.description}
-								</Typography>
-							</Box>
-							<Box display="flex" flexDirection="column" alignItems="flex-end">
-								<Typography variant="h4">{`${Math.round(weather.current.temp)}°`}</Typography>
-								<Typography variant="caption">
-									<i className="icofont-caret-up" />
-									{`${Math.round(weather.current.maxTemp)}° `}
-									<i className="icofont-caret-down" />
-									{`${Math.round(weather.current.minTemp)}°`}
-								</Typography>
-								{this.showFeelsLike()}
-							</Box>
+	return (
+		<Zoom in={open}>
+			<Box className={classes.root}>
+				<Box display="flex" flexDirection="column" flexGrow={1} className={classes.content}>
+					<Box display="flex">
+						<Box display="flex" flexDirection="column" justifyContent="center" flexGrow={1}>
+							<Typography variant="h6">{`${city}, ${country}`}</Typography>
+							<Typography variant="subtitle1" className={classes.description}>
+								{weather.current.forecast.description}
+							</Typography>
 						</Box>
-						<Box display="flex" flexGrow={1}>
-							<Box display="flex" flexDirection="column" justifyContent="center" flexGrow={1}>
-								<Typography variant="caption" className={classes.info}>
-									<Tooltip title="Clouds">
-										<i className="icofont-clouds" />
-									</Tooltip>
-									{`${Math.round(weather.current.clouds)}%`}
-								</Typography>
-								<Typography variant="caption" className={classes.info}>
-									{this.renderWindDirection()}
-									{`${Math.round(weather.current.windSpeed)} m/s`}
-								</Typography>
-							</Box>
-							<Box display="flex" justifyContent="center" alignItems="center">
-								{<img src={weather.current.forecast.image} alt="Forecast" />}
-							</Box>
-							<Box
-								display="flex"
-								flexDirection="column"
-								justifyContent="center"
-								alignItems="flex-end"
-								flexGrow={1}
-							>
-								<Typography variant="caption" className={classes.info}>
-									<Tooltip title="Sunrise">
-										<i className="icofont-sun-rise" />
-									</Tooltip>
-									{`${weather.current.sunrise}`}
-								</Typography>
-								<Typography variant="caption" className={classes.info}>
-									<Tooltip title="Sunset">
-										<i className="icofont-sun-set" />
-									</Tooltip>
-									{`${weather.current.sunset}`}
-								</Typography>
-							</Box>
+						<Box display="flex" flexDirection="column" alignItems="flex-end">
+							<Typography variant="h4">{`${Math.round(weather.current.temp)}°`}</Typography>
+							<Typography variant="caption">
+								<i className="icofont-caret-up" />
+								{`${Math.round(weather.current.maxTemp)}° `}
+								<i className="icofont-caret-down" />
+								{`${Math.round(weather.current.minTemp)}°`}
+							</Typography>
+							{showFeelsLike()}
 						</Box>
 					</Box>
-					<Box display="flex" className={classes.nextDays}>
-						{this.renderNextDays()}
+					<Box display="flex" flexGrow={1}>
+						<Box display="flex" flexDirection="column" justifyContent="center" flexGrow={1}>
+							<Typography variant="caption" className={classes.info}>
+								<Tooltip title="Clouds">
+									<i className="icofont-clouds" />
+								</Tooltip>
+								{`${Math.round(weather.current.clouds)}%`}
+							</Typography>
+							<Typography variant="caption" className={classes.info}>
+								{renderWindDirection()}
+								{`${Math.round(weather.current.windSpeed)} m/s`}
+							</Typography>
+						</Box>
+						<Box display="flex" justifyContent="center" alignItems="center">
+							{<img src={weather.current.forecast.image} alt="Forecast" />}
+						</Box>
+						<Box display="flex" flexDirection="column" justifyContent="center" alignItems="flex-end" flexGrow={1}>
+							<Typography variant="caption" className={classes.info}>
+								<Tooltip title="Sunrise">
+									<i className="icofont-sun-rise" />
+								</Tooltip>
+								{`${weather.current.sunrise}`}
+							</Typography>
+							<Typography variant="caption" className={classes.info}>
+								<Tooltip title="Sunset">
+									<i className="icofont-sun-set" />
+								</Tooltip>
+								{`${weather.current.sunset}`}
+							</Typography>
+						</Box>
 					</Box>
 				</Box>
-			</Zoom>
-		);
-	}
+				<Box display="flex" className={classes.nextDays}>
+					{renderNextDays()}
+				</Box>
+			</Box>
+		</Zoom>
+	);
 }
 
 Weather.propTypes = {
-	classes: PropTypes.object.isRequired,
 	city: PropTypes.string.isRequired,
 	country: PropTypes.string.isRequired,
 	lat: PropTypes.number.isRequired,
 	lon: PropTypes.number.isRequired,
 };
 
-export default withStyles(styles)(Weather);
+export default Weather;
