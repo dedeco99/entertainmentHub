@@ -47,6 +47,8 @@ function WidgetDetail({ open, widget, onClose }) {
 			if (widget.type === "crypto") {
 				const formattedCoins = widget.info.coins.split(",").map(coin => ({ symbol: coin }));
 				setSelectedCoins(formattedCoins);
+			} else if (widget.type === "weather") {
+				setSelectedCity({ name: widget.info.city, country: widget.info.country });
 			}
 		} else {
 			setType("notifications");
