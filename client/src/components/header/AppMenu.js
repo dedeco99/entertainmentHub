@@ -26,24 +26,22 @@ function AppMenu({ classes, location }) {
 		{ platform: "tv", name: "TV Series", icon: "icofont-monitor icofont-2x", endpoint: "/tv" },
 	];
 
-	async function getAppsCall() {
-		const redirected = localStorage.getItem("redirected");
-
-		const response = await getApps();
-
-		if (response.status === 200) {
-			const userApps = allApps.filter(app => response.data.find(appR => appR.platform === app.platform));
-			dispatch({ type: "SET_APPS", apps: response.data });
-			setApps(userApps);
-		} else if (!redirected) {
-			localStorage.setItem("redirected", true);
-			window.location.replace("/settings");
-		}
-	}
-
 	useEffect(() => {
 		async function fetchData() {
-			if (user && user.token) await getAppsCall();
+			if (user && user.token) {
+				const redirected = localStorage.getItem("redirected");
+
+				const response = await getApps();
+
+				if (response.status === 200) {
+					const userApps = allApps.filter(app => response.data.find(appR => appR.platform === app.platform));
+					dispatch({ type: "SET_APPS", apps: response.data });
+					setApps(userApps);
+				} else if (!redirected) {
+					localStorage.setItem("redirected", true);
+					window.location.replace("/settings");
+				}
+			}
 		}
 
 		fetchData();

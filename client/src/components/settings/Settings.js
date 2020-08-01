@@ -82,23 +82,20 @@ function Settings({ classes, match }) {
 	const [selectedMenu, setSelectedMenu] = useState(0);
 	const [settings, setSettings] = useState({});
 
-	async function getAppsCall() {
-		const response = await getApps();
-
-		if (response.status === 200) {
-			for (const userApp of response.data) {
-				apps[userApp.platform].id = userApp._id;
-				apps[userApp.platform].active = true;
-			}
-
-			setApps({ ...apps });
-		}
-	}
-
 	useEffect(() => {
 		async function fetchData() {
 			setSettings(user.settings || {});
-			await getAppsCall();
+
+			const response = await getApps();
+
+			if (response.status === 200) {
+				for (const userApp of response.data) {
+					apps[userApp.platform].id = userApp._id;
+					apps[userApp.platform].active = true;
+				}
+
+				setApps({ ...apps });
+			}
 		}
 
 		fetchData();

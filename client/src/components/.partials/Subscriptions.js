@@ -44,10 +44,10 @@ function Subscriptions({ platform, history }) {
 	const [openModal, setOpenModal] = useState(false);
 
 	useEffect(() => {
-		getSubscriptionsCall();
+		handleGetSubscriptions();
 	}, []); // eslint-disable-line
 
-	async function getSubscriptionsCall() {
+	async function handleGetSubscriptions() {
 		if (!loading) {
 			setLoading(true);
 
@@ -73,7 +73,7 @@ function Subscriptions({ platform, history }) {
 		}
 	}
 
-	async function addChannelsCall() {
+	async function handleAddChannels() {
 		const response = await addChannels(platform, checkedChannels);
 
 		if (response.status === 201) {
@@ -153,7 +153,7 @@ function Subscriptions({ platform, history }) {
 				<Paper variant="outlined" className={classes.modalContent}>
 					<Box flexGrow={1} style={{ overflow: "auto" }}>
 						<InfiniteScroll
-							loadMore={getSubscriptionsCall}
+							loadMore={handleGetSubscriptions}
 							hasMore={pagination.hasMore}
 							useWindow={false}
 							loader={<Loading key={0} />}
@@ -162,7 +162,7 @@ function Subscriptions({ platform, history }) {
 						</InfiniteScroll>
 					</Box>
 					<Box display="flex" justifyContent="flex-end" className={classes.modalFooter}>
-						<Button color="primary" variant="contained" onClick={addChannelsCall}>
+						<Button color="primary" variant="contained" onClick={handleAddChannels}>
 							{"Submit"}
 						</Button>
 					</Box>
