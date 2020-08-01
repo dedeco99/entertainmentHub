@@ -28,7 +28,7 @@ function Login({ history }) {
 
 		const response = await login({ email, password });
 
-		if (response.status < 400) {
+		if (response.status === 200) {
 			dispatch({ type: "SET_USER", user: { ...response.data.user, token: response.data.token } });
 
 			history.push("/");
@@ -62,13 +62,9 @@ function Login({ history }) {
 					fullWidth
 					required
 				/>
-				<br /><br />
-				<Button
-					type="submit"
-					color="primary"
-					variant="outlined"
-					fullWidth
-				>
+				<br />
+				<br />
+				<Button type="submit" color="primary" variant="outlined" fullWidth>
 					{"Login"}
 				</Button>
 			</form>

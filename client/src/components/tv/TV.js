@@ -164,12 +164,11 @@ class TV extends Component {
 
 		const response = await getSeasons(seriesId);
 
-		if (response.data.length) {
+		if (response.status === 200) {
 			this.updateSeriesPath(seriesId);
 
-			this.setState(
-				{ seasons: response.data, currentSeries: id, allPage: 0 },
-				() => this.getEpisodes(season >= 0 ? season : response.data[response.data.length - 1]._id),
+			this.setState({ seasons: response.data, currentSeries: id, allPage: 0 }, () =>
+				this.getEpisodes(season >= 0 ? season : response.data[response.data.length - 1]._id),
 			);
 		}
 	}
@@ -216,11 +215,9 @@ class TV extends Component {
 	async addSeries(series) {
 		const response = await addSeries(series);
 
-		if (response.status < 400) {
+		if (response.status === 201) {
 			this.setState(prevState => ({
-				series: [...prevState.series, response.data].sort((a, b) => (
-					a.displayName <= b.displayName ? -1 : 1
-				)),
+				series: [...prevState.series, response.data].sort((a, b) => (a.displayName <= b.displayName ? -1 : 1)),
 			}));
 		}
 	}
@@ -228,21 +225,21 @@ class TV extends Component {
 	async editSeries(id, series) {
 		const response = await editSeries(id, series);
 
-		if (response.status < 400) {
+		if (response.status === 200) {
 			this.setState(prevState => ({
-				series: [...prevState.series.filter(s => s._id !== response.data._id), response.data]
-					.sort((a, b) => a.displayName <= b.displayName ? -1 : 1),
+				series: [...prevState.series.filter(s => s._id !== response.data._id), response.data].sort((a, b) =>
+					a.displayName <= b.displayName ? -1 : 1,
+				),
 			}));
 		}
 	}
-
 
 	async deleteSeries(e) {
 		const { series } = this.state;
 
 		const response = await deleteSeries(e.target.id);
 
-		if (response.status < 400) {
+		if (response.status === 200) {
 			const updatedSeries = series.filter(s => s._id !== response.data._id);
 
 			this.setState({ series: updatedSeries });
@@ -258,14 +255,17 @@ class TV extends Component {
 
 		history.push("/tv/popular");
 
-		this.setState({
-			popular: [],
-			popularPage: 0,
-			popularHasMore: false,
-			showSearchBlock: false,
-			showPopularBlock: true,
-			showEpisodesBlock: false,
-		}, this.getPopular);
+		this.setState(
+			{
+				popular: [],
+				popularPage: 0,
+				popularHasMore: false,
+				showSearchBlock: false,
+				showPopularBlock: true,
+				showEpisodesBlock: false,
+			},
+			this.getPopular,
+		);
 	}
 
 	handleShowAllBlock() {
@@ -273,14 +273,17 @@ class TV extends Component {
 
 		history.push("/tv/all");
 
-		this.setState({
-			episodes: [],
-			allPage: 0,
-			allHasMore: false,
-			showSearchBlock: false,
-			showPopularBlock: false,
-			showEpisodesBlock: true,
-		}, this.getAll);
+		this.setState(
+			{
+				episodes: [],
+				allPage: 0,
+				allHasMore: false,
+				showSearchBlock: false,
+				showPopularBlock: false,
+				showEpisodesBlock: true,
+			},
+			this.getAll,
+		);
 	}
 
 	handleShowModal(e, type) {
@@ -318,12 +321,7 @@ class TV extends Component {
 
 		return (
 			<div align="center">
-				<Fab
-					onClick={this.handleShowSearchBlock}
-					variant="extended"
-					size="medium"
-					className={classes.searchBtn}
-				>
+				<Fab onClick={this.handleShowSearchBlock} variant="extended" size="medium" className={classes.searchBtn}>
 					<i className="material-icons">{"search"}</i>
 					{"Search"}
 				</Fab>
@@ -365,12 +363,7 @@ class TV extends Component {
 		} = this.state;
 
 		if (showSearchBlock) {
-			return (
-				<Search
-					allSeries={series}
-					addSeries={this.addSeries}
-				/>
-			);
+			return <Search allSeries={series} addSeries={this.addSeries} />;
 		} else if (showPopularBlock) {
 			return (
 				<Banners
@@ -424,14 +417,8 @@ class TV extends Component {
 				<Grid item sm={9} md={10} lg={10}>
 					{this.renderContent()}
 				</Grid>
-				<Modal
-					open={showModal}
-					onClose={this.handleHideModal}
-				>
-					<SeriesDetail
-						series={currentSeries._id ? currentSeries : {}}
-						editSeries={this.editSeries}
-					/>
+				<Modal open={showModal} onClose={this.handleHideModal}>
+					<SeriesDetail series={currentSeries._id ? currentSeries : {}} editSeries={this.editSeries} />
 				</Modal>
 			</Grid>
 		);

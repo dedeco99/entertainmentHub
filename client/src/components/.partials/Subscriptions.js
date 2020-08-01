@@ -58,7 +58,7 @@ function Subscriptions({ platform, history }) {
 
 			if (response.status === 401) return history.push("/settings");
 
-			if (response.data && response.data.length) {
+			if (response.status === 200) {
 				let newSubscriptions = pagination.page === 0 ? response.data : subscriptions.concat(response.data);
 
 				dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: newSubscriptions });
@@ -76,7 +76,7 @@ function Subscriptions({ platform, history }) {
 	async function addChannelsCall() {
 		const response = await addChannels(platform, checkedChannels);
 
-		if (response.status < 400) {
+		if (response.status === 201) {
 			dispatch({ type: "ADD_CHANNEL", channel: response.data });
 
 			setCheckedChannels([]);

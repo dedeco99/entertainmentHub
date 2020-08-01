@@ -30,7 +30,7 @@ function Reddit({ subreddit, search, listView }) {
 				response = await getPosts(subreddit, pagination.after);
 			}
 
-			if (response.data) {
+			if (response.status === 200) {
 				response.data = response.data.filter(post => !post.stickied);
 				const newPosts = pagination.page === 0 ? response.data : posts.concat(response.data);
 

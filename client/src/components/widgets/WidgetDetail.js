@@ -66,7 +66,7 @@ function WidgetDetail({ open, widget, onClose }) {
 		const timeout = setTimeout(async () => {
 			const response = await getCities(filter);
 
-			if (response.data) {
+			if (response.status === 200) {
 				setCities(response.data);
 			}
 		}, 500);
@@ -89,7 +89,7 @@ function WidgetDetail({ open, widget, onClose }) {
 		const timeout = setTimeout(async () => {
 			const response = await getCoins(filter);
 
-			if (response.data) {
+			if (response.status === 200) {
 				setCoins(response.data);
 			}
 		}, 500);

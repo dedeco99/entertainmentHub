@@ -47,7 +47,7 @@ function Feeds({ platform }) {
 
 				const response = await editFeed(feedToUpdate);
 
-				if (response.status < 400) {
+				if (response.status === 200) {
 					dispatch({ type: "EDIT_FEED", feed: response.data });
 				}
 			}

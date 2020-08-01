@@ -31,7 +31,7 @@ function AppMenu({ classes, location }) {
 
 		const response = await getApps();
 
-		if (response.data && response.data.length) {
+		if (response.status === 200) {
 			const userApps = allApps.filter(app => response.data.find(appR => appR.platform === app.platform));
 			dispatch({ type: "SET_APPS", apps: response.data });
 			setApps(userApps);
@@ -67,7 +67,7 @@ function AppMenu({ classes, location }) {
 				<Typography color="textPrimary">
 					<i className={app.icon} />
 				</Typography>
-			</ListItem >
+			</ListItem>
 		));
 	}
 
@@ -77,7 +77,7 @@ function AppMenu({ classes, location }) {
 		return (
 			<ListItem button className={classes.appItem} component={Link} to="/settings/apps">
 				<i className="icofont-plus-circle icofont-2x" />
-			</ListItem >
+			</ListItem>
 		);
 	}
 

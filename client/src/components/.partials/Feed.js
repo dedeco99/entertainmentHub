@@ -40,7 +40,7 @@ function Feed({ feed }) {
 					? await getVideos(feed.channels.join(","))
 					: await getPosts(feed.channels.join("+"));
 
-			if (response.data && response.data.length) {
+			if (response.status === 200) {
 				setPosts(response.data);
 				setOpen(true);
 			}

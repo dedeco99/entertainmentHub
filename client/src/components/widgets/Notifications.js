@@ -80,7 +80,7 @@ class Notifications extends Component {
 
 			const response = await getNotifications(page, history, filter);
 
-			if (response.data) {
+			if (response.status === 200) {
 				// prettier-ignore
 				const newNotifications = page === 0
 					? response.data.notifications
@@ -108,7 +108,7 @@ class Notifications extends Component {
 			? await deleteNotifications(selectedNotification._id)
 			: await patchNotifications(selectedNotification._id, false);
 
-		if (response.data) {
+		if (response.status === 200) {
 			dispatch({ type: "DELETE_NOTIFICATION", notification: response.data });
 		}
 
@@ -123,7 +123,7 @@ class Notifications extends Component {
 
 		const response = await patchNotifications(selectedNotification._id, true);
 
-		if (response.data) {
+		if (response.status === 200) {
 			dispatch({ type: "DELETE_NOTIFICATION", notification: response.data });
 		}
 

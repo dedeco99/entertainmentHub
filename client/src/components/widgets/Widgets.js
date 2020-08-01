@@ -149,7 +149,7 @@ function Widgets() {
 	async function handleDeleteWidget(id) {
 		const response = await deleteWidget(id);
 
-		if (response.status < 400) {
+		if (response.status === 200) {
 			dispatch({ type: "DELETE_WIDGET", widget: response.data });
 		}
 	}

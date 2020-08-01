@@ -16,7 +16,7 @@ function Channels({ platform }) {
 		async function fetchData() {
 			const response = await getChannels(platform);
 
-			if (response.data && response.data.length) {
+			if (response.status === 200) {
 				dispatch({ type: "SET_CHANNELS", channels: response.data });
 			}
 		}
@@ -27,21 +27,14 @@ function Channels({ platform }) {
 	async function deleteChannelCall(e) {
 		const response = await deleteChannel(e.target.id);
 
-		if (response.status < 400) {
+		if (response.status === 200) {
 			dispatch({ type: "DELETE_CHANNEL", channel: response.data });
 		}
 	}
 
 	const menuOptions = [{ displayName: "Delete", onClick: deleteChannelCall }];
 
-	return (
-		<Sidebar
-			options={channels}
-			idField="_id"
-			menu={menuOptions}
-			noResultsMessage={"No channels"}
-		/>
-	);
+	return <Sidebar options={channels} idField="_id" menu={menuOptions} noResultsMessage={"No channels"} />;
 }
 
 Channels.propTypes = {

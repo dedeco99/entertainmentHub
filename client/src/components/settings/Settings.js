@@ -85,7 +85,7 @@ function Settings({ classes, match }) {
 	async function getAppsCall() {
 		const response = await getApps();
 
-		if (response.data.length) {
+		if (response.status === 200) {
 			for (const userApp of response.data) {
 				apps[userApp.platform].id = userApp._id;
 				apps[userApp.platform].active = true;
@@ -120,7 +120,7 @@ function Settings({ classes, match }) {
 	async function handleSubmitSettings() {
 		const response = await editUser({ settings });
 
-		if (response.data) {
+		if (response.status === 200) {
 			dispatch({ type: "SET_USER", user: { ...user, ...response.data } });
 
 			window.location.replace("/settings");
