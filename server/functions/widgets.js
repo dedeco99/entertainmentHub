@@ -10,7 +10,7 @@ async function getWidgets(event) {
 
 	const widgets = await Widget.find({ user: user._id }).lean();
 
-	return response(200, "Widgets found", widgets);
+	return response(200, "GET_WIDGETS", widgets);
 }
 
 async function addWidget(event) {
@@ -49,7 +49,7 @@ async function addWidget(event) {
 
 	await widget.save();
 
-	return response(200, "Widget created", widget);
+	return response(201, "ADD_WIDGET", widget);
 }
 
 async function editWidget(event) {
@@ -61,13 +61,9 @@ async function editWidget(event) {
 
 	if (!widgetExists) return response(404, "Widget doesn't exist");
 
-	const widget = await Widget.findOneAndUpdate(
-		{ _id: id },
-		{ x, y, width, height },
-		{ new: true },
-	).lean();
+	const widget = await Widget.findOneAndUpdate({ _id: id }, { x, y, width, height }, { new: true }).lean();
 
-	return response(200, "Widget has been updated", widget);
+	return response(200, "EDIT_WIDGET", widget);
 }
 
 async function deleteWidget(event) {
@@ -83,7 +79,7 @@ async function deleteWidget(event) {
 
 	if (!widget) return errors.notFound;
 
-	return response(200, "Widget deleted", widget);
+	return response(200, "DELETE_WIDGET", widget);
 }
 
 module.exports = {

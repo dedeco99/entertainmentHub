@@ -33,7 +33,7 @@ const translations = {
 	},
 	add: {
 		en: "Add",
-		pt: "Adicionar"
+		pt: "Adicionar",
 	},
 	edit: {
 		en: "Edit",
@@ -85,11 +85,11 @@ const translations = {
 	},
 	editChannelGroup: {
 		en: "Edit Channel Group",
-		pt: "Editar Grupo dos Canais"
+		pt: "Editar Grupo dos Canais",
 	},
 	newReddit: {
 		en: "New Reddit",
-		pt: "Novo Reddit"
+		pt: "Novo Reddit",
 	},
 	editReddit: {
 		en: "Edit Reddit",
@@ -97,11 +97,11 @@ const translations = {
 	},
 	releasedEpisodes: {
 		en: "Released Episodes",
-		pt: "Episódios Lançados"
+		pt: "Episódios Lançados",
 	},
 	upcomingEpisodes: {
 		en: "Upcoming Episodes",
-		pt: "Próximos Episodios"
+		pt: "Próximos Episodios",
 	},
 	customScrollbar: {
 		en: "Custom scrollbar",
@@ -151,6 +151,22 @@ const translations = {
 		en: `Hello ${params[0]}, my name is ${params[1]}`,
 		pt: `Boas ${params[0]}, o meu nome é ${params[1]}`,
 	}), // Use like this: translate("multipleParamExample", "Rodrigo", "André")
+	GET_WIDGETS: {
+		en: "Widgets found",
+		pt: "Widgets encontrados",
+	},
+	ADD_WIDGET: {
+		en: "Widget created",
+		pt: "Widget adicionado",
+	},
+	EDIT_WIDGET: {
+		en: "Widget has been updated",
+		pt: "Widget foi atualizado",
+	},
+	DELETE_WIDGET: {
+		en: "Widget deleted",
+		pt: "Widget apagado",
+	},
 };
 
 function translate(code, ...params) {
