@@ -56,7 +56,7 @@ function WidgetDetail({ open, widget, onClose }) {
 			setSelectedCity(null);
 			setSelectedCoins([]);
 		}
-	}, [widget]); // eslint-disable
+	}, [widget]); // eslint-disable-line
 
 	function handleGetCities(e, filter) {
 		if (!filter) return;

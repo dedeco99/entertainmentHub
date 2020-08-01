@@ -1,20 +1,22 @@
 import React, { useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
-import { withRouter } from "react-router";
+import { Link, withRouter } from "react-router-dom";
 
-import { withStyles } from "@material-ui/styles";
+import { makeStyles } from "@material-ui/core";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
+import Typography from "@material-ui/core/Typography";
 
 import { UserContext } from "../../contexts/UserContext";
 
 import { getApps } from "../../api/apps";
 
 import { appMenu as styles } from "../../styles/Header";
-import { Typography } from "@material-ui/core";
 
-function AppMenu({ classes, location }) {
+const useStyles = makeStyles(styles);
+
+function AppMenu({ history }) {
+	const classes = useStyles();
 	const { user, dispatch } = useContext(UserContext);
 	const [apps, setApps] = useState([]);
 	const [selectedMenu, setSelectedMenu] = useState(null);
@@ -35,11 +37,13 @@ function AppMenu({ classes, location }) {
 
 				if (response.status === 200) {
 					const userApps = allApps.filter(app => response.data.find(appR => appR.platform === app.platform));
-					dispatch({ type: "SET_APPS", apps: response.data });
 					setApps(userApps);
+
+					dispatch({ type: "SET_APPS", apps: response.data });
 				} else if (!redirected) {
 					localStorage.setItem("redirected", true);
-					window.location.replace("/settings");
+
+					history.push("/settings");
 				}
 			}
 		}
@@ -48,9 +52,14 @@ function AppMenu({ classes, location }) {
 	}, []); // eslint-disable-line
 
 	useEffect(() => {
-		const currentApp = allApps.find(app => app.endpoint === location.pathname);
+		const userApps = allApps.filter(app => user.apps.find(appR => appR.platform === app.platform));
+		setApps(userApps);
+	}, [user]); // eslint-disable-line
+
+	useEffect(() => {
+		const currentApp = allApps.find(app => app.endpoint === history.location.pathname);
 		setSelectedMenu(currentApp ? currentApp.platform : null);
-	}, [allApps, location]);
+	}, [allApps, history.location]);
 
 	function renderAppList() {
 		return apps.map(app => (
@@ -94,8 +103,7 @@ function AppMenu({ classes, location }) {
 }
 
 AppMenu.propTypes = {
-	classes: PropTypes.object.isRequired,
-	location: PropTypes.object.isRequired,
+	history: PropTypes.object.isRequired,
 };
 
-export default withRouter(withStyles(styles)(AppMenu));
+export default withRouter(AppMenu);

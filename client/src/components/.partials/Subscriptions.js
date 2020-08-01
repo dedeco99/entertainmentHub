@@ -1,8 +1,9 @@
 import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { makeStyles } from "@material-ui/styles";
+import { withRouter } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroller";
 
+import { makeStyles } from "@material-ui/core";
 import IconButton from "@material-ui/core/IconButton";
 import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
@@ -177,4 +178,4 @@ Subscriptions.propTypes = {
 	platform: PropTypes.string.isRequired,
 };
 
-export default Subscriptions;
+export default withRouter(Subscriptions);

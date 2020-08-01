@@ -33,7 +33,7 @@ function Weather({ city, country, lat, lon }) {
 		}
 
 		fetchData();
-	}, [city, country, lat, lon]); // eslint-disable
+	}, [city, country, lat, lon]); // eslint-disable-line
 
 	function showFeelsLike() {
 		if (Math.round(weather.current.feelsLike) !== Math.round(weather.current.temp)) {

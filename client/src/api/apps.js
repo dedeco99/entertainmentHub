@@ -10,24 +10,24 @@ async function getApps() {
 }
 
 async function addApp(platform, code) {
-	await api({
+	const res = await api({
 		method: "post",
 		url: "/api/apps",
 		data: { platform, code },
 		message: true,
 	});
 
-	window.location.replace("/settings/apps");
+	return res;
 }
 
 async function deleteApp(app) {
-	await api({
+	const res = await api({
 		method: "delete",
 		url: `/api/apps/${app}`,
 		message: true,
 	});
 
-	window.location.replace("/settings/apps");
+	return res;
 }
 
 export { getApps, addApp, deleteApp };

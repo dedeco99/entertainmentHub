@@ -39,7 +39,7 @@ function Crypto({ coins, widgetDimensions }) {
 		}
 
 		fetchData();
-	}, [coins]); // eslint-disable
+	}, [coins]); // eslint-disable-line
 
 	function simplifyNumber(num) {
 		if (num) {

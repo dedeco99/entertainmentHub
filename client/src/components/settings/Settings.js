@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useContext } from "react";
-import { withStyles } from "@material-ui/styles";
 import PropTypes from "prop-types";
 import { Link } from "react-router-dom";
 
+import { makeStyles } from "@material-ui/core";
 import Grid from "@material-ui/core/Grid";
 import List from "@material-ui/core/List";
 import ListItem from "@material-ui/core/ListItem";
@@ -19,17 +19,20 @@ import Divider from "@material-ui/core/Divider";
 
 import { UserContext } from "../../contexts/UserContext";
 
-import { getApps, deleteApp } from "../../api/apps";
+import { deleteApp } from "../../api/apps";
 import { editUser } from "../../api/users";
 
 import { settings as styles } from "../../styles/Header";
 
-function Settings({ classes, match }) {
+const useStyles = makeStyles(styles);
+
+function Settings({ match }) {
 	const REDIRECT = "https://entertainmenthub.ddns.net";
 
+	const classes = useStyles();
 	const { user, dispatch } = useContext(UserContext);
 
-	const [apps, setApps] = useState({
+	const apps = {
 		reddit: {
 			active: false,
 			key: "reddit",
@@ -78,28 +81,14 @@ function Settings({ classes, match }) {
 			link: "/apps/tv",
 			color: "linear-gradient(0deg, rgba(1,97,234,1) 0%, rgba(0,187,250,1) 100%)",
 		},
-	});
+	};
 	const [selectedMenu, setSelectedMenu] = useState(0);
 	const [settings, setSettings] = useState({});
 
-	useEffect(() => {
-		async function fetchData() {
-			setSettings(user.settings || {});
-
-			const response = await getApps();
-
-			if (response.status === 200) {
-				for (const userApp of response.data) {
-					apps[userApp.platform].id = userApp._id;
-					apps[userApp.platform].active = true;
-				}
-
-				setApps({ ...apps });
-			}
-		}
-
-		fetchData();
-	}, []); // eslint-disable-line
+	for (const userApp of user.apps) {
+		apps[userApp.platform].id = userApp._id;
+		apps[userApp.platform].active = true;
+	}
 
 	useEffect(() => {
 		switch (match.path) {
@@ -119,13 +108,15 @@ function Settings({ classes, match }) {
 
 		if (response.status === 200) {
 			dispatch({ type: "SET_USER", user: { ...user, ...response.data } });
-
-			window.location.replace("/settings");
 		}
 	}
 
 	async function handleDeleteApp(appId) {
-		await deleteApp(appId);
+		const response = await deleteApp(appId);
+
+		if (response.status === 200) {
+			dispatch({ type: "DELETE_APP", app: response.data });
+		}
 	}
 
 	function handleCheckboxChange(property) {
@@ -269,8 +260,7 @@ function Settings({ classes, match }) {
 }
 
 Settings.propTypes = {
-	classes: PropTypes.object.isRequired,
 	match: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(Settings);
+export default Settings;

@@ -11,11 +11,7 @@ const UserContextProvider = ({ children }) => {
 		return localData ? JSON.parse(localData) : {};
 	});
 
-	return (
-		<UserContext.Provider value={{ user, dispatch }}>
-			{children}
-		</UserContext.Provider>
-	);
+	return <UserContext.Provider value={{ user, dispatch }}>{children}</UserContext.Provider>;
 };
 
 UserContextProvider.propTypes = {
