@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import { makeStyles } from "@material-ui/core";
@@ -20,13 +20,13 @@ import { UserContext } from "../../contexts/UserContext";
 
 import { getCities } from "../../api/weather";
 import { getCoins } from "../../api/crypto";
-import { addWidget } from "../../api/widgets";
+import { addWidget, editWidget } from "../../api/widgets";
 
 import { widgetDetail as styles } from "../../styles/Widgets";
 
 const useStyles = makeStyles(styles);
 
-function WidgetDetail({ open, onClose }) {
+function WidgetDetail({ open, widget, onClose }) {
 	const classes = useStyles();
 	const { dispatch } = useContext(WidgetContext);
 	const { user } = useContext(UserContext);
@@ -38,6 +38,23 @@ function WidgetDetail({ open, onClose }) {
 
 	const [selectedCity, setSelectedCity] = useState(null);
 	const [selectedCoins, setSelectedCoins] = useState([]);
+
+	useEffect(() => {
+		if (widget) {
+			setType(widget.type);
+			setInfo(widget.info);
+
+			if (widget.type === "crypto") {
+				const formattedCoins = widget.info.coins.split(",").map(coin => ({ symbol: coin }));
+				setSelectedCoins(formattedCoins);
+			}
+		} else {
+			setType("notifications");
+			setInfo({});
+			setSelectedCity(null);
+			setSelectedCoins([]);
+		}
+	}, [widget]); // eslint-disable
 
 	function handleGetCities(e, filter) {
 		if (!filter) return;
@@ -91,12 +108,25 @@ function WidgetDetail({ open, onClose }) {
 		}
 	}
 
+	async function handleUpdate(e) {
+		e.preventDefault();
+
+		const response = await editWidget({ ...widget, info });
+
+		if (response.status === 200) {
+			dispatch({ type: "EDIT_WIDGET", widget: response.data });
+			onClose();
+		}
+
+		setInfo({});
+	}
+
 	async function handleSubmit(e) {
 		e.preventDefault();
 
 		const response = await addWidget({ type, info });
 
-		if (response.status < 400) {
+		if (response.status === 201) {
 			dispatch({ type: "ADD_WIDGET", widget: response.data });
 			onClose();
 		}
@@ -113,7 +143,7 @@ function WidgetDetail({ open, onClose }) {
 	}
 
 	function renderCoinsOptionLabel(option) {
-		return `${option.symbol} - ${option.name}`;
+		return `${option.symbol} - ${option.name || option.symbol}`;
 	}
 
 	function renderCoinsInput(params) {
@@ -226,6 +256,7 @@ function WidgetDetail({ open, onClose }) {
 				select
 				fullWidth
 				required
+				disabled={Boolean(widget)}
 			>
 				{types.map(t => (
 					<MenuItem key={t.value} value={t.value}>
@@ -244,8 +275,8 @@ function WidgetDetail({ open, onClose }) {
 			fullWidth
 			maxWidth="xs"
 		>
-			<form onSubmit={handleSubmit}>
-				<DialogTitle id="simple-dialog-title">{"New Widget"}</DialogTitle>
+			<form onSubmit={widget ? handleUpdate : handleSubmit}>
+				<DialogTitle id="simple-dialog-title">{widget ? "Edit Widget" : "New Widget"}</DialogTitle>
 				<DialogContent>
 					{renderTypes()}
 					{renderFields()}
@@ -255,7 +286,7 @@ function WidgetDetail({ open, onClose }) {
 						{"Close"}
 					</Button>
 					<Button type="submit" color="primary" autoFocus>
-						{"Add"}
+						{widget ? "Update" : "Add"}
 					</Button>
 				</DialogActions>
 			</form>
@@ -265,6 +296,7 @@ function WidgetDetail({ open, onClose }) {
 
 WidgetDetail.propTypes = {
 	open: PropTypes.bool.isRequired,
+	widget: PropTypes.object,
 	onClose: PropTypes.func.isRequired,
 };
 
