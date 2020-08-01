@@ -170,8 +170,8 @@ const translations = {
 };
 
 function translate(code, ...params) {
-	// TODO: Replace with language flag
-	const lang = "pt";
+	const user = JSON.parse(localStorage.getItem("user"));
+	const lang = user && ["en", "pt"].includes(user.language) ? user.language : "en";
 
 	if (typeof translations[code] === "function") {
 		return translations[code](...params)[lang];

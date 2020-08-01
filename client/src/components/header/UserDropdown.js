@@ -19,18 +19,26 @@ import {
 	MenuItem,
 } from "@material-ui/core";
 
-import { logout } from "../../api/auth";
-
 import { UserContext } from "../../contexts/UserContext";
+
+import { logout } from "../../api/auth";
+import { editUser } from "../../api/users";
 
 import { translate } from "../../utils/translations";
 
 import { userDropdown as styles } from "../../styles/Header";
 
 function UserDropdown({ classes }) {
-	const { user } = useContext(UserContext);
+	const { user, dispatch } = useContext(UserContext);
 	const [open, setOpen] = useState(false);
-	const [langs, setLang] = useState({ lang: "" })
+
+	async function handleChangeLanguage(e) {
+		const response = await editUser({ language: e.target.value });
+
+		if (response.status === 200) {
+			dispatch({ type: "SET_USER", user: { ...user, ...response.data } });
+		}
+	}
 
 	function handleClick() {
 		setOpen(!open);
@@ -50,13 +58,6 @@ function UserDropdown({ classes }) {
 
 	function handleLogoutClick() {
 		logout();
-	}
-
-	function handleSelectedLang(event){
-		setLang(oldValues => ({
-			...oldValues,
-			[event.target.name]: event.target.value
-		}));
 	}
 
 	const options = [
@@ -98,15 +99,7 @@ function UserDropdown({ classes }) {
 								<ListItemIcon>
 									<i className="material-icons">{"flag"}</i>
 								</ListItemIcon>
-								<Select 
-									value={langs.lang}
-									displayEmpty
-									onChange={handleSelectedLang}
-									inputProps={{
-										name: "lang",
-									}}
-								>
-									<MenuItem value="">{translate("selectLanguage")}</MenuItem>
+								<Select value={user.language} displayEmpty onChange={handleChangeLanguage}>
 									<MenuItem value={"pt"}>{translate("portugueseLang")}</MenuItem>
 									<MenuItem value={"en"}>{translate("englishLang")}</MenuItem>
 								</Select>
