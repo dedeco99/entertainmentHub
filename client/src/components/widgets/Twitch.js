@@ -1,12 +1,6 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { withStyles } from "@material-ui/styles";
+import React, { useState, useEffect } from "react";
 
-import Zoom from "@material-ui/core/Zoom";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import Box from "@material-ui/core/Box";
-import Typography from "@material-ui/core/Typography";
+import { makeStyles, Zoom, List, ListItem, Box, Typography } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
 
@@ -14,73 +8,55 @@ import { getStreams } from "../../api/twitch";
 
 import { twitch as styles } from "../../styles/Widgets";
 
-class Twitch extends Component {
-	constructor() {
-		super();
-		this.state = {
-			streams: [],
+const useStyles = makeStyles(styles);
 
-			open: false,
-		};
-	}
+function Twitch() {
+	const classes = useStyles();
+	const [streams, setStreams] = useState([]);
+	const [open, setOpen] = useState(false);
 
-	async componentDidMount() {
-		await this.getStreams();
-	}
+	useEffect(() => {
+		async function fetchData() {
+			const response = await getStreams();
 
-	async getStreams() {
-		const response = await getStreams();
+			setStreams(response.data);
+			setOpen(true);
+		}
 
-		this.setState({ streams: response.data, open: true });
+		fetchData();
+	}, []); // eslint-disable-line
 
-		return null;
-	}
+	if (!open) return <Loading />;
 
-	renderStreamsList() {
-		const { classes } = this.props;
-		const { streams } = this.state;
-
-		const streamsList = streams.map(stream => (
-			<ListItem key={stream.id} button divider>
-				<Box flex="1" flexGrow={1} className={classes.imageWrapper}>
-					<img alt={`${stream.user}-preview`} src={stream.thumbnail} width="100%" />
-					<Typography variant="caption" className={classes.viewers}>
-						{stream.viewers}
-					</Typography>
-				</Box>
-				<Box p={1} flex="1" flexGrow={2} minWidth="0%">
-					<Typography variant="body1" noWrap>
-						{stream.user}
-					</Typography>
-					<Typography variant="body2" noWrap>
-						{stream.title}
-					</Typography>
-					<Typography variant="subtitle2" noWrap>
-						{stream.game}
-					</Typography>
-				</Box>
-			</ListItem>
-		));
-
-		return <List>{streamsList}</List>;
-	}
-
-	render() {
-		const { classes } = this.props;
-		const { open } = this.state;
-
-		if (!open) return <Loading />;
-
-		return (
-			<Zoom in={open}>
-				<Box className={classes.root}>{this.renderStreamsList()}</Box>
-			</Zoom>
-		);
-	}
+	return (
+		<Zoom in={open}>
+			<Box className={classes.root}>
+				<List>
+					{streams.map(stream => (
+						<ListItem key={stream.id} button divider>
+							<Box flex="1" flexGrow={1} className={classes.imageWrapper}>
+								<img alt={`${stream.user}-preview`} src={stream.thumbnail} width="100%" />
+								<Typography variant="caption" className={classes.viewers}>
+									{stream.viewers}
+								</Typography>
+							</Box>
+							<Box p={1} flex="1" flexGrow={2} minWidth="0%">
+								<Typography variant="body1" noWrap>
+									{stream.user}
+								</Typography>
+								<Typography variant="body2" noWrap>
+									{stream.title}
+								</Typography>
+								<Typography variant="subtitle2" noWrap>
+									{stream.game}
+								</Typography>
+							</Box>
+						</ListItem>
+					))}
+				</List>
+			</Box>
+		</Zoom>
+	);
 }
 
-Twitch.propTypes = {
-	classes: PropTypes.object.isRequired,
-};
-
-export default withStyles(styles)(Twitch);
+export default Twitch;
