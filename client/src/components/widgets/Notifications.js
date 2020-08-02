@@ -1,110 +1,93 @@
-import React, { Component } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { withStyles } from "@material-ui/styles";
 import InfiniteScroll from "react-infinite-scroller";
 import { motion } from "framer-motion";
 
-import Zoom from "@material-ui/core/Zoom";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
-import IconButton from "@material-ui/core/IconButton";
-import Avatar from "@material-ui/core/Avatar";
-import Button from "@material-ui/core/Button";
-import Menu from "@material-ui/core/Menu";
-import MenuItem from "@material-ui/core/MenuItem";
-import Box from "@material-ui/core/Box";
-import Typography from "@material-ui/core/Typography";
-import Link from "@material-ui/core/Link";
+import {
+	makeStyles,
+	Zoom,
+	IconButton,
+	Button,
+	Menu,
+	MenuItem,
+	Box,
+	Typography,
+	ListItem,
+	ListItemSecondaryAction,
+	Avatar,
+	Link,
+} from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
-
 import AnimatedList from "../.partials/AnimatedList";
 
 import { NotificationContext } from "../../contexts/NotificationContext";
 
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
 import { addToWatchLater } from "../../api/youtube";
+
 import { formatDate, formatVideoDuration } from "../../utils/utils";
 
 import { notifications as styles } from "../../styles/Widgets";
 
-class Notifications extends Component {
-	constructor() {
-		super();
+const useStyles = makeStyles(styles);
 
-		this.state = {
-			open: false,
-			loading: false,
-			page: 0,
-			hasMore: false,
+function Notifications({ height }) {
+	const classes = useStyles();
+	const { notificationState, dispatch } = useContext(NotificationContext);
+	const { notifications } = notificationState;
+	const [pagination, setPagination] = useState({
+		loading: false,
+		page: 0,
+		hasMore: false,
+		filter: "filter-all",
+		history: false,
+	});
+	const [filterAnchorEl, setFilterAnchorEl] = useState(null);
+	const [selectedIndex, setSelectedIndex] = useState(0);
+	const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
+	const [selectedNotification, setSelectedNotification] = useState(null);
+	const [actionLoading, setActionLoading] = useState(false);
+	const [open, setOpen] = useState(false);
 
-			currentFilter: "filter-all",
-			history: false,
+	async function handleGetNotifications() {
+		if (!pagination.loading) {
+			setPagination({ ...pagination, loading: true });
 
-			filterAnchorEl: null,
-			selectedIndex: 0,
-			notificationAnchorEl: null,
-			selectedNotification: null,
-
-			actionLoading: false,
-		};
-
-		this.getNotifications = this.getNotifications.bind(this);
-
-		this.handleToggleHistory = this.handleToggleHistory.bind(this);
-		this.handleClickListItem = this.handleClickListItem.bind(this);
-		this.handleMenuItemClick = this.handleMenuItemClick.bind(this);
-		this.handleClose = this.handleClose.bind(this);
-		this.handleOptionsClick = this.handleOptionsClick.bind(this);
-		this.handleCloseOptions = this.handleCloseOptions.bind(this);
-
-		this.handleHideNotification = this.handleHideNotification.bind(this);
-		this.handleRestoreNotification = this.handleRestoreNotification.bind(this);
-		this.handleWatchLaterOption = this.handleWatchLaterOption.bind(this);
-	}
-
-	componentDidMount() {
-		this.getNotifications();
-	}
-
-	async getNotifications() {
-		const { notificationState, dispatch } = this.context;
-		const { notifications } = notificationState;
-		const { loading, currentFilter, page, history } = this.state;
-
-		if (!loading) {
-			this.setState({ loading: true });
-
-			let filter = currentFilter.substring(7);
+			let filter = pagination.filter.substring(7);
 			filter = filter === "all" ? "" : filter;
 
-			const response = await getNotifications(page, history, filter);
+			console.log(pagination);
+
+			const response = await getNotifications(pagination.page, pagination.history, filter);
 
 			if (response.status === 200) {
 				// prettier-ignore
-				const newNotifications = page === 0
+				const newNotifications = pagination.page === 0
 					? response.data.notifications
 					: notifications.concat(response.data.notifications);
 
 				dispatch({ type: "SET_NOTIFICATIONS", notifications: newNotifications, total: response.data.total });
 
-				this.setState({
-					open: true,
-					page: page + 1,
+				setPagination({
+					...pagination,
+					page: pagination.page + 1,
 					hasMore: !(response.data.notifications.length < 25),
 					loading: false,
 				});
+				setOpen(true);
 			}
 		}
 	}
 
-	async handleHideNotification() {
-		const { dispatch } = this.context;
-		const { selectedNotification, history } = this.state;
+	useEffect(() => {
+		handleGetNotifications();
+	}, [pagination.filter, pagination.history]); // eslint-disable-line
 
-		this.setState({ actionLoading: true });
+	async function handleHideNotification() {
+		setActionLoading(true);
 
-		const response = history
+		const response = pagination.history
 			? await deleteNotifications(selectedNotification._id)
 			: await patchNotifications(selectedNotification._id, false);
 
@@ -112,14 +95,11 @@ class Notifications extends Component {
 			dispatch({ type: "DELETE_NOTIFICATION", notification: response.data });
 		}
 
-		this.setState({ actionLoading: false });
+		setActionLoading(false);
 	}
 
-	async handleRestoreNotification() {
-		const { dispatch } = this.context;
-		const { selectedNotification } = this.state;
-
-		this.setState({ actionLoading: true });
+	async function handleRestoreNotification() {
+		setActionLoading(true);
 
 		const response = await patchNotifications(selectedNotification._id, true);
 
@@ -127,56 +107,54 @@ class Notifications extends Component {
 			dispatch({ type: "DELETE_NOTIFICATION", notification: response.data });
 		}
 
-		this.setState({ actionLoading: false });
+		setActionLoading(false);
 	}
 
-	async handleWatchLaterOption() {
-		const { selectedNotification } = this.state;
-
-		this.setState({ actionLoading: true });
+	async function handleWatchLaterOption() {
+		setActionLoading(true);
 
 		const response = await addToWatchLater(selectedNotification.info.videoId);
 
 		if (response.status === 200 || response.status === 409) {
-			await this.handleHideNotification();
+			await handleHideNotification();
 		}
 
-		this.setState({ actionLoading: false });
+		setActionLoading(false);
 	}
 
-	handleToggleHistory() {
-		const { history } = this.state;
-
-		this.setState({ history: !history, page: 0 }, this.getNotifications);
+	function handleToggleHistory() {
+		setPagination({ ...pagination, history: !pagination.history, page: 0 });
 	}
 
-	applyFilter(filter) {
-		this.setState({ currentFilter: filter, page: 0 }, this.getNotifications);
+	function applyFilter(filter) {
+		setPagination({ ...pagination, filter, page: 0 });
 	}
 
-	handleClickListItem(e) {
-		this.setState({ filterAnchorEl: e.currentTarget });
+	function handleClickListItem(e) {
+		setFilterAnchorEl(e.currentTarget);
 	}
 
-	handleMenuItemClick(e, index) {
-		this.setState({ filterAnchorEl: null, selectedIndex: index });
+	function handleMenuItemClick(e, index) {
+		setFilterAnchorEl(null);
+		setSelectedIndex(index);
 
-		this.applyFilter(e.currentTarget.id);
+		applyFilter(e.currentTarget.id);
 	}
 
-	handleClose() {
-		this.setState({ filterAnchorEl: null });
+	function handleClose() {
+		setFilterAnchorEl(null);
 	}
 
-	handleOptionsClick(e, notification) {
-		this.setState({ notificationAnchorEl: e.currentTarget, selectedNotification: notification });
+	function handleOptionsClick(e, notification) {
+		setNotificationAnchorEl(e.currentTarget);
+		setSelectedNotification(notification);
 	}
 
-	handleCloseOptions() {
-		this.setState({ notificationAnchorEl: null });
+	function handleCloseOptions() {
+		setNotificationAnchorEl(null);
 	}
 
-	renderNotificationType(type) {
+	function renderNotificationType(type) {
 		switch (type) {
 			case "tv":
 				return <i className="material-icons">{"tv"}</i>;
@@ -187,7 +165,7 @@ class Notifications extends Component {
 		}
 	}
 
-	getNotificationContent(notification) {
+	function getNotificationContent(notification) {
 		const { displayName, season, number } = notification.info;
 
 		switch (notification.type) {
@@ -207,15 +185,13 @@ class Notifications extends Component {
 		}
 	}
 
-	renderNotificationAction(notification) {
-		const { selectedNotification, actionLoading } = this.state;
-
+	function renderNotificationAction(notification) {
 		if (selectedNotification && selectedNotification._id === notification._id && actionLoading) {
 			return <Loading />;
 		}
 
 		return (
-			<ListItemSecondaryAction id={notification._id} onClick={e => this.handleOptionsClick(e, notification)}>
+			<ListItemSecondaryAction id={notification._id} onClick={e => handleOptionsClick(e, notification)}>
 				<IconButton edge="end">
 					<i className="material-icons">{"more_vert"}</i>
 				</IconButton>
@@ -223,9 +199,7 @@ class Notifications extends Component {
 		);
 	}
 
-	renderNotificationContent(notification) {
-		const { classes } = this.props;
-
+	function renderNotificationContent(notification) {
 		switch (notification.type) {
 			case "youtube":
 				return (
@@ -239,7 +213,7 @@ class Notifications extends Component {
 							</Box>
 						) : (
 							<Box display="flex" justifyContent="center" flexShrink="0" width="100px" mr={2}>
-								<Avatar className={classes.avatar}>{this.renderNotificationType(notification.type)}</Avatar>
+								<Avatar className={classes.avatar}>{renderNotificationType(notification.type)}</Avatar>
 							</Box>
 						)}
 						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
@@ -271,12 +245,12 @@ class Notifications extends Component {
 					</>
 				);
 			default:
-				const { title, subtitle } = this.getNotificationContent(notification);
+				const { title, subtitle } = getNotificationContent(notification);
 
 				return (
 					<>
 						<Box display="flex" justifyContent="center" flexShrink="0" width="100px" mr={2}>
-							<Avatar className={classes.avatar}>{this.renderNotificationType(notification.type)}</Avatar>
+							<Avatar className={classes.avatar}>{renderNotificationType(notification.type)}</Avatar>
 						</Box>
 						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
 							<Typography variant="body1" title={title} noWrap>
@@ -297,10 +271,7 @@ class Notifications extends Component {
 		}
 	}
 
-	renderNotificationList() {
-		const { notificationState } = this.context;
-		const { notifications } = notificationState;
-
+	function renderNotificationList() {
 		const noNotificationVariant = {
 			hidden: {
 				y: -100,
@@ -321,8 +292,8 @@ class Notifications extends Component {
 				<AnimatedList>
 					{notifications.map(notification => (
 						<ListItem key={notification._id} divider>
-							{this.renderNotificationContent(notification)}
-							{this.renderNotificationAction(notification)}
+							{renderNotificationContent(notification)}
+							{renderNotificationAction(notification)}
 						</ListItem>
 					))}
 				</AnimatedList>
@@ -338,136 +309,124 @@ class Notifications extends Component {
 		);
 	}
 
-	getNotificationActions() {
-		const { selectedNotification, history } = this.state;
-
+	function getNotificationActions() {
 		if (selectedNotification) {
-			if (history) {
+			if (pagination.history) {
 				return [
-					{ name: "Restore", onClick: this.handleRestoreNotification },
-					{ name: "Delete", onClick: this.handleHideNotification },
+					{ name: "Restore", onClick: handleRestoreNotification },
+					{ name: "Delete", onClick: handleHideNotification },
 				];
 			}
 
 			switch (selectedNotification.type) {
 				case "youtube":
 					return [
-						{ name: "Mark as read", onClick: this.handleHideNotification },
-						{ name: "Watch later", onClick: this.handleWatchLaterOption },
+						{ name: "Mark as read", onClick: handleHideNotification },
+						{ name: "Watch later", onClick: handleWatchLaterOption },
 					];
 				default:
-					return [{ name: "Mark as read", onClick: this.handleHideNotification }];
+					return [{ name: "Mark as read", onClick: handleHideNotification }];
 			}
 		}
 		return [];
 	}
 
-	render() {
-		const { notificationState } = this.context;
-		const { notifications } = notificationState;
-		const { classes, height } = this.props;
-		const { open, hasMore, history, filterAnchorEl, selectedIndex, notificationAnchorEl } = this.state;
+	if (!open) return <Loading />;
 
-		const filterOptions = ["All", "TV", "Youtube", "Reddit", "Twitch"];
-		const actions = this.getNotificationActions();
+	const filterOptions = ["All", "TV", "Youtube", "Reddit", "Twitch"];
+	const actions = getNotificationActions();
 
-		if (!open) return <Loading />;
-
-		return (
-			<Zoom in={open}>
+	return (
+		<Zoom in={open}>
+			<Box
+				display="flex"
+				flexDirection="column"
+				className={classes.root}
+				style={{ height: height ? height : "calc( 100vh - 200px )" }}
+			>
+				<Box display="flex" alignItems="center" className={classes.header}>
+					<Box display="flex" flexGrow={1}>
+						<Typography variant="subtitle1">{"Notifications"}</Typography>
+					</Box>
+					<Box display="flex" justifyContent="flex-end">
+						<Button
+							size="small"
+							aria-controls="filter-menu"
+							aria-haspopup="true"
+							onClick={handleClickListItem}
+							endIcon={<i className="material-icons"> {"filter_list"} </i>}
+						>
+							{filterOptions[selectedIndex]}
+						</Button>
+						<Menu
+							id="filter-menu"
+							anchorEl={filterAnchorEl}
+							keepMounted
+							open={Boolean(filterAnchorEl)}
+							onClose={handleClose}
+							getContentAnchorEl={null}
+							anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+							transformOrigin={{ vertical: "top", horizontal: "right" }}
+						>
+							{filterOptions.map((option, index) => (
+								<MenuItem
+									key={option}
+									id={`filter-${option.toLowerCase()}`}
+									selected={index === selectedIndex}
+									onClick={event => handleMenuItemClick(event, index)}
+								>
+									{option}
+								</MenuItem>
+							))}
+						</Menu>
+						<IconButton color="primary" onClick={handleToggleHistory}>
+							<i className="material-icons">{pagination.history ? "notifications" : "history"}</i>
+						</IconButton>
+					</Box>
+				</Box>
 				<Box
 					display="flex"
-					flexDirection="column"
-					className={classes.root}
-					style={{ height: height ? height : "calc( 100vh - 200px )" }}
+					flexWrap="wrap"
+					alignItems={notifications.length ? "initial" : "center"}
+					justifyContent="center"
+					height="100%"
+					style={{ overflow: "auto" }}
 				>
-					<Box display="flex" alignItems="center" className={classes.header}>
-						<Box display="flex" flexGrow={1}>
-							<Typography variant="subtitle1">{"Notifications"}</Typography>
-						</Box>
-						<Box display="flex" justifyContent="flex-end">
-							<Button
-								size="small"
-								aria-controls="filter-menu"
-								aria-haspopup="true"
-								onClick={this.handleClickListItem}
-								endIcon={<i className="material-icons"> {"filter_list"} </i>}
-							>
-								{filterOptions[selectedIndex]}
-							</Button>
-							<Menu
-								id="filter-menu"
-								anchorEl={filterAnchorEl}
-								keepMounted
-								open={Boolean(filterAnchorEl)}
-								onClose={this.handleClose}
-								getContentAnchorEl={null}
-								anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-								transformOrigin={{ vertical: "top", horizontal: "right" }}
-							>
-								{filterOptions.map((option, index) => (
-									<MenuItem
-										key={option}
-										id={`filter-${option.toLowerCase()}`}
-										selected={index === selectedIndex}
-										onClick={event => this.handleMenuItemClick(event, index)}
-									>
-										{option}
-									</MenuItem>
-								))}
-							</Menu>
-							<IconButton color="primary" onClick={this.handleToggleHistory}>
-								<i className="material-icons">{history ? "notifications" : "history"}</i>
-							</IconButton>
-						</Box>
-					</Box>
-					<Box
-						display="flex"
-						flexWrap="wrap"
-						alignItems={notifications.length ? "initial" : "center"}
-						justifyContent="center"
-						height="100%"
-						style={{ overflow: "auto" }}
+					<InfiniteScroll
+						style={{ minWidth: "100%" }}
+						loadMore={handleGetNotifications}
+						hasMore={pagination.hasMore}
+						useWindow={false}
+						loader={<Loading key={0} />}
 					>
-						<InfiniteScroll
-							style={{ minWidth: "100%" }}
-							loadMore={this.getNotifications}
-							hasMore={hasMore}
-							useWindow={false}
-							loader={<Loading key={0} />}
-						>
-							{this.renderNotificationList()}
-						</InfiniteScroll>
-					</Box>
-					<Menu
-						anchorEl={notificationAnchorEl}
-						keepMounted
-						open={Boolean(notificationAnchorEl)}
-						onClose={this.handleCloseOptions}
-					>
-						{actions.map(action => (
-							<MenuItem
-								key={action.name}
-								onClick={() => {
-									action.onClick();
-									this.handleCloseOptions();
-								}}
-							>
-								{action.name}
-							</MenuItem>
-						))}
-					</Menu>
+						{renderNotificationList()}
+					</InfiniteScroll>
 				</Box>
-			</Zoom>
-		);
-	}
+				<Menu
+					anchorEl={notificationAnchorEl}
+					keepMounted
+					open={Boolean(notificationAnchorEl)}
+					onClose={handleCloseOptions}
+				>
+					{actions.map(action => (
+						<MenuItem
+							key={action.name}
+							onClick={() => {
+								action.onClick();
+								handleCloseOptions();
+							}}
+						>
+							{action.name}
+						</MenuItem>
+					))}
+				</Menu>
+			</Box>
+		</Zoom>
+	);
 }
 
-Notifications.contextType = NotificationContext;
-
 Notifications.propTypes = {
-	classes: PropTypes.object.isRequired,
 	height: PropTypes.string,
 };
 
-export default withStyles(styles)(Notifications);
+export default Notifications;
