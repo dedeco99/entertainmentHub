@@ -4,7 +4,6 @@ import PropTypes from "prop-types";
 import Grid from "@material-ui/core/Grid";
 import Fab from "@material-ui/core/Fab";
 import Button from "@material-ui/core/Button";
-import Modal from "@material-ui/core/Modal";
 
 import Sidebar from "../.partials/Sidebar";
 import SeriesDetail from "./SeriesDetail";
@@ -417,9 +416,12 @@ class TV extends Component {
 				<Grid item sm={9} md={10} lg={10}>
 					{this.renderContent()}
 				</Grid>
-				<Modal open={showModal} onClose={this.handleHideModal}>
-					<SeriesDetail series={currentSeries._id ? currentSeries : {}} editSeries={this.editSeries} />
-				</Modal>
+				<SeriesDetail
+					open={showModal}
+					series={currentSeries._id && currentSeries}
+					editSeries={this.editSeries}
+					onClose={this.handleHideModal}
+				/>
 			</Grid>
 		);
 	}

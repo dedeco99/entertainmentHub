@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 
-import Grid from "@material-ui/core/Grid";
-import IconButton from "@material-ui/core/IconButton";
+import { Grid, IconButton } from "@material-ui/core";
 
 import Subscriptions from "../.partials/Subscriptions";
 import Channels from "../.partials/Channels";

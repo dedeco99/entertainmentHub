@@ -1,11 +1,12 @@
 import React, { useEffect, useContext } from "react";
-import PropTypes from "prop-types";
+import { useHistory } from "react-router-dom";
 
 import { UserContext } from "../../contexts/UserContext";
 
 import { addApp } from "../../api/apps";
 
-function Apps({ history }) {
+function Apps() {
+	const history = useHistory();
 	const { dispatch } = useContext(UserContext);
 
 	useEffect(() => {
@@ -28,9 +29,5 @@ function Apps({ history }) {
 
 	return <center>{"App has been added"}</center>;
 }
-
-Apps.propTypes = {
-	history: PropTypes.object.isRequired,
-};
 
 export default Apps;

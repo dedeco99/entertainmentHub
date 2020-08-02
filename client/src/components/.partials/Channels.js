@@ -24,7 +24,7 @@ function Channels({ platform }) {
 		fetchData();
 	}, []); // eslint-disable-line
 
-	async function deleteChannelCall(e) {
+	async function handleDeleteChannel(e) {
 		const response = await deleteChannel(e.target.id);
 
 		if (response.status === 200) {
@@ -32,7 +32,7 @@ function Channels({ platform }) {
 		}
 	}
 
-	const menuOptions = [{ displayName: "Delete", onClick: deleteChannelCall }];
+	const menuOptions = [{ displayName: "Delete", onClick: handleDeleteChannel }];
 
 	return <Sidebar options={channels} idField="_id" menu={menuOptions} noResultsMessage={"No channels"} />;
 }

@@ -1,16 +1,18 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { makeStyles } from "@material-ui/styles";
 
-import CardMedia from "@material-ui/core/CardMedia";
-import Box from "@material-ui/core/Box";
-import Modal from "@material-ui/core/Modal";
-import Fade from "@material-ui/core/Fade";
-import Typography from "@material-ui/core/Typography";
-import Chip from "@material-ui/core/Chip";
-import Link from "@material-ui/core/Link";
-import Divider from "@material-ui/core/Divider";
-import Paper from "@material-ui/core/Paper";
+import {
+	makeStyles,
+	CardMedia,
+	Box,
+	Modal,
+	Fade,
+	Typography,
+	Chip,
+	Link,
+	Divider,
+	Paper,
+} from "@material-ui/core";
 
 import { formatDate, htmlEscape } from "../../utils/utils";
 

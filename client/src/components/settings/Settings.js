@@ -1,21 +1,22 @@
 import React, { useState, useEffect, useContext } from "react";
-import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
+import { Link, useRouteMatch } from "react-router-dom";
 
-import { makeStyles } from "@material-ui/core";
-import Grid from "@material-ui/core/Grid";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemIcon from "@material-ui/core/ListItemIcon";
-import ListItemText from "@material-ui/core/ListItemText";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import FormControl from "@material-ui/core/FormControl";
-import Checkbox from "@material-ui/core/Checkbox";
-import Button from "@material-ui/core/Button";
-import Typography from "@material-ui/core/Typography";
-import Box from "@material-ui/core/Box";
-import Paper from "@material-ui/core/Paper";
-import Divider from "@material-ui/core/Divider";
+import {
+	makeStyles,
+	Grid,
+	List,
+	ListItem,
+	ListItemIcon,
+	ListItemText,
+	FormControlLabel,
+	FormControl,
+	Checkbox,
+	Button,
+	Typography,
+	Box,
+	Paper,
+	Divider,
+} from "@material-ui/core";
 
 import { UserContext } from "../../contexts/UserContext";
 
@@ -26,9 +27,10 @@ import { settings as styles } from "../../styles/Header";
 
 const useStyles = makeStyles(styles);
 
-function Settings({ match }) {
+function Settings() {
 	const REDIRECT = "https://entertainmenthub.ddns.net";
 
+	const match = useRouteMatch();
 	const classes = useStyles();
 	const { user, dispatch } = useContext(UserContext);
 
@@ -258,9 +260,5 @@ function Settings({ match }) {
 		</div>
 	);
 }
-
-Settings.propTypes = {
-	match: PropTypes.object.isRequired,
-};
 
 export default Settings;

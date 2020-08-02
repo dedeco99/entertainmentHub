@@ -1,6 +1,6 @@
 import React from "react";
 
-import Grid from "@material-ui/core/Grid";
+import { Grid } from "@material-ui/core";
 
 import Subscriptions from "../.partials/Subscriptions";
 import Channels from "../.partials/Channels";

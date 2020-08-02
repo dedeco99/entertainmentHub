@@ -170,7 +170,7 @@ Widget.propTypes = {
 	borderColor: PropTypes.string,
 	editText: PropTypes.string.isRequired,
 	editIcon: PropTypes.string.isRequired,
-	widgetDimensions: PropTypes.object.isRequired,
+	widgetDimensions: PropTypes.object,
 	onEdit: PropTypes.func,
 	onDelete: PropTypes.func,
 };

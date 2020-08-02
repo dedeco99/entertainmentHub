@@ -58,7 +58,7 @@ const widgetDetail = {
 	},
 };
 
-const notifications = () => ({
+const notifications = {
 	root: {
 		backgroundColor: "#212121",
 		width: "100%",
@@ -73,7 +73,7 @@ const notifications = () => ({
 		color: "white",
 		backgroundColor: "#444",
 	},
-});
+};
 
 const reddit = {
 	root: {
@@ -217,7 +217,7 @@ const reddit = {
 	},
 };
 
-const weather = () => ({
+const weather = {
 	root: {
 		display: "flex",
 		flexDirection: "column",
@@ -257,9 +257,9 @@ const weather = () => ({
 	lastDay: {
 		borderRight: "none !important",
 	},
-});
+};
 
-const tv = () => ({
+const tv = {
 	root: {
 		flexGrow: 1,
 		backgroundColor: "#212121",
@@ -289,9 +289,9 @@ const tv = () => ({
 	popularText: {
 		paddingLeft: 10,
 	},
-});
+};
 
-const crypto = () => ({
+const crypto = {
 	root: {
 		backgroundColor: "#212121",
 		width: "100%",
@@ -342,9 +342,9 @@ const crypto = () => ({
 	red: {
 		color: "#f4511e !important",
 	},
-});
+};
 
-const twitch = () => ({
+const twitch = {
 	root: {
 		backgroundColor: "#212121",
 		width: "100%",
@@ -360,6 +360,6 @@ const twitch = () => ({
 		backgroundColor: "#212121dd",
 		padding: 2,
 	},
-});
+};
 
 export { widgets, widget, widgetDetail, notifications, reddit, weather, tv, crypto, twitch };

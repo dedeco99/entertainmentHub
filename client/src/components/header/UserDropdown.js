@@ -1,6 +1,5 @@
 import React, { useContext, useState } from "react";
-import PropTypes from "prop-types";
-import { withRouter } from "react-router-dom";
+import { useHistory } from "react-router-dom";
 
 import {
 	makeStyles,
@@ -18,15 +17,16 @@ import {
 	Divider,
 } from "@material-ui/core";
 
-import { logout } from "../../api/auth";
-
 import { UserContext } from "../../contexts/UserContext";
+
+import { logout } from "../../api/auth";
 
 import { userDropdown as styles } from "../../styles/Header";
 
 const useStyles = makeStyles(styles);
 
-function UserDropdown({ history }) {
+function UserDropdown() {
+	const history = useHistory();
 	const classes = useStyles();
 	const { user } = useContext(UserContext);
 	const [open, setOpen] = useState(false);
@@ -102,8 +102,4 @@ function UserDropdown({ history }) {
 	);
 }
 
-UserDropdown.propTypes = {
-	history: PropTypes.object.isRequired,
-};
-
-export default withRouter(UserDropdown);
+export default UserDropdown;

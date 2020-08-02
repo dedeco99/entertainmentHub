@@ -1,11 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
-import PropTypes from "prop-types";
-import { Link, withRouter } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 
-import { makeStyles } from "@material-ui/core";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import Typography from "@material-ui/core/Typography";
+import { makeStyles, List, ListItem, Typography } from "@material-ui/core";
 
 import { UserContext } from "../../contexts/UserContext";
 
@@ -15,7 +11,9 @@ import { appMenu as styles } from "../../styles/Header";
 
 const useStyles = makeStyles(styles);
 
-function AppMenu({ history }) {
+function AppMenu() {
+	const history = useHistory();
+	const location = useLocation();
 	const classes = useStyles();
 	const { user, dispatch } = useContext(UserContext);
 	const [apps, setApps] = useState([]);
@@ -52,14 +50,16 @@ function AppMenu({ history }) {
 	}, []); // eslint-disable-line
 
 	useEffect(() => {
+		if (!user.apps) return;
+
 		const userApps = allApps.filter(app => user.apps.find(appR => appR.platform === app.platform));
 		setApps(userApps);
 	}, [user]); // eslint-disable-line
 
 	useEffect(() => {
-		const currentApp = allApps.find(app => app.endpoint === history.location.pathname);
+		const currentApp = allApps.find(app => app.endpoint === location.pathname);
 		setSelectedMenu(currentApp ? currentApp.platform : null);
-	}, [allApps, history.location]);
+	}, [allApps, location]);
 
 	function renderAppList() {
 		return apps.map(app => (
@@ -101,9 +101,4 @@ function AppMenu({ history }) {
 
 	return <div />;
 }
-
-AppMenu.propTypes = {
-	history: PropTypes.object.isRequired,
-};
-
-export default withRouter(AppMenu);
+export default AppMenu;
