@@ -1,9 +1,7 @@
-import React, { Component } from "react";
-import { withStyles } from "@material-ui/styles";
-import PropTypes from "prop-types";
-import Grid from "@material-ui/core/Grid";
-import Fab from "@material-ui/core/Fab";
-import Button from "@material-ui/core/Button";
+import React, { useEffect, useState } from "react";
+import { useHistory, useRouteMatch } from "react-router-dom";
+
+import { makeStyles, Grid, Fab, Button } from "@material-ui/core";
 
 import Sidebar from "../.partials/Sidebar";
 import SeriesDetail from "./SeriesDetail";
@@ -17,315 +15,254 @@ import loadingGif from "../../img/loading3.gif";
 
 import { tv as styles } from "../../styles/TV";
 
-class TV extends Component {
-	constructor() {
-		super();
-		this.state = {
-			series: [],
-			seasons: [],
-			episodes: [],
-			popular: [],
+const useStyles = makeStyles(styles);
 
-			currentSeries: "all",
-			allPage: 0,
-			allHasMore: false,
-			popularPage: 0,
-			popularHasMore: false,
-			episodeFilter: "all",
+function TV() {
+	const history = useHistory();
+	const match = useRouteMatch();
+	const classes = useStyles();
+	const [series, setSeries] = useState([]);
+	const [seasons, setSeasons] = useState([]);
+	const [episodes, setEpisodes] = useState([]);
+	const [popular, setPopular] = useState([]);
+	const [currentSeries, setCurrentSeries] = useState("all");
+	const [selectedSeries, setSelectedSeries] = useState(null);
+	const [pagination, setPagination] = useState({
+		allPage: 0,
+		allHasMore: false,
+		popularPage: 0,
+		popularHasMore: false,
+		episodeFilter: "all",
+	});
+	const [loadingSeries, setLoadingSeries] = useState(false);
+	const [loadingPopular, setLoadingPopular] = useState(false);
+	const [loadingAll, setLoadingAll] = useState(false);
+	const [blocks, setBlocks] = useState({
+		openSearch: false,
+		openPopular: false,
+		openEpisodes: false,
+	});
+	const [openModal, setOpenModal] = useState(false);
 
-			showSearchBlock: false,
-			showPopularBlock: false,
-			showEpisodesBlock: false,
-			showModal: false,
+	useEffect(() => {
+		async function fetchData() {
+			setLoadingSeries(true);
 
-			loadingSeries: false,
-			loadingPopular: false,
-			loadingAll: false,
+			const response = await getSeries();
 
-			urlParams: {},
-		};
-
-		this.getAll = this.getAll.bind(this);
-		this.getSeasons = this.getSeasons.bind(this);
-		this.getEpisodes = this.getEpisodes.bind(this);
-		this.filterEpisodes = this.filterEpisodes.bind(this);
-
-		this.getPopular = this.getPopular.bind(this);
-
-		this.addSeries = this.addSeries.bind(this);
-		this.editSeries = this.editSeries.bind(this);
-		this.deleteSeries = this.deleteSeries.bind(this);
-
-		this.handleShowSearchBlock = this.handleShowSearchBlock.bind(this);
-		this.handleShowPopularBlock = this.handleShowPopularBlock.bind(this);
-		this.handleShowAllBlock = this.handleShowAllBlock.bind(this);
-		this.handleShowModal = this.handleShowModal.bind(this);
-		this.handleHideModal = this.handleHideModal.bind(this);
-	}
-
-	async componentDidMount() {
-		await this.getSeries();
-
-		this.applyUrlFilters();
-	}
-
-	applyUrlFilters() {
-		const { match } = this.props;
-
-		switch (match.path) {
-			case "/tv/all":
-				this.handleShowAllBlock();
-				break;
-			case "/tv/popular":
-				this.handleShowPopularBlock();
-				break;
-			case "/tv/:seriesId":
-				this.getSeasons(match.params.seriesId);
-				break;
-			case "/tv/:seriesId/:season":
-				this.getSeasons(match.params.seriesId, Number(match.params.season));
-				break;
-			default:
-				break;
+			setSeries(response.data);
+			setLoadingSeries(false);
 		}
 
-		this.setState({ urlParams: match.params });
-	}
+		fetchData();
+	}, []);
 
-	updateUrlFilter(urlParams) {
-		const { history } = this.props;
-
-		if (urlParams.seriesId) {
-			if (urlParams.season >= 0) {
-				history.push(`/tv/${urlParams.seriesId}/${urlParams.season}`);
+	function updateUrlFilter(seriesId, season) {
+		if (seriesId) {
+			if (season >= 0) {
+				history.push(`/tv/${seriesId}/${season}`);
 			} else {
-				history.push(`/tv/${urlParams.seriesId}`);
+				history.push(`/tv/${seriesId}`);
 			}
 		}
 	}
 
-	updateSeriesPath(series) {
-		const { urlParams } = this.state;
-
-		urlParams.seriesId = series;
-
-		this.setState({ urlParams });
-
-		this.updateUrlFilter(urlParams);
-	}
-
-	updateSeasonPath(season) {
-		const { urlParams } = this.state;
-
-		urlParams.season = season;
-
-		this.setState({ urlParams });
-
-		this.updateUrlFilter(urlParams);
-	}
-
-	async getSeries() {
-		this.setState({ loadingSeries: true });
-
-		const response = await getSeries();
-
-		this.setState({ loadingSeries: false, series: response.data });
-	}
-
-	async getAll() {
-		const { episodes, allPage, episodeFilter, loadingAll } = this.state;
-
+	async function handleGetAll() {
 		if (!loadingAll) {
-			this.setState({ loadingAll: true });
+			setLoadingAll(true);
 
-			const response = await getSeasons("all", allPage, episodeFilter);
+			const response = await getSeasons("all", pagination.allPage, pagination.episodeFilter);
 
-			const newEpisodes = allPage === 0 ? response.data : episodes.concat(response.data);
+			const newEpisodes = pagination.allPage === 0 ? response.data : episodes.concat(response.data);
 
-			this.setState({
-				episodes: newEpisodes,
-				currentSeries: "all",
-				allPage: allPage + 1,
+			setEpisodes(newEpisodes);
+			setCurrentSeries("all");
+			setPagination({
+				...pagination,
+				allPage: pagination.allPage + 1,
 				allHasMore: !(response.data.length < 50),
-				showSearchBlock: false,
-				showPopularBlock: false,
-				showEpisodesBlock: true,
-				loadingAll: false,
 			});
+			setBlocks({
+				openSearch: false,
+				openPopular: false,
+				openEpisodes: true,
+			});
+			setLoadingAll(false);
 		}
 	}
 
-	async getSeasons(id, season) {
-		const { series } = this.state;
-
+	async function handleGetSeasons(id, season) {
 		const seriesFound = series.find(s => s._id === id);
 		const seriesId = seriesFound ? seriesFound.seriesId : id;
 
 		const response = await getSeasons(seriesId);
 
 		if (response.status === 200) {
-			this.updateSeriesPath(seriesId);
+			updateUrlFilter(seriesId, season || response.data[response.data.length - 1]._id);
 
-			this.setState({ seasons: response.data, currentSeries: id, allPage: 0 }, () =>
-				this.getEpisodes(season >= 0 ? season : response.data[response.data.length - 1]._id),
+			setCurrentSeries(seriesId);
+			setSeasons(response.data);
+			setPagination({ ...pagination, allPage: 0 });
+		}
+	}
+
+	function handleGetEpisodes(season) {
+		const foundSeason = seasons.find(s => s._id === Number(season));
+
+		if (foundSeason) {
+			const seriesFound = series.find(s => s.seriesId === currentSeries);
+			updateUrlFilter(seriesFound.seriesId, season);
+
+			setEpisodes(foundSeason.episodes);
+			setBlocks({
+				openSearch: false,
+				openPopular: false,
+				openEpisodes: true,
+			});
+		}
+	}
+
+	async function handleGetPopular() {
+		if (!loadingPopular) {
+			setLoadingPopular(true);
+
+			const response = await getPopular(pagination.popularPage);
+
+			const newPopular = pagination.popularPage === 0 ? response.data : popular.concat(response.data);
+
+			setPopular(newPopular);
+			setPagination({
+				...pagination,
+				popularPage: pagination.popularPage + 1,
+				popularHasMore: !(response.data.length < 20),
+			});
+			setBlocks({
+				openSearch: false,
+				openPopular: true,
+				openEpisodes: false,
+			});
+			setLoadingPopular(false);
+		}
+	}
+
+	async function handleAddSeries(show) {
+		const response = await addSeries(show);
+
+		if (response.status === 201) {
+			setSeries([...series, response.data].sort((a, b) => (a.displayName <= b.displayName ? -1 : 1)));
+		}
+	}
+
+	async function handleEditSeries(id, show) {
+		const response = await editSeries(id, show);
+
+		if (response.status === 200) {
+			setSeries(
+				[...series.filter(s => s._id !== response.data._id), response.data].sort((a, b) =>
+					a.displayName <= b.displayName ? -1 : 1,
+				),
 			);
 		}
 	}
 
-	getEpisodes(season) {
-		const { seasons } = this.state;
-
-		const foundSeason = seasons.find(s => s._id === season);
-
-		if (foundSeason) {
-			this.updateSeasonPath(season);
-
-			this.setState({
-				episodes: foundSeason.episodes,
-				showSearchBlock: false,
-				showPopularBlock: false,
-				showEpisodesBlock: true,
-			});
-		}
-	}
-
-	async getPopular() {
-		const { popular, popularPage, loadingPopular } = this.state;
-
-		if (!loadingPopular) {
-			this.setState({ loadingPopular: true });
-
-			const response = await getPopular(popularPage);
-
-			const newPopular = popularPage === 0 ? response.data : popular.concat(response.data);
-
-			this.setState({
-				popular: newPopular,
-				popularPage: popularPage + 1,
-				popularHasMore: !(response.data.length < 20),
-				showSearchBlock: false,
-				showPopularBlock: true,
-				showEpisodesBlock: false,
-				loadingPopular: false,
-			});
-		}
-	}
-
-	async addSeries(series) {
-		const response = await addSeries(series);
-
-		if (response.status === 201) {
-			this.setState(prevState => ({
-				series: [...prevState.series, response.data].sort((a, b) => (a.displayName <= b.displayName ? -1 : 1)),
-			}));
-		}
-	}
-
-	async editSeries(id, series) {
-		const response = await editSeries(id, series);
-
-		if (response.status === 200) {
-			this.setState(prevState => ({
-				series: [...prevState.series.filter(s => s._id !== response.data._id), response.data].sort((a, b) =>
-					a.displayName <= b.displayName ? -1 : 1,
-				),
-			}));
-		}
-	}
-
-	async deleteSeries(e) {
-		const { series } = this.state;
-
+	async function handleDeleteSeries(e) {
 		const response = await deleteSeries(e.target.id);
 
 		if (response.status === 200) {
 			const updatedSeries = series.filter(s => s._id !== response.data._id);
 
-			this.setState({ series: updatedSeries });
+			setSeries(updatedSeries);
 		}
 	}
 
-	handleShowSearchBlock() {
-		this.setState({ showSearchBlock: true, showPopularBlock: false, showEpisodesBlock: false });
+	function handleShowSearchBlock() {
+		setBlocks({ openSearch: true, openPopular: false, openEpisodes: false });
 	}
 
-	handleShowPopularBlock() {
-		const { history } = this.props;
-
+	function handleShowPopularBlock() {
 		history.push("/tv/popular");
 
-		this.setState(
-			{
-				popular: [],
-				popularPage: 0,
-				popularHasMore: false,
-				showSearchBlock: false,
-				showPopularBlock: true,
-				showEpisodesBlock: false,
-			},
-			this.getPopular,
-		);
+		setPopular([]);
+		setPagination({ ...pagination, popularPage: 0, popularHasMore: false });
+		setBlocks({
+			openSearch: false,
+			openPopular: true,
+			openEpisodes: false,
+		});
+		handleGetPopular();
 	}
 
-	handleShowAllBlock() {
-		const { history } = this.props;
-
+	function handleShowAllBlock() {
 		history.push("/tv/all");
 
-		this.setState(
-			{
-				episodes: [],
-				allPage: 0,
-				allHasMore: false,
-				showSearchBlock: false,
-				showPopularBlock: false,
-				showEpisodesBlock: true,
-			},
-			this.getAll,
-		);
+		setEpisodes([]);
+		setPagination({ ...pagination, allPage: 0, allHasMore: false });
+		setBlocks({
+			openSearch: false,
+			openPopular: false,
+			openEpisodes: true,
+		});
+		handleGetAll();
 	}
 
-	handleShowModal(e, type) {
-		const { search, popular, series } = this.state;
-
+	function handleShowModal(e, type) {
 		if (type === "edit") {
-			this.setState({
-				currentSeries: series.find(s => s._id === e.target.id),
-				showModal: true,
-			});
+			setSelectedSeries(series.find(s => s._id === e.target.id));
 		} else {
-			let found = search.find(s => s.id.toString() === e.target.id);
+			let found = popular.find(s => s.id.toString() === e.target.id);
 			if (!found) found = popular.find(s => s.id.toString() === e.target.id);
 
-			this.setState({
-				currentSeries: found,
-				showModal: true,
-			});
+			setSelectedSeries(found);
 		}
+
+		setOpenModal(true);
 	}
 
-	handleHideModal() {
-		this.setState({ showModal: false });
+	function handleHideModal() {
+		setOpenModal(false);
 	}
 
-	filterEpisodes(filter) {
-		this.setState({ episodeFilter: filter, episodes: [] });
+	function filterEpisodes(filter) {
+		setEpisodes([]);
+		setPagination({ ...pagination, episodeFilter: filter });
 
-		this.handleShowAllBlock();
+		handleShowAllBlock();
 	}
 
-	renderButtons() {
-		const { classes } = this.props;
-		const { loadingPopular, loadingAll } = this.state;
+	useEffect(() => {
+		switch (match.path) {
+			case "/tv/all":
+				handleShowAllBlock();
+				break;
+			case "/tv/popular":
+				handleShowPopularBlock();
+				break;
+			case "/tv/:seriesId":
+				handleGetSeasons(match.params.seriesId);
+				break;
+			case "/tv/:seriesId/:season":
+				handleGetSeasons(match.params.seriesId, Number(match.params.season));
+				break;
+			default:
+				break;
+		}
+	}, [match.path]); // eslint-disable-line
 
+	useEffect(() => {
+		if (seasons.length) {
+			handleGetEpisodes(match.params.season);
+		}
+	}, [seasons]); // eslint-disable-line
+
+	function renderButtons() {
 		return (
 			<div align="center">
-				<Fab onClick={this.handleShowSearchBlock} variant="extended" size="medium" className={classes.searchBtn}>
+				<Fab onClick={handleShowSearchBlock} variant="extended" size="medium" className={classes.searchBtn}>
 					<i className="material-icons">{"search"}</i>
 					{"Search"}
 				</Fab>
 				<Button
-					onClick={this.handleShowPopularBlock}
+					onClick={handleShowPopularBlock}
 					className={classes.outlinedBtn}
 					color="primary"
 					variant="outlined"
@@ -334,7 +271,7 @@ class TV extends Component {
 					{loadingPopular ? <img src={loadingGif} height="25px" alt="Loading..." /> : "Popular"}
 				</Button>
 				<Button
-					onClick={this.handleShowAllBlock}
+					onClick={handleShowAllBlock}
 					className={classes.outlinedBtn}
 					color="primary"
 					variant="outlined"
@@ -346,44 +283,30 @@ class TV extends Component {
 		);
 	}
 
-	renderContent() {
-		const {
-			currentSeries,
-			series,
-			seasons,
-			episodes,
-			popular,
-			allHasMore,
-			popularHasMore,
-			showSearchBlock,
-			showPopularBlock,
-			showEpisodesBlock,
-			urlParams,
-		} = this.state;
-
-		if (showSearchBlock) {
-			return <Search allSeries={series} addSeries={this.addSeries} />;
-		} else if (showPopularBlock) {
+	function renderContent() {
+		if (blocks.openSearch) {
+			return <Search allSeries={series} addSeries={handleAddSeries} />;
+		} else if (blocks.openPopular) {
 			return (
 				<Banners
 					series={popular}
-					getMore={this.getPopular}
-					hasMore={popularHasMore}
+					getMore={handleGetPopular}
+					hasMore={pagination.popularHasMore}
 					allSeries={series}
-					addSeries={this.addSeries}
+					addSeries={handleAddSeries}
 				/>
 			);
-		} else if (showEpisodesBlock) {
+		} else if (blocks.openEpisodes) {
 			return (
 				<Episodes
 					currentSeries={currentSeries}
 					seasons={seasons}
 					episodes={episodes}
-					selectedSeason={Number(urlParams.season)}
-					getEpisodes={this.getEpisodes}
-					getAll={this.getAll}
-					allHasMore={allHasMore}
-					filterEpisodes={this.filterEpisodes}
+					selectedSeason={Number(match.params.season)}
+					getEpisodes={handleGetEpisodes}
+					getAll={handleGetAll}
+					allHasMore={pagination.allHasMore}
+					filterEpisodes={filterEpisodes}
 				/>
 			);
 		}
@@ -391,46 +314,36 @@ class TV extends Component {
 		return <div />;
 	}
 
-	render() {
-		const { loadingSeries, series, currentSeries, showModal, urlParams } = this.state;
+	const menuOptions = [
+		{ displayName: "Edit", onClick: e => handleShowModal(e, "edit") },
+		{ displayName: "Delete", onClick: handleDeleteSeries },
+	];
 
-		const menuOptions = [
-			{ displayName: "Edit", onClick: e => this.handleShowModal(e, "edit") },
-			{ displayName: "Delete", onClick: this.deleteSeries },
-		];
-
-		return (
-			<Grid container spacing={2}>
-				<Grid item sm={3} md={2}>
-					{this.renderButtons()}
-					<Sidebar
-						options={series}
-						idField="_id"
-						action={this.getSeasons}
-						menu={menuOptions}
-						loading={loadingSeries}
-						noResultsMessage={"No series"}
-						initialSelected={urlParams.seriesId}
-					/>
-				</Grid>
-				<Grid item sm={9} md={10} lg={10}>
-					{this.renderContent()}
-				</Grid>
-				<SeriesDetail
-					open={showModal}
-					series={currentSeries._id && currentSeries}
-					editSeries={this.editSeries}
-					onClose={this.handleHideModal}
+	return (
+		<Grid container spacing={2}>
+			<Grid item sm={3} md={2}>
+				{renderButtons()}
+				<Sidebar
+					options={series}
+					idField="_id"
+					action={handleGetSeasons}
+					menu={menuOptions}
+					loading={loadingSeries}
+					noResultsMessage={"No series"}
+					initialSelected={match.params.seriesId}
 				/>
 			</Grid>
-		);
-	}
+			<Grid item sm={9} md={10} lg={10}>
+				{renderContent()}
+			</Grid>
+			<SeriesDetail
+				open={openModal}
+				series={selectedSeries}
+				editSeries={handleEditSeries}
+				onClose={handleHideModal}
+			/>
+		</Grid>
+	);
 }
 
-TV.propTypes = {
-	classes: PropTypes.object.isRequired,
-	history: PropTypes.object.isRequired,
-	match: PropTypes.object.isRequired,
-};
-
-export default withStyles(styles)(TV);
+export default TV;
