@@ -3,12 +3,7 @@ import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 
-import { makeStyles } from "@material-ui/styles";
-import Zoom from "@material-ui/core/Zoom";
-import Box from "@material-ui/core/Box";
-import Paper from "@material-ui/core/Paper";
-import Typography from "@material-ui/core/Typography";
-import IconButton from "@material-ui/core/IconButton";
+import { makeStyles, Zoom, Box, Paper, Typography, IconButton } from "@material-ui/core";
 
 import { WidgetContext } from "../../contexts/WidgetContext";
 import { UserContext } from "../../contexts/UserContext";

@@ -1,11 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
-import { makeStyles } from "@material-ui/core";
-import Zoom from "@material-ui/core/Zoom";
-import Typography from "@material-ui/core/Typography";
-import Box from "@material-ui/core/Box";
-import Tooltip from "@material-ui/core/Tooltip";
+import { makeStyles, Zoom, Typography, Box, Tooltip } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
 
