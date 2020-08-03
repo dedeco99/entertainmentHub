@@ -26,6 +26,13 @@ export const tvReducer = (state, action) => {
 			follows = follows.filter(f => !subscriptions.map(s => s.externalId).includes(f.externalId));
 
 			return { ...state, follows, subscriptions };
+		case "EDIT_SUBSCRIPTION":
+			subscriptions = [
+				...subscriptions.filter(s => s._id !== action.subscription._id),
+				action.subscription,
+			].sort((a, b) => (a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1));
+
+			return { ...state, subscriptions };
 		case "DELETE_SUBSCRIPTION":
 			subscriptions = subscriptions.filter(s => s._id !== action.subscription._id);
 
@@ -41,11 +48,11 @@ export const tvReducer = (state, action) => {
 
 			return { ...state, feeds };
 		case "EDIT_FEED":
-			feeds = [...feeds.filter(c => c._id !== action.feed._id), action.feed];
+			feeds = [...feeds.filter(f => f._id !== action.feed._id), action.feed];
 
 			return { ...state, feeds };
 		case "DELETE_FEED":
-			feeds = feeds.filter(c => c._id !== action.feed._id);
+			feeds = feeds.filter(f => f._id !== action.feed._id);
 
 			return { ...state, feeds };
 		default:

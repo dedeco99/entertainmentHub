@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
 
 import { makeStyles, Grid, Fab, Button } from "@material-ui/core";
@@ -9,7 +9,10 @@ import Episodes from "./Episodes";
 import Search from "./Search";
 import Banners from "./Banners";
 
-import { getSeries, getSeasons, getPopular, addSeries, editSeries, deleteSeries } from "../../api/tv";
+import { TVContext } from "../../contexts/TVContext";
+
+import { getSeasons, getPopular } from "../../api/tv";
+import { getSubscriptions, editSubscription, deleteSubscription } from "../../api/subscriptions";
 
 import loadingGif from "../../img/loading3.gif";
 
@@ -21,7 +24,8 @@ function TV() {
 	const history = useHistory();
 	const match = useRouteMatch();
 	const classes = useStyles();
-	const [series, setSeries] = useState([]);
+	const { state, dispatch } = useContext(TVContext);
+	const { subscriptions } = state;
 	const [seasons, setSeasons] = useState([]);
 	const [episodes, setEpisodes] = useState([]);
 	const [popular, setPopular] = useState([]);
@@ -48,9 +52,9 @@ function TV() {
 		async function fetchData() {
 			setLoadingSeries(true);
 
-			const response = await getSeries();
+			const response = await getSubscriptions("tv");
 
-			setSeries(response.data);
+			dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
 			setLoadingSeries(false);
 		}
 
@@ -145,33 +149,21 @@ function TV() {
 		}
 	}
 
-	async function handleAddSeries(show) {
-		const response = await addSeries(show);
-
-		if (response.status === 201) {
-			setSeries([...series, response.data].sort((a, b) => (a.displayName <= b.displayName ? -1 : 1)));
-		}
-	}
-
 	async function handleEditSeries(id, show) {
-		const response = await editSeries(id, show);
+		const response = await editSubscription(id, show);
 
 		if (response.status === 200) {
-			setSeries(
-				[...series.filter(s => s._id !== response.data._id), response.data].sort((a, b) =>
-					a.displayName <= b.displayName ? -1 : 1,
-				),
-			);
+			dispatch({ type: "EDIT_SUBSCRIPTION", subscription: response.data });
 		}
 	}
 
 	async function handleDeleteSeries(e) {
-		const response = await deleteSeries(e.target.id);
+		const foundSeries = subscriptions.find(s => s.externalId === e.target.id);
+
+		const response = await deleteSubscription(foundSeries._id);
 
 		if (response.status === 200) {
-			const updatedSeries = series.filter(s => s._id !== response.data._id);
-
-			setSeries(updatedSeries);
+			dispatch({ type: "DELETE_SUBSCRIPTION", subscription: response.data });
 		}
 	}
 
@@ -206,11 +198,12 @@ function TV() {
 	}
 
 	function handleShowModal(e, type) {
+		console.log(e.target.id);
 		if (type === "edit") {
-			setSelectedSeries(series.find(s => s._id === e.target.id));
+			setSelectedSeries(subscriptions.find(s => s.externalId === e.target.id));
 		} else {
-			let found = popular.find(s => s.id.toString() === e.target.id);
-			if (!found) found = popular.find(s => s.id.toString() === e.target.id);
+			let found = popular.find(s => s.externalId.toString() === e.target.id);
+			if (!found) found = popular.find(s => s.externalId.toString() === e.target.id);
 
 			setSelectedSeries(found);
 		}
@@ -294,17 +287,9 @@ function TV() {
 
 	function renderContent() {
 		if (blocks.openSearch) {
-			return <Search allSeries={series} addSeries={handleAddSeries} />;
+			return <Search allSeries={subscriptions} />;
 		} else if (blocks.openPopular) {
-			return (
-				<Banners
-					series={popular}
-					getMore={handleGetPopular}
-					hasMore={pagination.popularHasMore}
-					allSeries={series}
-					addSeries={handleAddSeries}
-				/>
-			);
+			return <Banners series={popular} getMore={handleGetPopular} hasMore={pagination.popularHasMore} />;
 		} else if (blocks.openEpisodes) {
 			return (
 				<Episodes
@@ -328,13 +313,15 @@ function TV() {
 		{ displayName: "Delete", onClick: handleDeleteSeries },
 	];
 
+	console.log(selectedSeries);
+
 	return (
 		<Grid container spacing={2}>
 			<Grid item sm={3} md={2}>
 				{renderButtons()}
 				<Sidebar
-					options={series}
-					idField="seriesId"
+					options={subscriptions}
+					idField="externalId"
 					action={handleGetInfo}
 					menu={menuOptions}
 					loading={loadingSeries}

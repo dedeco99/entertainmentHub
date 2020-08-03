@@ -50,7 +50,9 @@ async function fetchEpisodes(series) {
 					const newEpisode = new Episode({
 						seriesId: series._id,
 						title: episode.name,
-						image: episode.still_path ? `https://image.tmdb.org/t/p/w454_and_h254_bestv2${episode.still_path}` : "",
+						image: episode.still_path
+							? `https://image.tmdb.org/t/p/w454_and_h254_bestv2${episode.still_path}`
+							: "",
 						season: episode.season_number,
 						number: episode.episode_number,
 						overview: episode.overview,
@@ -72,19 +74,23 @@ async function fetchEpisodes(series) {
 					}
 
 					console.log(`- S${episode.season_number}E${episode.episode_number} created`);
-				} else if (
-					(episode.still_path && !episodeExists.image) ||
-					episodeExists.title !== episode.name
-				) {
-					episodesToUpdate.push(Episode.updateOne({
-						seriesId: series._id,
-						season: episode.season_number,
-						number: episode.episode_number,
-					}, {
-						title: episode.name,
-						overview: episode.overview,
-						image: episode.still_path ? `https://image.tmdb.org/t/p/w454_and_h254_bestv2${episode.still_path}` : "",
-					}));
+				} else if ((episode.still_path && !episodeExists.image) || episodeExists.title !== episode.name) {
+					episodesToUpdate.push(
+						Episode.updateOne(
+							{
+								seriesId: series._id,
+								season: episode.season_number,
+								number: episode.episode_number,
+							},
+							{
+								title: episode.name,
+								overview: episode.overview,
+								image: episode.still_path
+									? `https://image.tmdb.org/t/p/w454_and_h254_bestv2${episode.still_path}`
+									: "",
+							},
+						),
+					);
 
 					console.log(`- S${episode.season_number}E${episode.episode_number} edited`);
 				}
@@ -125,14 +131,6 @@ async function cronjob() {
 	return true;
 }
 
-async function getSeries(event) {
-	const { user } = event;
-
-	const series = await Series.find({ user: user._id }).sort({ displayName: 1 }).lean();
-
-	return response(200, "Series found", series);
-}
-
 async function getEpisodes(event) {
 	const { params, query, user } = event;
 	const { id } = params;
@@ -165,10 +163,7 @@ async function getEpisodes(event) {
 						{
 							$match: {
 								$expr: {
-									$and: [
-										{ $eq: ["$seriesId", "$$seriesId"] },
-										{ $eq: ["$user", toObjectId(user._id)] },
-									],
+									$and: [{ $eq: ["$seriesId", "$$seriesId"] }, { $eq: ["$user", toObjectId(user._id)] }],
 								},
 							},
 						},
@@ -219,13 +214,15 @@ async function getSearch(event) {
 
 	if (!page && page !== "0") return response(400, "Missing page in query");
 
-	const url = `https://api.themoviedb.org/3/search/tv?query=${search}${`&page=${Number(page) + 1}`}&api_key=${process.env.tmdbKey}`;
+	const url = `https://api.themoviedb.org/3/search/tv?query=${search}${`&page=${Number(page) + 1}`}&api_key=${
+		process.env.tmdbKey
+	}`;
 
 	const res = await api({ method: "get", url });
 	const json = res.data;
 
 	const series = json.results.map(s => ({
-		id: s.id,
+		externalId: s.id,
 		displayName: s.name,
 		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}`,
 	}));
@@ -239,7 +236,9 @@ async function getPopular(event) {
 
 	if (!page && page !== "0") return response(400, "Missing page in query");
 
-	const url = `https://api.themoviedb.org/3/tv/popular?${`page=${Number(page) + 1}`}&api_key=${process.env.tmdbKey}`;
+	const url = `https://api.themoviedb.org/3/tv/popular?${`page=${Number(page) + 1}`}&api_key=${
+		process.env.tmdbKey
+	}`;
 
 	const res = await api({ method: "get", url });
 	const json = res.data;
@@ -253,69 +252,10 @@ async function getPopular(event) {
 	return response(200, "Series found", series);
 }
 
-async function addSeries(event) {
-	const { body, user } = event;
-	const { id, displayName, image } = body;
-
-	const seriesExists = await Series.findOne({ user: user._id, seriesId: id }).lean();
-
-	if (seriesExists) return response(409, "Series already exists");
-
-	const seriesPopulated = await Series.findOne({ seriesId: id }).lean();
-
-	const newSeries = new Series({ user: user._id, seriesId: id, displayName, image });
-	await newSeries.save();
-
-	if (!seriesPopulated) {
-		await fetchEpisodes({
-			_id: newSeries.seriesId,
-			displayNames: [newSeries.name],
-			users: [newSeries.user],
-		});
-	}
-
-	return response(201, "Series has been added", newSeries);
-}
-
-async function editSeries(event) {
-	const { params, body } = event;
-	const { id } = params;
-	const { displayName } = body;
-
-	const seriesExists = await Series.findOne({ _id: id }).lean();
-
-	if (!seriesExists) return errors.notFound;
-
-	const series = await Series.findOneAndUpdate({ _id: id }, { displayName }, { new: true }).lean();
-
-	if (!series) return errors.notFound;
-
-	return response(200, "Series has been updated", series);
-}
-
-async function deleteSeries(event) {
-	const { params } = event;
-	const { id } = params;
-
-	let series = null;
-	try {
-		series = await Series.findOneAndDelete({ _id: id });
-	} catch (e) {
-		return errors.notFound;
-	}
-
-	if (!series) return errors.notFound;
-
-	return response(200, "Series has been deleted", series);
-}
-
 module.exports = {
+	fetchEpisodes,
 	cronjob,
-	getSeries,
 	getEpisodes,
 	getSearch,
 	getPopular,
-	addSeries,
-	editSeries,
-	deleteSeries,
 };

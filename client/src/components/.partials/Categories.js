@@ -9,7 +9,6 @@ const useStyles = makeStyles(styles);
 
 function Categories({ options, selected, idField, nameField, action }) {
 	const classes = useStyles();
-	const [selectedMenu, setSelectedMenu] = useState(null);
 
 	function handleClick(id) {
 		action(id);

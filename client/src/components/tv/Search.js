@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import PropTypes from "prop-types";
 
 import { InputAdornment } from "@material-ui/core";
 
@@ -9,7 +8,7 @@ import Banners from "./Banners";
 
 import { getSearch } from "../../api/tv";
 
-function Search({ allSeries, addSeries }) {
+function Search() {
 	const [search, setSearch] = useState([]);
 	const [query, setQuery] = useState("");
 	const [page, setPage] = useState(0);
@@ -58,20 +57,9 @@ function Search({ allSeries, addSeries }) {
 					fullWidth
 				/>
 			</form>
-			<Banners
-				series={search}
-				getMore={handleGetSearch}
-				hasMore={hasMore}
-				allSeries={allSeries}
-				addSeries={addSeries}
-			/>
+			<Banners series={search} getMore={handleGetSearch} hasMore={hasMore} />
 		</div>
 	);
 }
-
-Search.propTypes = {
-	allSeries: PropTypes.array.isRequired,
-	addSeries: PropTypes.func.isRequired,
-};
 
 export default Search;

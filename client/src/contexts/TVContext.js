@@ -9,7 +9,6 @@ const TVContextProvider = ({ children }) => {
 	const initState = {
 		follows: [],
 		subscriptions: [],
-		feeds: [],
 	};
 
 	const [state, dispatch] = useReducer(tvReducer, initState);

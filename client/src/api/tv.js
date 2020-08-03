@@ -40,44 +40,4 @@ async function getSearch(search, page) {
 	return res;
 }
 
-async function addSeries(series) {
-	const res = await api({
-		method: "post",
-		url: "/api/tv",
-		data: series,
-		message: true,
-	});
-
-	return res;
-}
-
-async function editSeries(id, series) {
-	const res = await api({
-		method: "put",
-		url: `/api/tv/${id}`,
-		data: series,
-		message: true,
-	});
-
-	return res;
-}
-
-async function deleteSeries(id) {
-	const res = await api({
-		method: "delete",
-		url: `/api/tv/${id}`,
-		message: true,
-	});
-
-	return res;
-}
-
-export {
-	getSeries,
-	getSeasons,
-	getPopular,
-	getSearch,
-	addSeries,
-	editSeries,
-	deleteSeries,
-};
+export { getSeries, getSeasons, getPopular, getSearch };
