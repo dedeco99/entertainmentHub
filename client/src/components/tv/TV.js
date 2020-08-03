@@ -58,13 +58,7 @@ function TV() {
 	}, []);
 
 	function updateUrlFilter(seriesId, season) {
-		if (seriesId) {
-			if (season >= 0) {
-				history.push(`/tv/${seriesId}/${season}`);
-			} else {
-				history.push(`/tv/${seriesId}`);
-			}
-		}
+		history.push(`/tv/${seriesId}/${season}`);
 	}
 
 	async function handleGetAll() {
@@ -91,15 +85,14 @@ function TV() {
 		}
 	}
 
-	async function handleGetSeasons(id, season) {
-		const seriesFound = series.find(s => s._id === id);
-		const seriesId = seriesFound ? seriesFound.seriesId : id;
+	function handleSeasonChange(season) {
+		updateUrlFilter(currentSeries, season);
+	}
 
+	async function handleGetSeasons(seriesId) {
 		const response = await getSeasons(seriesId);
 
 		if (response.status === 200) {
-			updateUrlFilter(seriesId, season || response.data[response.data.length - 1]._id);
-
 			setCurrentSeries(seriesId);
 			setSeasons(response.data);
 			setPagination({ ...pagination, allPage: 0 });
@@ -110,15 +103,22 @@ function TV() {
 		const foundSeason = seasons.find(s => s._id === Number(season));
 
 		if (foundSeason) {
-			const seriesFound = series.find(s => s.seriesId === currentSeries);
-			updateUrlFilter(seriesFound.seriesId, season);
-
 			setEpisodes(foundSeason.episodes);
 			setBlocks({
 				openSearch: false,
 				openPopular: false,
 				openEpisodes: true,
 			});
+		} else {
+			history.replace(`/tv/${currentSeries}/${seasons[seasons.length - 1]._id}`);
+		}
+	}
+
+	function handleGetInfo(seriesId, season) {
+		if (seriesId === currentSeries) {
+			handleGetEpisodes(season);
+		} else {
+			handleGetSeasons(seriesId);
 		}
 	}
 
@@ -231,6 +231,9 @@ function TV() {
 
 	useEffect(() => {
 		switch (match.path) {
+			case "/tv":
+				history.replace("/tv/all");
+				break;
 			case "/tv/all":
 				handleShowAllBlock();
 				break;
@@ -238,19 +241,25 @@ function TV() {
 				handleShowPopularBlock();
 				break;
 			case "/tv/:seriesId":
-				handleGetSeasons(match.params.seriesId);
+				handleGetInfo(match.params.seriesId);
 				break;
 			case "/tv/:seriesId/:season":
-				handleGetSeasons(match.params.seriesId, Number(match.params.season));
+				handleGetInfo(match.params.seriesId, Number(match.params.season));
 				break;
 			default:
 				break;
 		}
-	}, [match.path]); // eslint-disable-line
+	}, [match.url]); // eslint-disable-line
 
 	useEffect(() => {
 		if (seasons.length) {
-			handleGetEpisodes(match.params.season);
+			if (match.params.seriesId === currentSeries && match.params.season) {
+				// url set on mount
+				handleGetEpisodes(match.params.season);
+			} else {
+				// changed series
+				updateUrlFilter(currentSeries, seasons[seasons.length - 1]._id);
+			}
 		}
 	}, [seasons]); // eslint-disable-line
 
@@ -303,7 +312,7 @@ function TV() {
 					seasons={seasons}
 					episodes={episodes}
 					selectedSeason={Number(match.params.season)}
-					getEpisodes={handleGetEpisodes}
+					getEpisodes={handleSeasonChange}
 					getAll={handleGetAll}
 					allHasMore={pagination.allHasMore}
 					filterEpisodes={filterEpisodes}
@@ -325,12 +334,12 @@ function TV() {
 				{renderButtons()}
 				<Sidebar
 					options={series}
-					idField="_id"
-					action={handleGetSeasons}
+					idField="seriesId"
+					action={handleGetInfo}
 					menu={menuOptions}
 					loading={loadingSeries}
 					noResultsMessage={"No series"}
-					initialSelected={match.params.seriesId}
+					selected={match.params.seriesId}
 				/>
 			</Grid>
 			<Grid item sm={9} md={10} lg={10}>

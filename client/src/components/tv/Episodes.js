@@ -91,7 +91,7 @@ function Episodes({
 					idField="_id"
 					nameField="_id"
 					action={getEpisodes}
-					initialSelected={selectedSeason}
+					selected={selectedSeason}
 				/>
 				<br />
 				<Grid container spacing={2} className={classes.episodeListContainer}>
