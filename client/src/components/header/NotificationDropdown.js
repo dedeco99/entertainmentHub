@@ -12,8 +12,8 @@ const useStyles = makeStyles(styles);
 
 function NotificationDropdown() {
 	const classes = useStyles();
-	const { notificationState } = useContext(NotificationContext);
-	const { total } = notificationState;
+	const { state } = useContext(NotificationContext);
+	const { total } = state;
 	const [open, setOpen] = useState(false);
 
 	function handleClick() {

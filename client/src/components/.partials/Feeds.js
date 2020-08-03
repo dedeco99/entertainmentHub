@@ -13,7 +13,7 @@ import { getFeeds, editFeed } from "../../api/feeds";
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
 function Feeds({ platform }) {
-	const { widgetState } = useContext(WidgetContext);
+	const { state: widgetState } = useContext(WidgetContext);
 	const { editMode } = widgetState;
 	const { state, dispatch } = useContext(platform === "youtube" ? YoutubeContext : RedditContext);
 	const { feeds } = state;

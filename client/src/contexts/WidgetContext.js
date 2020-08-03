@@ -13,11 +13,7 @@ const WidgetContextProvider = ({ children }) => {
 
 	const [widgets, dispatch] = useReducer(widgetReducer, initState);
 
-	return (
-		<WidgetContext.Provider value={{ widgetState: widgets, dispatch }}>
-			{children}
-		</WidgetContext.Provider>
-	);
+	return <WidgetContext.Provider value={{ state: widgets, dispatch }}>{children}</WidgetContext.Provider>;
 };
 
 WidgetContextProvider.propTypes = {
