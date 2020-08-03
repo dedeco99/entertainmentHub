@@ -1,6 +1,4 @@
-import { makeStyles } from "@material-ui/styles";
-
-const header = makeStyles({
+const header = {
 	appBar: {
 		backgroundColor: "#222",
 		marginBottom: 20,
@@ -15,17 +13,17 @@ const header = makeStyles({
 		flexGrow: 1,
 		marginLeft: 50,
 	},
-});
+};
 
-const loggedInLinks = () => ({
+const loggedInLinks = {
 	wrapper: {
 		"& > div": {
 			marginLeft: 10,
 		},
 	},
-});
+};
 
-const userDropdown = () => ({
+const userDropdown = {
 	avatar: {
 		color: "white",
 		backgroundColor: "#ff5722",
@@ -39,9 +37,9 @@ const userDropdown = () => ({
 		width: 250,
 		right: 0,
 	},
-});
+};
 
-const notificationDropdown = () => ({
+const notificationDropdown = {
 	wrapper: {
 		display: "inline-block",
 		position: "relative",
@@ -52,9 +50,9 @@ const notificationDropdown = () => ({
 		right: 0,
 		backgroundColor: "#212121",
 	},
-});
+};
 
-const settings = () => ({
+const settings = {
 	appsContainer: {
 		position: "relative",
 	},
@@ -82,9 +80,9 @@ const settings = () => ({
 		right: 5,
 		cursor: "pointer",
 	},
-});
+};
 
-const appMenu = () => ({
+const appMenu = {
 	root: {
 		backgroundColor: "#222",
 		width: "50px",
@@ -101,13 +99,6 @@ const appMenu = () => ({
 	appItem: {
 		paddingLeft: 10,
 	},
-});
-
-export {
-	header,
-	loggedInLinks,
-	userDropdown,
-	notificationDropdown,
-	settings,
-	appMenu,
 };
+
+export { header, loggedInLinks, userDropdown, notificationDropdown, settings, appMenu };

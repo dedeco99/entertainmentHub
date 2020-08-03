@@ -7,19 +7,17 @@ import { UserContext } from "../../contexts/UserContext";
 function PrivateRoute({ component: Component, ...rest }) {
 	const { user } = useContext(UserContext);
 
-	return (
-		<Route
-			{...rest}
-			// eslint-disable-next-line react/jsx-no-bind
-			render={props => {
-				if (user && user.token) {
-					return <Component {...props} />;
-				}
+	function render(props) {
+		const { location } = props;
 
-				return <Redirect to={{ pathname: "/login", state: { from: props.location } }} />;
-			}}
-		/>
-	);
+		if (user && user.token) {
+			return <Component {...props} />;
+		}
+
+		return <Redirect to={{ pathname: "/login", state: { from: location } }} />;
+	}
+
+	return <Route {...rest} render={render} />;
 }
 
 PrivateRoute.propTypes = {

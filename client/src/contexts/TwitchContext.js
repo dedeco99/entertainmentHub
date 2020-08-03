@@ -7,17 +7,13 @@ export const TwitchContext = createContext();
 
 const TwitchContextProvider = ({ children }) => {
 	const initState = {
+		follows: [],
 		subscriptions: [],
-		channels: [],
 	};
 
 	const [state, dispatch] = useReducer(twitchReducer, initState);
 
-	return (
-		<TwitchContext.Provider value={{ state, dispatch }}>
-			{children}
-		</TwitchContext.Provider>
-	);
+	return <TwitchContext.Provider value={{ state, dispatch }}>{children}</TwitchContext.Provider>;
 };
 
 TwitchContextProvider.propTypes = {

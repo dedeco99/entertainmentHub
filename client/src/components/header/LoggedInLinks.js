@@ -1,13 +1,17 @@
 import React from "react";
-import { withStyles } from "@material-ui/styles";
-import PropTypes from "prop-types";
+
+import { makeStyles } from "@material-ui/core";
 
 import NotificationDropdown from "./NotificationDropdown";
 import UserDropdown from "./UserDropdown";
 
 import { loggedInLinks as styles } from "../../styles/Header";
 
-function LoggedInLinks({ classes }) {
+const useStyles = makeStyles(styles);
+
+function LoggedInLinks() {
+	const classes = useStyles();
+
 	return (
 		<div className={classes.wrapper}>
 			<NotificationDropdown />
@@ -16,8 +20,4 @@ function LoggedInLinks({ classes }) {
 	);
 }
 
-LoggedInLinks.propTypes = {
-	classes: PropTypes.object.isRequired,
-};
-
-export default withStyles(styles)(LoggedInLinks);
+export default LoggedInLinks;

@@ -1,57 +1,47 @@
-import React, { Component } from "react";
-import { withStyles } from "@material-ui/styles";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
+
+import { makeStyles, List, ListItem, ListItemText } from "@material-ui/core";
 
 import styles from "../../styles/General";
 
-class Categories extends Component {
-	constructor() {
-		super();
-		this.state = {
-			selectedMenu: null,
-		};
+const useStyles = makeStyles(styles);
 
-		this.handleClick = this.handleClick.bind(this);
+function Categories({ options, initialSelected, idField, nameField, action }) {
+	const classes = useStyles();
+	const [selectedMenu, setSelectedMenu] = useState(null);
+
+	function handleClick(id) {
+		action(id);
+
+		setSelectedMenu(id);
 	}
 
-	handleClick(id) {
-		this.props.action(id);
-
-		this.setState({ selectedMenu: id });
-	};
-
-	render() {
-		const { classes, options, idField, nameField, initialSelected } = this.props;
-		const { selectedMenu } = this.state;
-
-		const optionsList = options.map(option => {
-			return (
-				<ListItem
-					button
-					selected={(selectedMenu || initialSelected) === option[idField]}
-					onClick={() => this.handleClick(option[idField])}
-					key={option[idField]}
-					id={option[idField]}
-					className={classes.center}
-				>
-					<ListItemText primary={option[nameField]} />
-				</ListItem >
-			)
-		});
-
+	const optionsList = options.map(option => {
 		return (
-			<List className={`${classes.listMenu} ${classes.horizontal}`}>
-				{optionsList}
-			</List>
+			<ListItem
+				button
+				selected={(selectedMenu || initialSelected) === option[idField]}
+				onClick={() => handleClick(option[idField])}
+				key={option[idField]}
+				id={option[idField]}
+				className={classes.center}
+			>
+				<ListItemText primary={option[nameField]} />
+			</ListItem>
 		);
-	}
+	});
+
+	return <List className={`${classes.listMenu} ${classes.horizontal}`}>{optionsList}</List>;
 }
 
 Categories.propTypes = {
-	classes: PropTypes.object.isRequired,
+	options: PropTypes.array.isRequired,
+	initialSelected: PropTypes.number.isRequired,
+	idField: PropTypes.string.isRequired,
+	nameField: PropTypes.string.isRequired,
+	action: PropTypes.func.isRequired,
+	initialSelected: PropTypes.number.isRequired,
 };
 
-export default withStyles(styles)(Categories);
+export default Categories;

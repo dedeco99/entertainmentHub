@@ -1,4 +1,5 @@
 const { response, api } = require("../utils/request");
+const errors = require("../utils/errors");
 
 const App = require("../models/app");
 
@@ -22,6 +23,7 @@ async function addApp(event) {
 		case "reddit": {
 			const url = `https://www.reddit.com/api/v1/access_token?code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/reddit`;
 
+			// prettier-ignore
 			const encryptedAuth = new Buffer.from(`${process.env.redditClientId}:${process.env.redditSecret}`).toString("base64");
 			const auth = `Basic ${encryptedAuth}`;
 
@@ -57,12 +59,13 @@ async function addApp(event) {
 		const newApp = new App({ user: user._id, platform, refreshToken: json.refresh_token });
 		await newApp.save();
 
-		return response(201, "App added");
+		// TODO: hide refreshToken
+		return response(201, "App added", newApp);
 	} else if (platform === "tv") {
 		const newApp = new App({ user: user._id, platform });
 		await newApp.save();
 
-		return response(201, "App added");
+		return response(201, "App added", newApp);
 	}
 
 	return response(400, "Bad Request");
@@ -72,13 +75,16 @@ async function deleteApp(event) {
 	const { params } = event;
 	const { id } = params;
 
+	let app = null;
 	try {
-		await App.deleteOne({ _id: id });
-
-		return response(200, "App deleted");
-	} catch (err) {
-		return response(400, err);
+		app = await App.findOneAndDelete({ _id: id });
+	} catch (e) {
+		return errors.notFound;
 	}
+
+	if (!app) return errors.notFound;
+
+	return response(200, "App deleted", app);
 }
 
 module.exports = {

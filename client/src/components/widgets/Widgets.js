@@ -1,13 +1,9 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 
-import { makeStyles } from "@material-ui/core";
-import Box from "@material-ui/core/Box";
-import Tooltip from "@material-ui/core/Tooltip";
-import Fab from "@material-ui/core/Fab";
+import { makeStyles, Box, Tooltip, Fab } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
-
 import Widget from "../widgets/Widget";
 import Notifications from "../widgets/Notifications";
 import Reddit from "../widgets/reddit/Reddit";
@@ -149,7 +145,7 @@ function Widgets() {
 	async function handleDeleteWidget(id) {
 		const response = await deleteWidget(id);
 
-		if (response.status < 400) {
+		if (response.status === 200) {
 			dispatch({ type: "DELETE_WIDGET", widget: response.data });
 		}
 	}

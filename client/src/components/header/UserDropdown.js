@@ -1,8 +1,8 @@
 import React, { useContext, useState } from "react";
-import { withStyles } from "@material-ui/styles";
-import PropTypes from "prop-types";
+import { useHistory } from "react-router-dom";
 
 import {
+	makeStyles,
 	Paper,
 	ClickAwayListener,
 	Grow,
@@ -17,13 +17,17 @@ import {
 	Divider,
 } from "@material-ui/core";
 
-import { logout } from "../../api/auth";
-
 import { UserContext } from "../../contexts/UserContext";
+
+import { logout } from "../../api/auth";
 
 import { userDropdown as styles } from "../../styles/Header";
 
-function UserDropdown({ classes }) {
+const useStyles = makeStyles(styles);
+
+function UserDropdown() {
+	const history = useHistory();
+	const classes = useStyles();
 	const { user } = useContext(UserContext);
 	const [open, setOpen] = useState(false);
 
@@ -36,11 +40,11 @@ function UserDropdown({ classes }) {
 	}
 
 	function handleSettingsClick() {
-		window.location.replace("/settings");
+		history.push("/settings");
 	}
 
 	function handleConnectionsClick() {
-		window.location.replace("/settings/apps");
+		history.push("/settings/apps");
 	}
 
 	function handleLogoutClick() {
@@ -98,8 +102,4 @@ function UserDropdown({ classes }) {
 	);
 }
 
-UserDropdown.propTypes = {
-	classes: PropTypes.object.isRequired,
-};
-
-export default withStyles(styles)(UserDropdown);
+export default UserDropdown;

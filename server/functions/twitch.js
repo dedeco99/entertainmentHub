@@ -2,7 +2,7 @@ const { response, api } = require("../utils/request");
 const errors = require("../utils/errors");
 
 const App = require("../models/app");
-const Channel = require("../models/channel");
+const Subscription = require("../models/subscription");
 
 async function getAccessToken(user, grantType) {
 	const app = await App.findOne({ user: user._id, platform: "twitch" }).lean();
@@ -27,17 +27,17 @@ async function getStreams(event) {
 	const { query, user } = event;
 	const { after } = query;
 
-	const channels = await Channel.find({ user: user._id, platform: "twitch" }).lean();
+	const subscriptions = await Subscription.find({ user: user._id, platform: "twitch" }).lean();
 
-	if (!channels.length) return response(200, "No streams found", []);
+	if (!subscriptions.length) return response(200, "No streams found", []);
 
-	const channelsString = `user_id=${channels.map(c => c.channelId).join("&user_id=")}`;
+	const subscriptionsString = `user_id=${subscriptions.map(c => c.externalId).join("&user_id=")}`;
 
 	const accessToken = await getAccessToken(user, "client_credentials");
 
 	if (accessToken.status === 401) return errors.twitchRefreshToken;
 
-	let url = `https://api.twitch.tv/helix/streams?${channelsString}`;
+	let url = `https://api.twitch.tv/helix/streams?${subscriptionsString}`;
 	if (after) url += `&after=${after}`;
 
 	const headers = {
@@ -76,7 +76,7 @@ async function getStreams(event) {
 		};
 	});
 
-	streams.sort((a, b) => a.viewers <= b.viewers ? 1 : -1);
+	streams.sort((a, b) => (a.viewers <= b.viewers ? 1 : -1));
 
 	return response(200, "Streams found", streams);
 }
@@ -106,29 +106,29 @@ async function getFollows(event) {
 	json = res.data;
 
 	let channels = json.data.map(follow => ({
-		channelId: follow.to_id,
+		externalId: follow.to_id,
 		displayName: follow.to_name,
 		after: json.pagination.cursor,
 	}));
 
 	if (channels.length) {
-		const channelsString = `id=${channels.map(c => c.channelId).join("&id=")}`;
+		const channelsString = `id=${channels.map(c => c.externalId).join("&id=")}`;
 
 		url = `https://api.twitch.tv/helix/users?${channelsString}`;
 
 		res = await api({ method: "get", url, headers });
 		json = res.data;
 
-		channels = channels.map(follow => {
-			const channel = json.data.find(c => c.id === follow.channelId);
+		channels = channels
+			.map(follow => {
+				const channel = json.data.find(c => c.id === follow.externalId);
 
-			return {
-				...follow,
-				logo: channel && channel.profile_image_url,
-			};
-		}).sort((a, b) => (
-			a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1
-		));
+				return {
+					...follow,
+					image: channel && channel.profile_image_url,
+				};
+			})
+			.sort((a, b) => (a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1));
 	}
 
 	return response(200, "Twitch followed channels found", channels);

@@ -12,45 +12,49 @@ async function getFeeds(event) {
 		.sort({ displayName: 1 })
 		.lean();
 
-	return response(200, "Channel groups found", feeds);
+	return response(200, "Feeds found", feeds);
 }
 
 async function addFeed(event) {
 	const { params, body, user } = event;
 	const { platform } = params;
-	const { displayName, channels } = body;
+	const { displayName, subscriptions } = body;
 
-	if (!displayName || !channels || !channels.length) return errors.requiredFieldsMissing;
+	if (!displayName || !subscriptions || !subscriptions.length) return errors.requiredFieldsMissing;
 
 	const feed = new Feed({
 		user: user._id,
 		platform,
 		displayName,
-		channels,
+		subscriptions,
 	});
 
 	await feed.save();
 
-	return response(201, "Channel group created", feed);
+	return response(201, "Feed created", feed);
 }
 
 async function editFeed(event) {
 	const { params, body } = event;
 	const { id } = params;
-	const { displayName, channels, x, y, width, height } = body;
+	const { displayName, subscriptions, x, y, width, height } = body;
 
-	if (!displayName || !channels || !channels.length) return errors.requiredFieldsMissing;
+	if (!displayName || !subscriptions || !subscriptions.length) return errors.requiredFieldsMissing;
 
 	let feed = null;
 	try {
-		feed = await Feed.findOneAndUpdate({ _id: id }, { displayName, channels, x, y, width, height }, { new: true });
+		feed = await Feed.findOneAndUpdate(
+			{ _id: id },
+			{ displayName, subscriptions, x, y, width, height },
+			{ new: true },
+		);
 	} catch (e) {
 		return errors.notFound;
 	}
 
 	if (!feed) return errors.notFound;
 
-	return response(200, "Channel group updated", feed);
+	return response(200, "Feed updated", feed);
 }
 
 async function deleteFeed(event) {
@@ -66,7 +70,7 @@ async function deleteFeed(event) {
 
 	if (!feed) return errors.notFound;
 
-	return response(200, "Channel group deleted", feed);
+	return response(200, "Feed deleted", feed);
 }
 
 module.exports = {

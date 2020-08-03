@@ -1,17 +1,19 @@
 import React, { useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 
-import { makeStyles } from "@material-ui/core";
-import Dialog from "@material-ui/core/Dialog";
-import DialogTitle from "@material-ui/core/DialogTitle";
-import DialogContent from "@material-ui/core/DialogContent";
-import DialogActions from "@material-ui/core/DialogActions";
-import Button from "@material-ui/core/Button";
+import {
+	makeStyles,
+	Dialog,
+	DialogTitle,
+	DialogContent,
+	DialogActions,
+	Button,
+	Chip,
+	FormControlLabel,
+	Checkbox,
+	MenuItem,
+} from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
-import Chip from "@material-ui/core/Chip";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Checkbox from "@material-ui/core/Checkbox";
-import MenuItem from "@material-ui/core/MenuItem";
 
 import Input from "../.partials/Input";
 
@@ -56,7 +58,7 @@ function WidgetDetail({ open, widget, onClose }) {
 			setSelectedCity(null);
 			setSelectedCoins([]);
 		}
-	}, [widget]); // eslint-disable
+	}, [widget]); // eslint-disable-line
 
 	function handleGetCities(e, filter) {
 		if (!filter) return;
@@ -66,7 +68,7 @@ function WidgetDetail({ open, widget, onClose }) {
 		const timeout = setTimeout(async () => {
 			const response = await getCities(filter);
 
-			if (response.data) {
+			if (response.status === 200) {
 				setCities(response.data);
 			}
 		}, 500);
@@ -89,7 +91,7 @@ function WidgetDetail({ open, widget, onClose }) {
 		const timeout = setTimeout(async () => {
 			const response = await getCoins(filter);
 
-			if (response.data) {
+			if (response.status === 200) {
 				setCoins(response.data);
 			}
 		}, 500);
