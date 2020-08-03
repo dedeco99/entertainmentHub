@@ -14,19 +14,19 @@ import { getSubreddits } from "../../api/reddit";
 
 function FeedDetail({ open, feed, platform, onClose }) {
 	const { state, dispatch } = useContext(platform === "youtube" ? YoutubeContext : RedditContext);
-	const { channels } = state;
-	const [selectedChannels, setSelectedChannels] = useState([]);
+	const { subscriptions } = state;
+	const [selectedSubscriptions, setSelectedSubscriptions] = useState([]);
 	const [name, setName] = useState("");
 	const [typingTimeout, setTypingTimeout] = useState(null);
 
 	function setFeedInfo() {
 		if (feed) {
 			setName(feed.displayName);
-			setSelectedChannels(
+			setSelectedSubscriptions(
 				platform === "youtube"
-					? channels.filter(c => feed.channels.includes(c.channelId))
-					: feed.channels.map(c => ({
-							displayName: c,
+					? subscriptions.filter(s => feed.subscriptions.includes(s.externalId))
+					: feed.subscriptions.map(s => ({
+							displayName: s,
 					  })),
 			);
 		}
@@ -50,7 +50,7 @@ function FeedDetail({ open, feed, platform, onClose }) {
 			const response = await getSubreddits(filter);
 
 			if (response.status === 200) {
-				dispatch({ type: "SET_CHANNELS", channels: response.data });
+				dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
 			}
 		}, 500);
 
@@ -61,21 +61,21 @@ function FeedDetail({ open, feed, platform, onClose }) {
 		setName(e.target.value);
 	}
 
-	function handleSelectedChannels(e, selected) {
-		setSelectedChannels(selected);
+	function handleSelectedSubscriptions(e, selected) {
+		setSelectedSubscriptions(selected);
 	}
 
 	async function handleSubmit(e) {
 		e.preventDefault();
 
-		if (!name || !selectedChannels.length) return;
+		if (!name || !selectedSubscriptions.length) return;
 
 		// prettier-ignore
-		const mappedChannels = platform === "youtube"
-			? selectedChannels.map(c => c.channelId)
-			: selectedChannels.map(c => c.displayName);
+		const mappedSubscriptions = platform === "youtube"
+			? selectedSubscriptions.map(s => s.externalId)
+			: selectedSubscriptions.map(s => s.displayName);
 
-		const response = await addFeed(platform, name, mappedChannels);
+		const response = await addFeed(platform, name, mappedSubscriptions);
 
 		if (response.status === 201) {
 			dispatch({ type: "ADD_FEED", feed: response.data });
@@ -86,11 +86,11 @@ function FeedDetail({ open, feed, platform, onClose }) {
 	async function handleUpdate(e) {
 		e.preventDefault();
 
-		if (!feed || !name || !selectedChannels.length) return;
+		if (!feed || !name || !selectedSubscriptions.length) return;
 
-		const mappedChannels = selectedChannels.map(c => c.channelId);
+		const mappedSubscriptions = selectedSubscriptions.map(s => s.externalId);
 
-		const response = await editFeed({ ...feed, displayName: name, channels: mappedChannels });
+		const response = await editFeed({ ...feed, displayName: name, subscriptions: mappedSubscriptions });
 
 		if (response.status === 200) {
 			dispatch({ type: "EDIT_FEED", feed: response.data });
@@ -106,7 +106,7 @@ function FeedDetail({ open, feed, platform, onClose }) {
 		return (
 			<Input
 				{...params}
-				label={platform === "youtube" ? "Channels" : "Subreddits"}
+				label={platform === "youtube" ? "Subscriptions" : "Subreddits"}
 				variant="outlined"
 				fullWidth
 				margin="normal"
@@ -137,7 +137,7 @@ function FeedDetail({ open, feed, platform, onClose }) {
 			maxWidth="xs"
 		>
 			<form onSubmit={feed ? handleUpdate : handleSubmit}>
-				<DialogTitle id="simple-dialog-title">{feed ? "Edit Channel Group" : "New Channel Group"}</DialogTitle>
+				<DialogTitle id="simple-dialog-title">{feed ? "Edit Feed" : "New Feed"}</DialogTitle>
 				<DialogContent>
 					<Input
 						type="text"
@@ -150,20 +150,20 @@ function FeedDetail({ open, feed, platform, onClose }) {
 						onChange={handleName}
 					/>
 					<Autocomplete
-						id="Channel"
+						id="Subscriptions"
 						multiple
 						disableCloseOnSelect
-						value={selectedChannels}
+						value={selectedSubscriptions}
 						limitTags={2}
 						renderTags={renderTags}
 						onInputChange={platform === "reddit" ? handleGetSubreddits : null}
-						onChange={handleSelectedChannels}
-						options={channels || []}
+						onChange={handleSelectedSubscriptions}
+						options={subscriptions || []}
 						renderInput={renderInput}
 						getOptionLabel={renderOptionLabel}
 						fullWidth
 						required
-						label="Channels"
+						label="Subscriptions"
 					/>
 				</DialogContent>
 				<DialogActions>

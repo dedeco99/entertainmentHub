@@ -16,7 +16,7 @@ const notifications = require("./functions/notifications");
 const weather = require("./functions/weather");
 const crypto = require("./functions/crypto");
 const reddit = require("./functions/reddit");
-const channels = require("./functions/channels");
+const subs = require("./functions/subscriptions");
 const feeds = require("./functions/feeds");
 const youtube = require("./functions/youtube");
 const twitch = require("./functions/twitch");
@@ -92,11 +92,11 @@ app.get("/api/reddit/:subreddit/:category", token, (req, res) => middleware(req,
 
 app.get("/api/reddit/:subreddit/search/:search", token, (req, res) => middleware(req, res, reddit.getSearch));
 
-app.get("/api/channels/:platform", token, (req, res) => middleware(req, res, channels.getChannels));
+app.get("/api/subscriptions/:platform", token, (req, res) => middleware(req, res, subs.getSubscriptions));
 
-app.post("/api/channels/:platform", token, (req, res) => middleware(req, res, channels.addChannels));
+app.post("/api/subscriptions/:platform", token, (req, res) => middleware(req, res, subs.addSubscriptions));
 
-app.delete("/api/channels/:id", token, (req, res) => middleware(req, res, channels.deleteChannel));
+app.delete("/api/subscriptions/:id", token, (req, res) => middleware(req, res, subs.deleteSubscription));
 
 app.get("/api/feeds/:platform", token, (req, res) => middleware(req, res, feeds.getFeeds));
 

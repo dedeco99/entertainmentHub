@@ -32,8 +32,8 @@ function Feed({ feed }) {
 		async function fetchData() {
 			const response =
 				feed.platform === "youtube"
-					? await getVideos(feed.channels.join(","))
-					: await getPosts(feed.channels.join("+"));
+					? await getVideos(feed.subscriptions.join(","))
+					: await getPosts(feed.subscriptions.join("+"));
 
 			if (response.status === 200) {
 				setPosts(response.data);
@@ -113,7 +113,7 @@ function Feed({ feed }) {
 	function renderPosts() {
 		return posts.map(post => (
 			<ListItem key={post.id} divider style={{ padding: 0, margin: 0 }}>
-				<Post post={post} multipleSubs={Boolean(feed.channels.length)} inList />
+				<Post post={post} multipleSubs={Boolean(feed.subscriptions.length)} inList />
 			</ListItem>
 		));
 	}

@@ -2,8 +2,8 @@ import React, { useState } from "react";
 
 import { Grid, IconButton } from "@material-ui/core";
 
+import Follows from "../.partials/Follows";
 import Subscriptions from "../.partials/Subscriptions";
-import Channels from "../.partials/Channels";
 import FeedDetail from "../.partials/FeedDetail";
 import Feeds from "../.partials/Feeds";
 
@@ -21,8 +21,8 @@ function Youtube() {
 	return (
 		<Grid container spacing={2}>
 			<Grid item sm={3} md={2}>
+				<Follows platform="youtube" />
 				<Subscriptions platform="youtube" />
-				<Channels platform="youtube" />
 				<IconButton onClick={handleOpenModal}>
 					<i className="icofont-ui-add" />
 				</IconButton>

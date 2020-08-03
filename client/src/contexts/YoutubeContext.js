@@ -7,8 +7,8 @@ export const YoutubeContext = createContext();
 
 const YoutubeContextProvider = ({ children }) => {
 	const initState = {
+		follows: [],
 		subscriptions: [],
-		channels: [],
 		feeds: [],
 	};
 

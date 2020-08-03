@@ -9,11 +9,11 @@ async function getFeeds(platform) {
 	return res;
 }
 
-async function addFeed(platform, displayName, channels) {
+async function addFeed(platform, displayName, subscriptions) {
 	const res = await api({
 		method: "post",
 		url: `api/feeds/${platform}`,
-		data: { displayName, channels },
+		data: { displayName, subscriptions },
 		message: true,
 	});
 
