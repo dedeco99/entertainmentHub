@@ -19,7 +19,7 @@ function Reddit({ subreddit, search, listView }) {
 	const [showListView, setShowListView] = useState(true);
 	const [num, setNum] = useState(0);
 
-	async function getPostsCall() {
+	async function handleGetPosts() {
 		if (!loading) {
 			setLoading(true);
 
@@ -30,7 +30,7 @@ function Reddit({ subreddit, search, listView }) {
 				response = await getPosts(subreddit, pagination.after);
 			}
 
-			if (response.data) {
+			if (response.status === 200) {
 				response.data = response.data.filter(post => !post.stickied);
 				const newPosts = pagination.page === 0 ? response.data : posts.concat(response.data);
 
@@ -48,7 +48,7 @@ function Reddit({ subreddit, search, listView }) {
 
 	useEffect(() => {
 		async function fetchData() {
-			await getPostsCall();
+			await handleGetPosts();
 
 			setShowListView(listView);
 		}
@@ -61,7 +61,7 @@ function Reddit({ subreddit, search, listView }) {
 	}
 
 	async function handleShowNextPost() {
-		if (num === posts.length - 2) await getPostsCall();
+		if (num === posts.length - 2) await handleGetPosts();
 		if (num < posts.length - 1) setNum(num + 1);
 	}
 
@@ -81,7 +81,7 @@ function Reddit({ subreddit, search, listView }) {
 				subreddit={subreddit}
 				posts={posts}
 				multipleSubs={subreddit.includes("+")}
-				getPosts={getPostsCall}
+				getPosts={handleGetPosts}
 				hasMorePosts={pagination.hasMore}
 				onShowSingleView={handleShowSingleView}
 			/>

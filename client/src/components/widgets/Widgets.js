@@ -1,13 +1,9 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 
-import { makeStyles } from "@material-ui/core";
-import Box from "@material-ui/core/Box";
-import Tooltip from "@material-ui/core/Tooltip";
-import Fab from "@material-ui/core/Fab";
+import { makeStyles, Box, Tooltip, Fab } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
-
 import Widget from "../widgets/Widget";
 import Notifications from "../widgets/Notifications";
 import Reddit from "../widgets/reddit/Reddit";
@@ -86,6 +82,7 @@ function Widgets() {
 	const [openWidgetDetail, setOpenWidgetDetail] = useState(false);
 	const [rowHeight, setRowHeight] = useState(150);
 	const [layouts, setLayouts] = useState({});
+	const [selectedWidget, setSelectedWidget] = useState(null);
 
 	useEffect(() => {
 		async function fetchData() {
@@ -101,11 +98,13 @@ function Widgets() {
 		fetchData();
 	}, []); // eslint-disable-line
 
-	function handleWidgetDetailOpen() {
+	function handleWidgetDetailOpen(e, widget) {
+		if (widget) setSelectedWidget(widget);
 		setOpenWidgetDetail(true);
 	}
 
 	function handleWidgetDetailClose() {
+		setSelectedWidget(null);
 		setOpenWidgetDetail(false);
 	}
 
@@ -126,7 +125,7 @@ function Widgets() {
 
 				const response = await editWidget(widgetToUpdate);
 
-				if (response.status < 400) {
+				if (response.status === 200) {
 					dispatch({ type: "EDIT_WIDGET", widget: response.data });
 				}
 			}
@@ -146,7 +145,7 @@ function Widgets() {
 	async function handleDeleteWidget(id) {
 		const response = await deleteWidget(id);
 
-		if (response.status < 400) {
+		if (response.status === 200) {
 			dispatch({ type: "DELETE_WIDGET", widget: response.data });
 		}
 	}
@@ -175,6 +174,7 @@ function Widgets() {
 							editText={widgetInfo.editText}
 							editIcon={widgetInfo.editIcon}
 							widgetDimensions={widgetInfo.dimensions}
+							onEdit={e => handleWidgetDetailOpen(e, widget)}
 							onDelete={handleDeleteWidget}
 						/>
 					</div>
@@ -208,7 +208,7 @@ function Widgets() {
 					{renderWidgets()}
 				</ResponsiveGridLayout>
 			) : null}
-			<WidgetDetail open={openWidgetDetail} onClose={handleWidgetDetailClose} />
+			<WidgetDetail open={openWidgetDetail} widget={selectedWidget} onClose={handleWidgetDetailClose} />
 			<Box className={classes.addWidget}>
 				<Tooltip title="Add Widget">
 					<Fab onClick={handleWidgetDetailOpen}>

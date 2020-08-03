@@ -1,16 +1,8 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { makeStyles } from "@material-ui/styles";
 import InfiniteScroll from "react-infinite-scroller";
 
-import Zoom from "@material-ui/core/Zoom";
-import Box from "@material-ui/core/Box";
-import Typography from "@material-ui/core/Typography";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import Chip from "@material-ui/core/Chip";
-import Link from "@material-ui/core/Link";
-import Badge from "@material-ui/core/Badge";
+import { makeStyles, Zoom, Box, Typography, List, ListItem, Chip, Link, Badge } from "@material-ui/core";
 
 import Loading from "../../.partials/Loading";
 

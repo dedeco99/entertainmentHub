@@ -4,7 +4,7 @@ import socketio from "socket.io-client";
 import { UserContext } from "../../contexts/UserContext";
 import { NotificationContext } from "../../contexts/NotificationContext";
 
-const SocketClient = () => {
+function SocketClient() {
 	const { user } = useContext(UserContext);
 	const { dispatch } = useContext(NotificationContext);
 
@@ -21,6 +21,6 @@ const SocketClient = () => {
 	}, []);
 
 	return null;
-};
+}
 
 export default SocketClient;

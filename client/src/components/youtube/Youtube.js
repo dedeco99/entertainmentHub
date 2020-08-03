@@ -1,15 +1,13 @@
 import React, { useState } from "react";
-import PropTypes from "prop-types";
 
-import Grid from "@material-ui/core/Grid";
-import IconButton from "@material-ui/core/IconButton";
+import { Grid, IconButton } from "@material-ui/core";
 
+import Follows from "../.partials/Follows";
 import Subscriptions from "../.partials/Subscriptions";
-import Channels from "../.partials/Channels";
 import FeedDetail from "../.partials/FeedDetail";
 import Feeds from "../.partials/Feeds";
 
-function Youtube({ history }) {
+function Youtube() {
 	const [openModal, setOpenModal] = useState(false);
 
 	function handleOpenModal() {
@@ -23,8 +21,8 @@ function Youtube({ history }) {
 	return (
 		<Grid container spacing={2}>
 			<Grid item sm={3} md={2}>
-				<Subscriptions history={history} platform="youtube" />
-				<Channels platform="youtube" />
+				<Follows platform="youtube" />
+				<Subscriptions platform="youtube" />
 				<IconButton onClick={handleOpenModal}>
 					<i className="icofont-ui-add" />
 				</IconButton>
@@ -36,9 +34,5 @@ function Youtube({ history }) {
 		</Grid>
 	);
 }
-
-Youtube.propTypes = {
-	history: PropTypes.object.isRequired,
-};
 
 export default Youtube;

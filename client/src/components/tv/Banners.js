@@ -1,12 +1,16 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import Grid from "@material-ui/core/Grid";
 import InfiniteScroll from "react-infinite-scroller";
 
-import { banners as useStyles } from "../../styles/TV";
+import { makeStyles, Grid } from "@material-ui/core";
 
-import loadingGif from "../../img/loading3.gif";
+import Loading from "../.partials/Loading";
+
+import { banners as styles } from "../../styles/TV";
+
 import placeholder from "../../img/noimage.png";
+
+const useStyles = makeStyles(styles);
 
 function Banners({ series, getMore, hasMore, allSeries, addSeries }) {
 	const classes = useStyles();
@@ -28,55 +32,42 @@ function Banners({ series, getMore, hasMore, allSeries, addSeries }) {
 		if (loadingAddSeries) {
 			return (
 				<span className={classes.addSeriesIcon}>
-					<img src={loadingGif} height="48px" alt="Loading..." />
+					<Loading />
 				</span>
 			);
 		} else if (!seriesIds.includes(s.id.toString())) {
 			return (
-				<i
-					id={s.id}
-					className={`${classes.addSeriesIcon} icofont-ui-add icofont-3x`}
-					onClick={handleAddSeries}
-				/>
+				<i id={s.id} className={`${classes.addSeriesIcon} icofont-ui-add icofont-3x`} onClick={handleAddSeries} />
 			);
 		}
 
 		return null;
 	}
 
-	function renderSeriesBlock(series) {
+	function renderSeriesBlock() {
 		if (!series || !series.length) return <div />;
 
 		return (
 			<Grid container spacing={2}>
-				{
-					series.map(s => (
-						<Grid
-							item xs={6} sm={4} md={3} lg={2} xl={1}
-							key={s.id}
-						>
-							<div className={classes.addSeriesContainer}>
-								{renderAddIcon(s)}
-								<img
-									src={s.image.substr(s.image.length - 4) === "null" ? placeholder : s.image}
-									width="100%"
-									alt={s.displayName}
-								/>
-							</div>
-						</Grid>
-					))
-				}
+				{series.map(s => (
+					<Grid item xs={6} sm={4} md={3} lg={2} xl={1} key={s.id}>
+						<div className={classes.addSeriesContainer}>
+							{renderAddIcon(s)}
+							<img
+								src={s.image.substr(s.image.length - 4) === "null" ? placeholder : s.image}
+								width="100%"
+								alt={s.displayName}
+							/>
+						</div>
+					</Grid>
+				))}
 			</Grid>
 		);
 	}
 
 	return (
-		<InfiniteScroll
-			pageStart={0}
-			loadMore={getMore}
-			hasMore={hasMore}
-		>
-			{renderSeriesBlock(series)}
+		<InfiniteScroll pageStart={0} loadMore={getMore} hasMore={hasMore}>
+			{renderSeriesBlock()}
 		</InfiniteScroll>
 	);
 }

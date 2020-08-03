@@ -1,4 +1,4 @@
-const general = () => ({
+const general = {
 	main: {
 		padding: "75px 25px 15px 65px",
 	},
@@ -31,6 +31,6 @@ const general = () => ({
 		width: "100%",
 		maxWidth: 300,
 	},
-});
+};
 
 export default general;

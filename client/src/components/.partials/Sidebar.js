@@ -1,119 +1,104 @@
-import React, { Component } from "react";
-import { withStyles } from "@material-ui/styles";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import ListItemText from "@material-ui/core/ListItemText";
-import ListItemSecondaryAction from "@material-ui/core/ListItemSecondaryAction";
-import IconButton from "@material-ui/core/IconButton";
-import Menu from "@material-ui/core/Menu";
 
-import { StyledMenu, StyledMenuItem } from "../.partials/Menu";
+import {
+	makeStyles,
+	List,
+	ListItem,
+	ListItemText,
+	ListItemSecondaryAction,
+	IconButton,
+	Menu,
+	MenuItem,
+} from "@material-ui/core";
 
-import loadingGif from "../../img/loading2.gif";
+import Loading from "./Loading";
 
 import styles from "../../styles/General";
 
-class Sidebar extends Component {
-	constructor() {
-		super();
-		this.state = {
-			selectedMenu: null,
-			anchorEl: null,
-			currentId: null,
-		};
+const useStyles = makeStyles(styles);
 
-		this.handleClick = this.handleClick.bind(this);
-		this.setAnchorEl = this.setAnchorEl.bind(this);
-		this.handleClose = this.handleClose.bind(this);
+function Sidebar({ options, initialSelected, idField, action, menu, loading, noResultsMessage }) {
+	const classes = useStyles();
+	const [selectedMenu, setSelectedMenu] = useState(null);
+	const [anchorEl, setAnchorEl] = useState(null);
+
+	function handleClick(id) {
+		action(id);
+
+		setSelectedMenu(id);
 	}
 
-	handleClick(id) {
-		this.props.action(id);
-
-		this.setState({ selectedMenu: id });
+	function handleSetAnchorEl(e) {
+		setAnchorEl(e.currentTarget);
 	}
 
-	setAnchorEl(e) {
-		this.setState({ anchorEl: e.currentTarget, currentId: e.currentTarget.id });
+	function handleClose() {
+		setAnchorEl(null);
 	}
 
-	handleClose() {
-		this.setState({ anchorEl: null });
-	}
+	if (loading) return <Loading />;
 
-	renderLoading() {
-		const { classes, loading, noResultsMessage } = this.props;
+	if (!options || !options.length) return <div className={classes.center}>{noResultsMessage}</div>;
 
-		if (loading) {
-			return (
-				<div className={classes.loading} align="center">
-					<img className={classes.loadingImg}  src={loadingGif} alt="Loading..." />
-				</div>
-			);
-		} else {
-			return (
-				<div className={classes.center}>{noResultsMessage}</div>
-			)
-		}
-	}
-
-	render() {
-		const { classes, options, idField, menu, initialSelected } = this.props;
-		const { selectedMenu, anchorEl, currentId } = this.state;
-
-		let optionsList = this.renderLoading();
-		if (options && options.length) {
-			optionsList = options.map(option => {
+	return (
+		<List className={classes.listMenu}>
+			{options.map(option => {
 				return (
 					<ListItem
 						button
 						selected={(selectedMenu || initialSelected) === option[idField]}
-						onClick={() => this.handleClick(option[idField])}
+						onClick={() => handleClick(option[idField])}
 						key={option[idField]}
 						id={option[idField]}
 					>
 						<ListItemText primary={option.displayName} />
-						{menu && menu.length ?
-							<ListItemSecondaryAction id={option[idField]} onClick={this.setAnchorEl}>
+						{menu && menu.length ? (
+							<ListItemSecondaryAction id={option[idField]} onClick={handleSetAnchorEl}>
 								<IconButton color="primary" edge="end">
 									<i className="material-icons">{"more_vert"}</i>
 								</IconButton>
-							</ListItemSecondaryAction> : null}
+							</ListItemSecondaryAction>
+						) : null}
 					</ListItem>
 				);
-			});
-		}
-
-		return (
-			<List className={classes.listMenu}>
-				{optionsList}
-				{menu ?
-					<StyledMenu
-						anchorEl={anchorEl}
-						keepMounted
-						open={Boolean(anchorEl)}
-						onClose={this.handleClose}
-					>
-						{
-							menu.map(option => (
-								<StyledMenuItem
-									id={currentId}
-									key={option.displayName}
-									onClick={e => { option.onClick(e); this.handleClose(); }}
-								>
-									{option.displayName}
-								</StyledMenuItem>
-							))
-						}
-					</StyledMenu> : null}
-			</List>
-		);
-	}
+			})}
+			{menu ? (
+				<Menu
+					anchorEl={anchorEl}
+					keepMounted
+					open={Boolean(anchorEl)}
+					onClose={handleClose}
+					getContentAnchorEl={null}
+					anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+					transformOrigin={{ vertical: "top", horizontal: "right" }}
+				>
+					{menu.map((option, index) => (
+						<MenuItem
+							key={option.displayName}
+							id={anchorEl && anchorEl.id}
+							onClick={e => {
+								option.onClick(e);
+								handleClose();
+							}}
+						>
+							{option.displayName}
+						</MenuItem>
+					))}
+				</Menu>
+			) : null}
+		</List>
+	);
 }
 
 Sidebar.propTypes = {
-	classes: PropTypes.object.isRequired,
+	options: PropTypes.array.isRequired,
+	initialSelected: PropTypes.number,
+	idField: PropTypes.string.isRequired,
+	action: PropTypes.func.isRequired,
+	menu: PropTypes.array,
+	loading: PropTypes.bool,
+	noResultsMessage: PropTypes.string,
 };
 
-export default withStyles(styles)(Sidebar);
+export default Sidebar;

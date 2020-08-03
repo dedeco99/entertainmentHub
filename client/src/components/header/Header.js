@@ -1,9 +1,7 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 
-import AppBar from "@material-ui/core/AppBar";
-import Toolbar from "@material-ui/core/Toolbar";
-import Typography from "@material-ui/core/Typography";
+import { makeStyles, AppBar, Toolbar, Typography } from "@material-ui/core";
 
 import { UserContext } from "../../contexts/UserContext";
 
@@ -13,7 +11,9 @@ import LoggedOutLinks from "./LoggedOutLinks";
 
 import logo from "../../img/logo.png";
 
-import { header as useStyles } from "../../styles/Header";
+import { header as styles } from "../../styles/Header";
+
+const useStyles = makeStyles(styles);
 
 function Header() {
 	const classes = useStyles();

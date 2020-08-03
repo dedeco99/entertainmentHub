@@ -1,13 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
-import { makeStyles } from "@material-ui/styles";
-import Zoom from "@material-ui/core/Zoom";
-import Box from "@material-ui/core/Box";
-import Typography from "@material-ui/core/Typography";
-import Link from "@material-ui/core/Link";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
+import { makeStyles, Zoom, Box, Typography, Link, List, ListItem } from "@material-ui/core";
 
 import Widget from "../widgets/Widget";
 import FeedDetail from "./FeedDetail";
@@ -20,9 +14,10 @@ import { getVideos } from "../../api/youtube";
 import { getPosts } from "../../api/reddit";
 import { deleteFeed } from "../../api/feeds";
 
+import { formatDate, formatVideoDuration } from "../../utils/utils";
+
 import { widget as widgetStyles } from "../../styles/Widgets";
 import { feed as feedStyles } from "../../styles/Youtube";
-import { formatDate, formatVideoDuration } from "../../utils/utils";
 
 const useStyles = makeStyles({ ...widgetStyles, ...feedStyles });
 
@@ -37,10 +32,10 @@ function Feed({ feed }) {
 		async function fetchData() {
 			const response =
 				feed.platform === "youtube"
-					? await getVideos(feed.channels.join(","))
-					: await getPosts(feed.channels.join("+"));
+					? await getVideos(feed.subscriptions.join(","))
+					: await getPosts(feed.subscriptions.join("+"));
 
-			if (response.data && response.data.length) {
+			if (response.status === 200) {
 				setPosts(response.data);
 				setOpen(true);
 			}
@@ -118,7 +113,7 @@ function Feed({ feed }) {
 	function renderPosts() {
 		return posts.map(post => (
 			<ListItem key={post.id} divider style={{ padding: 0, margin: 0 }}>
-				<Post post={post} multipleSubs={Boolean(feed.channels.length)} inList />
+				<Post post={post} multipleSubs={Boolean(feed.subscriptions.length)} inList />
 			</ListItem>
 		));
 	}
