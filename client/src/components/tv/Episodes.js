@@ -47,17 +47,17 @@ function Episodes() {
 		history.push(`/tv/${seriesId}/${season}`);
 	}
 
+	function handleSeasonClick(season) {
+		if (Number(match.params.season) !== season) updateUrlFilter(match.params.seriesId, season);
+	}
+
 	function handleGetEpisodes(season) {
 		const foundSeason = seasons.find(s => s._id === Number(season));
 
-		if (foundSeason) {
-			updateUrlFilter(match.params.seriesId, season);
-
-			setEpisodes(foundSeason.episodes);
-		}
+		if (foundSeason) setEpisodes(foundSeason.episodes);
 	}
 
-	async function handleGetSeasons(seriesId, season) {
+	async function handleGetSeasons(seriesId) {
 		setOpen(false);
 
 		const response = await getSeasons(seriesId);
@@ -65,8 +65,6 @@ function Episodes() {
 		if (response.status === 200) {
 			setSeasons(response.data);
 			setPage(0);
-
-			if (season) handleGetEpisodes(season);
 
 			setOpen(true);
 		}
@@ -76,7 +74,7 @@ function Episodes() {
 		if (season && seasons.length) {
 			handleGetEpisodes(season);
 		} else {
-			handleGetSeasons(seriesId, season);
+			handleGetSeasons(seriesId);
 		}
 	}
 
@@ -115,10 +113,12 @@ function Episodes() {
 	}, [match.url]); // eslint-disable-line
 
 	useEffect(() => {
-		if (match.params.season) {
-			handleGetEpisodes(match.params.season);
-		} else if (seasons.length) {
-			updateUrlFilter(match.params.seriesId, seasons[seasons.length - 1]._id);
+		if (seasons.length) {
+			if (match.params.season) {
+				handleGetEpisodes(Number(match.params.season));
+			} else {
+				history.replace(`/tv/${match.params.seriesId}/${seasons[seasons.length - 1]._id}`);
+			}
 		} else if (filter !== "all") {
 			handleGetAll();
 		}
@@ -183,7 +183,7 @@ function Episodes() {
 					options={seasons}
 					idField="_id"
 					nameField="_id"
-					action={handleGetEpisodes}
+					action={handleSeasonClick}
 					selected={Number(match.params.season)}
 				/>
 				<br />
