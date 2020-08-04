@@ -35,8 +35,8 @@ const useStyles = makeStyles(styles);
 
 function Notifications({ height }) {
 	const classes = useStyles();
-	const { notificationState, dispatch } = useContext(NotificationContext);
-	const { notifications } = notificationState;
+	const { state, dispatch } = useContext(NotificationContext);
+	const { notifications } = state;
 	const [pagination, setPagination] = useState({
 		loading: false,
 		page: 0,

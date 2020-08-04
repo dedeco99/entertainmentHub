@@ -76,8 +76,8 @@ const widgetsInfo = {
 
 function Widgets() {
 	const classes = useStyles();
-	const { widgetState, dispatch } = useContext(WidgetContext);
-	const { widgets, editMode } = widgetState;
+	const { state, dispatch } = useContext(WidgetContext);
+	const { widgets, editMode } = state;
 	const [loading, setLoading] = useState(false);
 	const [openWidgetDetail, setOpenWidgetDetail] = useState(false);
 	const [rowHeight, setRowHeight] = useState(150);

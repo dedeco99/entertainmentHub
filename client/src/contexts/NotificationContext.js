@@ -21,7 +21,7 @@ const NotificationContextProvider = ({ children }) => {
 	}, [notifications]);
 
 	return (
-		<NotificationContext.Provider value={{ notificationState: notifications, dispatch }}>
+		<NotificationContext.Provider value={{ state: notifications, dispatch }}>
 			{children}
 		</NotificationContext.Provider>
 	);

@@ -31,7 +31,7 @@ async function getStreams(event) {
 
 	if (!subscriptions.length) return response(200, "No streams found", []);
 
-	const subscriptionsString = `user_id=${subscriptions.map(c => c.externalId).join("&user_id=")}`;
+	const subscriptionsString = `user_id=${subscriptions.map(s => s.externalId).join("&user_id=")}`;
 
 	const accessToken = await getAccessToken(user, "client_credentials");
 
