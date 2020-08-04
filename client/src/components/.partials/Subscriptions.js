@@ -1,16 +1,33 @@
-import React, { useContext, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
-import Sidebar from "../.partials/Sidebar";
+import Sidebar from "./Sidebar";
+import SubscriptionDetail from "./SubscriptionDetail";
 
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { TwitchContext } from "../../contexts/TwitchContext";
+import { TVContext } from "../../contexts/TVContext";
 
 import { getSubscriptions, deleteSubscription } from "../../api/subscriptions";
 
-function Subscriptions({ platform }) {
-	const { state, dispatch } = useContext(platform === "youtube" ? YoutubeContext : TwitchContext);
-	const { subscriptions } = state;
+function chooseContext(platform) {
+	switch (platform) {
+		case "youtube":
+			return YoutubeContext;
+		case "twitch":
+			return TwitchContext;
+		case "tv":
+			return TVContext;
+		default:
+			break;
+	}
+}
+
+function Subscriptions({ platform, selected, idField, action }) {
+	const { state, dispatch } = useContext(chooseContext(platform));
+	const { follows, subscriptions } = state;
+	const [selectedSubscription, setSelectedSubscription] = useState(null);
+	const [openModal, setOpenModal] = useState(false);
 
 	useEffect(() => {
 		async function fetchData() {
@@ -24,23 +41,77 @@ function Subscriptions({ platform }) {
 		fetchData();
 	}, []); // eslint-disable-line
 
+	async function handleEditSubscription(id, subscription) {
+		const response = await editSubscription(id, subscription);
+
+		if (response.status === 200) {
+			dispatch({ type: "EDIT_SUBSCRIPTION", subscription: response.data });
+		}
+	}
+
 	async function handleDeleteSubscription(e) {
-		const response = await deleteSubscription(e.target.id);
+		let id = e.target.id;
+		if (idField !== "_id") {
+			id = subscriptions.find(s => s[idField] === id)._id;
+		}
+
+		const response = await deleteSubscription(id);
 
 		if (response.status === 200) {
 			dispatch({ type: "DELETE_SUBSCRIPTION", subscription: response.data });
 		}
 	}
 
-	const menuOptions = [{ displayName: "Delete", onClick: handleDeleteSubscription }];
+	function handleShowModal(e, type) {
+		if (type === "edit") {
+			setSelectedSubscription(subscriptions.find(s => s[idField] === e.target.id));
+		} else {
+			const found = follows.find(s => s.externalId.toString() === e.target.id);
+
+			setSelectedSubscription(found);
+		}
+
+		setOpenModal(true);
+	}
+
+	function handleHideModal() {
+		setOpenModal(false);
+	}
+
+	const menuOptions = [
+		{ displayName: "Edit", onClick: e => handleShowModal(e, "edit") },
+		{ displayName: "Delete", onClick: handleDeleteSubscription },
+	];
 
 	return (
-		<Sidebar options={subscriptions} idField="_id" menu={menuOptions} noResultsMessage={"No subscriptions"} />
+		<>
+			<Sidebar
+				options={subscriptions}
+				selected={selected}
+				idField={idField}
+				action={action}
+				menu={menuOptions}
+				noResultsMessage={"No subscriptions"}
+			/>
+			<SubscriptionDetail
+				open={openModal}
+				subscription={selectedSubscription}
+				editSubscription={handleEditSubscription}
+				onClose={handleHideModal}
+			/>
+		</>
 	);
 }
 
 Subscriptions.propTypes = {
 	platform: PropTypes.string.isRequired,
+	selected: PropTypes.string,
+	idField: PropTypes.string,
+	action: PropTypes.func.isRequired,
+};
+
+Subscriptions.defaultProps = {
+	idField: "_id",
 };
 
 export default Subscriptions;

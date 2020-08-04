@@ -61,8 +61,8 @@ const variants = {
 };
 
 function Widget({ id, type, content, borderColor, editText, editIcon, widgetDimensions, onEdit, onDelete }) {
-	const { widgetState, dispatch } = useContext(WidgetContext);
-	const { editMode } = widgetState;
+	const { state, dispatch } = useContext(WidgetContext);
+	const { editMode } = state;
 	const { user } = useContext(UserContext);
 	const classes = useStyles({ borderColor: user.settings && user.settings.borderColor ? borderColor : null });
 	const [refreshToken, setRefreshToken] = useState(new Date());

@@ -1,6 +1,8 @@
 const { response } = require("../utils/request");
 const errors = require("../utils/errors");
 
+const tv = require("./tv");
+
 const Subscription = require("../models/subscription");
 
 async function getSubscriptions(event) {
@@ -39,6 +41,18 @@ async function addSubscriptions(event) {
 						image,
 					}),
 				);
+
+				if (platform === "tv") {
+					const seriesPopulated = await Subscription.findOne({ platform, externalId }).lean();
+
+					if (!seriesPopulated) {
+						await tv.fetchEpisodes({
+							_id: externalId,
+							displayNames: [displayName],
+							users: [user._id],
+						});
+					}
+				}
 			}
 		}
 	}
@@ -46,6 +60,23 @@ async function addSubscriptions(event) {
 	await Subscription.insertMany(subscriptionsToAdd);
 
 	return response(201, "Subscriptions created", subscriptionsToAdd);
+}
+
+async function editSubscription(event) {
+	const { params, body } = event;
+	const { id } = params;
+	const { displayName } = body;
+
+	let subscription = null;
+	try {
+		subscription = await Subscription.findOneAndUpdate({ _id: id }, { displayName }, { new: true }).lean();
+	} catch (err) {
+		return errors.notFound;
+	}
+
+	if (!subscription) return errors.notFound;
+
+	return response(200, "Subscription has been updated", subscription);
 }
 
 async function deleteSubscription(event) {
@@ -67,5 +98,6 @@ async function deleteSubscription(event) {
 module.exports = {
 	getSubscriptions,
 	addSubscriptions,
+	editSubscription,
 	deleteSubscription,
 };

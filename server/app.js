@@ -96,6 +96,8 @@ app.get("/api/subscriptions/:platform", token, (req, res) => middleware(req, res
 
 app.post("/api/subscriptions/:platform", token, (req, res) => middleware(req, res, subs.addSubscriptions));
 
+app.put("/api/subscriptions/:id", token, (req, res) => middleware(req, res, subs.editSubscription));
+
 app.delete("/api/subscriptions/:id", token, (req, res) => middleware(req, res, subs.deleteSubscription));
 
 app.get("/api/feeds/:platform", token, (req, res) => middleware(req, res, feeds.getFeeds));
@@ -123,14 +125,6 @@ app.get("/api/twitch/games/:game", token, (req, res) => middleware(req, res, twi
 
 app.get("/api/twitch/channels/", token, (req, res) => middleware(req, res, twitch.getChannels));
 */
-
-app.get("/api/tv", token, (req, res) => middleware(req, res, tv.getSeries));
-
-app.post("/api/tv", token, (req, res) => middleware(req, res, tv.addSeries));
-
-app.put("/api/tv/:id", token, (req, res) => middleware(req, res, tv.editSeries));
-
-app.delete("/api/tv/:id", token, (req, res) => middleware(req, res, tv.deleteSeries));
 
 app.get("/api/tv/search/:search", token, (req, res) => middleware(req, res, tv.getSearch));
 

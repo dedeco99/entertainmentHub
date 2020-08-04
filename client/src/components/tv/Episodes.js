@@ -1,35 +1,130 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React, { useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroller";
+import { useHistory, useRouteMatch } from "react-router-dom";
 
 import { makeStyles, Grid, Button } from "@material-ui/core";
 
 import Categories from "../.partials/Categories";
+import Loading from "../.partials/Loading";
 import Episode from "./Episode";
+
+import { getSeasons } from "../../api/tv";
 
 import { episodes as styles } from "../../styles/TV";
 
 const useStyles = makeStyles(styles);
 
-function Episodes({
-	currentSeries,
-	seasons,
-	episodes,
-	getEpisodes,
-	getAll,
-	allHasMore,
-	filterEpisodes,
-	selectedSeason,
-}) {
+function Episodes() {
+	const history = useHistory();
+	const match = useRouteMatch();
 	const classes = useStyles();
+	const [seasons, setSeasons] = useState([]);
+	const [episodes, setEpisodes] = useState([]);
+	const [page, setPage] = useState(0);
+	const [hasMore, setHasMore] = useState(false);
+	const [filter, setFilter] = useState("all");
+	const [loading, setLoading] = useState(false);
+	const [open, setOpen] = useState(false);
+	const [currentSeries, setCurrentSeries] = useState(null);
+
+	async function handleGetAll() {
+		if (!loading) {
+			setLoading(true);
+			if (page === 0) setOpen(false);
+
+			const response = await getSeasons("all", page, filter);
+
+			const newEpisodes = page === 0 ? response.data : episodes.concat(response.data);
+
+			setEpisodes(newEpisodes);
+			setPage(page + 1);
+			setHasMore(!(response.data.length < 50));
+			setLoading(false);
+			if (page === 0) setOpen(true);
+		}
+	}
+
+	function updateUrlFilter(seriesId, season) {
+		history.push(`/tv/${seriesId}/${season}`);
+	}
+
+	function handleSeasonClick(season) {
+		if (Number(match.params.season) !== season) updateUrlFilter(match.params.seriesId, season);
+	}
+
+	function handleGetEpisodes(season) {
+		const foundSeason = seasons.find(s => s._id === Number(season));
+
+		if (foundSeason) setEpisodes(foundSeason.episodes);
+	}
+
+	async function handleGetSeasons(seriesId) {
+		setOpen(false);
+
+		const response = await getSeasons(seriesId);
+
+		if (response.status === 200) {
+			setCurrentSeries(seriesId);
+			setSeasons(response.data);
+			setPage(0);
+
+			setOpen(true);
+		}
+	}
+
+	function handleGetInfo(seriesId, season) {
+		if (season && seasons.length && currentSeries === seriesId) {
+			handleGetEpisodes(season);
+		} else {
+			handleGetSeasons(seriesId);
+		}
+	}
 
 	function handleGetPassedEpisodes() {
-		filterEpisodes("passed");
+		if (filter !== "passed") {
+			setSeasons([]);
+			setEpisodes([]);
+			setPage(0);
+			setFilter("passed");
+		}
 	}
 
 	function handleGetFutureEpisodes() {
-		filterEpisodes("future");
+		if (filter !== "future") {
+			setSeasons([]);
+			setEpisodes([]);
+			setPage(0);
+			setFilter("future");
+		}
 	}
+
+	useEffect(() => {
+		switch (match.path) {
+			case "/tv/all":
+				handleGetAll();
+				break;
+			case "/tv/:seriesId":
+				handleGetInfo(match.params.seriesId);
+				break;
+			case "/tv/:seriesId/:season":
+				handleGetInfo(match.params.seriesId, Number(match.params.season));
+				break;
+			default:
+				break;
+		}
+	}, [match.url]); // eslint-disable-line
+
+	useEffect(() => {
+		if (seasons.length) {
+			if (match.params.season) {
+				handleGetEpisodes(Number(match.params.season));
+			} else {
+				history.replace(`/tv/${match.params.seriesId}/${seasons[seasons.length - 1]._id}`);
+			}
+		} else if (filter !== "all") {
+			handleGetAll();
+		}
+	}, [seasons, filter]); // eslint-disable-line
 
 	function renderEpisodes() {
 		if (episodes && episodes.length) {
@@ -47,7 +142,7 @@ function Episodes({
 		);
 	}
 
-	function renderAllEpisodes(episodeList) {
+	function renderAllEpisodes() {
 		return (
 			<Grid container spacing={2}>
 				<Grid item sm={3} md={2}>
@@ -73,9 +168,9 @@ function Episodes({
 					</Button>
 				</Grid>
 				<Grid item xs={12}>
-					<InfiniteScroll pageStart={0} loadMore={getAll} hasMore={allHasMore}>
+					<InfiniteScroll loadMore={handleGetAll} hasMore={hasMore} loader={<Loading key={0} />}>
 						<Grid container spacing={2}>
-							{episodeList}
+							{renderEpisodes()}
 						</Grid>
 					</InfiniteScroll>
 				</Grid>
@@ -83,40 +178,29 @@ function Episodes({
 		);
 	}
 
-	function renderSeasons(episodeList) {
+	function renderSeasons() {
 		return (
 			<div>
 				<Categories
 					options={seasons}
 					idField="_id"
 					nameField="_id"
-					action={getEpisodes}
-					initialSelected={selectedSeason}
+					action={handleSeasonClick}
+					selected={Number(match.params.season)}
 				/>
 				<br />
 				<Grid container spacing={2} className={classes.episodeListContainer}>
-					{episodeList}
+					{renderEpisodes()}
 				</Grid>
 			</div>
 		);
 	}
 
-	const episodeList = renderEpisodes();
+	if (!open) return <Loading />;
 
-	if (currentSeries === "all") return renderAllEpisodes(episodeList);
+	if (match.path === "/tv/all") return renderAllEpisodes();
 
-	return renderSeasons(episodeList);
+	return renderSeasons();
 }
-
-Episodes.propTypes = {
-	currentSeries: PropTypes.string.isRequired,
-	seasons: PropTypes.array.isRequired,
-	episodes: PropTypes.array.isRequired,
-	getEpisodes: PropTypes.func.isRequired,
-	getAll: PropTypes.func.isRequired,
-	allHasMore: PropTypes.bool.isRequired,
-	filterEpisodes: PropTypes.func.isRequired,
-	selectedSeason: PropTypes.number,
-};
 
 export default Episodes;

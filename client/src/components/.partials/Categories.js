@@ -7,21 +7,18 @@ import styles from "../../styles/General";
 
 const useStyles = makeStyles(styles);
 
-function Categories({ options, initialSelected, idField, nameField, action }) {
+function Categories({ options, selected, idField, nameField, action }) {
 	const classes = useStyles();
-	const [selectedMenu, setSelectedMenu] = useState(null);
 
 	function handleClick(id) {
 		action(id);
-
-		setSelectedMenu(id);
 	}
 
 	const optionsList = options.map(option => {
 		return (
 			<ListItem
 				button
-				selected={(selectedMenu || initialSelected) === option[idField]}
+				selected={selected === option[idField]}
 				onClick={() => handleClick(option[idField])}
 				key={option[idField]}
 				id={option[idField]}
@@ -37,11 +34,10 @@ function Categories({ options, initialSelected, idField, nameField, action }) {
 
 Categories.propTypes = {
 	options: PropTypes.array.isRequired,
-	initialSelected: PropTypes.number.isRequired,
+	selected: PropTypes.number.isRequired,
 	idField: PropTypes.string.isRequired,
 	nameField: PropTypes.string.isRequired,
 	action: PropTypes.func.isRequired,
-	initialSelected: PropTypes.number.isRequired,
 };
 
 export default Categories;

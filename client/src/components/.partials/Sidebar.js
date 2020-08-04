@@ -18,15 +18,12 @@ import styles from "../../styles/General";
 
 const useStyles = makeStyles(styles);
 
-function Sidebar({ options, initialSelected, idField, action, menu, loading, noResultsMessage }) {
+function Sidebar({ options, selected, idField, action, menu, loading, noResultsMessage }) {
 	const classes = useStyles();
-	const [selectedMenu, setSelectedMenu] = useState(null);
 	const [anchorEl, setAnchorEl] = useState(null);
 
 	function handleClick(id) {
 		action(id);
-
-		setSelectedMenu(id);
 	}
 
 	function handleSetAnchorEl(e) {
@@ -47,7 +44,7 @@ function Sidebar({ options, initialSelected, idField, action, menu, loading, noR
 				return (
 					<ListItem
 						button
-						selected={(selectedMenu || initialSelected) === option[idField]}
+						selected={selected === option[idField]}
 						onClick={() => handleClick(option[idField])}
 						key={option[idField]}
 						id={option[idField]}
@@ -93,7 +90,7 @@ function Sidebar({ options, initialSelected, idField, action, menu, loading, noR
 
 Sidebar.propTypes = {
 	options: PropTypes.array.isRequired,
-	initialSelected: PropTypes.number,
+	selected: PropTypes.string,
 	idField: PropTypes.string.isRequired,
 	action: PropTypes.func.isRequired,
 	menu: PropTypes.array,

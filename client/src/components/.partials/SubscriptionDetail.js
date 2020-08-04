@@ -3,16 +3,16 @@ import PropTypes from "prop-types";
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@material-ui/core";
 
-import Input from "../.partials/Input";
+import Input from "./Input";
 
-function SeriesDetail({ open, series, editSeries, onClose }) {
+function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 	const [title, setTitle] = useState("");
 
 	useEffect(() => {
-		if (series) {
-			setTitle(series.displayName);
+		if (subscription) {
+			setTitle(subscription.displayName);
 		}
-	}, [series]); // eslint-disable-line
+	}, [subscription]); // eslint-disable-line
 
 	function handleChange(e) {
 		setTitle(e.target.value);
@@ -21,7 +21,7 @@ function SeriesDetail({ open, series, editSeries, onClose }) {
 	async function handleSubmit(e) {
 		e.preventDefault();
 
-		await editSeries(series._id, { displayName: title });
+		await editSubscription(subscription._id, { displayName: title });
 	}
 
 	return (
@@ -33,7 +33,7 @@ function SeriesDetail({ open, series, editSeries, onClose }) {
 			maxWidth="xs"
 		>
 			<form onSubmit={handleSubmit}>
-				<DialogTitle id="simple-dialog-title">{"Edit Series"}</DialogTitle>
+				<DialogTitle id="simple-dialog-title">{"Edit Subscription"}</DialogTitle>
 				<DialogContent>
 					<Input
 						id="title"
@@ -60,11 +60,11 @@ function SeriesDetail({ open, series, editSeries, onClose }) {
 	);
 }
 
-SeriesDetail.propTypes = {
+SubscriptionDetail.propTypes = {
 	open: PropTypes.bool.isRequired,
-	series: PropTypes.object,
-	editSeries: PropTypes.func.isRequired,
+	subscription: PropTypes.object,
+	editSubscription: PropTypes.func.isRequired,
 	onClose: PropTypes.func.isRequired,
 };
 
-export default SeriesDetail;
+export default SubscriptionDetail;
