@@ -25,7 +25,7 @@ function Episodes() {
 	const [filter, setFilter] = useState("all");
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
-	const [currentSerie, setCurrentSerie] = useState(null);
+	const [currentSeries, setCurrentSeries] = useState(null);
 
 	async function handleGetAll() {
 		if (!loading) {
@@ -64,7 +64,7 @@ function Episodes() {
 		const response = await getSeasons(seriesId);
 
 		if (response.status === 200) {
-			setCurrentSerie(seriesId);
+			setCurrentSeries(seriesId);
 			setSeasons(response.data);
 			setPage(0);
 
@@ -73,7 +73,7 @@ function Episodes() {
 	}
 
 	function handleGetInfo(seriesId, season) {
-		if (season && seasons.length && currentSerie === seriesId) {
+		if (season && seasons.length && currentSeries === seriesId) {
 			handleGetEpisodes(season);
 		} else {
 			handleGetSeasons(seriesId);
@@ -124,7 +124,7 @@ function Episodes() {
 		} else if (filter !== "all") {
 			handleGetAll();
 		}
-	}, [seasons.length, filter]); // eslint-disable-line
+	}, [seasons, filter]); // eslint-disable-line
 
 	function renderEpisodes() {
 		if (episodes && episodes.length) {

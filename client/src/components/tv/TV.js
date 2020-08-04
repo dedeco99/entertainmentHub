@@ -46,10 +46,24 @@ function TV() {
 		handleShowEpisodes("all");
 	}
 
+	function handleShowPopular() {
+		history.push("/tv/popular");
+
+		handleShowPopularBlock();
+	}
+
 	useEffect(() => {
 		switch (match.path) {
 			case "/tv":
 				history.replace("tv/all");
+				break;
+			case "/tv/popular":
+				handleShowPopularBlock();
+				break;
+			case "/tv/all":
+			case "/tv/:seriesId":
+			case "/tv/:seriesId/:season":
+				handleShowEpisodesBlock();
 				break;
 			default:
 				break;
@@ -64,7 +78,7 @@ function TV() {
 					{"Search"}
 				</Fab>
 				<Button
-					onClick={handleShowPopularBlock}
+					onClick={handleShowPopular}
 					className={classes.outlinedBtn}
 					color="primary"
 					variant="outlined"
