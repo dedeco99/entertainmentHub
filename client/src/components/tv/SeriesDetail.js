@@ -1,74 +1,72 @@
-import React, { Component } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import Container from "@material-ui/core/Container";
-import Button from "@material-ui/core/Button";
 
-import { translate } from "../../utils/translations";
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@material-ui/core";
 
 import Input from "../.partials/Input";
 
-class SeriesDetail extends Component {
-	constructor() {
-		super();
-		this.state = {
-			title: "",
-		};
+import { translate } from "../../utils/translations";
 
-		this.handleChange = this.handleChange.bind(this);
-		this.handleSubmit = this.handleSubmit.bind(this);
+function SeriesDetail({ open, series, editSeries, onClose }) {
+	const [title, setTitle] = useState("");
+
+	useEffect(() => {
+		if (series) {
+			setTitle(series.displayName);
+		}
+	}, [series]); // eslint-disable-line
+
+	function handleChange(e) {
+		setTitle(e.target.value);
 	}
 
-	componentDidMount() {
-		const { series } = this.props;
-
-		this.setState({ title: series.displayName });
-	}
-
-	handleChange(e) {
-		this.setState({ [e.target.id]: e.target.value });
-	}
-
-	async handleSubmit(e) {
+	async function handleSubmit(e) {
 		e.preventDefault();
-
-		const { series, editSeries } = this.props;
-		const { title } = this.state;
 
 		await editSeries(series._id, { displayName: title });
 	}
 
-	render() {
-		const { title } = this.state;
-
-		return (
-			<Container maxWidth="xs">
-				<h2>{"Series"}</h2>
-				<form onSubmit={this.handleSubmit}>
+	return (
+		<Dialog
+			aria-labelledby="alert-dialog-title"
+			aria-describedby="alert-dialog-description"
+			open={open}
+			fullWidth
+			maxWidth="xs"
+		>
+			<form onSubmit={handleSubmit}>
+				<DialogTitle id="simple-dialog-title">{"Edit Series"}</DialogTitle>
+				<DialogContent>
 					<Input
 						id="title"
 						type="text"
 						label={translate("title")}
 						value={title}
-						onChange={this.handleChange}
+						onChange={handleChange}
 						margin="normal"
 						variant="outlined"
 						fullWidth
 						required
 					/>
-					<br />
-					<br />
-					<Button type="submit" color="primary" variant="outlined" fullWidth>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={onClose} color="primary">
+						{"Close"}
+					</Button>
+					<Button type="submit" color="primary" autoFocus>
 						{translate("edit")}
 					</Button>
-				</form>
-			</Container>
-		);
-	}
+				</DialogActions>
+			</form>
+		</Dialog>
+	);
 }
 
 SeriesDetail.propTypes = {
-	series: PropTypes.object.isRequired,
+	open: PropTypes.bool.isRequired,
+	series: PropTypes.object,
 	editSeries: PropTypes.func.isRequired,
+	onClose: PropTypes.func.isRequired,
 };
 
 export default SeriesDetail;

@@ -1,12 +1,11 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
+import React from "react";
 import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { ThemeProvider, withStyles } from "@material-ui/styles";
-import { createMuiTheme } from "@material-ui/core/styles";
-import { CssBaseline } from "@material-ui/core";
 
+import { makeStyles, ThemeProvider, createMuiTheme, CssBaseline } from "@material-ui/core";
+
+import BackUpButton from "./.partials/BackUpButton";
 import SocketClient from "./.partials/SocketClient";
 import PrivateRoute from "./auth/PrivateRoute";
 import Header from "./header/Header";
@@ -27,9 +26,9 @@ import YoutubeContextProvider from "../contexts/YoutubeContext";
 import TwitchContextProvider from "../contexts/TwitchContext";
 import RedditContextProvider from "../contexts/RedditContext";
 
-import goBackUp from "../img/go_back_up.png";
-
 import styles from "../styles/General";
+
+const useStyles = makeStyles(styles);
 
 const theme = createMuiTheme({
 	palette: {
@@ -76,53 +75,10 @@ const theme = createMuiTheme({
 	},
 });
 
-class App extends Component {
-	constructor() {
-		super();
+function App() {
+	const classes = useStyles();
 
-		this.state = {
-			showGoBackUpButton: false,
-		};
-	}
-
-	componentDidMount() {
-		window.addEventListener("scroll", () => {
-			const { showGoBackUpButton } = this.state;
-
-			const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-
-			const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-
-			const scrolled = winScroll / height;
-
-			if (scrolled > 0.75 && !showGoBackUpButton) {
-				this.setState({ showGoBackUpButton: true });
-			} else if (scrolled === 0) {
-				this.setState({ showGoBackUpButton: false });
-			}
-		});
-	}
-
-	handleGoBackUp() {
-		window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
-	}
-
-	renderGoBackUpButton() {
-		const { classes } = this.props;
-		const { showGoBackUpButton } = this.state;
-
-		if (showGoBackUpButton) {
-			return (
-				<div className={classes.goBackUp} onClick={this.handleGoBackUp}>
-					<img src={goBackUp} width="50px" alt="Go Back Up" />
-				</div>
-			);
-		}
-
-		return null;
-	}
-
-	renderRoutes() {
+	function renderRoutes() {
 		return (
 			<Switch>
 				<Route exact path="/" component={Index} />
@@ -144,38 +100,29 @@ class App extends Component {
 		);
 	}
 
-	render() {
-		const { classes } = this.props;
-
-		return (
-			<ThemeProvider theme={theme}>
-				<CssBaseline />
-				<UserContextProvider>
-					<NotificationContextProvider>
-						<WidgetContextProvider>
-							<YoutubeContextProvider>
-								<TwitchContextProvider>
-									<RedditContextProvider>
-										<BrowserRouter>
-											<Header />
-											<div className={classes.main}>{this.renderRoutes()}</div>
-											{this.renderGoBackUpButton()}
-											<ToastContainer position="bottom-right" newestOnTop />
-											<SocketClient />
-										</BrowserRouter>
-									</RedditContextProvider>
-								</TwitchContextProvider>
-							</YoutubeContextProvider>
-						</WidgetContextProvider>
-					</NotificationContextProvider>
-				</UserContextProvider>
-			</ThemeProvider>
-		);
-	}
+	return (
+		<ThemeProvider theme={theme}>
+			<CssBaseline />
+			<UserContextProvider>
+				<NotificationContextProvider>
+					<WidgetContextProvider>
+						<YoutubeContextProvider>
+							<TwitchContextProvider>
+								<RedditContextProvider>
+									<BrowserRouter>
+										<Header />
+										<div className={classes.main}>{renderRoutes()}</div>
+										{<BackUpButton />}
+										<ToastContainer position="bottom-right" newestOnTop />
+										<SocketClient />
+									</BrowserRouter>
+								</RedditContextProvider>
+							</TwitchContextProvider>
+						</YoutubeContextProvider>
+					</WidgetContextProvider>
+				</NotificationContextProvider>
+			</UserContextProvider>
+		</ThemeProvider>
+	);
 }
-
-App.propTypes = {
-	classes: PropTypes.object.isRequired,
-};
-
-export default withStyles(styles)(App);
+export default App;

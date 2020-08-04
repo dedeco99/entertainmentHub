@@ -1,15 +1,6 @@
-import React, { Component } from "react";
-import PropTypes from "prop-types";
-import { withStyles } from "@material-ui/styles";
+import React, { useState, useEffect } from "react";
 
-import Tabs from "@material-ui/core/Tabs";
-import Tab from "@material-ui/core/Tab";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
-import Paper from "@material-ui/core/Paper";
-import Zoom from "@material-ui/core/Zoom";
-import Typography from "@material-ui/core/Typography";
-import Box from "@material-ui/core/Box";
+import { makeStyles, Zoom, Tabs, Tab, List, ListItem, Paper, Typography, Box } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
 import CustomScrollbar from "../.partials/CustomScrollbar";
@@ -19,55 +10,38 @@ import { formatDate } from "../../utils/utils";
 
 import { tv as styles } from "../../styles/Widgets";
 
-class TV extends Component {
-	constructor() {
-		super();
-		this.state = {
-			tabIndex: 0,
-			open: false,
-			allEpisodes: [],
-			popular: [],
-			future: [],
-			entered: false,
-		};
+const useStyles = makeStyles(styles);
 
-		this.handleChange = this.handleChange.bind(this);
-		this.handleChangeIndex = this.handleChangeIndex.bind(this);
-		this.handleEntered = this.handleEntered.bind(this);
-		this.handleExit = this.handleExit.bind(this);
+function TV() {
+	const classes = useStyles();
+	const [tabIndex, setTabIndex] = useState(0);
+	const [allEpisodes, setAllEpisodes] = useState([]);
+	const [popular, setPopular] = useState([]);
+	const [future, setFuture] = useState([]);
+	const [open, setOpen] = useState(false);
+
+	useEffect(() => {
+		async function fetchData() {
+			const response = await Promise.all([
+				getSeasons("all", 0, "passed"),
+				getPopular(0),
+				getSeasons("all", 0, "future"),
+			]);
+
+			setAllEpisodes(response[0].data);
+			setPopular(response[1].data);
+			setFuture(response[2].data);
+			setOpen(true);
+		}
+
+		fetchData();
+	}, []); // eslint-disable-line
+
+	function handleChange(event, newValue) {
+		setTabIndex(newValue);
 	}
 
-	async componentDidMount() {
-		await this.getTV();
-	}
-
-	async getTV() {
-		const response = await Promise.all([
-			getSeasons("all", 0, "passed"),
-			getPopular(0),
-			getSeasons("all", 0, "future"),
-		]);
-
-		this.setState({
-			open: true,
-			allEpisodes: response[0].data,
-			popular: response[1].data,
-			future: response[2].data,
-		});
-	}
-
-	handleChange(event, newValue) {
-		this.setState({ tabIndex: newValue });
-	}
-
-	handleChangeIndex(index) {
-		this.setState({ tabIndex: index });
-	}
-
-	renderPopularList() {
-		const { classes } = this.props;
-		const { popular } = this.state;
-
+	function renderPopularList() {
 		const popularList = popular.map(serie => (
 			<ListItem key={serie.id} button divider>
 				<img src={serie.image} height="100x" alt="Series" />
@@ -84,9 +58,7 @@ class TV extends Component {
 		);
 	}
 
-	renderEpisodeList(episodes) {
-		const { classes } = this.props;
-
+	function renderEpisodeList(episodes) {
 		const episodeList = episodes.map(episode => {
 			const seasonLabel = episode.season > 9 ? `S${episode.season}` : `S0${episode.season}`;
 			const episodeLabel = episode.number > 9 ? `E${episode.number}` : `E0${episode.number}`;
@@ -113,66 +85,49 @@ class TV extends Component {
 		);
 	}
 
-	a11yTabProps(index) {
+	function a11yTabProps(index) {
 		return {
 			id: `tvwidget-tab-${index}`,
 			"aria-controls": `tvwidget-tabpanel-${index}`,
 		};
 	}
 
-	a11yTabPanelProps(index) {
+	function a11yTabPanelProps(index) {
 		return {
 			id: `tvwidget-tabpanel-${index}`,
 			"aria-labelledby": `tvwidget-tab-${index}`,
 		};
 	}
 
-	handleEntered() {
-		this.setState({ entered: true });
-	}
+	if (!open) return <Loading />;
 
-	handleExit() {
-		this.setState({ entered: false });
-	}
-
-	render() {
-		const { tabIndex, open, allEpisodes, future, entered } = this.state;
-		const { classes } = this.props;
-
-		if (!open) return <Loading />;
-
-		return (
-			<Zoom in={open} onEntered={this.handleEntered} onExit={this.handleExit}>
-				<div className={classes.root}>
-					<Paper square>
-						<Tabs
-							value={entered ? tabIndex : false}
-							onChange={this.handleChange}
-							variant="fullWidth"
-							classes={{ indicator: classes.indicator }}
-						>
-							<Tab label="All" className={classes.tab} {...this.a11yTabProps(0)} />
-							<Tab label="Popular" className={classes.tab} {...this.a11yTabProps(1)} />
-							<Tab label="Future" className={classes.tab} {...this.a11yTabProps(2)} />
-						</Tabs>
-					</Paper>
-					<div role="tabpanel" hidden={tabIndex !== 0} className={classes.tabPanel} {...this.a11yTabPanelProps(0)}>
-						{tabIndex === 0 && this.renderEpisodeList(allEpisodes)}
-					</div>
-					<div role="tabpanel" hidden={tabIndex !== 1} className={classes.tabPanel} {...this.a11yTabPanelProps(1)}>
-						{tabIndex === 1 && this.renderPopularList()}
-					</div>
-					<div role="tabpanel" hidden={tabIndex !== 2} className={classes.tabPanel} {...this.a11yTabPanelProps(2)}>
-						{tabIndex === 2 && this.renderEpisodeList(future)}
-					</div>
+	return (
+		<Zoom in={open}>
+			<div className={classes.root}>
+				<Paper square>
+					<Tabs
+						value={tabIndex}
+						onChange={handleChange}
+						variant="fullWidth"
+						classes={{ indicator: classes.indicator }}
+					>
+						<Tab label="All" className={classes.tab} {...a11yTabProps(0)} />
+						<Tab label="Popular" className={classes.tab} {...a11yTabProps(1)} />
+						<Tab label="Future" className={classes.tab} {...a11yTabProps(2)} />
+					</Tabs>
+				</Paper>
+				<div role="tabpanel" hidden={tabIndex !== 0} className={classes.tabPanel} {...a11yTabPanelProps(0)}>
+					{tabIndex === 0 && renderEpisodeList(allEpisodes)}
 				</div>
-			</Zoom>
-		);
-	}
+				<div role="tabpanel" hidden={tabIndex !== 1} className={classes.tabPanel} {...a11yTabPanelProps(1)}>
+					{tabIndex === 1 && renderPopularList()}
+				</div>
+				<div role="tabpanel" hidden={tabIndex !== 2} className={classes.tabPanel} {...a11yTabPanelProps(2)}>
+					{tabIndex === 2 && renderEpisodeList(future)}
+				</div>
+			</div>
+		</Zoom>
+	);
 }
 
-TV.propTypes = {
-	classes: PropTypes.object.isRequired,
-};
-
-export default withStyles(styles)(TV);
+export default TV;

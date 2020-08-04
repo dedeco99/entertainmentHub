@@ -55,13 +55,13 @@ async function addWidget(event) {
 async function editWidget(event) {
 	const { params, body } = event;
 	const { id } = params;
-	const { x, y, width, height } = body;
+	const { info, x, y, width, height } = body;
 
 	const widgetExists = await Widget.findOne({ _id: id }).lean();
 
 	if (!widgetExists) return response(404, "Widget doesn't exist");
 
-	const widget = await Widget.findOneAndUpdate({ _id: id }, { x, y, width, height }, { new: true }).lean();
+	const widget = await Widget.findOneAndUpdate({ _id: id }, { info, x, y, width, height }, { new: true }).lean();
 
 	return response(200, "EDIT_WIDGET", widget);
 }

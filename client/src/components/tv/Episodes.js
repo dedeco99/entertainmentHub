@@ -1,9 +1,8 @@
-import React, { Component } from "react";
-import { withStyles } from "@material-ui/styles";
+import React from "react";
 import PropTypes from "prop-types";
-import Grid from "@material-ui/core/Grid";
-import Button from "@material-ui/core/Button";
 import InfiniteScroll from "react-infinite-scroller";
+
+import { makeStyles, Grid, Button } from "@material-ui/core";
 
 import Categories from "../.partials/Categories";
 import Episode from "./Episode";
@@ -12,58 +11,50 @@ import { translate } from "../../utils/translations";
 
 import { episodes as styles } from "../../styles/TV";
 
-class Episodes extends Component {
-	constructor() {
-		super();
+const useStyles = makeStyles(styles);
 
-		this.handleGetPassedEpisodes = this.handleGetPassedEpisodes.bind(this);
-		this.handleGetFutureEpisodes = this.handleGetFutureEpisodes.bind(this);
-	}
+function Episodes({
+	currentSeries,
+	seasons,
+	episodes,
+	getEpisodes,
+	getAll,
+	allHasMore,
+	filterEpisodes,
+	selectedSeason,
+}) {
+	const classes = useStyles();
 
-	handleGetPassedEpisodes() {
-		const { filterEpisodes } = this.props;
-
+	function handleGetPassedEpisodes() {
 		filterEpisodes("passed");
 	}
 
-	handleGetFutureEpisodes() {
-		const { filterEpisodes } = this.props;
-
+	function handleGetFutureEpisodes() {
 		filterEpisodes("future");
 	}
 
-	renderEpisodes() {
-		const { classes, episodes } = this.props;
-
+	function renderEpisodes() {
 		if (episodes && episodes.length) {
 			return episodes.map(episode => (
-				<Grid
-					item xs={12} sm={6} md={4} lg={3} xl={2}
-					key={episode._id}
-				>
+				<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={episode._id}>
 					<Episode episode={episode} />
 				</Grid>
 			));
 		}
 
 		return (
-			<Grid
-				item xs={12}
-				key={1}
-			>
+			<Grid item xs={12} key={1}>
 				<div className={classes.noEpisodes}>{"No episodes"}</div>
 			</Grid>
 		);
 	}
 
-	renderAllEpisodes(episodeList) {
-		const { classes, getAll, allHasMore } = this.props;
-
+	function renderAllEpisodes(episodeList) {
 		return (
 			<Grid container spacing={2}>
 				<Grid item sm={3} md={2}>
 					<Button
-						onClick={this.handleGetPassedEpisodes}
+						onClick={handleGetPassedEpisodes}
 						className={classes.episodesBtn}
 						color="primary"
 						variant="outlined"
@@ -74,7 +65,7 @@ class Episodes extends Component {
 				</Grid>
 				<Grid item sm={3} md={2}>
 					<Button
-						onClick={this.handleGetFutureEpisodes}
+						onClick={handleGetFutureEpisodes}
 						className={classes.episodesBtn}
 						color="primary"
 						variant="outlined"
@@ -84,11 +75,7 @@ class Episodes extends Component {
 					</Button>
 				</Grid>
 				<Grid item xs={12}>
-					<InfiniteScroll
-						pageStart={0}
-						loadMore={getAll}
-						hasMore={allHasMore}
-					>
+					<InfiniteScroll pageStart={0} loadMore={getAll} hasMore={allHasMore}>
 						<Grid container spacing={2}>
 							{episodeList}
 						</Grid>
@@ -98,9 +85,7 @@ class Episodes extends Component {
 		);
 	}
 
-	renderSeasons(episodeList) {
-		const { classes, seasons, getEpisodes, selectedSeason } = this.props;
-
+	function renderSeasons(episodeList) {
 		return (
 			<div>
 				<Categories
@@ -118,18 +103,14 @@ class Episodes extends Component {
 		);
 	}
 
-	render() {
-		const { currentSeries } = this.props;
-		const episodeList = this.renderEpisodes();
+	const episodeList = renderEpisodes();
 
-		if (currentSeries === "all") return this.renderAllEpisodes(episodeList);
+	if (currentSeries === "all") return renderAllEpisodes(episodeList);
 
-		return this.renderSeasons(episodeList);
-	}
+	return renderSeasons(episodeList);
 }
 
 Episodes.propTypes = {
-	classes: PropTypes.object.isRequired,
 	currentSeries: PropTypes.string.isRequired,
 	seasons: PropTypes.array.isRequired,
 	episodes: PropTypes.array.isRequired,
@@ -140,4 +121,4 @@ Episodes.propTypes = {
 	selectedSeason: PropTypes.number,
 };
 
-export default withStyles(styles)(Episodes);
+export default Episodes;

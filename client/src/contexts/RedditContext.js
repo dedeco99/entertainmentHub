@@ -7,8 +7,8 @@ export const RedditContext = createContext();
 
 const RedditContextProvider = ({ children }) => {
 	const initState = {
+		follows: [],
 		subscriptions: [],
-		channels: [],
 		feeds: [],
 	};
 

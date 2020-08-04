@@ -1,95 +1,74 @@
-import React, { Component } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
-import InputAdornment from "@material-ui/core/InputAdornment";
+
+import { InputAdornment } from "@material-ui/core";
+
+import Input from "../.partials/Input";
+import Loading from "../.partials/Loading";
+import Banners from "./Banners";
 
 import { getSearch } from "../../api/tv";
 
-import Input from "../.partials/Input";
-import Banners from "./Banners";
-
 import { translate } from "../../utils/translations";
 
-import loadingGif from "../../img/loading3.gif";
+function Search({ allSeries, addSeries }) {
+	const [search, setSearch] = useState([]);
+	const [query, setQuery] = useState("");
+	const [page, setPage] = useState(0);
+	const [hasMore, setHasMore] = useState(false);
+	const [loading, setLoading] = useState(false);
 
-class Search extends Component {
-	constructor() {
-		super();
-		this.state = {
-			search: [],
-			query: "",
-			page: 0,
-			hasMore: false,
-			loading: false,
-		};
-
-		this.getSearch = this.getSearch.bind(this);
-		this.handleSearch = this.handleSearch.bind(this);
-		this.handleSubmit = this.handleSubmit.bind(this);
-	}
-
-	async getSearch() {
-		const { search, query, page, loading } = this.state;
-
+	async function handleGetSearch() {
 		if (!loading) {
-			this.setState({ loading: true });
+			setLoading(true);
 
 			const response = await getSearch(query, page);
 
 			const newSearch = page === 0 ? response.data : search.concat(response.data);
 
-			this.setState({
-				search: newSearch,
-				page: page + 1,
-				hasMore: !(response.data.length < 20),
-				loading: false,
-			});
+			setSearch(newSearch);
+			setPage(page + 1);
+			setHasMore(!(response.data.length < 20));
+			setLoading(false);
 		}
 	}
 
-	handleSearch(e) {
-		this.setState({ query: e.target.value, page: 0 });
+	function handleSearch(e) {
+		setQuery(e.target.value);
+		setPage(0);
 	}
 
-	handleSubmit(e) {
+	function handleSubmit(e) {
 		e.preventDefault();
 
-		this.getSearch();
+		handleGetSearch();
 	}
 
-	render() {
-		const { allSeries, addSeries } = this.props;
-		const { search, query, hasMore, loading } = this.state;
-
-		return (
-			<div>
-				<form onSubmit={this.handleSubmit}>
-					<Input
-						id="search"
-						label={translate("search")}
-						value={query}
-						onChange={this.handleSearch}
-						InputProps={{
-							endAdornment: (
-								<InputAdornment position="end">
-									{loading ? <img src={loadingGif} height="25px" alt="Loading..." /> : <div />}
-								</InputAdornment>
-							),
-						}}
-						margin="normal"
-						variant="outlined"
-						fullWidth
-					/>
-				</form>
-				<Banners
-					series={search}
-					getMore={this.getSearch}
-					hasMore={hasMore}
-					allSeries={allSeries}
-					addSeries={addSeries}
+	return (
+		<div>
+			<form onSubmit={handleSubmit}>
+				<Input
+					id="search"
+					label={translate("search")}
+					value={query}
+					onChange={handleSearch}
+					InputProps={{
+						endAdornment: <InputAdornment position="end">{loading && <Loading />}</InputAdornment>,
+					}}
+					margin="normal"
+					variant="outlined"
+					fullWidth
 				/>
-			</div>
-		);
-	}
+			</form>
+			<Banners
+				series={search}
+				getMore={handleGetSearch}
+				hasMore={hasMore}
+				allSeries={allSeries}
+				addSeries={addSeries}
+			/>
+		</div>
+	);
 }
 
 Search.propTypes = {

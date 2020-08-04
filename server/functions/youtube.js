@@ -7,7 +7,7 @@ const { diff } = require("../utils/utils");
 const { addNotifications } = require("./notifications");
 
 const App = require("../models/app");
-const Channel = require("../models/channel");
+const Subscription = require("../models/subscription");
 
 async function getAccessToken(user) {
 	const app = await App.findOne({ user: user._id, platform: "youtube" }).lean();
@@ -73,9 +73,9 @@ async function getSubscriptions(event) {
 	const json = res.data;
 
 	const channels = json.items.map(channel => ({
-		channelId: channel.snippet.resourceId.channelId,
+		externalId: channel.snippet.resourceId.channelId,
 		displayName: channel.snippet.title,
-		logo: channel.snippet.thumbnails.default.url,
+		image: channel.snippet.thumbnails.default.url,
 		after: json.nextPageToken,
 	}));
 
@@ -160,11 +160,11 @@ async function addToWatchLater(event) {
 }
 
 async function cronjob() {
-	const channels = await Channel.aggregate([
+	const subscriptions = await Subscription.aggregate([
 		{ $match: { platform: "youtube" } },
 		{
 			$group: {
-				_id: "$channelId",
+				_id: "$externalId",
 				displayName: { $first: "$displayName" },
 				users: { $push: "$user" },
 			},
@@ -173,8 +173,8 @@ async function cronjob() {
 	]);
 
 	const requests = [];
-	for (const channel of channels) {
-		const request = rssParser.toJson(`https://www.youtube.com/feeds/videos.xml?channel_id=${channel._id}`);
+	for (const subscription of subscriptions) {
+		const request = rssParser.toJson(`https://www.youtube.com/feeds/videos.xml?channel_id=${subscription._id}`);
 
 		requests.push(request);
 	}
@@ -191,11 +191,11 @@ async function cronjob() {
 	const notificationsToAdd = [];
 	for (const video of items) {
 		const notifications = [];
-		const channel = channels.find(c => c._id === video.yt_channelId);
+		const subscription = subscriptions.find(c => c._id === video.yt_channelId);
 		const videoDurationItem = videoDurationItems.find(v => v.id === video.yt_videoId);
 
-		if (channel) {
-			for (const user of channel.users) {
+		if (subscription) {
+			for (const user of subscription.users) {
 				notifications.push({
 					dateToSend: video.published,
 					sent: true,

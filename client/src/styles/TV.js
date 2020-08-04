@@ -1,6 +1,4 @@
-import { makeStyles } from "@material-ui/styles";
-
-const tv = () => ({
+const tv = {
 	searchBtn: {
 		width: "100% !important",
 	},
@@ -8,9 +6,9 @@ const tv = () => ({
 		marginTop: 10,
 		marginBottom: 10,
 	},
-});
+};
 
-const episodes = () => ({
+const episodes = {
 	episodeListContainer: {
 		width: "100%",
 	},
@@ -21,9 +19,9 @@ const episodes = () => ({
 	noEpisodes: {
 		textAlign: "center",
 	},
-});
+};
 
-const episode = () => ({
+const episode = {
 	overlay: {
 		position: "absolute",
 		color: "white",
@@ -47,9 +45,9 @@ const episode = () => ({
 		bottom: "5px",
 		left: "5px",
 	},
-});
+};
 
-const banners = makeStyles({
+const banners = {
 	addSeriesContainer: {
 		position: "relative",
 		display: "inline-block",
@@ -62,11 +60,6 @@ const banners = makeStyles({
 		margin: "0px -25px -15px 0px",
 		cursor: "pointer",
 	},
-});
-
-export {
-	tv,
-	episodes,
-	episode,
-	banners,
 };
+
+export { tv, episodes, episode, banners };

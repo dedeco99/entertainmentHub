@@ -1,39 +1,39 @@
 export const redditReducer = (state, action) => {
-	let { subscriptions, channels, feeds } = state;
+	let { follows, subscriptions, feeds } = state;
 
 	switch (action.type) {
+		case "SET_FOLLOWS":
+			follows = action.follows.filter(f => !subscriptions.map(s => s.externalId).includes(f.externalId));
+
+			return { ...state, follows };
+		case "ADD_FOLLOW":
+			follows.push(action.follow);
+
+			return { ...state, follows };
+		case "DELETE_FOLLOW":
+			follows = follows.filter(f => f._id !== action.follow._id);
+
+			return { ...state, follows };
 		case "SET_SUBSCRIPTIONS":
-			subscriptions = action.subscriptions.filter(s => !channels.map(c => c.channelId).includes(s.channelId));
+			follows = follows.filter(f => subscriptions.map(s => s.externalId).includes(f.externalId));
 
-			return { ...state, subscriptions };
+			return { ...state, follows, subscriptions: action.subscriptions };
 		case "ADD_SUBSCRIPTION":
-			subscriptions.push(action.subscription);
+			subscriptions = [...subscriptions, ...action.subscription].sort((a, b) =>
+				a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1,
+			);
 
-			return { ...state, subscriptions };
+			follows = follows.filter(f => !subscriptions.map(s => s.externalId).includes(f.externalId));
+
+			return { ...state, follows, subscriptions };
 		case "DELETE_SUBSCRIPTION":
 			subscriptions = subscriptions.filter(s => s._id !== action.subscription._id);
 
-			return { ...state, subscriptions };
-		case "SET_CHANNELS":
-			subscriptions = subscriptions.filter(s => channels.map(c => c.channelId).includes(s.channelId));
-
-			return { ...state, subscriptions, channels: action.channels };
-		case "ADD_CHANNEL":
-			channels = [...channels, ...action.channel].sort((a, b) =>
+			follows = [...follows, action.subscription].sort((a, b) =>
 				a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1,
 			);
 
-			subscriptions = subscriptions.filter(s => !channels.map(c => c.channelId).includes(s.channelId));
-
-			return { ...state, subscriptions, channels };
-		case "DELETE_CHANNEL":
-			channels = channels.filter(c => c._id !== action.channel._id);
-
-			subscriptions = [...subscriptions, action.channel].sort((a, b) =>
-				a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1,
-			);
-
-			return { ...state, subscriptions, channels };
+			return { ...state, follows, subscriptions };
 		case "SET_FEEDS":
 			return { ...state, feeds: action.feeds };
 		case "ADD_FEED":

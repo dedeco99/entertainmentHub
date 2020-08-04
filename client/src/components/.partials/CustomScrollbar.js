@@ -1,30 +1,19 @@
-import React, { Component } from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { Scrollbars } from "react-custom-scrollbars";
 
 import { UserContext } from "../../contexts/UserContext";
 
-class CustomScrollbar extends Component {
-	constructor() {
-		super();
-		this.state = {
-			useCustom: true,
-		};
-	}
+function CustomScrollbar({ children }) {
+	const { user } = useContext(UserContext);
 
-	componentDidMount() {
-		const { user } = this.context;
-
-		this.setState({ useCustom: user.settings ? user.settings.useCustomScrollbar : false })
-	}
-
-	renderThumb({ style, ...props }) {
+	function renderThumb({ style, ...props }) {
 		const thumbStyle = { backgroundColor: "#212121", width: 8 };
 
 		return <div style={{ ...style, ...thumbStyle }} {...props} />;
 	}
 
-	renderTrack({ style, ...props }) {
+	function renderTrack({ style, ...props }) {
 		const trackStyle = {
 			top: 0,
 			right: 0,
@@ -38,24 +27,14 @@ class CustomScrollbar extends Component {
 		return <div style={{ ...style, ...trackStyle }} {...props} />;
 	}
 
-	render() {
-		const { useCustom } = this.state;
-		const { children } = this.props;
+	if (!user.settings || !user.settings.useCustomScrollbar) return <div style={{ width: "100%" }}>{children}</div>;
 
-		if (!useCustom) return <div style={{ width: "100%" }}>{children}</div>;
-
-		return (
-			<Scrollbars
-				renderThumbVertical={this.renderThumb}
-				renderTrackVertical={this.renderTrack}
-			>
-				{children}
-			</Scrollbars>
-		);
-	}
+	return (
+		<Scrollbars renderThumbVertical={renderThumb} renderTrackVertical={renderTrack}>
+			{children}
+		</Scrollbars>
+	);
 }
-
-CustomScrollbar.contextType = UserContext;
 
 CustomScrollbar.propTypes = {
 	children: PropTypes.node.isRequired,

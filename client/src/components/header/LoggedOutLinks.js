@@ -1,16 +1,21 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
-import Button from "@material-ui/core/Button";
+import { Link } from "react-router-dom";
+
+import { Button } from "@material-ui/core";
 
 function LoggedOutLinks() {
 	return (
 		<div>
-			<NavLink to="/register" style={{ marginRight: 20 }}>
-				<Button color="primary" variant="outlined">{"Register"}</Button>
-			</NavLink>
-			<NavLink to="/login">
-				<Button color="primary" variant="outlined">{"Login"}</Button>
-			</NavLink>
+			<Link to="/register" style={{ marginRight: 20 }}>
+				<Button color="primary" variant="outlined">
+					{"Register"}
+				</Button>
+			</Link>
+			<Link to="/login">
+				<Button color="primary" variant="outlined">
+					{"Login"}
+				</Button>
+			</Link>
 		</div>
 	);
 }

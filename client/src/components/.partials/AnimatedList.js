@@ -1,9 +1,10 @@
 import React, { useContext } from "react";
+import PropTypes from "prop-types";
 import { motion } from "framer-motion";
 
-import { UserContext } from "../../contexts/UserContext";
+import { List } from "@material-ui/core";
 
-import List from "@material-ui/core/List";
+import { UserContext } from "../../contexts/UserContext";
 
 const containerVariants = {
 	hidden: {
@@ -33,23 +34,26 @@ const childVariants = {
 
 function AnimatedList({ children }) {
 	const { user } = useContext(UserContext);
-	
-	if(user.settings && !user.settings.animations) {
-		return (
-			<List>
-				{children}
-			</List>
-		);
+
+	if (user.settings && !user.settings.animations) {
+		return <List>{children}</List>;
 	}
 
 	return (
 		<List>
 			<motion.div variants={containerVariants} initial="hidden" animate="visible">
-				{children.map(child => <motion.div key={child.key} variants={childVariants}>{child}</motion.div>)}
+				{children.map(child => (
+					<motion.div key={child.key} variants={childVariants}>
+						{child}
+					</motion.div>
+				))}
 			</motion.div>
 		</List>
 	);
-	
 }
+
+AnimatedList.propTypes = {
+	children: PropTypes.node.isRequired,
+};
 
 export default AnimatedList;

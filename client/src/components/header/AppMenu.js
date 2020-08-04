@@ -1,20 +1,20 @@
 import React, { useState, useContext, useEffect } from "react";
-import PropTypes from "prop-types";
-import { Link } from "react-router-dom";
-import { withRouter } from "react-router";
+import { Link, useHistory, useLocation } from "react-router-dom";
 
-import { withStyles } from "@material-ui/styles";
-import List from "@material-ui/core/List";
-import ListItem from "@material-ui/core/ListItem";
+import { makeStyles, List, ListItem, Typography } from "@material-ui/core";
 
 import { UserContext } from "../../contexts/UserContext";
 
 import { getApps } from "../../api/apps";
 
 import { appMenu as styles } from "../../styles/Header";
-import { Typography } from "@material-ui/core";
 
-function AppMenu({ classes, location }) {
+const useStyles = makeStyles(styles);
+
+function AppMenu() {
+	const history = useHistory();
+	const location = useLocation();
+	const classes = useStyles();
 	const { user, dispatch } = useContext(UserContext);
 	const [apps, setApps] = useState([]);
 	const [selectedMenu, setSelectedMenu] = useState(null);
@@ -26,28 +26,35 @@ function AppMenu({ classes, location }) {
 		{ platform: "tv", name: "TV Series", icon: "icofont-monitor icofont-2x", endpoint: "/tv" },
 	];
 
-	async function getAppsCall() {
-		const redirected = localStorage.getItem("redirected");
-
-		const response = await getApps();
-
-		if (response.data && response.data.length) {
-			const userApps = allApps.filter(app => response.data.find(appR => appR.platform === app.platform));
-			dispatch({ type: "SET_APPS", apps: response.data });
-			setApps(userApps);
-		} else if (!redirected) {
-			localStorage.setItem("redirected", true);
-			window.location.replace("/settings");
-		}
-	}
-
 	useEffect(() => {
 		async function fetchData() {
-			if (user && user.token) await getAppsCall();
+			if (user && user.token) {
+				const redirected = localStorage.getItem("redirected");
+
+				const response = await getApps();
+
+				if (response.status === 200) {
+					const userApps = allApps.filter(app => response.data.find(appR => appR.platform === app.platform));
+					setApps(userApps);
+
+					dispatch({ type: "SET_APPS", apps: response.data });
+				} else if (!redirected) {
+					localStorage.setItem("redirected", true);
+
+					history.push("/settings");
+				}
+			}
 		}
 
 		fetchData();
 	}, []); // eslint-disable-line
+
+	useEffect(() => {
+		if (!user.apps) return;
+
+		const userApps = allApps.filter(app => user.apps.find(appR => appR.platform === app.platform));
+		setApps(userApps);
+	}, [user]); // eslint-disable-line
 
 	useEffect(() => {
 		const currentApp = allApps.find(app => app.endpoint === location.pathname);
@@ -67,7 +74,7 @@ function AppMenu({ classes, location }) {
 				<Typography color="textPrimary">
 					<i className={app.icon} />
 				</Typography>
-			</ListItem >
+			</ListItem>
 		));
 	}
 
@@ -77,7 +84,7 @@ function AppMenu({ classes, location }) {
 		return (
 			<ListItem button className={classes.appItem} component={Link} to="/settings/apps">
 				<i className="icofont-plus-circle icofont-2x" />
-			</ListItem >
+			</ListItem>
 		);
 	}
 
@@ -94,10 +101,4 @@ function AppMenu({ classes, location }) {
 
 	return <div />;
 }
-
-AppMenu.propTypes = {
-	classes: PropTypes.object.isRequired,
-	location: PropTypes.object.isRequired,
-};
-
-export default withRouter(withStyles(styles)(AppMenu));
+export default AppMenu;
