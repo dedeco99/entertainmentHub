@@ -25,6 +25,7 @@ function Episodes() {
 	const [filter, setFilter] = useState("all");
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
+	const [currentSerie, setCurrentSerie] = useState(null);
 
 	async function handleGetAll() {
 		if (!loading) {
@@ -63,6 +64,7 @@ function Episodes() {
 		const response = await getSeasons(seriesId);
 
 		if (response.status === 200) {
+			setCurrentSerie(seriesId);
 			setSeasons(response.data);
 			setPage(0);
 
@@ -71,7 +73,7 @@ function Episodes() {
 	}
 
 	function handleGetInfo(seriesId, season) {
-		if (season && seasons.length) {
+		if (season && seasons.length && currentSerie === seriesId) {
 			handleGetEpisodes(season);
 		} else {
 			handleGetSeasons(seriesId);

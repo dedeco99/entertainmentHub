@@ -35,9 +35,11 @@ function TV() {
 	}
 
 	function handleShowEpisodes(id) {
-		history.push(`/tv/${id}`);
+		if (match.params.seriesId !== id) {
+			history.push(`/tv/${id}`);
 
-		handleShowEpisodesBlock();
+			handleShowEpisodesBlock();
+		}
 	}
 
 	function handleShowAll() {
