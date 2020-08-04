@@ -37,7 +37,7 @@ function Banners({ series, getMore, hasMore }) {
 	}
 
 	function renderAddIcon(s) {
-		const seriesIds = subscriptions.map(us => us.seriesId);
+		const seriesIds = subscriptions.map(us => us.externalId);
 
 		if (loading) {
 			return (

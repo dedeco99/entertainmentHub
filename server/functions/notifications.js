@@ -3,7 +3,7 @@ const errors = require("../utils/errors");
 
 const Notification = require("../models/notification");
 const ScheduledNotification = require("../models/scheduledNotification");
-const Series = require("../models/series");
+const Subscription = require("../models/subscription");
 
 async function getNotifications(event) {
 	const { query, user } = event;
@@ -37,11 +37,7 @@ async function patchNotification(event) {
 
 	let notification = null;
 	try {
-		notification = await Notification.findOneAndUpdate(
-			{ _id: id },
-			{ active },
-			{ new: true },
-		);
+		notification = await Notification.findOneAndUpdate({ _id: id }, { active }, { new: true });
 	} catch (e) {
 		return errors.notFound;
 	}
@@ -124,16 +120,18 @@ async function cronjob() {
 
 		switch (type) {
 			case "tv":
-				const userSeries = await Series.find({ seriesId: info.seriesId }).lean();
+				const userSeries = await Subscription.find({ platform: "tv", externalId: info.seriesId }).lean();
 
 				for (const series of userSeries) {
-					notifications.push(new Notification({
-						dateToSend,
-						notificationId: `${series.user}${notificationId}`,
-						user: series.user,
-						type,
-						info: { ...info, displayName: series.displayName },
-					}));
+					notifications.push(
+						new Notification({
+							dateToSend,
+							notificationId: `${series.user}${notificationId}`,
+							user: series.user,
+							type,
+							info: { ...info, displayName: series.displayName },
+						}),
+					);
 				}
 
 				break;
@@ -144,10 +142,7 @@ async function cronjob() {
 
 	await addNotifications(notifications);
 
-	await ScheduledNotification.updateMany(
-		{ sent: false, dateToSend: { $lte: Date.now() } },
-		{ sent: true },
-	).lean();
+	await ScheduledNotification.updateMany({ sent: false, dateToSend: { $lte: Date.now() } }, { sent: true }).lean();
 }
 
 module.exports = {

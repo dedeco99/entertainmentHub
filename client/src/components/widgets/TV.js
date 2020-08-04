@@ -43,7 +43,7 @@ function TV() {
 
 	function renderPopularList() {
 		const popularList = popular.map(serie => (
-			<ListItem key={serie.id} button divider>
+			<ListItem key={serie.externalId} button divider>
 				<img src={serie.image} height="100x" alt="Series" />
 				<Typography variant="body1" className={classes.popularText}>
 					{serie.displayName}

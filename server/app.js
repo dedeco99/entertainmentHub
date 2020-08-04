@@ -126,8 +126,6 @@ app.get("/api/twitch/games/:game", token, (req, res) => middleware(req, res, twi
 app.get("/api/twitch/channels/", token, (req, res) => middleware(req, res, twitch.getChannels));
 */
 
-app.get("/api/tv", token, (req, res) => middleware(req, res, tv.getSeries));
-
 app.get("/api/tv/search/:search", token, (req, res) => middleware(req, res, tv.getSearch));
 
 app.get("/api/tv/popular", token, (req, res) => middleware(req, res, tv.getPopular));

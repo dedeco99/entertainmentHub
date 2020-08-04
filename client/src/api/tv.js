@@ -1,14 +1,5 @@
 import { api } from "../utils/request";
 
-async function getSeries() {
-	const res = await api({
-		method: "get",
-		url: "/api/tv",
-	});
-
-	return res;
-}
-
 async function getSeasons(series, page, filter) {
 	let query = "";
 	query += page >= 0 ? `?page=${page}` : "";
@@ -40,4 +31,4 @@ async function getSearch(search, page) {
 	return res;
 }
 
-export { getSeries, getSeasons, getPopular, getSearch };
+export { getSeasons, getPopular, getSearch };

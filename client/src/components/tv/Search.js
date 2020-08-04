@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 
 import { InputAdornment } from "@material-ui/core";
 
@@ -6,10 +6,13 @@ import Input from "../.partials/Input";
 import Loading from "../.partials/Loading";
 import Banners from "./Banners";
 
+import { TVContext } from "../../contexts/TVContext";
+
 import { getSearch } from "../../api/tv";
 
 function Search() {
-	const [search, setSearch] = useState([]);
+	const { state, dispatch } = useContext(TVContext);
+	const { follows } = state;
 	const [query, setQuery] = useState("");
 	const [page, setPage] = useState(0);
 	const [hasMore, setHasMore] = useState(false);
@@ -21,9 +24,10 @@ function Search() {
 
 			const response = await getSearch(query, page);
 
-			const newSearch = page === 0 ? response.data : search.concat(response.data);
+			const newSearch = page === 0 ? response.data : follows.concat(response.data);
 
-			setSearch(newSearch);
+			dispatch({ type: "SET_FOLLOWS", follows: newSearch });
+
 			setPage(page + 1);
 			setHasMore(!(response.data.length < 20));
 			setLoading(false);
@@ -57,7 +61,7 @@ function Search() {
 					fullWidth
 				/>
 			</form>
-			<Banners series={search} getMore={handleGetSearch} hasMore={hasMore} />
+			<Banners series={follows} getMore={handleGetSearch} hasMore={hasMore} />
 		</div>
 	);
 }

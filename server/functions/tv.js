@@ -1,10 +1,9 @@
 const { response, api } = require("../utils/request");
-const errors = require("../utils/errors");
 const { toObjectId, diff } = require("../utils/utils");
 
 const { scheduleNotifications } = require("./notifications");
 
-const Series = require("../models/series");
+const Subscription = require("../models/subscription");
 const Episode = require("../models/episode");
 
 // eslint-disable-next-line complexity
@@ -108,10 +107,11 @@ async function fetchEpisodes(series) {
 }
 
 async function cronjob() {
-	const seriesList = await Series.aggregate([
+	const seriesList = await Subscription.aggregate([
+		{ $match: { platform: "tv" } },
 		{
 			$group: {
-				_id: "$seriesId",
+				_id: "$externalId",
 				displayNames: { $push: "$displayName" },
 				users: { $push: "$user" },
 			},
@@ -136,9 +136,9 @@ async function getEpisodes(event) {
 	const { id } = params;
 	const { page, filter } = query;
 
-	const userSeries = await Series.find({ user: user._id }).sort({ displayName: 1 }).lean();
+	const userSeries = await Subscription.find({ user: user._id, platform: "tv" }).sort({ displayName: 1 }).lean();
 
-	const seriesIds = userSeries.map(s => s.seriesId);
+	const seriesIds = userSeries.map(s => s.externalId);
 
 	const episodeQuery = { seriesId: { $in: seriesIds } };
 	const sortQuery = { date: -1, seriesId: -1, number: -1 };
@@ -157,13 +157,17 @@ async function getEpisodes(event) {
 			},
 			{
 				$lookup: {
-					from: "series",
+					from: "subscriptions",
 					let: { seriesId: "$seriesId" },
 					pipeline: [
 						{
 							$match: {
 								$expr: {
-									$and: [{ $eq: ["$seriesId", "$$seriesId"] }, { $eq: ["$user", toObjectId(user._id)] }],
+									$and: [
+										{ platform: "tv" },
+										{ $eq: ["$externalId", "$$seriesId"] },
+										{ $eq: ["$user", toObjectId(user._id)] },
+									],
 								},
 							},
 						},
@@ -244,7 +248,7 @@ async function getPopular(event) {
 	const json = res.data;
 
 	const series = json.results.map(s => ({
-		id: s.id,
+		externalId: s.id,
 		displayName: s.name,
 		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}`,
 	}));
