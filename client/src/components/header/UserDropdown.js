@@ -97,9 +97,9 @@ function UserDropdown({ classes }) {
 						<List disablePadding>
 							<ListItem key={"langs"}>
 								<ListItemIcon>
-									<i className="material-icons">{"flag"}</i>
+									<i className="material-icons">{"translate"}</i>
 								</ListItemIcon>
-								<Select value={user.language} displayEmpty onChange={handleChangeLanguage}>
+								<Select value={user.language} displayEmpty onChange={handleChangeLanguage}  MenuProps={{ disablePortal: true }}>
 									<MenuItem value={"pt"}>{translate("portugueseLang")}</MenuItem>
 									<MenuItem value={"en"}>{translate("englishLang")}</MenuItem>
 								</Select>
