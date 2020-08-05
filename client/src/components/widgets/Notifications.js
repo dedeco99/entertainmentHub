@@ -29,6 +29,7 @@ import { addToWatchLater } from "../../api/youtube";
 import { formatDate, formatVideoDuration } from "../../utils/utils";
 
 import { notifications as styles } from "../../styles/Widgets";
+import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 
 const useStyles = makeStyles(styles);
 
@@ -49,6 +50,7 @@ function Notifications({ height }) {
 	const [selectedNotification, setSelectedNotification] = useState(null);
 	const [actionLoading, setActionLoading] = useState(false);
 	const [open, setOpen] = useState(false);
+	const videoPlayer = useContext(VideoPlayerContext);
 
 	async function handleGetNotifications() {
 		if (!pagination.loading) {
@@ -154,6 +156,17 @@ function Notifications({ height }) {
 		setNotificationAnchorEl(null);
 	}
 
+	function handleAddToVideoPlayer(notification) {
+		const video = {
+			name: notification.info.videoTitle,
+			thumbnail: notification.info.thumbnail,
+			url: `https://www.youtube.com/watch?v=${notification.info.videoId}`,
+			channelName: notification.info.displayName,
+			channelUrl: `https://www.youtube.com/channel/${notification.info.channelId}`,
+		};
+		videoPlayer.dispatch({ type: "ADD_VIDEO", video });
+	}
+
 	function renderNotificationType(type) {
 		switch (type) {
 			case "tv":
@@ -206,7 +219,7 @@ function Notifications({ height }) {
 					<>
 						{notification.info.thumbnail ? (
 							<Box position="relative" flexShrink="0" width="100px" mr={2}>
-								<img src={notification.info.thumbnail} width="100%" alt="Video thumbnail" />
+								<img src={notification.info.thumbnail} width="100%" alt="Video thumbnail" onClick={() => handleAddToVideoPlayer(notification)} />
 								<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
 									<Typography variant="caption"> {formatVideoDuration(notification.info.duration)} </Typography>
 								</Box>
@@ -425,8 +438,5 @@ function Notifications({ height }) {
 	);
 }
 
-Notifications.propTypes = {
-	height: PropTypes.string,
-};
 
 export default Notifications;
