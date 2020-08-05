@@ -11,6 +11,7 @@ import Twitch from "../widgets/Twitch";
 import Weather from "../widgets/Weather";
 import TV from "../widgets/TV";
 import Crypto from "../widgets/Crypto";
+import Price from "../widgets/Price";
 import WidgetDetail from "../widgets/WidgetDetail";
 
 import { WidgetContext } from "../../contexts/WidgetContext";
@@ -72,6 +73,13 @@ const widgetsInfo = {
 		dimensions: { w: widget.width || 1, h: widget.height || 1 },
 		restrictions: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
 	}),
+	price: widget => ({
+		content: <Price productId={widget.info.productId} />,
+		editText: "Price",
+		editIcon: "icofont-money",
+		dimensions: { w: widget.width || 1, h: widget.height || 1 },
+		restrictions: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
+	}),
 };
 
 function Widgets() {
@@ -89,6 +97,16 @@ function Widgets() {
 			setLoading(true);
 
 			const response = await getWidgets();
+
+			response.data.push({
+				_id: "gotem",
+				type: "price",
+				info: { productId: "B07HKVCVSY" },
+				width: 2,
+				height: 2,
+				x: 0,
+				y: 0,
+			});
 
 			dispatch({ type: "SET_WIDGETS", widgets: response.data });
 
