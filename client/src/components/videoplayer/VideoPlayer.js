@@ -72,6 +72,7 @@ function VideoPlayer() {
 		}
 		return (
 			<Rnd
+				style={{ position: "fixed" }}
 				size={{ width, height }}
 				position={{
 					x: x || document.documentElement.clientWidth - width - 15,
