@@ -45,6 +45,10 @@ const episode = {
 		bottom: "5px",
 		left: "5px",
 	},
+	finale: {
+		bottom: "30px",
+		left: "5px",
+	},
 };
 
 const banners = {

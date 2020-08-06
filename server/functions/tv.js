@@ -136,6 +136,7 @@ async function cronjob() {
 	return true;
 }
 
+// eslint-disable-next-line max-lines-per-function
 async function getEpisodes(event) {
 	const { params, query, user } = event;
 	const { id } = params;
@@ -161,6 +162,15 @@ async function getEpisodes(event) {
 				$match: episodeQuery,
 			},
 			{
+				$sort: sortQuery,
+			},
+			{
+				$skip: page ? page * 50 : 0,
+			},
+			{
+				$limit: 50,
+			},
+			{
 				$lookup: {
 					from: "subscriptions",
 					let: { seriesId: "$seriesId" },
@@ -184,15 +194,53 @@ async function getEpisodes(event) {
 				$unwind: "$series",
 			},
 			{
-				$sort: sortQuery,
+				$lookup: {
+					from: "episodes",
+					let: { seriesId: "$seriesId", season: "$season" },
+					pipeline: [
+						{
+							$match: {
+								$expr: {
+									$and: [{ $eq: ["$seriesId", "$$seriesId"] }, { $eq: ["$season", "$$season"] }],
+								},
+							},
+						},
+						{
+							$sort: { number: -1 },
+						},
+						{
+							$limit: 1,
+						},
+					],
+					as: "finale",
+				},
 			},
 			{
-				$skip: page ? page * 50 : 0,
+				$unwind: "$finale",
 			},
 			{
-				$limit: 50,
+				$addFields: {
+					finale: {
+						$cond: [{ $eq: ["$finale.number", "$number"] }, true, false],
+					},
+				},
 			},
 		]);
+
+		/*
+		for (const episode of episodes) {
+			episode.finale = false;
+
+			const season = await Episode.find({
+				seriesId: episode.seriesId,
+				season: episode.season,
+			}).sort({ number: -1 });
+
+			if (season[season.length - 1].number === episode.number) {
+				episode.finale = true;
+			}
+		}
+		*/
 	} else {
 		episodes = await Episode.aggregate([
 			{
