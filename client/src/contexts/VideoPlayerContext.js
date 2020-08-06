@@ -6,18 +6,24 @@ import { videoPlayerReducer } from "../reducers/VideoPlayerReducer";
 export const VideoPlayerContext = createContext();
 
 const VideoPlayerContextProvider = ({ children }) => {
-	const initState = { videos: [] };
+	const initState = {
+		videos: [],
+		x: null,
+		y: null,
+		width: 600,
+		height: 300,
+	};
 
-	const [videos, dispatch] = useReducer(videoPlayerReducer, initState, () => {
-		const localData = localStorage.getItem("videoPlayerQueue");
+	const [state, dispatch] = useReducer(videoPlayerReducer, initState, () => {
+		const localData = localStorage.getItem("videoPlayer");
 		return localData ? JSON.parse(localData) : initState;
 	});
 
 	useEffect(() => {
-		localStorage.setItem("videoPlayerQueue", JSON.stringify(videos));
-	}, [videos]);
+		localStorage.setItem("videoPlayer", JSON.stringify(state));
+	}, [state]);
 
-	return <VideoPlayerContext.Provider value={{ state: videos, dispatch }}>{children}</VideoPlayerContext.Provider>;
+	return <VideoPlayerContext.Provider value={{ state, dispatch }}>{children}</VideoPlayerContext.Provider>;
 };
 
 VideoPlayerContextProvider.propTypes = {

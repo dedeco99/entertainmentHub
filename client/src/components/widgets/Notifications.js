@@ -438,5 +438,8 @@ function Notifications({ height }) {
 	);
 }
 
+Notifications.propTypes = {
+	height: PropTypes.string,
+};
 
 export default Notifications;
