@@ -1,12 +1,12 @@
 const { response, api } = require("../utils/request");
-const { toObjectId, diff } = require("../utils/utils");
+const { toObjectId, formatDate, diff } = require("../utils/utils");
 
 const { scheduleNotifications } = require("./notifications");
 
 const Subscription = require("../models/subscription");
 const Episode = require("../models/episode");
 
-// eslint-disable-next-line complexity
+// eslint-disable-next-line complexity, max-lines-per-function
 async function fetchEpisodes(series) {
 	const episodesToAdd = [];
 	const episodesToUpdate = [];
@@ -73,7 +73,11 @@ async function fetchEpisodes(series) {
 					}
 
 					console.log(`- S${episode.season_number}E${episode.episode_number} created`);
-				} else if ((episode.still_path && !episodeExists.image) || episodeExists.title !== episode.name) {
+				} else if (
+					(!episodeExists.image && episode.still_path) ||
+					episodeExists.title !== episode.name ||
+					formatDate(episodeExists.date, "YYYY-MM-DD") !== formatDate(episode.air_date, "YYYY-MM-DD")
+				) {
 					episodesToUpdate.push(
 						Episode.updateOne(
 							{
@@ -87,6 +91,7 @@ async function fetchEpisodes(series) {
 								image: episode.still_path
 									? `https://image.tmdb.org/t/p/w454_and_h254_bestv2${episode.still_path}`
 									: "",
+								date: episode.air_date,
 							},
 						),
 					);
