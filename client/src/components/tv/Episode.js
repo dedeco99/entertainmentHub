@@ -26,6 +26,9 @@ function Episode({ episode }) {
 				<div className={episode.series && `${classes.overlay} ${classes.seriesName}`}>
 					{episode.series && episode.series.displayName}
 				</div>
+				<div className={episode.finale && `${classes.overlay} ${classes.finale}`}>
+					{episode.finale ? "Finale" : ""}
+				</div>
 				<div className={`${classes.overlay} ${classes.season}`}>{seasonLabel + episodeLabel}</div>
 				<div className={`${classes.overlay} ${classes.date}`}>{formatDate(episode.date, "DD-MM-YYYY")}</div>
 			</CardActionArea>
