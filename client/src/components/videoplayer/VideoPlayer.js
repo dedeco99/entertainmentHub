@@ -54,6 +54,9 @@ function VideoPlayer() {
 		if (!currentVideo || !videos.includes(currentVideo)) {
 			setCurrentVideo(videos[0]);
 		}
+		if (minimized && videos.length === 1) {
+			setMinimized(false);
+		}
 	}, [state]); // eslint-disable-line
 
 	if (currentVideo && videos.length) {
@@ -107,7 +110,13 @@ function VideoPlayer() {
 							<Box flexGrow={1} overflow="auto">
 								<List disablePadding>
 									{videos.map(v => (
-										<ListItem button divider key={v.url} onClick={() => setCurrentVideo(v)} selected={currentVideo.url === v.url}>
+										<ListItem
+											button
+											divider
+											key={v.url}
+											onClick={() => setCurrentVideo(v)}
+											selected={currentVideo.url === v.url}
+										>
 											<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
 												<Typography variant="body1" title={v.name} noWrap>
 													{v.name}
