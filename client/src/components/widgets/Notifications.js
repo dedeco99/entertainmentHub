@@ -22,6 +22,7 @@ import Loading from "../.partials/Loading";
 import AnimatedList from "../.partials/AnimatedList";
 
 import { NotificationContext } from "../../contexts/NotificationContext";
+import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
 import { addToWatchLater } from "../../api/youtube";
@@ -29,7 +30,6 @@ import { addToWatchLater } from "../../api/youtube";
 import { formatDate, formatVideoDuration } from "../../utils/utils";
 
 import { notifications as styles } from "../../styles/Widgets";
-import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 
 const useStyles = makeStyles(styles);
 
@@ -218,10 +218,13 @@ function Notifications({ height }) {
 				return (
 					<>
 						{notification.info.thumbnail ? (
-							<Box position="relative" flexShrink="0" width="100px" mr={2}>
-								<img src={notification.info.thumbnail} width="100%" alt="Video thumbnail" onClick={() => handleAddToVideoPlayer(notification)} />
+							<Box position="relative" flexShrink="0" width="100px" mr={2} className={classes.videoThumbnail}>
+								<img src={notification.info.thumbnail} width="100%" alt="Video thumbnail" />
 								<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
 									<Typography variant="caption"> {formatVideoDuration(notification.info.duration)} </Typography>
+								</Box>
+								<Box className={classes.videoPlayOverlay} display="flex" alignItems="center" justifyContent="center" onClick={() => handleAddToVideoPlayer(notification)}>
+									<span className="material-icons"> {"play_arrow"} </span>
 								</Box>
 							</Box>
 						) : (

@@ -9,6 +9,7 @@ import Post from "../reddit/Post";
 
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { RedditContext } from "../../contexts/RedditContext";
+import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 
 import { getVideos } from "../../api/youtube";
 import { getPosts } from "../../api/reddit";
@@ -27,6 +28,7 @@ function Feed({ feed }) {
 	const [posts, setPosts] = useState([]);
 	const [open, setOpen] = useState(false);
 	const [openModal, setOpenModal] = useState(false);
+	const videoPlayer = useContext(VideoPlayerContext);
 
 	useEffect(() => {
 		async function fetchData() {
@@ -60,14 +62,28 @@ function Feed({ feed }) {
 		setOpenModal(false);
 	}
 
+	function handleAddToVideoPlayer(post) {
+		const video = {
+			name: post.videoTitle,
+			thumbnail: post.thumbnail,
+			url: `https://www.youtube.com/watch?v=${post.videoId}`,
+			channelName: post.displayName,
+			channelUrl: `https://www.youtube.com/channel/${post.channelId}`,
+		};
+		videoPlayer.dispatch({ type: "ADD_VIDEO", video });
+	}
+
 	function renderVideos() {
 		return posts.map(post => (
 			<ListItem key={post.videoId} divider style={{ padding: 0, margin: 0 }}>
 				<Box display="flex" flexDirection="column" flex="auto" minWidth={0}>
-					<Box position="relative">
+					<Box position="relative" className={classes.videoThumbnail}>
 						<img src={post.thumbnail} width="100%" alt="Video thumbnail" />
 						<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
 							<Typography variant="caption">{formatVideoDuration(post.duration)}</Typography>
+						</Box>
+						<Box className={classes.videoPlayOverlay} display="flex" alignItems="center" justifyContent="center" onClick={() => handleAddToVideoPlayer(post)}>
+							<span className="material-icons"> {"play_arrow"} </span>
 						</Box>
 					</Box>
 					<Box style={{ paddingLeft: 5, paddingRight: 10 }}>
