@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
-import { Zoom, Box, Typography } from "@material-ui/core";
+import { Zoom, Box, Typography, Divider, Tooltip } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
 
 import { getProduct } from "../../api/price";
 
-function Price({ productId }) {
+function Price({ productId, widgetDimensions }) {
 	const [product, setProduct] = useState(null);
 	const [open, setOpen] = useState(false);
 
@@ -26,37 +26,64 @@ function Price({ productId }) {
 
 	if (!open) return <Loading />;
 
-	return (
-		<Zoom in={open}>
-			<Box display="flex" flexDirection="column" alignItems="center">
-				<Box display="flex" alignItems="center">
-					<img src={product.image} alt="Product Image" />
+	function renderDefault() {
+		return (
+			<Box display="flex" flexDirection="column" width="100%" height="100%" p={2}>
+				<Box display="flex" flex="1 0 0" minHeight={0}>
+					<img src={product.image} alt="Product" height="100%" width="100%" display="block" style={{ objectFit: "scale-down" }} />
 				</Box>
-				<Box display="flex" alignItems="center">
-					<Typography variant="h5">{product.name}</Typography>
+				<Box display="flex" flex="1 0 0" flexDirection="column" justifyContent="center">
+					<Typography variant="body2">{product.name}</Typography>
+					<Typography variant="body1">{product.price}</Typography>
+				</Box>
+				<Divider />
+				<Box display="flex" pt={1}>
+					<Box display="flex" flexGrow={1} alignItems="center" justifyContent="center" color="#f4511e">
+						<Tooltip title="Highest price" placement="top">
+							<Typography variant="subtitle2" color="inherit"><i className="icofont-caret-up" />{product.history.highest}</Typography>
+						</Tooltip>
+					</Box>
+					<Box display="flex" flexGrow={1} alignItems="center" justifyContent="center" color="#ff9800">
+						<Tooltip title="Average price" placement="top">
+							<Typography variant="subtitle2" color="inherit">{"~"}{product.history.average}</Typography>
+						</Tooltip>
+					</Box>
+					<Box display="flex" flexGrow={1} alignItems="center" justifyContent="center" color="#43a047">
+						<Tooltip title="Lowest price" placement="top">
+							<Typography variant="subtitle2" color="inherit" ><i className="icofont-caret-down" />{product.history.lowest}</Typography>
+						</Tooltip>
+					</Box>
+				</Box>
+			</Box>
+		);
+	}
+
+	function render1x1() {
+		return (
+			<Box display="flex" flexDirection="column" alignItems="center">
+				<Box display="flex" alignItems="center" mb={1}>
+					<img src={product.image} height="64px" width="64px" alt="Product" style={{ objectFit: "scale-down" }} />
 				</Box>
 				<Box display="flex" alignItems="center">
 					<Typography variant="h6">{product.price}</Typography>
 				</Box>
-				<Box display="flex" alignItems="center">
-					<Typography variant="caption">{"Highest price: "}</Typography>
-					<Typography variant="subtitle1">{product.history.highest}</Typography>
-				</Box>
-				<Box display="flex" alignItems="center">
-					<Typography variant="caption">{"Lowest price: "}</Typography>
-					<Typography variant="subtitle1">{product.history.lowest}</Typography>
-				</Box>
-				<Box display="flex" alignItems="center">
-					<Typography variant="caption">{"Average price: "}</Typography>
-					<Typography variant="subtitle1">{product.history.average}</Typography>
-				</Box>
 			</Box>
-		</Zoom>
-	);
+		);
+	}
+
+	function renderType() {
+		if (widgetDimensions.h === 1 && widgetDimensions.w === 1) {
+			return render1x1();
+		}
+		return renderDefault();
+	}
+
+	return <Zoom in={open}>{renderType()}</Zoom>;
 }
 
 Price.propTypes = {
 	productId: PropTypes.string.isRequired,
+	widgetDimensions: PropTypes.object,
 };
 
 export default Price;
