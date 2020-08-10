@@ -5,13 +5,8 @@ const header = {
 		position: "absolute",
 	},
 	brand: {
-		left: 0,
-		bottom: -3,
-		position: "absolute",
-	},
-	title: {
 		flexGrow: 1,
-		marginLeft: 50,
+		marginLeft: 30,
 	},
 };
 
