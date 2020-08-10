@@ -30,7 +30,7 @@ function Price({ productId, widgetDimensions }) {
 		return (
 			<Box display="flex" flexDirection="column" width="100%" height="100%" p={2}>
 				<Box display="flex" flex="1 0 0" minHeight={0}>
-					<img src={product.image} alt="Product" height="100%" width="100%" display="block" style={{ objectFit: "scale-down" }} />
+					<img src={product.image} alt="Product" height="100%" width="100%" display="block" style={{ objectFit: "scale-down", backgroundColor: "white" }} />
 				</Box>
 				<Box display="flex" flex="1 0 0" flexDirection="column" justifyContent="center">
 					<Typography variant="body2">{product.name}</Typography>
@@ -62,7 +62,7 @@ function Price({ productId, widgetDimensions }) {
 		return (
 			<Box display="flex" flexDirection="column" alignItems="center">
 				<Box display="flex" alignItems="center" mb={1}>
-					<img src={product.image} height="64px" width="64px" alt="Product" style={{ objectFit: "scale-down" }} />
+					<img src={product.image} height="64px" width="64px" alt="Product" style={{ objectFit: "scale-down", borderRadius: "50%" }} />
 				</Box>
 				<Box display="flex" alignItems="center">
 					<Typography variant="h6">{product.price}</Typography>
