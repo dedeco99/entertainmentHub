@@ -39,39 +39,36 @@ function Register() {
 	}
 
 	return (
-		<Container maxWidth="xs">
-			<form onSubmit={handleSubmit}>
-				<h2>{"Register"}</h2>
-				<Input
-					id="email"
-					type="email"
-					label="Email"
-					value={email}
-					onChange={handleEmailChange}
-					margin="normal"
-					variant="outlined"
-					fullWidth
-					required
-				/>
-				<br />
-				<Input
-					id="password"
-					type="password"
-					label="Password"
-					value={password}
-					onChange={handlePasswordChange}
-					margin="normal"
-					variant="outlined"
-					fullWidth
-					required
-				/>
-				<br />
-				<br />
-				<Button type="submit" color="primary" variant="outlined" fullWidth>
-					{"Register"}
-				</Button>
-			</form>
-		</Container>
+		<form onSubmit={handleSubmit}>
+			<Input
+				id="email"
+				type="email"
+				label="Email"
+				value={email}
+				onChange={handleEmailChange}
+				margin="normal"
+				variant="outlined"
+				fullWidth
+				required
+			/>
+			<br />
+			<Input
+				id="password"
+				type="password"
+				label="Password"
+				value={password}
+				onChange={handlePasswordChange}
+				margin="normal"
+				variant="outlined"
+				fullWidth
+				required
+			/>
+			<br />
+			<br />
+			<Button type="submit" color="secondary" variant="contained" fullWidth>
+				{"Register"}
+			</Button>
+		</form>
 	);
 }
 
