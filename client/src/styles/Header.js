@@ -21,7 +21,7 @@ const loggedInLinks = {
 const userDropdown = {
 	avatar: {
 		color: "white",
-		backgroundColor: "#ff5722",
+		backgroundColor: "#ec6e4c",
 	},
 	wrapper: {
 		display: "inline-block",
@@ -86,6 +86,13 @@ const appMenu = {
 		left: 0,
 		paddingTop: 60,
 		position: "fixed",
+		"& .Mui-selected": {
+			color: "#ec6e4c",
+			backgroundColor: "#ec6e4c25",
+			"&:hover": {
+				backgroundColor: "#ec6e4c25",
+			},
+		},
 	},
 	appLink: {
 		textDecoration: "none",
@@ -93,6 +100,10 @@ const appMenu = {
 	},
 	appItem: {
 		paddingLeft: 10,
+		"&:hover": {
+			color: "#ec6e4c",
+			backgroundColor: "#ec6e4c25",
+		},
 	},
 };
 
