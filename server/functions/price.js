@@ -1,11 +1,12 @@
 const cheerio = require("cheerio");
+const errors = require("../utils/errors");
 
 const { response, api } = require("../utils/request");
 const { diff } = require("../utils/utils");
 
 async function getProduct(event) {
 	const { params } = event;
-	const { product } = params;
+	const { country, product } = params;
 
 	let useCache = true;
 	const data = global.cache.price.data;
@@ -14,13 +15,17 @@ async function getProduct(event) {
 
 	let productInfo = null;
 	if (!useCache) {
-		const url = `https://es.camelcamelcamel.com/product/${product}`;
+		const countryUrl = country === "us" ? "" : `${country}.`;
+		const url = `https://${countryUrl}camelcamelcamel.com/product/${product}`;
 
 		const res = await api({ method: "get", url });
 		const $ = cheerio.load(res.data);
 
-		const image = $(".small-12.medium-2").find("img").attr("src");
 		const name = $(".show-for-medium").find("a").text();
+
+		if (!name) return errors.productNotFound;
+
+		const image = $(".small-12.medium-2").find("img").attr("src");
 		const price = $(".stat").find("span").text();
 		const priceTable = $(".product_pane")
 			.first()

@@ -91,7 +91,7 @@ app.get("/api/crypto", token, (req, res) => middleware(req, res, crypto.getCoins
 
 app.get("/api/crypto/:coins", token, (req, res) => middleware(req, res, crypto.getPrices));
 
-app.get("/api/price/:product", token, (req, res) => middleware(req, res, price.getProduct));
+app.get("/api/price/:country/:product", token, (req, res) => middleware(req, res, price.getProduct));
 
 app.get("/api/reddit/subreddits", token, (req, res) => middleware(req, res, reddit.getSubreddits));
 

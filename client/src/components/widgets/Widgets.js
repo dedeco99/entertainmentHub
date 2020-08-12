@@ -74,7 +74,7 @@ const widgetsInfo = {
 		restrictions: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
 	}),
 	price: widget => ({
-		content: <Price productId={widget.info.productId} />,
+		content: <Price country={widget.info.country} productId={widget.info.productId} />,
 		editText: "Price",
 		editIcon: "icofont-money",
 		dimensions: { w: widget.width || 1, h: widget.height || 1 },
@@ -97,16 +97,6 @@ function Widgets() {
 			setLoading(true);
 
 			const response = await getWidgets();
-
-			response.data.push({
-				_id: "gotem",
-				type: "price",
-				info: { productId: "B07HKVCVSY" },
-				width: 2,
-				height: 2,
-				x: 0,
-				y: 0,
-			});
 
 			dispatch({ type: "SET_WIDGETS", widgets: response.data });
 

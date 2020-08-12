@@ -7,13 +7,13 @@ import Loading from "../.partials/Loading";
 
 import { getProduct } from "../../api/price";
 
-function Price({ productId, widgetDimensions }) {
+function Price({ country, productId, widgetDimensions }) {
 	const [product, setProduct] = useState(null);
 	const [open, setOpen] = useState(false);
 
 	useEffect(() => {
 		async function fetchData() {
-			const response = await getProduct(productId);
+			const response = await getProduct(country, productId);
 
 			if (response.status === 200) {
 				setProduct(response.data);
@@ -30,7 +30,14 @@ function Price({ productId, widgetDimensions }) {
 		return (
 			<Box display="flex" flexDirection="column" width="100%" height="100%" p={2}>
 				<Box display="flex" flex="1 0 0" minHeight={0}>
-					<img src={product.image} alt="Product" height="100%" width="100%" display="block" style={{ objectFit: "scale-down", backgroundColor: "white" }} />
+					<img
+						src={product.image}
+						alt="Product"
+						height="100%"
+						width="100%"
+						display="block"
+						style={{ objectFit: "scale-down", backgroundColor: "white" }}
+					/>
 				</Box>
 				<Box display="flex" flex="1 0 0" flexDirection="column" justifyContent="center">
 					<Typography variant="body2">{product.name}</Typography>
@@ -40,17 +47,26 @@ function Price({ productId, widgetDimensions }) {
 				<Box display="flex" pt={1}>
 					<Box display="flex" flexGrow={1} alignItems="center" justifyContent="center" color="#f4511e">
 						<Tooltip title="Highest price" placement="top">
-							<Typography variant="subtitle2" color="inherit"><i className="icofont-caret-up" />{product.history.highest}</Typography>
+							<Typography variant="subtitle2" color="inherit">
+								<i className="icofont-caret-up" />
+								{product.history.highest}
+							</Typography>
 						</Tooltip>
 					</Box>
 					<Box display="flex" flexGrow={1} alignItems="center" justifyContent="center" color="#ff9800">
 						<Tooltip title="Average price" placement="top">
-							<Typography variant="subtitle2" color="inherit">{"~"}{product.history.average}</Typography>
+							<Typography variant="subtitle2" color="inherit">
+								{"~"}
+								{product.history.average}
+							</Typography>
 						</Tooltip>
 					</Box>
 					<Box display="flex" flexGrow={1} alignItems="center" justifyContent="center" color="#43a047">
 						<Tooltip title="Lowest price" placement="top">
-							<Typography variant="subtitle2" color="inherit" ><i className="icofont-caret-down" />{product.history.lowest}</Typography>
+							<Typography variant="subtitle2" color="inherit">
+								<i className="icofont-caret-down" />
+								{product.history.lowest}
+							</Typography>
 						</Tooltip>
 					</Box>
 				</Box>
@@ -62,7 +78,13 @@ function Price({ productId, widgetDimensions }) {
 		return (
 			<Box display="flex" flexDirection="column" alignItems="center">
 				<Box display="flex" alignItems="center" mb={1}>
-					<img src={product.image} height="64px" width="64px" alt="Product" style={{ objectFit: "scale-down", borderRadius: "50%" }} />
+					<img
+						src={product.image}
+						height="64px"
+						width="64px"
+						alt="Product"
+						style={{ objectFit: "scale-down", borderRadius: "50%" }}
+					/>
 				</Box>
 				<Box display="flex" alignItems="center">
 					<Typography variant="h6">{product.price}</Typography>
@@ -82,6 +104,7 @@ function Price({ productId, widgetDimensions }) {
 }
 
 Price.propTypes = {
+	country: PropTypes.string.isRequired,
 	productId: PropTypes.string.isRequired,
 	widgetDimensions: PropTypes.object,
 };
