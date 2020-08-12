@@ -29,14 +29,16 @@ import { addToWatchLater } from "../../api/youtube";
 
 import { formatDate, formatVideoDuration } from "../../utils/utils";
 
-import { notifications as styles } from "../../styles/Widgets";
+import { notifications as widgetStyles } from "../../styles/Widgets";
+import { videoPlayer as videoPlayerStyles } from "../../styles/VideoPlayer";
 
-const useStyles = makeStyles(styles);
+const useStyles = makeStyles({ ...widgetStyles, ...videoPlayerStyles });
 
 function Notifications({ height }) {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(NotificationContext);
 	const { notifications } = state;
+	const videoPlayer = useContext(VideoPlayerContext);
 	const [pagination, setPagination] = useState({
 		loading: false,
 		page: 0,
@@ -50,7 +52,6 @@ function Notifications({ height }) {
 	const [selectedNotification, setSelectedNotification] = useState(null);
 	const [actionLoading, setActionLoading] = useState(false);
 	const [open, setOpen] = useState(false);
-	const videoPlayer = useContext(VideoPlayerContext);
 
 	async function handleGetNotifications() {
 		if (!pagination.loading) {
@@ -157,14 +158,16 @@ function Notifications({ height }) {
 	}
 
 	function handleAddToVideoPlayer(notification) {
-		const video = {
-			name: notification.info.videoTitle,
-			thumbnail: notification.info.thumbnail,
-			url: `https://www.youtube.com/watch?v=${notification.info.videoId}`,
-			channelName: notification.info.displayName,
-			channelUrl: `https://www.youtube.com/channel/${notification.info.channelId}`,
-		};
-		videoPlayer.dispatch({ type: "ADD_VIDEO", video });
+		videoPlayer.dispatch({
+			type: "ADD_VIDEO",
+			video: {
+				name: notification.info.videoTitle,
+				thumbnail: notification.info.thumbnail,
+				url: `https://www.youtube.com/watch?v=${notification.info.videoId}`,
+				channelName: notification.info.displayName,
+				channelUrl: `https://www.youtube.com/channel/${notification.info.channelId}`,
+			},
+		});
 	}
 
 	function renderNotificationType(type) {
@@ -223,7 +226,13 @@ function Notifications({ height }) {
 								<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
 									<Typography variant="caption"> {formatVideoDuration(notification.info.duration)} </Typography>
 								</Box>
-								<Box className={classes.videoPlayOverlay} display="flex" alignItems="center" justifyContent="center" onClick={() => handleAddToVideoPlayer(notification)}>
+								<Box
+									className={classes.videoPlayOverlay}
+									display="flex"
+									alignItems="center"
+									justifyContent="center"
+									onClick={() => handleAddToVideoPlayer(notification)}
+								>
 									<span className="material-icons"> {"play_arrow"} </span>
 								</Box>
 							</Box>

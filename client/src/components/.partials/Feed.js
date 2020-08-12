@@ -19,16 +19,17 @@ import { formatDate, formatVideoDuration } from "../../utils/utils";
 
 import { widget as widgetStyles } from "../../styles/Widgets";
 import { feed as feedStyles } from "../../styles/Youtube";
+import { videoPlayer as videoPlayerStyles } from "../../styles/VideoPlayer";
 
-const useStyles = makeStyles({ ...widgetStyles, ...feedStyles });
+const useStyles = makeStyles({ ...widgetStyles, ...feedStyles, ...videoPlayerStyles });
 
 function Feed({ feed }) {
 	const classes = useStyles();
 	const { dispatch } = useContext(feed.platform === "youtube" ? YoutubeContext : RedditContext);
+	const videoPlayer = useContext(VideoPlayerContext);
 	const [posts, setPosts] = useState([]);
 	const [open, setOpen] = useState(false);
 	const [openModal, setOpenModal] = useState(false);
-	const videoPlayer = useContext(VideoPlayerContext);
 
 	useEffect(() => {
 		async function fetchData() {
@@ -63,14 +64,16 @@ function Feed({ feed }) {
 	}
 
 	function handleAddToVideoPlayer(post) {
-		const video = {
-			name: post.videoTitle,
-			thumbnail: post.thumbnail,
-			url: `https://www.youtube.com/watch?v=${post.videoId}`,
-			channelName: post.displayName,
-			channelUrl: `https://www.youtube.com/channel/${post.channelId}`,
-		};
-		videoPlayer.dispatch({ type: "ADD_VIDEO", video });
+		videoPlayer.dispatch({
+			type: "ADD_VIDEO",
+			video: {
+				name: post.videoTitle,
+				thumbnail: post.thumbnail,
+				url: `https://www.youtube.com/watch?v=${post.videoId}`,
+				channelName: post.displayName,
+				channelUrl: `https://www.youtube.com/channel/${post.channelId}`,
+			},
+		});
 	}
 
 	function renderVideos() {
@@ -82,7 +85,13 @@ function Feed({ feed }) {
 						<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
 							<Typography variant="caption">{formatVideoDuration(post.duration)}</Typography>
 						</Box>
-						<Box className={classes.videoPlayOverlay} display="flex" alignItems="center" justifyContent="center" onClick={() => handleAddToVideoPlayer(post)}>
+						<Box
+							className={classes.videoPlayOverlay}
+							display="flex"
+							alignItems="center"
+							justifyContent="center"
+							onClick={() => handleAddToVideoPlayer(post)}
+						>
 							<span className="material-icons"> {"play_arrow"} </span>
 						</Box>
 					</Box>

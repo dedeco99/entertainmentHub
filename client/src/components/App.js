@@ -18,7 +18,7 @@ import Twitch from "./twitch/Twitch";
 import TV from "./tv/TV";
 import Settings from "./settings/Settings";
 import Apps from "./settings/Apps";
-import VideoPlayer from "./videoplayer/VideoPlayer";
+import VideoPlayer from "./videoPlayer/VideoPlayer";
 
 import UserContextProvider from "../contexts/UserContext";
 import NotificationContextProvider from "../contexts/NotificationContext";
