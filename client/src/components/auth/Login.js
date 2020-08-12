@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 
 import { makeStyles, Grid, Button, Container, Box, Hidden } from "@material-ui/core";
 
@@ -58,6 +59,35 @@ const styles = {
 
 const useStyles = makeStyles(styles);
 
+const containerVariants = {
+	hidden: {
+		x: "-50%",
+		opacity: 0,
+	},
+	visible: {
+		x: 0,
+		opacity: 1,
+		transition: { type: "tween", duration: 0.5 },
+	},
+	exit: {
+		x: "50%",
+		opacity: 0,
+		transition: { type: "tween", duration: 0.5 },
+	},
+};
+
+const imageVariants = {
+	hidden: {
+		x: window.innerWidth,
+		opacity: 0,
+	},
+	visible: {
+		x: 0,
+		opacity: 1,
+		transition: { type: "tween", duration: 1 },
+	},
+};
+
 function Login() {
 	const history = useHistory();
 	const classes = useStyles();
@@ -102,64 +132,79 @@ function Login() {
 		<div className={classes.root}>
 			<Grid container spacing={2}>
 				<Grid item xs={12} md={5}>
-					<Container maxWidth="xs" className={classes.container}>
-						<img src={logo} alt="Logo" width="100%" />
-						<Box className={classes.formContainer}>
-							<Box display="flex" justifyContent="center">
-								<Box display="flex" flexGrow={1} justifyContent="flex-start">
-									<h4>{openRegister ? "Register" : "Login"}</h4>
+					<AnimatePresence exitBeforeEnter>
+						<motion.div
+							key={openRegister}
+							variants={containerVariants}
+							initial="hidden"
+							animate="visible"
+							exit="exit"
+						>
+							<Container maxWidth="xs" className={classes.container}>
+								<img src={logo} alt="Logo" width="100%" />
+								<Box className={classes.formContainer}>
+									<Box display="flex" justifyContent="center">
+										<Box display="flex" flexGrow={1} justifyContent="flex-start">
+											<h4>{openRegister ? "Register" : "Login"}</h4>
+										</Box>
+										<Box display="flex" flexGrow={1} justifyContent="flex-end">
+											<h4
+												className={classes.createAccount}
+												onClick={openRegister ? handleHideRegister : handleOpenRegister}
+											>
+												{openRegister ? "Login" : "Create new account"}
+											</h4>
+										</Box>
+									</Box>
+									{openRegister ? (
+										<Register />
+									) : (
+										<form onSubmit={handleSubmit}>
+											<Input
+												id="email"
+												type="email"
+												label="Email"
+												value={email}
+												onChange={handleEmailChange}
+												margin="normal"
+												variant="outlined"
+												fullWidth
+												required
+											/>
+											<br />
+											<Input
+												id="password"
+												type="password"
+												label="Password"
+												value={password}
+												onChange={handlePasswordChange}
+												margin="normal"
+												variant="outlined"
+												fullWidth
+												required
+											/>
+											<br />
+											<br />
+											<Button type="submit" color="secondary" variant="contained" fullWidth>
+												{"Continue to EntertainmentHub"}
+											</Button>
+										</form>
+									)}
 								</Box>
-								<Box display="flex" flexGrow={1} justifyContent="flex-end">
-									<h4
-										className={classes.createAccount}
-										onClick={openRegister ? handleHideRegister : handleOpenRegister}
-									>
-										{openRegister ? "Login" : "Create new account"}
-									</h4>
-								</Box>
-							</Box>
-							{openRegister ? (
-								<Register />
-							) : (
-								<form onSubmit={handleSubmit}>
-									<Input
-										id="email"
-										type="email"
-										label="Email"
-										value={email}
-										onChange={handleEmailChange}
-										margin="normal"
-										variant="outlined"
-										fullWidth
-										required
-									/>
-									<br />
-									<Input
-										id="password"
-										type="password"
-										label="Password"
-										value={password}
-										onChange={handlePasswordChange}
-										margin="normal"
-										variant="outlined"
-										fullWidth
-										required
-									/>
-									<br />
-									<br />
-									<Button type="submit" color="secondary" variant="contained" fullWidth>
-										{"Continue to EntertainmentHub"}
-									</Button>
-								</form>
-							)}
-						</Box>
-					</Container>
+							</Container>
+						</motion.div>
+					</AnimatePresence>
 				</Grid>
 				<Grid item md={7}>
 					<Hidden smDown>
-						<div className={classes.sideImageContainer}>
+						<motion.div
+							className={classes.sideImageContainer}
+							variants={imageVariants}
+							initial="hidden"
+							animate="visible"
+						>
 							<img src={login0} alt="Logo" className={classes.sideImage} />
-						</div>
+						</motion.div>
 					</Hidden>
 				</Grid>
 			</Grid>

@@ -10,7 +10,6 @@ import SocketClient from "./.partials/SocketClient";
 import PrivateRoute from "./auth/PrivateRoute";
 import Header from "./header/Header";
 import Index from "./index/Index";
-import Register from "./auth/Register";
 import Login from "./auth/Login";
 import Youtube from "./youtube/Youtube";
 import Reddit from "./reddit/Reddit";
