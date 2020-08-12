@@ -28,6 +28,7 @@
 		"all-the-cities": "^3.1.0",
 		"axios": "^0.19.2",
 		"bcryptjs": "^2.4.3",
+		"cheerio": "^1.0.0-rc.3",
 		"express": "^4.17.1",
 		"moment": "^2.27.0",
 		"mongoose": "^5.9.21",

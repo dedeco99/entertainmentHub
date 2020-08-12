@@ -11,6 +11,7 @@ import Twitch from "../widgets/Twitch";
 import Weather from "../widgets/Weather";
 import TV from "../widgets/TV";
 import Crypto from "../widgets/Crypto";
+import Price from "../widgets/Price";
 import WidgetDetail from "../widgets/WidgetDetail";
 
 import { WidgetContext } from "../../contexts/WidgetContext";
@@ -69,6 +70,13 @@ const widgetsInfo = {
 		content: <Crypto coins={widget.info.coins} />,
 		editText: "Crypto",
 		editIcon: "icofont-bitcoin",
+		dimensions: { w: widget.width || 1, h: widget.height || 1 },
+		restrictions: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
+	}),
+	price: widget => ({
+		content: <Price country={widget.info.country} productId={widget.info.productId} />,
+		editText: "Price",
+		editIcon: "icofont-money",
 		dimensions: { w: widget.width || 1, h: widget.height || 1 },
 		restrictions: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
 	}),

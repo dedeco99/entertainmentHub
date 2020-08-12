@@ -2,6 +2,7 @@ const { response } = require("../utils/request");
 const errors = require("../utils/errors");
 
 const { isSubreddit } = require("./reddit");
+const { getProduct } = require("./price");
 
 const Widget = require("../models/widget");
 
@@ -13,6 +14,7 @@ async function getWidgets(event) {
 	return response(200, "Widgets found", widgets);
 }
 
+// eslint-disable-next-line complexity
 async function addWidget(event) {
 	const { body, user } = event;
 	const { type, info } = body;
@@ -36,6 +38,14 @@ async function addWidget(event) {
 			break;
 		case "crypto":
 			if (!info.coins) return errors.requiredFieldsMissing;
+			break;
+		case "price":
+			if (!info.country || !info.productId) return errors.requiredFieldsMissing;
+
+			const res = await getProduct({ params: { country: info.country, product: info.productId } });
+
+			if (res.status === 404) return errors.productNotFound;
+
 			break;
 		default:
 			break;
