@@ -12,6 +12,7 @@ const VideoPlayerContextProvider = ({ children }) => {
 		y: null,
 		width: 600,
 		height: 300,
+		minimized: false,
 	};
 
 	const [state, dispatch] = useReducer(videoPlayerReducer, initState, () => {
