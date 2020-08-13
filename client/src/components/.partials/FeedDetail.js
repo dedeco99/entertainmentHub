@@ -9,10 +9,10 @@ import Input from "./Input";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { RedditContext } from "../../contexts/RedditContext";
 
-import { translate } from "../../utils/translations";
-
 import { addFeed, editFeed } from "../../api/feeds";
 import { getSubreddits } from "../../api/reddit";
+
+import { translate } from "../../utils/translations";
 
 function FeedDetail({ open, feed, platform, onClose }) {
 	const { state, dispatch } = useContext(platform === "youtube" ? YoutubeContext : RedditContext);
@@ -139,7 +139,7 @@ function FeedDetail({ open, feed, platform, onClose }) {
 			maxWidth="xs"
 		>
 			<form onSubmit={feed ? handleUpdate : handleSubmit}>
-				<DialogTitle id="simple-dialog-title">{feed ? "Edit Feed" : "New Feed"}</DialogTitle>
+				<DialogTitle id="simple-dialog-title">{feed ? translate("editFeed") : translate("newFeed")}</DialogTitle>
 				<DialogContent>
 					<Input
 						type="text"

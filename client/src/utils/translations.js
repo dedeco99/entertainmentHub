@@ -1,4 +1,16 @@
 const translations = {
+	continue: {
+		en: "Continue to EntertainmentHub",
+		pt: "Continuar para o EntertainmentHub",
+	},
+	login: {
+		en: "Login",
+		pt: "Login",
+	},
+	register: {
+		en: "Register",
+		pt: "Registar",
+	},
 	connect: {
 		en: "Connect",
 		pt: "Conectar",
@@ -71,21 +83,25 @@ const translations = {
 		en: "Title",
 		pt: "Título",
 	},
-	noChannels: {
-		en: "No Channels",
-		pt: "Sem Canais",
+	noSubscriptions: {
+		en: "No Subscriptions",
+		pt: "Sem Subscrições",
 	},
-	channels: {
-		en: "Channels",
-		pt: "Canais",
+	subscriptions: {
+		en: "Subscriptions",
+		pt: "Subscrições",
 	},
-	newChannelGroup: {
-		en: "New Channel Group",
-		pt: "Novo Grupo de Canais",
+	editSubscription: {
+		en: "Edit Subscription",
+		pt: "Editar Subscrição",
 	},
-	editChannelGroup: {
-		en: "Edit Channel Group",
-		pt: "Editar Grupo dos Canais",
+	newFeed: {
+		en: "New Feed",
+		pt: "Novo Feed",
+	},
+	editFeed: {
+		en: "Edit Feed",
+		pt: "Editar Feed",
 	},
 	newReddit: {
 		en: "New Reddit",
@@ -94,6 +110,10 @@ const translations = {
 	editReddit: {
 		en: "Edit Reddit",
 		pt: "Editar Reddit",
+	},
+	noEpisodes: {
+		en: "No Episodes",
+		pt: "Não há episódios",
 	},
 	releasedEpisodes: {
 		en: "Released Episodes",
@@ -147,10 +167,17 @@ const translations = {
 		en: "All",
 		pt: "Tudo",
 	},
+	missingApp: {
+		en: "App is missing. Click here to add it",
+		pt: "App foi removida. Clique aqui para voltar a adicionar",
+	},
 	multipleParamExample: (...params) => ({
 		en: `Hello ${params[0]}, my name is ${params[1]}`,
 		pt: `Boas ${params[0]}, o meu nome é ${params[1]}`,
 	}), // Use like this: translate("multipleParamExample", "Rodrigo", "André")
+
+	/* API */
+
 	GET_WIDGETS: {
 		en: "Widgets found",
 		pt: "Widgets encontrados",
@@ -179,10 +206,6 @@ const translations = {
 		en: "App deleted",
 		pt: "App apagada",
 	},
-	EXISTS_APP: {
-		en: "App already exists",
-		pt: "App já existe",
-	},
 	ADD_USER: {
 		en: "User registered successfully",
 		pt: "Utilizador registado com sucesso",
@@ -191,21 +214,9 @@ const translations = {
 		en: "User has been edited",
 		pt: "Utilizador foi atualizado",
 	},
-	REGISTERED_USER: {
-		en: "User already exists",
-		pt: "Utilizador já existe"
-	},
-	NOT_REGISTERED_USER: {
-		en: "User is not registered",
-		pt: "Utilizador não está registado",
-	},
 	LOGIN: {
 		en: "Login successful",
 		pt: "Login feito com sucesso",
-	},
-	PASSWORD: {
-		en: "Password is incorrect",
-		pt: "Password está incorrecta",
 	},
 	GET_COINS: {
 		en: "Coins found",
@@ -311,6 +322,20 @@ const translations = {
 		en: "Video saved to watch later",
 		pt: "Vídeo guardado para ver mais tarde",
 	},
+
+	/* API Errors */
+	USER_DUPLICATED: {
+		en: "User already exists",
+		pt: "Utilizador já existe",
+	},
+	USER_PASSWORD_WRONG: {
+		en: "Password is incorrect",
+		pt: "Password está incorrecta",
+	},
+	USER_NOT_REGISTERED: {
+		en: "User is not registered",
+		pt: "Utilizador não está registado",
+	},
 	NOT_FOUND: {
 		en: "Not found",
 		pt: "Não encontrado",
@@ -343,11 +368,11 @@ const translations = {
 		en: "Twitch access has been revoked",
 		pt: "Acesso ao Twitch foi revogado",
 	},
-	COINMARKETPLACE_FORBIDDEN: {
+	COINMARKETCAP_FORBIDDEN: {
 		en: "Coinmarketcap API is down",
 		pt: "API do Coinmarketcap está em abaixo",
 	},
-	COINMARKETPLACE_NOT_FOUND: {
+	COINMARKETCAP_NOT_FOUND: {
 		en: "Coin not found",
 		pt: "Moeda não encontrada",
 	},

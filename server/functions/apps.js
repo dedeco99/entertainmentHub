@@ -16,7 +16,7 @@ async function addApp(event) {
 	const { platform, code } = body;
 	const appExists = await App.findOne({ user: user._id, platform });
 
-	if (appExists) return response(409, "EXISTS_APP");
+	if (appExists) return errors.duplicated;
 
 	let json = {};
 	switch (platform) {
@@ -68,7 +68,7 @@ async function addApp(event) {
 		return response(201, "ADD_APP", newApp);
 	}
 
-	return response(400, "Bad Request");
+	return errors.badRequest;
 }
 
 async function deleteApp(event) {

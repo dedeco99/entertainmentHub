@@ -1,10 +1,10 @@
 const bcrypt = require("bcryptjs");
 
 const { response } = require("../utils/request");
+const errors = require("../utils/errors");
 
 const User = require("../models/user");
 const Token = require("../models/token");
-
 
 async function hashPassword(password) {
 	const salt = await bcrypt.genSalt(10);
@@ -30,7 +30,7 @@ async function register(event) {
 
 	const userExists = await User.findOne({ email });
 
-	if (userExists) return response(409, "REGISTERED_USER");
+	if (userExists) return errors.userExists;
 
 	const newUser = new User({ email, password: await hashPassword(password) });
 	await newUser.save();
@@ -44,22 +44,18 @@ async function login(event) {
 
 	const user = await User.findOne({ email }).lean();
 
-	if (user) {
-		const isPassword = await bcrypt.compare(password, user.password);
+	if (!user) return errors.userNotRegistered;
 
-		if (isPassword) {
-			const newToken = new Token({ user: user._id, token: generateToken(60) });
-			await newToken.save();
+	const isPassword = await bcrypt.compare(password, user.password);
 
-			delete user.password;
+	if (!isPassword) return errors.userPasswordWrong;
 
-			return response(200, "LOGIN", { user, token: newToken.token });
-		}
+	const newToken = new Token({ user: user._id, token: generateToken(60) });
+	await newToken.save();
 
-		return response(401, "PASSWORD");
-	}
+	delete user.password;
 
-	return response(401, "NOT_REGISTERED_USER");
+	return response(200, "LOGIN", { user, token: newToken.token });
 }
 
 module.exports = {

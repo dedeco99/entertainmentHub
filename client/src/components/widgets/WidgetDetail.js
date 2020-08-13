@@ -24,6 +24,8 @@ import { getCities } from "../../api/weather";
 import { getCoins } from "../../api/crypto";
 import { addWidget, editWidget } from "../../api/widgets";
 
+import { translate } from "../../utils/translations";
+
 import { widgetDetail as styles } from "../../styles/Widgets";
 
 const useStyles = makeStyles(styles);
@@ -334,7 +336,7 @@ function WidgetDetail({ open, widget, onClose }) {
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={onClose} color="primary">
-						{"Close"}
+						{translate("close")}
 					</Button>
 					<Button type="submit" color="primary" autoFocus>
 						{widget ? "Update" : "Add"}
