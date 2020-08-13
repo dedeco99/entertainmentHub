@@ -22,6 +22,7 @@ import Loading from "../.partials/Loading";
 import AnimatedList from "../.partials/AnimatedList";
 
 import { NotificationContext } from "../../contexts/NotificationContext";
+import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
 import { addToWatchLater } from "../../api/youtube";
@@ -29,14 +30,16 @@ import { addToWatchLater } from "../../api/youtube";
 import { formatDate, formatVideoDuration } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
-import { notifications as styles } from "../../styles/Widgets";
+import { notifications as widgetStyles } from "../../styles/Widgets";
+import { videoPlayer as videoPlayerStyles } from "../../styles/VideoPlayer";
 
-const useStyles = makeStyles(styles);
+const useStyles = makeStyles({ ...widgetStyles, ...videoPlayerStyles });
 
 function Notifications({ height }) {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(NotificationContext);
 	const { notifications } = state;
+	const videoPlayer = useContext(VideoPlayerContext);
 	const [pagination, setPagination] = useState({
 		loading: false,
 		page: 0,
@@ -50,6 +53,7 @@ function Notifications({ height }) {
 	const [selectedNotification, setSelectedNotification] = useState(null);
 	const [actionLoading, setActionLoading] = useState(false);
 	const [open, setOpen] = useState(false);
+	let isMounted = true;
 
 	async function handleGetNotifications() {
 		if (!pagination.loading) {
@@ -58,11 +62,9 @@ function Notifications({ height }) {
 			let filter = pagination.filter.substring(7);
 			filter = filter === "all" ? "" : filter;
 
-			console.log(pagination);
-
 			const response = await getNotifications(pagination.page, pagination.history, filter);
 
-			if (response.status === 200) {
+			if (response.status === 200 && isMounted) {
 				// prettier-ignore
 				const newNotifications = pagination.page === 0
 					? response.data.notifications
@@ -82,7 +84,13 @@ function Notifications({ height }) {
 	}
 
 	useEffect(() => {
-		handleGetNotifications();
+		async function fetchData() {
+			await handleGetNotifications();
+		}
+
+		fetchData();
+
+		return () => (isMounted = false); // eslint-disable-line
 	}, [pagination.filter, pagination.history]); // eslint-disable-line
 
 	async function handleHideNotification() {
@@ -155,6 +163,19 @@ function Notifications({ height }) {
 		setNotificationAnchorEl(null);
 	}
 
+	function handleAddToVideoPlayer(notification) {
+		videoPlayer.dispatch({
+			type: "ADD_VIDEO",
+			video: {
+				name: notification.info.videoTitle,
+				thumbnail: notification.info.thumbnail,
+				url: `https://www.youtube.com/watch?v=${notification.info.videoId}`,
+				channelName: notification.info.displayName,
+				channelUrl: `https://www.youtube.com/channel/${notification.info.channelId}`,
+			},
+		});
+	}
+
 	function renderNotificationType(type) {
 		switch (type) {
 			case "tv":
@@ -206,10 +227,19 @@ function Notifications({ height }) {
 				return (
 					<>
 						{notification.info.thumbnail ? (
-							<Box position="relative" flexShrink="0" width="100px" mr={2}>
+							<Box position="relative" flexShrink="0" width="100px" mr={2} className={classes.videoThumbnail}>
 								<img src={notification.info.thumbnail} width="100%" alt="Video thumbnail" />
 								<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
 									<Typography variant="caption"> {formatVideoDuration(notification.info.duration)} </Typography>
+								</Box>
+								<Box
+									className={classes.videoPlayOverlay}
+									display="flex"
+									alignItems="center"
+									justifyContent="center"
+									onClick={() => handleAddToVideoPlayer(notification)}
+								>
+									<span className="material-icons"> {"play_arrow"} </span>
 								</Box>
 							</Box>
 						) : (

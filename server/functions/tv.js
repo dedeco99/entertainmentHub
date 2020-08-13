@@ -1,12 +1,12 @@
 const { response, api } = require("../utils/request");
-const { toObjectId, diff } = require("../utils/utils");
+const { toObjectId, formatDate, diff } = require("../utils/utils");
 
 const { scheduleNotifications } = require("./notifications");
 
 const Subscription = require("../models/subscription");
 const Episode = require("../models/episode");
 
-// eslint-disable-next-line complexity
+// eslint-disable-next-line complexity, max-lines-per-function
 async function fetchEpisodes(series) {
 	const episodesToAdd = [];
 	const episodesToUpdate = [];
@@ -73,7 +73,11 @@ async function fetchEpisodes(series) {
 					}
 
 					console.log(`- S${episode.season_number}E${episode.episode_number} created`);
-				} else if ((episode.still_path && !episodeExists.image) || episodeExists.title !== episode.name) {
+				} else if (
+					(!episodeExists.image && episode.still_path) ||
+					episodeExists.title !== episode.name ||
+					formatDate(episodeExists.date, "YYYY-MM-DD") !== formatDate(episode.air_date, "YYYY-MM-DD")
+				) {
 					episodesToUpdate.push(
 						Episode.updateOne(
 							{
@@ -87,6 +91,7 @@ async function fetchEpisodes(series) {
 								image: episode.still_path
 									? `https://image.tmdb.org/t/p/w454_and_h254_bestv2${episode.still_path}`
 									: "",
+								date: episode.air_date,
 							},
 						),
 					);
@@ -152,9 +157,10 @@ async function getEpisodes(event) {
 	let episodes = [];
 	if (id === "all") {
 		episodes = await Episode.aggregate([
-			{
-				$match: episodeQuery,
-			},
+			{ $match: episodeQuery },
+			{ $sort: sortQuery },
+			{ $skip: page ? page * 50 : 0 },
+			{ $limit: 50 },
 			{
 				$lookup: {
 					from: "subscriptions",
@@ -175,36 +181,49 @@ async function getEpisodes(event) {
 					as: "series",
 				},
 			},
+			{ $unwind: "$series" },
 			{
-				$unwind: "$series",
+				$lookup: {
+					from: "episodes",
+					let: { seriesId: "$seriesId", season: "$season" },
+					pipeline: [
+						{
+							$match: {
+								$expr: {
+									$and: [{ $eq: ["$seriesId", "$$seriesId"] }, { $eq: ["$season", "$$season"] }],
+								},
+							},
+						},
+						{
+							$sort: { number: -1 },
+						},
+						{
+							$limit: 1,
+						},
+					],
+					as: "finale",
+				},
 			},
+			{ $unwind: "$finale" },
 			{
-				$sort: sortQuery,
-			},
-			{
-				$skip: page ? page * 50 : 0,
-			},
-			{
-				$limit: 50,
+				$addFields: {
+					finale: {
+						$cond: [{ $eq: ["$finale.number", "$number"] }, true, false],
+					},
+				},
 			},
 		]);
 	} else {
 		episodes = await Episode.aggregate([
-			{
-				$match: { seriesId: id },
-			},
-			{
-				$sort: { number: -1 },
-			},
+			{ $match: { seriesId: id } },
+			{ $sort: { number: -1 } },
 			{
 				$group: {
 					_id: "$season",
 					episodes: { $push: "$$ROOT" },
 				},
 			},
-			{
-				$sort: { _id: 1 },
-			},
+			{ $sort: { _id: 1 } },
 		]);
 	}
 

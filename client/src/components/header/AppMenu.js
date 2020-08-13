@@ -71,7 +71,7 @@ function AppMenu() {
 				component={Link}
 				to={app.endpoint}
 			>
-				<Typography color="textPrimary">
+				<Typography>
 					<i className={app.icon} />
 				</Typography>
 			</ListItem>

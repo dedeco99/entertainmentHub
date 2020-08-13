@@ -11,6 +11,7 @@ import Twitch from "../widgets/Twitch";
 import Weather from "../widgets/Weather";
 import TV from "../widgets/TV";
 import Crypto from "../widgets/Crypto";
+import Price from "../widgets/Price";
 import WidgetDetail from "../widgets/WidgetDetail";
 
 import { WidgetContext } from "../../contexts/WidgetContext";
@@ -72,6 +73,13 @@ const widgetsInfo = {
 		dimensions: { w: widget.width || 1, h: widget.height || 1 },
 		restrictions: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
 	}),
+	price: widget => ({
+		content: <Price country={widget.info.country} productId={widget.info.productId} />,
+		editText: "Price",
+		editIcon: "icofont-money",
+		dimensions: { w: widget.width || 1, h: widget.height || 1 },
+		restrictions: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
+	}),
 };
 
 function Widgets() {
@@ -85,17 +93,23 @@ function Widgets() {
 	const [selectedWidget, setSelectedWidget] = useState(null);
 
 	useEffect(() => {
+		let isMounted = true;
+
 		async function fetchData() {
 			setLoading(true);
 
 			const response = await getWidgets();
 
-			dispatch({ type: "SET_WIDGETS", widgets: response.data });
+			if (response.status === 200 && isMounted) {
+				dispatch({ type: "SET_WIDGETS", widgets: response.data });
 
-			setLoading(false);
+				setLoading(false);
+			}
 		}
 
 		fetchData();
+
+		return () => (isMounted = false);
 	}, []); // eslint-disable-line
 
 	function handleWidgetDetailOpen(e, widget) {

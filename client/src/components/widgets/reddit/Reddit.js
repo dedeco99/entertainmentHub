@@ -18,6 +18,7 @@ function Reddit({ subreddit, search, listView }) {
 	const [open, setOpen] = useState(false);
 	const [showListView, setShowListView] = useState(true);
 	const [num, setNum] = useState(0);
+	let isMounted = true;
 
 	async function handleGetPosts() {
 		if (!loading) {
@@ -30,7 +31,7 @@ function Reddit({ subreddit, search, listView }) {
 				response = await getPosts(subreddit, pagination.after);
 			}
 
-			if (response.status === 200) {
+			if (response.status === 200 && isMounted) {
 				response.data = response.data.filter(post => !post.stickied);
 				const newPosts = pagination.page === 0 ? response.data : posts.concat(response.data);
 
@@ -50,10 +51,12 @@ function Reddit({ subreddit, search, listView }) {
 		async function fetchData() {
 			await handleGetPosts();
 
-			setShowListView(listView);
+			if (isMounted) setShowListView(listView);
 		}
 
 		fetchData();
+
+		return () => (isMounted = false); // eslint-disable-line
 	}, []); // eslint-disable-line
 
 	function handleShowPreviousPost() {

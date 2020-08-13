@@ -105,7 +105,9 @@ function WidgetDetail({ open, widget, onClose }) {
 	}
 
 	function handleChange(e) {
-		if (e.target.id && e.target.id.includes("info")) {
+		if (e.target.value.includes("info.country")) {
+			setInfo({ ...info, country: e.target.value.replace("info.country.", "") });
+		} else if (e.target.id && e.target.id.includes("info")) {
 			setInfo({ ...info, [e.target.id.replace("info.", "")]: e.target.value });
 		} else {
 			setType(e.target.value);
@@ -231,6 +233,50 @@ function WidgetDetail({ open, widget, onClose }) {
 						fullWidth
 					/>
 				);
+			case "price":
+				const countries = [
+					{ value: "au", displayName: "Australia" },
+					{ value: "ca", displayName: "Canada" },
+					{ value: "fr", displayName: "France" },
+					{ value: "de", displayName: "Germany" },
+					{ value: "it", displayName: "Italy" },
+					{ value: "es", displayName: "Spain" },
+					{ value: "uk", displayName: "UK" },
+					{ value: "us", displayName: "USA" },
+				];
+
+				return (
+					<div>
+						<br />
+						<Input
+							label="Country"
+							id="info.country"
+							value={info.country ? `info.country.${info.country}` : ""}
+							onChange={handleChange}
+							variant="outlined"
+							select
+							fullWidth
+							required
+						>
+							{countries.map(c => (
+								<MenuItem key={c.value} value={`info.country.${c.value}`}>
+									{c.displayName}
+								</MenuItem>
+							))}
+						</Input>
+						<Input
+							id="info.productId"
+							type="text"
+							label="Product Id"
+							value={info.productId || ""}
+							onChange={handleChange}
+							margin="normal"
+							variant="outlined"
+							fullWidth
+							required
+						/>
+					</div>
+				);
 			default:
 				return null;
 		}
@@ -244,9 +290,10 @@ function WidgetDetail({ open, widget, onClose }) {
 			{ value: "weather", displayName: "Weather" },
 			{ value: "crypto", displayName: "Crypto" },
 			{ value: "tv", displayName: "TV" },
+			{ value: "price", displayName: "Price" },
 		];
 
-		const nonAppWidgets = ["notifications", "weather", "crypto"];
+		const nonAppWidgets = ["notifications", "weather", "crypto", "price"];
 		const appTypes = user.apps ? user.apps.map(a => a.platform).concat(nonAppWidgets) : nonAppWidgets;
 		types = types.filter(t => appTypes.includes(t.value));
 

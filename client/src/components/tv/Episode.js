@@ -23,8 +23,11 @@ function Episode({ episode }) {
 			<CardActionArea>
 				<CardMedia component="img" height="150" image={image} />
 				<div className={`${classes.overlay} ${classes.title}`}>{episode.title}</div>
-				<div className={episode.series && `${classes.overlay} ${classes.seriesName}`}>
+				<div className={episode.series ? `${classes.overlay} ${classes.seriesName}` : ""}>
 					{episode.series && episode.series.displayName}
+				</div>
+				<div className={episode.finale ? `${classes.overlay} ${classes.finale}` : ""}>
+					{episode.finale && "Finale"}
 				</div>
 				<div className={`${classes.overlay} ${classes.season}`}>{seasonLabel + episodeLabel}</div>
 				<div className={`${classes.overlay} ${classes.date}`}>{formatDate(episode.date, "DD-MM-YYYY")}</div>

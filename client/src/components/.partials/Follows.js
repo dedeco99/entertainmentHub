@@ -46,9 +46,16 @@ function Follows({ platform }) {
 	});
 	const [checkedFollows, setCheckedFollows] = useState([]);
 	const [openModal, setOpenModal] = useState(false);
+	let isMounted = true;
 
 	useEffect(() => {
-		handleGetFollows();
+		async function fetchData() {
+			await handleGetFollows();
+		}
+
+		fetchData();
+
+		return () => (isMounted = false); // eslint-disable-line
 	}, []); // eslint-disable-line
 
 	async function handleGetFollows() {
@@ -62,7 +69,7 @@ function Follows({ platform }) {
 
 			if (response.status === 401) return history.push("/settings");
 
-			if (response.status === 200) {
+			if (response.status === 200 && isMounted) {
 				let newFollows = pagination.page === 0 ? response.data : follows.concat(response.data);
 
 				dispatch({ type: "SET_FOLLOWS", follows: newFollows });

@@ -32,15 +32,19 @@ function Subscriptions({ platform, selected, idField, action }) {
 	const [openModal, setOpenModal] = useState(false);
 
 	useEffect(() => {
+		let isMounted = true;
+
 		async function fetchData() {
 			const response = await getSubscriptions(platform);
 
-			if (response.status === 200) {
+			if (response.status === 200 && isMounted) {
 				dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
 			}
 		}
 
 		fetchData();
+
+		return () => (isMounted = false);
 	}, []); // eslint-disable-line
 
 	async function handleEditSubscription(id, subscription) {

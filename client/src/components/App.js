@@ -10,7 +10,6 @@ import SocketClient from "./.partials/SocketClient";
 import PrivateRoute from "./auth/PrivateRoute";
 import Header from "./header/Header";
 import Index from "./index/Index";
-import Register from "./auth/Register";
 import Login from "./auth/Login";
 import Youtube from "./youtube/Youtube";
 import Reddit from "./reddit/Reddit";
@@ -18,6 +17,7 @@ import Twitch from "./twitch/Twitch";
 import TV from "./tv/TV";
 import Settings from "./settings/Settings";
 import Apps from "./settings/Apps";
+import VideoPlayer from "./videoPlayer/VideoPlayer";
 
 import UserContextProvider from "../contexts/UserContext";
 import NotificationContextProvider from "../contexts/NotificationContext";
@@ -26,6 +26,7 @@ import YoutubeContextProvider from "../contexts/YoutubeContext";
 import TwitchContextProvider from "../contexts/TwitchContext";
 import RedditContextProvider from "../contexts/RedditContext";
 import TVContextProvider from "../contexts/TVContext";
+import VideoPlayerContextProvider from "../contexts/VideoPlayerContext";
 
 import styles from "../styles/General";
 
@@ -48,9 +49,9 @@ const theme = createMuiTheme({
 			contrastText: "rgba(0, 0, 0, 1)",
 		},
 		secondary: {
-			light: "#ff4081",
-			main: "#f50057",
-			dark: "#c51162",
+			light: "#ec6e4c",
+			main: "#ec6e4c",
+			dark: "#ec6e4c",
 			contrastText: "#fff",
 		},
 		error: {
@@ -83,7 +84,6 @@ function App() {
 		return (
 			<Switch>
 				<Route exact path="/" component={Index} />
-				<Route exact path="/register" component={Register} />
 				<Route exact path="/login" component={Login} />
 				<PrivateRoute exact path="/apps/:app" component={Apps} />
 				<PrivateRoute exact path="/youtube" component={Youtube} />
@@ -111,13 +111,16 @@ function App() {
 							<TwitchContextProvider>
 								<RedditContextProvider>
 									<TVContextProvider>
-										<BrowserRouter>
-											<Header />
-											<div className={classes.main}>{renderRoutes()}</div>
-											{<BackUpButton />}
-											<ToastContainer position="bottom-right" newestOnTop />
-											<SocketClient />
-										</BrowserRouter>
+										<VideoPlayerContextProvider>
+											<BrowserRouter>
+												<Header />
+												<div className={classes.main}>{renderRoutes()}</div>
+												<BackUpButton />
+												<VideoPlayer />
+												<ToastContainer position="bottom-right" newestOnTop />
+												<SocketClient />
+											</BrowserRouter>
+										</VideoPlayerContextProvider>
 									</TVContextProvider>
 								</RedditContextProvider>
 							</TwitchContextProvider>
