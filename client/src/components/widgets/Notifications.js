@@ -28,6 +28,7 @@ import { getNotifications, patchNotifications, deleteNotifications } from "../..
 import { addToWatchLater } from "../../api/youtube";
 
 import { formatDate, formatVideoDuration } from "../../utils/utils";
+import { translate } from "../../utils/translations";
 
 import { notifications as widgetStyles } from "../../styles/Widgets";
 import { videoPlayer as videoPlayerStyles } from "../../styles/VideoPlayer";
@@ -267,10 +268,7 @@ function Notifications({ height }) {
 									{notification.info.displayName}
 								</Link>
 							</Typography>
-							<Typography variant="caption">
-								{" "}
-								{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}{" "}
-							</Typography>
+							<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
 						</Box>
 					</>
 				);
@@ -284,17 +282,12 @@ function Notifications({ height }) {
 						</Box>
 						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
 							<Typography variant="body1" title={title} noWrap>
-								{" "}
-								{title}{" "}
+								{title}
 							</Typography>
 							<Typography variant="body2" title={subtitle} noWrap>
-								{" "}
-								{subtitle}{" "}
+								{subtitle}
 							</Typography>
-							<Typography variant="caption">
-								{" "}
-								{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}{" "}
-							</Typography>
+							<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
 						</Box>
 					</>
 				);
@@ -333,7 +326,7 @@ function Notifications({ height }) {
 		return (
 			<Box display="flex" alignItems="center" justifyContent="center">
 				<motion.h3 variants={noNotificationVariant} initial="hidden" animate="visible">
-					{"You have no notifications"}
+					{translate("noNotifications")}
 				</motion.h3>
 			</Box>
 		);
@@ -343,19 +336,19 @@ function Notifications({ height }) {
 		if (selectedNotification) {
 			if (pagination.history) {
 				return [
-					{ name: "Restore", onClick: handleRestoreNotification },
-					{ name: "Delete", onClick: handleHideNotification },
+					{ name: translate("restore"), onClick: handleRestoreNotification },
+					{ name: translate("delete"), onClick: handleHideNotification },
 				];
 			}
 
 			switch (selectedNotification.type) {
 				case "youtube":
 					return [
-						{ name: "Mark as read", onClick: handleHideNotification },
-						{ name: "Watch later", onClick: handleWatchLaterOption },
+						{ name: translate("markAsRead"), onClick: handleHideNotification },
+						{ name: translate("watchLater"), onClick: handleWatchLaterOption },
 					];
 				default:
-					return [{ name: "Mark as read", onClick: handleHideNotification }];
+					return [{ name: translate("markAsRead"), onClick: handleHideNotification }];
 			}
 		}
 		return [];
@@ -363,7 +356,7 @@ function Notifications({ height }) {
 
 	if (!open) return <Loading />;
 
-	const filterOptions = ["All", "TV", "Youtube", "Reddit", "Twitch"];
+	const filterOptions = [translate("all"), "TV", "Youtube", "Reddit", "Twitch"];
 	const actions = getNotificationActions();
 
 	return (
@@ -376,7 +369,7 @@ function Notifications({ height }) {
 			>
 				<Box display="flex" alignItems="center" className={classes.header}>
 					<Box display="flex" flexGrow={1}>
-						<Typography variant="subtitle1">{"Notifications"}</Typography>
+						<Typography variant="subtitle1">{translate("notifications")}</Typography>
 					</Box>
 					<Box display="flex" justifyContent="flex-end">
 						<Button

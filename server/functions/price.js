@@ -50,7 +50,7 @@ async function getProduct(event) {
 
 	productInfo = global.cache.price.data[product];
 
-	return response(200, "Product found", productInfo);
+	return response(200, "GET_PRODUCT", productInfo);
 }
 
 module.exports = {

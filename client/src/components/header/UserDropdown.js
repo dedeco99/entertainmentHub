@@ -15,11 +15,16 @@ import {
 	Typography,
 	Box,
 	Divider,
+	Select,
+	MenuItem,
 } from "@material-ui/core";
 
 import { UserContext } from "../../contexts/UserContext";
 
 import { logout } from "../../api/auth";
+import { editUser } from "../../api/users";
+
+import { translate } from "../../utils/translations";
 
 import { userDropdown as styles } from "../../styles/Header";
 
@@ -28,8 +33,16 @@ const useStyles = makeStyles(styles);
 function UserDropdown() {
 	const history = useHistory();
 	const classes = useStyles();
-	const { user } = useContext(UserContext);
+	const { user, dispatch } = useContext(UserContext);
 	const [open, setOpen] = useState(false);
+
+	async function handleChangeLanguage(e) {
+		const response = await editUser({ language: e.target.value });
+
+		if (response.status === 200) {
+			dispatch({ type: "SET_USER", user: { ...user, ...response.data } });
+		}
+	}
 
 	function handleClick() {
 		setOpen(!open);
@@ -53,17 +66,17 @@ function UserDropdown() {
 
 	const options = [
 		{
-			title: "Settings",
+			title: translate("settings"),
 			icon: "settings",
 			handleClick: handleSettingsClick,
 		},
 		{
-			title: "Apps",
+			title: translate("apps"),
 			icon: "apps",
 			handleClick: handleConnectionsClick,
 		},
 		{
-			title: "Logout",
+			title: translate("logout"),
 			icon: "exit_to_app",
 			handleClick: handleLogoutClick,
 		},
@@ -86,6 +99,20 @@ function UserDropdown() {
 						</Box>
 						<Divider />
 						<List disablePadding>
+							<ListItem key={"langs"}>
+								<ListItemIcon>
+									<i className="material-icons">{"translate"}</i>
+								</ListItemIcon>
+								<Select
+									value={user.language}
+									displayEmpty
+									onChange={handleChangeLanguage}
+									MenuProps={{ disablePortal: true }}
+								>
+									<MenuItem value={"pt"}>{translate("portugueseLang")}</MenuItem>
+									<MenuItem value={"en"}>{translate("englishLang")}</MenuItem>
+								</Select>
+							</ListItem>
 							{options.map(op => (
 								<ListItem key={op.title} button onClick={op.handleClick}>
 									<ListItemIcon>

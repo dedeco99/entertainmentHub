@@ -227,7 +227,7 @@ async function getEpisodes(event) {
 		]);
 	}
 
-	return response(200, "Episodes found", episodes);
+	return response(200, "GET_EPISODES", episodes);
 }
 
 async function getSearch(event) {
@@ -250,7 +250,7 @@ async function getSearch(event) {
 		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}`,
 	}));
 
-	return response(200, "Series found", series);
+	return response(200, "GET_SERIES", series);
 }
 
 async function getPopular(event) {
@@ -272,7 +272,7 @@ async function getPopular(event) {
 		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}`,
 	}));
 
-	return response(200, "Series found", series);
+	return response(200, "GET_SERIES", series);
 }
 
 module.exports = {

@@ -11,7 +11,7 @@ async function getWidgets(event) {
 
 	const widgets = await Widget.find({ user: user._id }).lean();
 
-	return response(200, "Widgets found", widgets);
+	return response(200, "GET_WIDGETS", widgets);
 }
 
 // eslint-disable-next-line complexity
@@ -59,7 +59,7 @@ async function addWidget(event) {
 
 	await widget.save();
 
-	return response(201, "Widget created", widget);
+	return response(201, "ADD_WIDGET", widget);
 }
 
 async function editWidget(event) {
@@ -73,7 +73,7 @@ async function editWidget(event) {
 
 	const widget = await Widget.findOneAndUpdate({ _id: id }, { info, x, y, width, height }, { new: true }).lean();
 
-	return response(200, "Widget has been updated", widget);
+	return response(200, "EDIT_WIDGET", widget);
 }
 
 async function deleteWidget(event) {
@@ -89,7 +89,7 @@ async function deleteWidget(event) {
 
 	if (!widget) return errors.notFound;
 
-	return response(200, "Widget deleted", widget);
+	return response(200, "DELETE_WIDGET", widget);
 }
 
 module.exports = {

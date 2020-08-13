@@ -5,6 +5,8 @@ import { Dialog, DialogTitle, DialogContent, DialogActions, Button } from "@mate
 
 import Input from "./Input";
 
+import { translate } from "../../utils/translations";
+
 function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 	const [title, setTitle] = useState("");
 
@@ -33,12 +35,12 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 			maxWidth="xs"
 		>
 			<form onSubmit={handleSubmit}>
-				<DialogTitle id="simple-dialog-title">{"Edit Subscription"}</DialogTitle>
+				<DialogTitle id="simple-dialog-title">{translate("editSubscription")}</DialogTitle>
 				<DialogContent>
 					<Input
 						id="title"
 						type="text"
-						label="Title"
+						label={translate("title")}
 						value={title}
 						onChange={handleChange}
 						margin="normal"
@@ -49,10 +51,10 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={onClose} color="primary">
-						{"Close"}
+						{translate("close")}
 					</Button>
 					<Button type="submit" color="primary" autoFocus>
-						{"Update"}
+						{translate("edit")}
 					</Button>
 				</DialogActions>
 			</form>

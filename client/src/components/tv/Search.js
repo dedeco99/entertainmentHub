@@ -10,6 +10,8 @@ import { TVContext } from "../../contexts/TVContext";
 
 import { getSearch } from "../../api/tv";
 
+import { translate } from "../../utils/translations";
+
 function Search() {
 	const { state, dispatch } = useContext(TVContext);
 	const { follows } = state;
@@ -50,7 +52,7 @@ function Search() {
 			<form onSubmit={handleSubmit}>
 				<Input
 					id="search"
-					label="Search"
+					label={translate("search")}
 					value={query}
 					onChange={handleSearch}
 					InputProps={{

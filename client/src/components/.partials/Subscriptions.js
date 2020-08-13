@@ -10,6 +10,8 @@ import { TVContext } from "../../contexts/TVContext";
 
 import { getSubscriptions, deleteSubscription } from "../../api/subscriptions";
 
+import { translate } from "../../utils/translations";
+
 function chooseContext(platform) {
 	switch (platform) {
 		case "youtube":
@@ -83,8 +85,8 @@ function Subscriptions({ platform, selected, idField, action }) {
 	}
 
 	const menuOptions = [
-		{ displayName: "Edit", onClick: e => handleShowModal(e, "edit") },
-		{ displayName: "Delete", onClick: handleDeleteSubscription },
+		{ displayName: translate("edit"), onClick: e => handleShowModal(e, "edit") },
+		{ displayName: translate("delete"), onClick: handleDeleteSubscription },
 	];
 
 	return (
@@ -95,7 +97,7 @@ function Subscriptions({ platform, selected, idField, action }) {
 				idField={idField}
 				action={action}
 				menu={menuOptions}
-				noResultsMessage={"No subscriptions"}
+				noResultsMessage={translate("noSubscriptions")}
 			/>
 			<SubscriptionDetail
 				open={openModal}

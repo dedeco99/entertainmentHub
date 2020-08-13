@@ -7,15 +7,15 @@ async function editUser(event) {
 
 	const toUpdate = {};
 	if ("email" in body) toUpdate.email = body.email;
+	if ("language" in body) toUpdate.language = body.language;
 	if ("settings" in body) toUpdate.settings = body.settings;
 
-	const updatedUser = await User.findOneAndUpdate(
-		{ _id: user._id },
-		toUpdate,
-		{ new: true },
-	).lean();
+	const updatedUser = await User.findOneAndUpdate({ _id: user._id }, toUpdate, {
+		select: "-password",
+		new: true,
+	}).lean();
 
-	return response(200, "User has been edited", updatedUser);
+	return response(200, "EDIT_USER", updatedUser);
 }
 
 module.exports = {

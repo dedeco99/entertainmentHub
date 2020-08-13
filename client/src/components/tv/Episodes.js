@@ -10,6 +10,8 @@ import Episode from "./Episode";
 
 import { getSeasons } from "../../api/tv";
 
+import { translate } from "../../utils/translations";
+
 import { episodes as styles } from "../../styles/TV";
 
 const useStyles = makeStyles(styles);
@@ -152,7 +154,7 @@ function Episodes() {
 
 		return (
 			<Grid item xs={12} key={1}>
-				<div className={classes.noEpisodes}>{"No episodes"}</div>
+				<div className={classes.noEpisodes}>{translate("noEpisodes")}</div>
 			</Grid>
 		);
 	}
@@ -168,7 +170,7 @@ function Episodes() {
 						variant="outlined"
 						fullWidth
 					>
-						{"Passed"}
+						{translate("releasedEpisodes")}
 					</Button>
 				</Grid>
 				<Grid item sm={3} md={2}>
@@ -179,7 +181,7 @@ function Episodes() {
 						variant="outlined"
 						fullWidth
 					>
-						{"Future"}
+						{translate("upcomingEpisodes")}
 					</Button>
 				</Grid>
 				<Grid item xs={12}>

@@ -79,7 +79,7 @@ async function getSubscriptions(event) {
 		after: json.nextPageToken,
 	}));
 
-	return response(200, "Youtube subscriptions found", channels);
+	return response(200, "GET_YOUTUBE_SUBSCRIPTIONS", channels);
 }
 
 async function getVideos(event) {
@@ -124,7 +124,7 @@ async function getVideos(event) {
 		}))
 		.sort((a, b) => new Date(b.published) - new Date(a.published));
 
-	return response(200, "Youtube videos found", items);
+	return response(200, "GET_YOUTUBE_VIDEOS", items);
 }
 
 async function addToWatchLater(event) {
@@ -156,7 +156,7 @@ async function addToWatchLater(event) {
 	if (res.status === 409) return errors.duplicated;
 	if (res.status === 403) return errors.youtubeForbidden;
 
-	return response(200, "Video saved to watch later", true);
+	return response(200, "WATCH_LATER", true);
 }
 
 async function cronjob() {

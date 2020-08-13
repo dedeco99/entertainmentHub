@@ -12,7 +12,7 @@ async function getFeeds(event) {
 		.sort({ displayName: 1 })
 		.lean();
 
-	return response(200, "Feeds found", feeds);
+	return response(200, "GET_FEEDS", feeds);
 }
 
 async function addFeed(event) {
@@ -31,7 +31,7 @@ async function addFeed(event) {
 
 	await feed.save();
 
-	return response(201, "Feed created", feed);
+	return response(201, "ADD_FEEDS", feed);
 }
 
 async function editFeed(event) {
@@ -54,7 +54,7 @@ async function editFeed(event) {
 
 	if (!feed) return errors.notFound;
 
-	return response(200, "Feed updated", feed);
+	return response(200, "EDIT_FEEDS", feed);
 }
 
 async function deleteFeed(event) {
@@ -70,7 +70,7 @@ async function deleteFeed(event) {
 
 	if (!feed) return errors.notFound;
 
-	return response(200, "Feed deleted", feed);
+	return response(200, "DELETE_FEEDS", feed);
 }
 
 module.exports = {

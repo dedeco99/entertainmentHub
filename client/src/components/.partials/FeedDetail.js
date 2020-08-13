@@ -12,6 +12,8 @@ import { RedditContext } from "../../contexts/RedditContext";
 import { addFeed, editFeed } from "../../api/feeds";
 import { getSubreddits } from "../../api/reddit";
 
+import { translate } from "../../utils/translations";
+
 function FeedDetail({ open, feed, platform, onClose }) {
 	const { state, dispatch } = useContext(platform === "youtube" ? YoutubeContext : RedditContext);
 	const { subscriptions } = state;
@@ -137,11 +139,11 @@ function FeedDetail({ open, feed, platform, onClose }) {
 			maxWidth="xs"
 		>
 			<form onSubmit={feed ? handleUpdate : handleSubmit}>
-				<DialogTitle id="simple-dialog-title">{feed ? "Edit Feed" : "New Feed"}</DialogTitle>
+				<DialogTitle id="simple-dialog-title">{feed ? translate("editFeed") : translate("newFeed")}</DialogTitle>
 				<DialogContent>
 					<Input
 						type="text"
-						label="Name"
+						label={translate("name")}
 						margin="normal"
 						variant="outlined"
 						defaultValue={name}
@@ -168,10 +170,10 @@ function FeedDetail({ open, feed, platform, onClose }) {
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={handleCloseModal} color="primary">
-						{"Close"}
+						{translate("close")}
 					</Button>
 					<Button type="submit" color="primary" autoFocus>
-						{feed ? "Update" : "Add"}
+						{feed ? translate("update") : translate("add")}
 					</Button>
 				</DialogActions>
 			</form>

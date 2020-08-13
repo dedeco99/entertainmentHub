@@ -8,7 +8,7 @@ async function getApps(event) {
 
 	const apps = await App.find({ user: user._id });
 
-	return response(200, "Apps found", apps);
+	return response(200, "GET_APPS", apps);
 }
 
 async function addApp(event) {
@@ -16,7 +16,7 @@ async function addApp(event) {
 	const { platform, code } = body;
 	const appExists = await App.findOne({ user: user._id, platform });
 
-	if (appExists) return response(409, "App already exists");
+	if (appExists) return errors.duplicated;
 
 	let json = {};
 	switch (platform) {
@@ -60,15 +60,15 @@ async function addApp(event) {
 		await newApp.save();
 
 		// TODO: hide refreshToken
-		return response(201, "App added", newApp);
+		return response(201, "ADD_APP", newApp);
 	} else if (platform === "tv") {
 		const newApp = new App({ user: user._id, platform });
 		await newApp.save();
 
-		return response(201, "App added", newApp);
+		return response(201, "ADD_APP", newApp);
 	}
 
-	return response(400, "Bad Request");
+	return errors.badRequest;
 }
 
 async function deleteApp(event) {
@@ -84,7 +84,7 @@ async function deleteApp(event) {
 
 	if (!app) return errors.notFound;
 
-	return response(200, "App deleted", app);
+	return response(200, "DELETE_APP", app);
 }
 
 module.exports = {

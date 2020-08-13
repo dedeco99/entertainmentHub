@@ -1,14 +1,18 @@
 const { Schema, model } = require("mongoose");
 
-const UserSchema = new Schema({
-	email: { type: String, default: "", unique: true },
-	password: { type: String, default: "" },
-	settings: {
-		useCustomScrollbar: { type: Boolean, default: false },
-		animations: { type: Boolean, default: true },
-		borderColor: { type: Boolean, default: false },
+const UserSchema = new Schema(
+	{
+		email: { type: String, default: "", unique: true },
+		password: { type: String, default: "" },
+		language: { type: String, default: "en" },
+		settings: {
+			useCustomScrollbar: { type: Boolean, default: false },
+			animations: { type: Boolean, default: true },
+			borderColor: { type: Boolean, default: false },
+		},
 	},
-}, { timestamps: { createdAt: "_created", updatedAt: "_modified" } });
+	{ timestamps: { createdAt: "_created", updatedAt: "_modified" } },
+);
 
 const User = model("User", UserSchema);
 

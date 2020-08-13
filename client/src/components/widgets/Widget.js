@@ -8,6 +8,8 @@ import { makeStyles, Zoom, Box, Paper, Typography, IconButton } from "@material-
 import { WidgetContext } from "../../contexts/WidgetContext";
 import { UserContext } from "../../contexts/UserContext";
 
+import { translate } from "../../utils/translations";
+
 import { widget as styles } from "../../styles/Widgets";
 
 const useStyles = makeStyles(styles);
@@ -107,7 +109,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 						{!hasApp && (
 							<Typography variant="subtitle2">
 								<NavLink className={classes.appLink} to="/settings">
-									{"App is missing. Click here to add it"}
+									{translate("missingApp")}
 								</NavLink>
 							</Typography>
 						)}

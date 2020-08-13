@@ -29,6 +29,8 @@ import { getSubscriptions } from "../../api/youtube";
 import { getFollows } from "../../api/twitch";
 import { addSubscriptions } from "../../api/subscriptions";
 
+import { translate } from "../../utils/translations";
+
 import { youtube as styles } from "../../styles/Youtube";
 
 const useStyles = makeStyles(styles);
@@ -170,7 +172,7 @@ function Follows({ platform }) {
 					</Box>
 					<Box display="flex" justifyContent="flex-end" className={classes.modalFooter}>
 						<Button color="primary" variant="contained" onClick={handleAddFollows}>
-							{"Submit"}
+							{translate("submit")}
 						</Button>
 					</Box>
 				</Paper>

@@ -8,6 +8,8 @@ import Episodes from "./Episodes";
 import Search from "./Search";
 import Popular from "./Popular";
 
+import { translate } from "../../utils/translations";
+
 import { tv as styles } from "../../styles/TV";
 
 const useStyles = makeStyles(styles);
@@ -75,7 +77,7 @@ function TV() {
 			<div align="center">
 				<Fab onClick={handleShowSearchBlock} variant="extended" size="medium" className={classes.searchBtn}>
 					<i className="material-icons">{"search"}</i>
-					{"Search"}
+					{translate("search")}
 				</Fab>
 				<Button
 					onClick={handleShowPopular}
@@ -93,7 +95,7 @@ function TV() {
 					variant="outlined"
 					fullWidth
 				>
-					{"All"}
+					{translate("all")}
 				</Button>
 			</div>
 		);
