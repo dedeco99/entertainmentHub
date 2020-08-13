@@ -11,51 +11,10 @@ import { UserContext } from "../../contexts/UserContext";
 
 import { login } from "../../api/auth";
 
+import { login as styles } from "../../styles/Login";
+
 import logo from "../../img/logo_big.png";
-
 import login0 from "../../img/login/login_0.png";
-
-const styles = {
-	root: {
-		width: "100%",
-		height: "100%",
-		top: 0,
-		left: 0,
-		position: "absolute",
-		overflow: "hidden",
-		display: "flex",
-		alignItems: "center",
-		justifyContent: "center",
-	},
-	container: {
-		minWidth: 400,
-	},
-	formContainer: {
-		padding: 20,
-	},
-	sideImageContainer: {
-		height: "100%",
-		maxWidth: "60%",
-		top: 0,
-		right: 0,
-		position: "absolute",
-		zIndex: -1,
-		display: "flex",
-		alignItems: "center",
-		justifyContent: "center",
-	},
-	sideImage: {
-		maxHeight: "100%",
-		width: "100%",
-		filter: "brightness(50%) sepia(70%) hue-rotate(-35deg) saturate(500%)",
-	},
-	createAccount: {
-		cursor: "pointer",
-		"&:hover": {
-			textDecoration: "underline",
-		},
-	},
-};
 
 const useStyles = makeStyles(styles);
 
