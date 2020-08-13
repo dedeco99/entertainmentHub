@@ -46,7 +46,7 @@ function VideoPlayer() {
 					maxHeight: document.documentElement.clientHeight - 80,
 				});
 			});
-	}, []);
+	}, []); // eslint-disable-line
 
 	function handleDeleteVideo(video) {
 		dispatch({ type: "DELETE_VIDEO", video });

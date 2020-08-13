@@ -30,17 +30,23 @@ function Crypto({ coins, widgetDimensions }) {
 	const [selectedCoin, setSelectedCoin] = useState(0);
 
 	useEffect(() => {
+		let isMounted = true;
+
 		async function fetchData() {
 			setOpen(false);
 
 			const response = await getCrypto(coins);
 
-			setCrypto(response.data);
-			setShowListView(response.data.length > 1);
-			setOpen(true);
+			if (isMounted) {
+				setCrypto(response.data);
+				setShowListView(response.data.length > 1);
+				setOpen(true);
+			}
 		}
 
 		fetchData();
+
+		return () => (isMounted = false);
 	}, [coins]); // eslint-disable-line
 
 	function simplifyNumber(num) {

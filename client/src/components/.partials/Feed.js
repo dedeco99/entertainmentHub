@@ -32,19 +32,23 @@ function Feed({ feed }) {
 	const [openModal, setOpenModal] = useState(false);
 
 	useEffect(() => {
+		let isMounted = true;
+
 		async function fetchData() {
 			const response =
 				feed.platform === "youtube"
 					? await getVideos(feed.subscriptions.join(","))
 					: await getPosts(feed.subscriptions.join("+"));
 
-			if (response.status === 200) {
+			if (response.status === 200 && isMounted) {
 				setPosts(response.data);
 				setOpen(true);
 			}
 		}
 
 		fetchData();
+
+		return () => (isMounted = false);
 	}, [feed]);
 
 	async function handleDeleteFeed() {
