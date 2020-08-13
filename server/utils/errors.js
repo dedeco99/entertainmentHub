@@ -1,21 +1,21 @@
 const { error } = require("./request");
 
 module.exports = {
-	notFound: error(404, "Not Found"),
-	requiredFieldsMissing: error(400, "Required fields missing"),
-	duplicated: error(409, "Duplicated"),
+	notFound: error(404, "NOT_FOUND"),
+	requiredFieldsMissing: error(400, "REQUIRED_FIELDS"),
+	duplicated: error(409, "DUPLICATED"),
 
-	youtubeRefreshToken: error(401, "Youtube access has been revoked"),
-	youtubeForbidden: error(403, "Youtube API limit reached"),
+	youtubeRefreshToken: error(401, "YOUTUBE_TOKEN"),
+	youtubeForbidden: error(403, "YOUTUBE_FORBIDDEN"),
 
-	redditRefreshToken: error(401, "Reddit access has been revoked"),
-	redditForbidden: error(403, "Reddit API is down"),
+	redditRefreshToken: error(401, "REDDIT_TOKEN"),
+	redditForbidden: error(403, "REDDIT_FORBIDDEN"),
 	redditNotFound: subreddit => error(404, `Subreddit ${subreddit} not found`),
 
-	twitchRefreshToken: error(401, "Twitch access has been revoked"),
+	twitchRefreshToken: error(401, "TWITCH_TOKEN"),
 
-	coinmarketcapForbidden: error(403, "Coinmarketcap API is down"),
-	coinmarketcapNotFound: error(404, "Coin not found"),
+	coinmarketcapForbidden: error(403, "COINMARKETPLACE_FORBIDDEN"),
+	coinmarketcapNotFound: error(404, "COINMARKETPLACE_NOT_FOUND"),
 
-	productNotFound: error(404, "Product not found"),
+	productNotFound: error(404, "PRODUCT_NOT_FOUND"),
 };

@@ -78,7 +78,7 @@ async function getStreams(event) {
 
 	streams.sort((a, b) => (a.viewers <= b.viewers ? 1 : -1));
 
-	return response(200, "Streams found", streams);
+	return response(200, "GET_STREAMS", streams);
 }
 
 async function getFollows(event) {
@@ -131,7 +131,7 @@ async function getFollows(event) {
 			.sort((a, b) => (a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1));
 	}
 
-	return response(200, "Twitch followed channels found", channels);
+	return response(200, "GET_CHANNELS", channels);
 }
 
 async function testWebhooks(accessToken) {

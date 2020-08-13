@@ -27,7 +27,7 @@ async function getNotifications(event) {
 		{ $limit: 25 },
 	]);
 
-	return response(200, "Notifications found", { notifications, total });
+	return response(200, "GET_NOTIFICATIONS", { notifications, total });
 }
 
 async function patchNotification(event) {
@@ -44,7 +44,7 @@ async function patchNotification(event) {
 
 	if (!notification) return errors.notFound;
 
-	return response(200, "Notification updated", notification);
+	return response(200, "EDIT_NOTIFICATION", notification);
 }
 
 async function deleteNotification(event) {
@@ -60,7 +60,7 @@ async function deleteNotification(event) {
 
 	if (!notification) return errors.notFound;
 
-	return response(200, "Notification deleted", notification);
+	return response(200, "DELETE_NOTIFICATION", notification);
 }
 
 async function addNotifications(notifications) {

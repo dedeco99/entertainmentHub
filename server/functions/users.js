@@ -15,7 +15,7 @@ async function editUser(event) {
 		new: true,
 	}).lean();
 
-	return response(200, "User has been edited", updatedUser);
+	return response(200, "EDIT_USER", updatedUser);
 }
 
 module.exports = {

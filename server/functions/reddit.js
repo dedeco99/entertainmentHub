@@ -132,7 +132,7 @@ async function getSubreddits(event) {
 		subreddits.sort((a, b) => (a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1));
 	}
 
-	return response(200, "Subreddits found", subreddits);
+	return response(200, "GET_SUBREDDITS", subreddits);
 }
 
 async function getPosts(event) {
@@ -160,7 +160,7 @@ async function getPosts(event) {
 	const json = res.data;
 	const posts = formatResponse(json);
 
-	return response(200, "Reddit posts found", posts);
+	return response(200, "GET_REDDIT_POSTS", posts);
 }
 
 async function getSearch(event) {
@@ -188,7 +188,7 @@ async function getSearch(event) {
 	const json = res.data;
 	const posts = formatResponse(json);
 
-	return response(200, "Reddit search found", posts);
+	return response(200, "GET_REDDIT_SEARCH", posts);
 }
 
 module.exports = {

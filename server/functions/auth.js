@@ -30,12 +30,12 @@ async function register(event) {
 
 	const userExists = await User.findOne({ email });
 
-	if (userExists) return response(409, "User already exists");
+	if (userExists) return response(409, "REGISTERED_USER");
 
 	const newUser = new User({ email, password: await hashPassword(password) });
 	await newUser.save();
 
-	return response(201, "User registered successfully");
+	return response(201, "ADD_USER");
 }
 
 async function login(event) {
@@ -53,13 +53,13 @@ async function login(event) {
 
 			delete user.password;
 
-			return response(200, "Login successful", { user, token: newToken.token });
+			return response(200, "LOGIN", { user, token: newToken.token });
 		}
 
-		return response(401, "Password is incorrect");
+		return response(401, "PASSWORD");
 	}
 
-	return response(401, "User is not registered");
+	return response(401, "NOT_REGISTERED_USER");
 }
 
 module.exports = {

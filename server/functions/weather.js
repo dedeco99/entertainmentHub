@@ -82,7 +82,7 @@ async function getWeather(event) {
 		})),
 	};
 
-	return response(200, "Weather found", weather);
+	return response(200, "GET_WEATHER", weather);
 }
 
 function getCities(event) {
@@ -101,7 +101,7 @@ function getCities(event) {
 		}))
 		.sort((a, b) => a.name <= b.name ? -1 : 1);
 
-	return response(200, "Cities found", cities);
+	return response(200, "GET_CITIES", cities);
 }
 
 module.exports = {

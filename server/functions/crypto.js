@@ -37,7 +37,7 @@ async function getCoins(event) {
 		}))
 		.sort((a, b) => a.created <= b.created ? -1 : 1);
 
-	return response(200, "Coins found", coins);
+	return response(200, "GET_COINS", coins);
 }
 
 async function getPrices(event) {
@@ -94,7 +94,7 @@ async function getPrices(event) {
 
 	coinsInfo.sort((a, b) => a.rank <= b.rank ? -1 : 1);
 
-	return response(200, "Coin found", coinsInfo);
+	return response(200, "GET_COIN", coinsInfo);
 }
 
 module.exports = {

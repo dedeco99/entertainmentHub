@@ -14,7 +14,7 @@ async function getSubscriptions(event) {
 		.sort({ displayName: 1 })
 		.lean();
 
-	return response(200, "Subscriptions found", subscriptions);
+	return response(200, "GET_SUBSCRIPTIONS", subscriptions);
 }
 
 async function addSubscriptions(event) {
@@ -59,7 +59,7 @@ async function addSubscriptions(event) {
 
 	await Subscription.insertMany(subscriptionsToAdd);
 
-	return response(201, "Subscriptions created", subscriptionsToAdd);
+	return response(201, "ADD_SUBSCRIPTIONS", subscriptionsToAdd);
 }
 
 async function editSubscription(event) {
@@ -76,7 +76,7 @@ async function editSubscription(event) {
 
 	if (!subscription) return errors.notFound;
 
-	return response(200, "Subscription has been updated", subscription);
+	return response(200, "EDIT_SUBSCRIPTIONS", subscription);
 }
 
 async function deleteSubscription(event) {
@@ -92,7 +92,7 @@ async function deleteSubscription(event) {
 
 	if (!subscription) return errors.notFound;
 
-	return response(200, "Subscription deleted", subscription);
+	return response(200, "DELETE_SUBSCRIPTIONS", subscription);
 }
 
 module.exports = {

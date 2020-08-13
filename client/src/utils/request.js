@@ -20,7 +20,7 @@ async function api({ method, url, data, headers = {}, message = false }) {
 		};
 	} catch (error) {
 		if (error.response) {
-			toast.error(error.response.data.message);
+			toast.error(translate(error.response.data.message));
 
 			return {
 				status: error.request.status,
