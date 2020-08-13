@@ -16,4 +16,6 @@ module.exports = {
 
 	coinmarketcapForbidden: error(403, "Coinmarketcap API is down"),
 	coinmarketcapNotFound: error(404, "Coin not found"),
+
+	productNotFound: error(404, "Product not found"),
 };

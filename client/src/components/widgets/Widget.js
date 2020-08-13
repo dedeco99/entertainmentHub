@@ -92,7 +92,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 		setHovered(false);
 	}
 
-	const nonAppWidgets = ["notifications", "weather", "crypto"];
+	const nonAppWidgets = ["notifications", "weather", "crypto", "price"];
 	const hasApp = user.apps
 		? user.apps.find(app => app.platform === type || nonAppWidgets.includes(type))
 		: nonAppWidgets.includes(type);
