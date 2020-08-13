@@ -43,6 +43,14 @@ const translations = {
 		en: "Delete",
 		pt: "Apagar",
 	},
+	deleteConfirmation: {
+		en: "Delete Confirmation",
+		pt: "Confirmação para Apagar",
+	},
+	deleteConfirmationText: {
+		en: "Are you sure you want to delete",
+		pt: "Têm a certeza que quer apagar", 
+	},
 	close: {
 		en: "Close",
 		pt: "Fechar",
