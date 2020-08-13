@@ -52,6 +52,7 @@ function Notifications({ height }) {
 	const [selectedNotification, setSelectedNotification] = useState(null);
 	const [actionLoading, setActionLoading] = useState(false);
 	const [open, setOpen] = useState(false);
+	let isMounted = true;
 
 	async function handleGetNotifications() {
 		if (!pagination.loading) {
@@ -60,11 +61,9 @@ function Notifications({ height }) {
 			let filter = pagination.filter.substring(7);
 			filter = filter === "all" ? "" : filter;
 
-			console.log(pagination);
-
 			const response = await getNotifications(pagination.page, pagination.history, filter);
 
-			if (response.status === 200) {
+			if (response.status === 200 && isMounted) {
 				// prettier-ignore
 				const newNotifications = pagination.page === 0
 					? response.data.notifications
@@ -84,7 +83,13 @@ function Notifications({ height }) {
 	}
 
 	useEffect(() => {
-		handleGetNotifications();
+		async function fetchData() {
+			await handleGetNotifications();
+		}
+
+		fetchData();
+
+		return () => (isMounted = false); // eslint-disable-line
 	}, [pagination.filter, pagination.history]); // eslint-disable-line
 
 	async function handleHideNotification() {

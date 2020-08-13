@@ -16,14 +16,20 @@ function Twitch() {
 	const [open, setOpen] = useState(false);
 
 	useEffect(() => {
+		let isMounted = true;
+
 		async function fetchData() {
 			const response = await getStreams();
 
-			setStreams(response.data);
-			setOpen(true);
+			if (response.status === 200 && isMounted) {
+				setStreams(response.data);
+				setOpen(true);
+			}
 		}
 
 		fetchData();
+
+		return () => (isMounted = false);
 	}, []); // eslint-disable-line
 
 	if (!open) return <Loading />;

@@ -93,17 +93,23 @@ function Widgets() {
 	const [selectedWidget, setSelectedWidget] = useState(null);
 
 	useEffect(() => {
+		let isMounted = true;
+
 		async function fetchData() {
 			setLoading(true);
 
 			const response = await getWidgets();
 
-			dispatch({ type: "SET_WIDGETS", widgets: response.data });
+			if (response.status === 200 && isMounted) {
+				dispatch({ type: "SET_WIDGETS", widgets: response.data });
 
-			setLoading(false);
+				setLoading(false);
+			}
 		}
 
 		fetchData();
+
+		return () => (isMounted = false);
 	}, []); // eslint-disable-line
 
 	function handleWidgetDetailOpen(e, widget) {

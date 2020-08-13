@@ -19,16 +19,22 @@ function Weather({ city, country, lat, lon }) {
 	const [weather, setWeather] = useState(false);
 
 	useEffect(() => {
+		let isMounted = true;
+
 		async function fetchData() {
 			setOpen(false);
 
 			const response = await getWeather(lat, lon);
 
-			setWeather(response.data);
-			setOpen(true);
+			if (response.status === 200 && isMounted) {
+				setWeather(response.data);
+				setOpen(true);
+			}
 		}
 
 		fetchData();
+
+		return () => (isMounted = false);
 	}, [city, country, lat, lon]); // eslint-disable-line
 
 	function showFeelsLike() {

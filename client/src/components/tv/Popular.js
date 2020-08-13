@@ -14,6 +14,7 @@ function Popular() {
 	const [hasMore, setHasMore] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
+	let isMounted = true;
 
 	async function handleGetPopular() {
 		if (!loading) {
@@ -21,19 +22,27 @@ function Popular() {
 
 			const response = await getPopular(page);
 
-			const newPopular = page === 0 ? response.data : follows.concat(response.data);
+			if (response.status === 200 && isMounted) {
+				const newPopular = page === 0 ? response.data : follows.concat(response.data);
 
-			dispatch({ type: "SET_FOLLOWS", follows: newPopular });
+				dispatch({ type: "SET_FOLLOWS", follows: newPopular });
 
-			setPage(page + 1);
-			setHasMore(!(response.data.length < 20));
-			setLoading(false);
-			setOpen(true);
+				setPage(page + 1);
+				setHasMore(!(response.data.length < 20));
+				setLoading(false);
+				setOpen(true);
+			}
 		}
 	}
 
 	useEffect(() => {
-		handleGetPopular();
+		async function fetchData() {
+			await handleGetPopular();
+		}
+
+		fetchData();
+
+		return () => (isMounted = false); // eslint-disable-line
 	}, []); // eslint-disable-line
 
 	if (!open) return <Loading />;

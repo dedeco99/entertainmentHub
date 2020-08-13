@@ -19,15 +19,19 @@ function Feeds({ platform }) {
 	const { feeds } = state;
 
 	useEffect(() => {
+		let isMounted = true;
+
 		async function fetchData() {
 			const response = await getFeeds(platform);
 
-			if (response.status === 200) {
+			if (response.status === 200 && isMounted) {
 				dispatch({ type: "SET_FEEDS", feeds: response.data });
 			}
 		}
 
 		fetchData();
+
+		return () => (isMounted = false);
 	}, []); // eslint-disable-line
 
 	async function handleEditFeed(updatedFeeds) {

@@ -12,17 +12,23 @@ function Price({ country, productId, widgetDimensions }) {
 	const [open, setOpen] = useState(false);
 
 	useEffect(() => {
+		let isMounted = true;
+
 		async function fetchData() {
+			setOpen(false);
+
 			const response = await getProduct(country, productId);
 
-			if (response.status === 200) {
+			if (response.status === 200 && isMounted) {
 				setProduct(response.data);
 				setOpen(true);
 			}
 		}
 
 		fetchData();
-	}, [productId]);
+
+		return () => (isMounted = false);
+	}, [productId]); // eslint-disable-line
 
 	if (!open) return <Loading />;
 

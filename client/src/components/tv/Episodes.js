@@ -26,6 +26,7 @@ function Episodes() {
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [currentSeries, setCurrentSeries] = useState(null);
+	let isMounted = true;
 
 	async function handleGetAll() {
 		if (!loading) {
@@ -34,13 +35,15 @@ function Episodes() {
 
 			const response = await getSeasons("all", page, filter);
 
-			const newEpisodes = page === 0 ? response.data : episodes.concat(response.data);
+			if (response.status === 200 && isMounted) {
+				const newEpisodes = page === 0 ? response.data : episodes.concat(response.data);
 
-			setEpisodes(newEpisodes);
-			setPage(page + 1);
-			setHasMore(!(response.data.length < 50));
-			setLoading(false);
-			if (page === 0) setOpen(true);
+				setEpisodes(newEpisodes);
+				setPage(page + 1);
+				setHasMore(!(response.data.length < 50));
+				setLoading(false);
+				if (page === 0) setOpen(true);
+			}
 		}
 	}
 
@@ -63,7 +66,7 @@ function Episodes() {
 
 		const response = await getSeasons(seriesId);
 
-		if (response.status === 200) {
+		if (response.status === 200 && isMounted) {
 			setCurrentSeries(seriesId);
 			setSeasons(response.data);
 			setPage(0);
@@ -72,11 +75,11 @@ function Episodes() {
 		}
 	}
 
-	function handleGetInfo(seriesId, season) {
+	async function handleGetInfo(seriesId, season) {
 		if (season && seasons.length && currentSeries === seriesId) {
 			handleGetEpisodes(season);
 		} else {
-			handleGetSeasons(seriesId);
+			await handleGetSeasons(seriesId);
 		}
 	}
 
@@ -99,31 +102,43 @@ function Episodes() {
 	}
 
 	useEffect(() => {
-		switch (match.path) {
-			case "/tv/all":
-				handleGetAll();
-				break;
-			case "/tv/:seriesId":
-				handleGetInfo(match.params.seriesId);
-				break;
-			case "/tv/:seriesId/:season":
-				handleGetInfo(match.params.seriesId, Number(match.params.season));
-				break;
-			default:
-				break;
+		async function fetchData() {
+			switch (match.path) {
+				case "/tv/all":
+					await handleGetAll();
+					break;
+				case "/tv/:seriesId":
+					await handleGetInfo(match.params.seriesId);
+					break;
+				case "/tv/:seriesId/:season":
+					await handleGetInfo(match.params.seriesId, Number(match.params.season));
+					break;
+				default:
+					break;
+			}
 		}
+
+		fetchData();
+
+		return () => (isMounted = false); // eslint-disable-line
 	}, [match.url]); // eslint-disable-line
 
 	useEffect(() => {
-		if (seasons.length) {
-			if (match.params.season) {
-				handleGetEpisodes(Number(match.params.season));
-			} else {
-				history.replace(`/tv/${match.params.seriesId}/${seasons[seasons.length - 1]._id}`);
+		async function fetchData() {
+			if (seasons.length) {
+				if (match.params.season) {
+					handleGetEpisodes(Number(match.params.season));
+				} else {
+					history.replace(`/tv/${match.params.seriesId}/${seasons[seasons.length - 1]._id}`);
+				}
+			} else if (filter !== "all") {
+				await handleGetAll();
 			}
-		} else if (filter !== "all") {
-			handleGetAll();
 		}
+
+		fetchData();
+
+		return () => (isMounted = false); // eslint-disable-line
 	}, [seasons, filter]); // eslint-disable-line
 
 	function renderEpisodes() {

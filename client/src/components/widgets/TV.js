@@ -21,6 +21,8 @@ function TV() {
 	const [open, setOpen] = useState(false);
 
 	useEffect(() => {
+		let isMounted = true;
+
 		async function fetchData() {
 			const response = await Promise.all([
 				getSeasons("all", 0, "passed"),
@@ -28,13 +30,17 @@ function TV() {
 				getSeasons("all", 0, "future"),
 			]);
 
-			setAllEpisodes(response[0].data);
-			setPopular(response[1].data);
-			setFuture(response[2].data);
-			setOpen(true);
+			if (isMounted) {
+				setAllEpisodes(response[0].data);
+				setPopular(response[1].data);
+				setFuture(response[2].data);
+				setOpen(true);
+			}
 		}
 
 		fetchData();
+
+		return () => (isMounted = false);
 	}, []); // eslint-disable-line
 
 	function handleChange(event, newValue) {
