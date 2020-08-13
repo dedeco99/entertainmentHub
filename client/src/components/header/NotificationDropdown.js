@@ -29,7 +29,7 @@ function NotificationDropdown() {
 	return (
 		<ClickAwayListener onClickAway={handleClickAway}>
 			<div className={classes.wrapper}>
-				<Badge badgeContent={total} max={999} overlap="circle" color="error">
+				<Badge badgeContent={total} max={999} overlap="circle" color="secondary">
 					<IconButton color="primary" onClick={handleClick}>
 						<i className="icofont-alarm" />
 					</IconButton>

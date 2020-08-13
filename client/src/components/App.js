@@ -10,7 +10,6 @@ import SocketClient from "./.partials/SocketClient";
 import PrivateRoute from "./auth/PrivateRoute";
 import Header from "./header/Header";
 import Index from "./index/Index";
-import Register from "./auth/Register";
 import Login from "./auth/Login";
 import Youtube from "./youtube/Youtube";
 import Reddit from "./reddit/Reddit";
@@ -50,9 +49,9 @@ const theme = createMuiTheme({
 			contrastText: "rgba(0, 0, 0, 1)",
 		},
 		secondary: {
-			light: "#ff4081",
-			main: "#f50057",
-			dark: "#c51162",
+			light: "#ec6e4c",
+			main: "#ec6e4c",
+			dark: "#ec6e4c",
 			contrastText: "#fff",
 		},
 		error: {
@@ -85,7 +84,6 @@ function App() {
 		return (
 			<Switch>
 				<Route exact path="/" component={Index} />
-				<Route exact path="/register" component={Register} />
 				<Route exact path="/login" component={Login} />
 				<PrivateRoute exact path="/apps/:app" component={Apps} />
 				<PrivateRoute exact path="/youtube" component={Youtube} />
@@ -117,7 +115,7 @@ function App() {
 											<BrowserRouter>
 												<Header />
 												<div className={classes.main}>{renderRoutes()}</div>
-												{<BackUpButton />}
+												<BackUpButton />
 												<VideoPlayer />
 												<ToastContainer position="bottom-right" newestOnTop />
 												<SocketClient />

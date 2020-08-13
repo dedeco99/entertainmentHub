@@ -1,7 +1,7 @@
 import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 
-import { makeStyles, AppBar, Toolbar, Typography } from "@material-ui/core";
+import { makeStyles, AppBar, Toolbar } from "@material-ui/core";
 
 import { UserContext } from "../../contexts/UserContext";
 
@@ -20,22 +20,23 @@ function Header() {
 	const { user } = useContext(UserContext);
 	const links = user && user.token ? <LoggedInLinks /> : <LoggedOutLinks />;
 
-	return (
-		<div>
-			{user && user.token && <AppMenu />}
-			<AppBar className={classes.appBar}>
-				<Toolbar>
-					<Link to="/" className={classes.brand}>
-						<img src={logo} id="logo" width="60px" alt="Logo" />
-					</Link>
-					<Typography color="textPrimary" variant="h6" className={classes.title}>
-						{"EntertainmentHub"}
-					</Typography>
-					{links}
-				</Toolbar>
-			</AppBar>
-		</div>
-	);
+	if (user && user.token) {
+		return (
+			<div>
+				<AppMenu />
+				<AppBar className={classes.appBar}>
+					<Toolbar>
+						<Link to="/" className={classes.brand}>
+							<img src={logo} id="logo" width="100px" alt="Logo" />
+						</Link>
+						{links}
+					</Toolbar>
+				</AppBar>
+			</div>
+		);
+	}
+
+	return null;
 }
 
 export default Header;
