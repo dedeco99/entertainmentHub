@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 
 import Sidebar from "./Sidebar";
 import SubscriptionDetail from "./SubscriptionDetail";
+import DeleteConfirmation from "./DeleteConfirmation";
 
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { TwitchContext } from "../../contexts/TwitchContext";
@@ -30,6 +31,7 @@ function Subscriptions({ platform, selected, idField, action }) {
 	const { follows, subscriptions } = state;
 	const [selectedSubscription, setSelectedSubscription] = useState(null);
 	const [openModal, setOpenModal] = useState(false);
+	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
 
 	useEffect(() => {
 		let isMounted = true;
@@ -55,16 +57,13 @@ function Subscriptions({ platform, selected, idField, action }) {
 		}
 	}
 
-	async function handleDeleteSubscription(e) {
-		let id = e.target.id;
-		if (idField !== "_id") {
-			id = subscriptions.find(s => s[idField] === id)._id;
-		}
-
-		const response = await deleteSubscription(id);
+	async function handleDeleteSubscription() {
+		const response = await deleteSubscription(selectedSubscription._id);
 
 		if (response.status === 200) {
 			dispatch({ type: "DELETE_SUBSCRIPTION", subscription: response.data });
+
+			handleCloseDeleteConfirmation();
 		}
 	}
 
@@ -84,9 +83,19 @@ function Subscriptions({ platform, selected, idField, action }) {
 		setOpenModal(false);
 	}
 
+	function handleOpenDeleteConfirmation(e) {
+		setSelectedSubscription(subscriptions.find(s => s[idField] === e.target.id));
+
+		setOpenDeleteConfirmation(true);
+	}
+
+	function handleCloseDeleteConfirmation() {
+		setOpenDeleteConfirmation(false);
+	}
+
 	const menuOptions = [
 		{ displayName: translate("edit"), onClick: e => handleShowModal(e, "edit") },
-		{ displayName: translate("delete"), onClick: handleDeleteSubscription },
+		{ displayName: translate("delete"), onClick: handleOpenDeleteConfirmation },
 	];
 
 	return (
@@ -104,6 +113,12 @@ function Subscriptions({ platform, selected, idField, action }) {
 				subscription={selectedSubscription}
 				editSubscription={handleEditSubscription}
 				onClose={handleHideModal}
+			/>
+			<DeleteConfirmation
+				open={openDeleteConfirmation}
+				onClose={handleCloseDeleteConfirmation}
+				onDelete={handleDeleteSubscription}
+				type={selectedSubscription && selectedSubscription.displayName}
 			/>
 		</>
 	);

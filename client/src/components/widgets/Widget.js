@@ -5,6 +5,8 @@ import { AnimatePresence, motion } from "framer-motion";
 
 import { makeStyles, Zoom, Box, Paper, Typography, IconButton } from "@material-ui/core";
 
+import DeleteConfirmation from "../.partials/DeleteConfirmation";
+
 import { WidgetContext } from "../../contexts/WidgetContext";
 import { UserContext } from "../../contexts/UserContext";
 
@@ -69,6 +71,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 	const classes = useStyles({ borderColor: user.settings && user.settings.borderColor ? borderColor : null });
 	const [refreshToken, setRefreshToken] = useState(new Date());
 	const [hovered, setHovered] = useState(false);
+	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
 
 	function handleRefresh() {
 		setRefreshToken(new Date());
@@ -92,6 +95,14 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 
 	function handleHideActions() {
 		setHovered(false);
+	}
+
+	function handleOpenDeleteConfirmation() {
+		setOpenDeleteConfirmation(true);
+	}
+
+	function handleCloseDeleteConfirmation() {
+		setOpenDeleteConfirmation(false);
 	}
 
 	const nonAppWidgets = ["notifications", "weather", "crypto", "price"];
@@ -145,7 +156,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 							)}
 							{onDelete && (
 								<motion.div variants={variants} initial="hidden" animate="visibleD" exit="exitD">
-									<Paper component={Box} className={classes.action} onClick={handleDelete}>
+									<Paper component={Box} className={classes.action} onClick={handleOpenDeleteConfirmation}>
 										<IconButton size="small">
 											<i className="icofont-ui-delete" />
 										</IconButton>
@@ -154,6 +165,12 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 							)}
 						</div>
 					)}
+					<DeleteConfirmation
+						open={openDeleteConfirmation}
+						onClose={handleCloseDeleteConfirmation}
+						onDelete={handleDelete}
+						type={editText}
+					/>
 				</AnimatePresence>
 			</Box>
 		</Zoom>

@@ -174,7 +174,7 @@ function Feed({ feed }) {
 				id={feed._id}
 				type={"youtube"}
 				content={renderFeed()}
-				editText={"Youtube"}
+				editText={feed.displayName}
 				editIcon={"icofont-youtube-play"}
 				onEdit={handleOpenModal}
 				onDelete={handleDeleteFeed}

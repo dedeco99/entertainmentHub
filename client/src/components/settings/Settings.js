@@ -18,6 +18,8 @@ import {
 	Divider,
 } from "@material-ui/core";
 
+import DeleteConfirmation from "../.partials/DeleteConfirmation";
+
 import { UserContext } from "../../contexts/UserContext";
 
 import { deleteApp } from "../../api/apps";
@@ -88,6 +90,8 @@ function Settings() {
 	};
 	const [selectedMenu, setSelectedMenu] = useState(0);
 	const [settings, setSettings] = useState({});
+	const [selectedApp, setSelectedApp] = useState(null);
+	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
 
 	for (const userApp of user.apps) {
 		apps[userApp.platform].id = userApp._id;
@@ -115,16 +119,28 @@ function Settings() {
 		}
 	}
 
-	async function handleDeleteApp(appId) {
-		const response = await deleteApp(appId);
+	async function handleDeleteApp() {
+		const response = await deleteApp(selectedApp.id);
 
 		if (response.status === 200) {
 			dispatch({ type: "DELETE_APP", app: response.data });
+
+			setOpenDeleteConfirmation(false);
 		}
 	}
 
 	function handleCheckboxChange(property) {
 		setSettings({ ...settings, [property]: !settings[property] });
+	}
+
+	function handleOpenDeleteConfirmation(key) {
+		setSelectedApp(apps[key]);
+
+		setOpenDeleteConfirmation(true);
+	}
+
+	function handleCloseDeleteConfirmation() {
+		setOpenDeleteConfirmation(false);
 	}
 
 	function renderApp(app) {
@@ -151,7 +167,12 @@ function Settings() {
 								)}
 							</Box>
 							{app.active ? (
-								<Button color="primary" variant="contained" size="small" onClick={() => handleDeleteApp(app.id)}>
+								<Button
+									color="primary"
+									variant="contained"
+									size="small"
+									onClick={() => handleOpenDeleteConfirmation(app.key)}
+								>
 									{translate("disconnect")}
 								</Button>
 							) : (
@@ -255,6 +276,12 @@ function Settings() {
 					{renderContent()}
 				</Grid>
 			</Grid>
+			<DeleteConfirmation
+				open={openDeleteConfirmation}
+				onClose={handleCloseDeleteConfirmation}
+				onDelete={handleDeleteApp}
+				type={selectedApp && selectedApp.displayName}
+			/>
 		</div>
 	);
 }
