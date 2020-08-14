@@ -165,13 +165,13 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 							)}
 						</div>
 					)}
-					<DeleteConfirmation
-						open={openDeleteConfirmation}
-						onClose={handleCloseDeleteConfirmation}
-						onDelete={handleDelete}
-						type={editText}
-					/>
 				</AnimatePresence>
+				<DeleteConfirmation
+					open={openDeleteConfirmation}
+					onClose={handleCloseDeleteConfirmation}
+					onDelete={handleDelete}
+					type={editText}
+				/>
 			</Box>
 		</Zoom>
 	);
