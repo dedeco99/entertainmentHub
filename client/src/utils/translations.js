@@ -1,3 +1,5 @@
+import React from "react";
+
 const translations = {
 	connect: {
 		en: "Connect",
@@ -47,10 +49,16 @@ const translations = {
 		en: "Delete Confirmation",
 		pt: "Confirmação para Apagar",
 	},
-	deleteConfirmationText: {
-		en: "Are you sure you want to delete",
-		pt: "Tem a certeza que quer apagar",
-	},
+	deleteConfirmationText: (...params) => ({
+		en: (
+			<span>
+				{"Are you sure you want to delete "}
+				<span style={{ color: params[1] }}>{params[0]}</span>
+				{" ?"}
+			</span>
+		),
+		pt: `Tem a certeza que quer apagar ${params[0]} ?`,
+	}),
 	close: {
 		en: "Close",
 		pt: "Fechar",

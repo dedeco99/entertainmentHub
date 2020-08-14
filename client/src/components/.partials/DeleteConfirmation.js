@@ -15,12 +15,8 @@ function DeleteConfirmation({ open, onClose, onDelete, type }) {
 			maxWidth="xs"
 		>
 			<DialogTitle id="simple-dialog-title">{translate("deleteConfirmation")}</DialogTitle>
-			<DialogContent style={{ display: "flex" }}>
-				<DialogContentText style={{ paddingRight: "4px" }}>
-					{translate("deleteConfirmationText")}
-				</DialogContentText>
-				<DialogContentText style={{ color: "#ec6e4c" }}>{type}</DialogContentText>
-				<DialogContentText>{"?"}</DialogContentText>
+			<DialogContent>
+				<DialogContentText>{translate("deleteConfirmationText", type, "#ec6e4c")}</DialogContentText>
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={onClose} color="primary">

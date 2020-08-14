@@ -41,8 +41,6 @@ function Subscriptions({ platform, selected, idField, action }) {
 
 			if (response.status === 200 && isMounted) {
 				dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
-
-				handleCloseDeleteConfirmation();
 			}
 		}
 

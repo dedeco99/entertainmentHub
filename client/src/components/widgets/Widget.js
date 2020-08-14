@@ -167,7 +167,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 						open={openDeleteConfirmation}
 						onClose={handleCloseDeleteConfirmation}
 						onDelete={handleDelete}
-						type={type}
+						type={editText}
 					/>
 				</AnimatePresence>
 			</Box>
