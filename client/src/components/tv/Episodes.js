@@ -154,7 +154,7 @@ function Episodes() {
 
 		return (
 			<Grid item xs={12} key={1}>
-				<div className={classes.noEpisodes}>{"No episodes"}</div>
+				<div className={classes.noEpisodes}>{translate("noEpisodes")}</div>
 			</Grid>
 		);
 	}

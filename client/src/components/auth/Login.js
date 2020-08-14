@@ -11,6 +11,8 @@ import { UserContext } from "../../contexts/UserContext";
 
 import { login } from "../../api/auth";
 
+import { translate } from "../../utils/translations";
+
 import { login as styles } from "../../styles/Login";
 
 import logo from "../../img/logo_big.png";
@@ -145,7 +147,7 @@ function Login() {
 											<br />
 											<br />
 											<Button type="submit" color="secondary" variant="contained" fullWidth>
-												{"Continue to EntertainmentHub"}
+												{translate("login")}
 											</Button>
 										</form>
 									)}

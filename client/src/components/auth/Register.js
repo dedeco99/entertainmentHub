@@ -9,6 +9,8 @@ import { UserContext } from "../../contexts/UserContext";
 
 import { register } from "../../api/auth";
 
+import { translate } from "../../utils/translations";
+
 function Register() {
 	const history = useHistory();
 	const { user } = useContext(UserContext);
@@ -66,7 +68,7 @@ function Register() {
 			<br />
 			<br />
 			<Button type="submit" color="secondary" variant="contained" fullWidth>
-				{"Register"}
+				{translate("register")}
 			</Button>
 		</form>
 	);

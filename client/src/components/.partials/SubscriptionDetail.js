@@ -35,7 +35,7 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 			maxWidth="xs"
 		>
 			<form onSubmit={handleSubmit}>
-				<DialogTitle id="simple-dialog-title">{"Edit Subscription"}</DialogTitle>
+				<DialogTitle id="simple-dialog-title">{translate("editSubscription")}</DialogTitle>
 				<DialogContent>
 					<Input
 						id="title"
@@ -51,7 +51,7 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 				</DialogContent>
 				<DialogActions>
 					<Button onClick={onClose} color="primary">
-						{"Close"}
+						{translate("close")}
 					</Button>
 					<Button type="submit" color="primary" autoFocus>
 						{translate("edit")}

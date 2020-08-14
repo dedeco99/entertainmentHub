@@ -1,9 +1,14 @@
 const { error } = require("./request");
 
 module.exports = {
+	badRequest: error(400, "BAD_REQUEST"),
 	notFound: error(404, "NOT_FOUND"),
 	requiredFieldsMissing: error(400, "REQUIRED_FIELDS"),
 	duplicated: error(409, "DUPLICATED"),
+
+	userExists: error(409, "USER_DUPLICATED"),
+	userPasswordWrong: error(401, "USER_PASSWORD_WRONG"),
+	userNotRegistered: error(401, "USER_NOT_REGISTERED"),
 
 	youtubeRefreshToken: error(401, "YOUTUBE_TOKEN"),
 	youtubeForbidden: error(403, "YOUTUBE_FORBIDDEN"),
@@ -14,8 +19,8 @@ module.exports = {
 
 	twitchRefreshToken: error(401, "TWITCH_TOKEN"),
 
-	coinmarketcapForbidden: error(403, "COINMARKETPLACE_FORBIDDEN"),
-	coinmarketcapNotFound: error(404, "COINMARKETPLACE_NOT_FOUND"),
+	coinmarketcapForbidden: error(403, "COINMARKETCAP_FORBIDDEN"),
+	coinmarketcapNotFound: error(404, "COINMARKETCAP_NOT_FOUND"),
 
 	productNotFound: error(404, "PRODUCT_NOT_FOUND"),
 };

@@ -3,17 +3,19 @@ import { Link } from "react-router-dom";
 
 import { Button } from "@material-ui/core";
 
+import { translate } from "../../utils/translations";
+
 function LoggedOutLinks() {
 	return (
 		<div>
 			<Link to="/register" style={{ marginRight: 20 }}>
 				<Button color="primary" variant="outlined">
-					{"Register"}
+					{translate("register")}
 				</Button>
 			</Link>
 			<Link to="/login">
 				<Button color="primary" variant="outlined">
-					{"Login"}
+					{translate("login")}
 				</Button>
 			</Link>
 		</div>

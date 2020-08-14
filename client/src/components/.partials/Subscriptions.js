@@ -106,7 +106,7 @@ function Subscriptions({ platform, selected, idField, action }) {
 				idField={idField}
 				action={action}
 				menu={menuOptions}
-				noResultsMessage={"No subscriptions"}
+				noResultsMessage={translate("noSubscriptions")}
 			/>
 			<SubscriptionDetail
 				open={openModal}
