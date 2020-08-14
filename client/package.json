@@ -1,6 +1,6 @@
 {
 	"name": "entertainmenthub-web",
-	"version": "1.0.0",
+	"version": "0.2.0",
 	"scripts": {
 		"start": "react-scripts start",
 		"build": "react-scripts build && rm -rf ../server/build && mv build ../server",
@@ -11,24 +11,24 @@
 		"@material-ui/core": "^4.11.0",
 		"@material-ui/lab": "^4.0.0-alpha.56",
 		"axios": "^0.19.2",
-		"framer-motion": "^1.11.1",
+		"framer-motion": "^2.4.2",
 		"moment": "^2.27.0",
 		"react": "^16.13.1",
 		"react-custom-scrollbars": "^4.2.1",
 		"react-dom": "^16.13.1",
-		"react-grid-layout": "^0.18.3",
+		"react-grid-layout": "^1.0.0",
 		"react-infinite-scroller": "^1.2.4",
 		"react-player": "^2.6.0",
 		"react-rnd": "^10.2.1",
 		"react-router-dom": "^5.1.2",
-		"react-scripts": "^3.4.1",
+		"react-scripts": "^3.4.3",
 		"react-toastify": "^6.0.8",
 		"rxjs": "^6.6.2",
 		"socket.io-client": "^2.3.0"
 	},
 	"devDependencies": {
-		"eslint": "^6.6.0",
-		"eslint-plugin-react": "^7.20.3"
+		"eslint": "^6.8.0",
+		"eslint-plugin-react": "^7.20.6"
 	},
 	"browserslist": [
 		">0.2%",
