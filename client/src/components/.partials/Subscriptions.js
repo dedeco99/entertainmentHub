@@ -31,9 +31,7 @@ function Subscriptions({ platform, selected, idField, action }) {
 	const { follows, subscriptions } = state;
 	const [selectedSubscription, setSelectedSubscription] = useState(null);
 	const [openModal, setOpenModal] = useState(false);
-	const [openConfirmationModal, setConfirmationModal] = useState(false);
-	const [title, setTitle] = useState("");
-	const [selectedId, setSelectedId] = useState();
+	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
 
 	useEffect(() => {
 		let isMounted = true;
@@ -43,7 +41,8 @@ function Subscriptions({ platform, selected, idField, action }) {
 
 			if (response.status === 200 && isMounted) {
 				dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
-				handleCloseConfirmationModal();
+
+				handleCloseDeleteConfirmation();
 			}
 		}
 
@@ -60,58 +59,45 @@ function Subscriptions({ platform, selected, idField, action }) {
 		}
 	}
 
-	async function handleDeleteSubscription(e) {
-		let id;
-		
-		if(selectedId) id = selectedId;
-		else id = e.target.id;
-
-		if (idField !== "_id") {
-			id = subscriptions.find(s => s[idField] === id)._id;
-		}
-		console.log(id);
-		
-		const response = await deleteSubscription(id);
+	async function handleDeleteSubscription() {
+		const response = await deleteSubscription(selectedSubscription._id);
 
 		if (response.status === 200) {
 			dispatch({ type: "DELETE_SUBSCRIPTION", subscription: response.data });
-			handleCloseConfirmationModal();
+
+			handleCloseDeleteConfirmation();
 		}
 	}
 
 	function handleShowModal(e, type) {
-
 		if (type === "edit") {
 			setSelectedSubscription(subscriptions.find(s => s[idField] === e.target.id));
-			setOpenModal(true);
-		}
-		else if(type == "delete"){
-			subscriptions.filter(s => s[idField] === e.target.id).map(selected => (setTitle(selected.displayName), setSelectedId(e.target.id)));
-			handleOpenConfirmationModal();
-		} 
-		else {
+		} else {
 			const found = follows.find(s => s.externalId.toString() === e.target.id);
+
 			setSelectedSubscription(found);
-			setOpenModal(true);
 		}
 
+		setOpenModal(true);
 	}
 
 	function handleHideModal() {
 		setOpenModal(false);
 	}
 
-	function handleOpenConfirmationModal() {
-		setConfirmationModal(true);
+	function handleOpenDeleteConfirmation(e) {
+		setSelectedSubscription(subscriptions.find(s => s[idField] === e.target.id));
+
+		setOpenDeleteConfirmation(true);
 	}
 
-	function handleCloseConfirmationModal() {
-		setConfirmationModal(false);
+	function handleCloseDeleteConfirmation() {
+		setOpenDeleteConfirmation(false);
 	}
 
 	const menuOptions = [
 		{ displayName: translate("edit"), onClick: e => handleShowModal(e, "edit") },
-		{ displayName: translate("delete"), onClick: e => handleShowModal(e, "delete") },
+		{ displayName: translate("delete"), onClick: handleOpenDeleteConfirmation },
 	];
 
 	return (
@@ -130,7 +116,12 @@ function Subscriptions({ platform, selected, idField, action }) {
 				editSubscription={handleEditSubscription}
 				onClose={handleHideModal}
 			/>
-			<DeleteConfirmation open={openConfirmationModal} onClose={handleCloseConfirmationModal} deleteFuncion={handleDeleteSubscription} type={title}/> 
+			<DeleteConfirmation
+				open={openDeleteConfirmation}
+				onClose={handleCloseDeleteConfirmation}
+				onDelete={handleDeleteSubscription}
+				type={selectedSubscription && selectedSubscription.displayName}
+			/>
 		</>
 	);
 }

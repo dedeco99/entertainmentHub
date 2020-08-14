@@ -49,7 +49,7 @@ const translations = {
 	},
 	deleteConfirmationText: {
 		en: "Are you sure you want to delete",
-		pt: "Têm a certeza que quer apagar", 
+		pt: "Tem a certeza que quer apagar",
 	},
 	close: {
 		en: "Close",
@@ -201,7 +201,7 @@ const translations = {
 	},
 	REGISTERED_USER: {
 		en: "User already exists",
-		pt: "Utilizador já existe"
+		pt: "Utilizador já existe",
 	},
 	NOT_REGISTERED_USER: {
 		en: "User is not registered",

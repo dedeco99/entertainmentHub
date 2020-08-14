@@ -69,7 +69,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 	const classes = useStyles({ borderColor: user.settings && user.settings.borderColor ? borderColor : null });
 	const [refreshToken, setRefreshToken] = useState(new Date());
 	const [hovered, setHovered] = useState(false);
-	const [openModal, setOpenModal] = useState(false);
+	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
 
 	function handleRefresh() {
 		setRefreshToken(new Date());
@@ -95,12 +95,12 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 		setHovered(false);
 	}
 
-	function handleOpenModal() {
-		setOpenModal(true);
+	function handleOpenDeleteConfirmation() {
+		setOpenDeleteConfirmation(true);
 	}
 
-	function handleCloseModal() {
-		setOpenModal(false);
+	function handleCloseDeleteConfirmation() {
+		setOpenDeleteConfirmation(false);
 	}
 
 	const nonAppWidgets = ["notifications", "weather", "crypto", "price"];
@@ -154,7 +154,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 							)}
 							{onDelete && (
 								<motion.div variants={variants} initial="hidden" animate="visibleD" exit="exitD">
-									<Paper component={Box} className={classes.action} onClick={handleOpenModal}>
+									<Paper component={Box} className={classes.action} onClick={handleOpenDeleteConfirmation}>
 										<IconButton size="small">
 											<i className="icofont-ui-delete" />
 										</IconButton>
@@ -163,7 +163,12 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 							)}
 						</div>
 					)}
-					<DeleteConfirmation open={openModal} deleteFuncion={handleDelete} onClose={handleCloseModal} type={type} />
+					<DeleteConfirmation
+						open={openDeleteConfirmation}
+						onClose={handleCloseDeleteConfirmation}
+						onDelete={handleDelete}
+						type={type}
+					/>
 				</AnimatePresence>
 			</Box>
 		</Zoom>
