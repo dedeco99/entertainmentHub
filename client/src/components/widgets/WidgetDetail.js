@@ -1,5 +1,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
+import { Subject } from "rxjs";
+import { debounceTime, filter, distinctUntilChanged } from "rxjs/operators";
 
 import {
 	makeStyles,
@@ -36,12 +38,69 @@ function WidgetDetail({ open, widget, onClose }) {
 	const { user } = useContext(UserContext);
 	const [type, setType] = useState("notifications");
 	const [info, setInfo] = useState({});
-	const [typingTimeout, setTypingTimeout] = useState(null);
 	const [cities, setCities] = useState([]);
 	const [coins, setCoins] = useState([]);
-
 	const [selectedCity, setSelectedCity] = useState(null);
 	const [selectedCoins, setSelectedCoins] = useState([]);
+
+	const getCitiesSubject = new Subject();
+	const getCoinsSubject = new Subject();
+	const submitSubject = new Subject();
+
+	useEffect(() => {
+		const subscription = getCitiesSubject
+			.pipe(
+				debounceTime(250),
+				filter(query => query),
+			)
+			.subscribe(async query => {
+				const response = await getCities(query);
+
+				if (response.status === 200) {
+					setCities(response.data);
+				}
+			});
+		return () => subscription.unsubscribe();
+	});
+
+	useEffect(() => {
+		const subscription = getCoinsSubject
+			.pipe(
+				debounceTime(250),
+				filter(query => query),
+			)
+			.subscribe(async query => {
+				const response = await getCoins(query);
+
+				if (response.status === 200) {
+					setCoins(response.data);
+				}
+			});
+		return () => subscription.unsubscribe();
+	});
+
+	useEffect(() => {
+		const subscription = submitSubject.pipe(distinctUntilChanged((a, b) => a === b)).subscribe(async () => {
+			if (widget) {
+				const response = await editWidget({ ...widget, info });
+
+				if (response.status === 200) {
+					dispatch({ type: "EDIT_WIDGET", widget: response.data });
+					onClose();
+					setInfo({});
+				}
+			} else {
+				const response = await addWidget({ type, info });
+
+				if (response.status === 201) {
+					dispatch({ type: "ADD_WIDGET", widget: response.data });
+					onClose();
+					setInfo({});
+				}
+			}
+		});
+		return () => subscription.unsubscribe();
+	});
 
 	useEffect(() => {
 		if (widget) {
@@ -62,20 +121,8 @@ function WidgetDetail({ open, widget, onClose }) {
 		}
 	}, [widget]); // eslint-disable-line
 
-	function handleGetCities(e, filter) {
-		if (!filter) return;
-
-		if (typingTimeout) clearTimeout(typingTimeout);
-
-		const timeout = setTimeout(async () => {
-			const response = await getCities(filter);
-
-			if (response.status === 200) {
-				setCities(response.data);
-			}
-		}, 500);
-
-		setTypingTimeout(timeout);
+	function handleGetCities(e, query) {
+		getCitiesSubject.next(query);
 	}
 
 	function handleSelectCity(e, city) {
@@ -85,20 +132,8 @@ function WidgetDetail({ open, widget, onClose }) {
 		setInfo({ city: city.name, country: city.country, lat: city.lat, lon: city.lon });
 	}
 
-	function handleGetCoins(e, filter) {
-		if (!filter) return;
-
-		if (typingTimeout) clearTimeout(typingTimeout);
-
-		const timeout = setTimeout(async () => {
-			const response = await getCoins(filter);
-
-			if (response.status === 200) {
-				setCoins(response.data);
-			}
-		}, 500);
-
-		setTypingTimeout(timeout);
+	function handleGetCoins(e, query) {
+		getCoinsSubject.next(query);
 	}
 
 	function handleSelectCoin(e, sCoins) {
@@ -116,30 +151,10 @@ function WidgetDetail({ open, widget, onClose }) {
 		}
 	}
 
-	async function handleUpdate(e) {
+	function handleSubmit(e) {
 		e.preventDefault();
 
-		const response = await editWidget({ ...widget, info });
-
-		if (response.status === 200) {
-			dispatch({ type: "EDIT_WIDGET", widget: response.data });
-			onClose();
-		}
-
-		setInfo({});
-	}
-
-	async function handleSubmit(e) {
-		e.preventDefault();
-
-		const response = await addWidget({ type, info });
-
-		if (response.status === 201) {
-			dispatch({ type: "ADD_WIDGET", widget: response.data });
-			onClose();
-		}
-
-		setInfo({});
+		submitSubject.next(info);
 	}
 
 	function renderCitiesOptionLabel(option) {
@@ -328,7 +343,7 @@ function WidgetDetail({ open, widget, onClose }) {
 			fullWidth
 			maxWidth="xs"
 		>
-			<form onSubmit={widget ? handleUpdate : handleSubmit}>
+			<form onSubmit={handleSubmit}>
 				<DialogTitle id="simple-dialog-title">{widget ? "Edit Widget" : "New Widget"}</DialogTitle>
 				<DialogContent>
 					{renderTypes()}

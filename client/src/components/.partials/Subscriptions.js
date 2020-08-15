@@ -9,7 +9,7 @@ import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { TwitchContext } from "../../contexts/TwitchContext";
 import { TVContext } from "../../contexts/TVContext";
 
-import { getSubscriptions, deleteSubscription } from "../../api/subscriptions";
+import { getSubscriptions, editSubscription, deleteSubscription } from "../../api/subscriptions";
 
 import { translate } from "../../utils/translations";
 
@@ -54,6 +54,8 @@ function Subscriptions({ platform, selected, idField, action }) {
 
 		if (response.status === 200) {
 			dispatch({ type: "EDIT_SUBSCRIPTION", subscription: response.data });
+
+			handleCloseModal();
 		}
 	}
 
@@ -79,7 +81,7 @@ function Subscriptions({ platform, selected, idField, action }) {
 		setOpenModal(true);
 	}
 
-	function handleHideModal() {
+	function handleCloseModal() {
 		setOpenModal(false);
 	}
 
@@ -112,7 +114,7 @@ function Subscriptions({ platform, selected, idField, action }) {
 				open={openModal}
 				subscription={selectedSubscription}
 				editSubscription={handleEditSubscription}
-				onClose={handleHideModal}
+				onClose={handleCloseModal}
 			/>
 			<DeleteConfirmation
 				open={openDeleteConfirmation}

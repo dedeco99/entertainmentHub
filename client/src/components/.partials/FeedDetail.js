@@ -1,5 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import { Subject } from "rxjs";
+import { debounceTime, filter, distinctUntilChanged } from "rxjs/operators";
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Chip } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
@@ -19,7 +21,62 @@ function FeedDetail({ open, feed, platform, onClose }) {
 	const { subscriptions } = state;
 	const [selectedSubscriptions, setSelectedSubscriptions] = useState([]);
 	const [name, setName] = useState("");
-	const [typingTimeout, setTypingTimeout] = useState(null);
+
+	const getSubredditsSubject = new Subject();
+	const submitSubject = new Subject();
+
+	useEffect(() => {
+		const subscription = getSubredditsSubject
+			.pipe(
+				debounceTime(250),
+				filter(query => query),
+			)
+			.subscribe(async query => {
+				const response = await getSubreddits(query);
+
+				if (response.status === 200) {
+					dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
+				}
+			});
+
+		return () => subscription.unsubscribe();
+	});
+
+	useEffect(() => {
+		const subscription = submitSubject
+			.pipe(
+				distinctUntilChanged((a, b) => {
+					console.log(a, b);
+					return a.name === b.name && a.selectedSubscriptions === b.selectedSubscriptions;
+				}),
+			)
+			.subscribe(async () => {
+				if (feed) {
+					const mappedSubscriptions = selectedSubscriptions.map(s => s.externalId);
+
+					const response = await editFeed({ ...feed, displayName: name, subscriptions: mappedSubscriptions });
+
+					if (response.status === 200) {
+						dispatch({ type: "EDIT_FEED", feed: response.data });
+						onClose();
+					}
+				} else {
+					// prettier-ignore
+					const mappedSubscriptions = platform === "youtube"
+				? selectedSubscriptions.map(s => s.externalId)
+				: selectedSubscriptions.map(s => s.displayName);
+
+					const response = await addFeed(platform, name, mappedSubscriptions);
+
+					if (response.status === 201) {
+						dispatch({ type: "ADD_FEED", feed: response.data });
+						onClose();
+					}
+				}
+			});
+
+		return () => subscription.unsubscribe();
+	});
 
 	function setFeedInfo() {
 		if (feed) {
@@ -44,19 +101,7 @@ function FeedDetail({ open, feed, platform, onClose }) {
 	}
 
 	function handleGetSubreddits(e, filter) {
-		if (!filter) return;
-
-		if (typingTimeout) clearTimeout(typingTimeout);
-
-		const timeout = setTimeout(async () => {
-			const response = await getSubreddits(filter);
-
-			if (response.status === 200) {
-				dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
-			}
-		}, 500);
-
-		setTypingTimeout(timeout);
+		getSubredditsSubject.next(query);
 	}
 
 	function handleName(e) {
@@ -70,34 +115,7 @@ function FeedDetail({ open, feed, platform, onClose }) {
 	async function handleSubmit(e) {
 		e.preventDefault();
 
-		if (!name || !selectedSubscriptions.length) return;
-
-		// prettier-ignore
-		const mappedSubscriptions = platform === "youtube"
-			? selectedSubscriptions.map(s => s.externalId)
-			: selectedSubscriptions.map(s => s.displayName);
-
-		const response = await addFeed(platform, name, mappedSubscriptions);
-
-		if (response.status === 201) {
-			dispatch({ type: "ADD_FEED", feed: response.data });
-			onClose();
-		}
-	}
-
-	async function handleUpdate(e) {
-		e.preventDefault();
-
-		if (!feed || !name || !selectedSubscriptions.length) return;
-
-		const mappedSubscriptions = selectedSubscriptions.map(s => s.externalId);
-
-		const response = await editFeed({ ...feed, displayName: name, subscriptions: mappedSubscriptions });
-
-		if (response.status === 200) {
-			dispatch({ type: "EDIT_FEED", feed: response.data });
-			onClose();
-		}
+		submitSubject.next({ name, selectedSubscriptions });
 	}
 
 	function renderOptionLabel(option) {
@@ -138,7 +156,7 @@ function FeedDetail({ open, feed, platform, onClose }) {
 			fullWidth
 			maxWidth="xs"
 		>
-			<form onSubmit={feed ? handleUpdate : handleSubmit}>
+			<form onSubmit={handleSubmit}>
 				<DialogTitle id="simple-dialog-title">{feed ? translate("editFeed") : translate("newFeed")}</DialogTitle>
 				<DialogContent>
 					<Input
