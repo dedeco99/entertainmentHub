@@ -13,12 +13,33 @@ function SocketClient() {
 
 		socket.on("connect", () => {
 			socket.emit("bind", user);
+			
+			Notification.requestPermission();
 		});
 
 		socket.on("notification", notification => {
 			dispatch({ type: "ADD_NOTIFICATION", notification });
+			
+			if(Notification.permission === "granted"){
+				renderBrowserNotifications(notification);
+			}
 		});
 	}, []);
+
+	function renderBrowserNotifications(showNotification){
+		switch (showNotification.type) {
+			case "youtube":
+				return new Notification(showNotification.info.displayName, { 
+					body: showNotification.info.videoTitle, 
+					icon: showNotification.info.thumbnail 
+				});
+			case "tv":
+				return new Notification(showNotification.info.displayName, { 
+					body: "Season " + showNotification.info.season + " Episode " + showNotification.info.number,
+					icon: showNotification.info.thumbnail 
+				});
+		}
+	}
 
 	return null;
 }
