@@ -146,7 +146,8 @@ function Widgets() {
 		}
 	}
 
-	function handleWidthChange(containerWidth, margin, cols, containerPadding) {
+	function handleWidthChange(containerWidth, margin, cols, containerPadding = [0, 0]) {
+		console.log(containerWidth);
 		// prettier-ignore
 		setRowHeight((containerWidth - (margin[0] * (cols - 1)) - (containerPadding[0] * 2)) / cols);
 	}
@@ -209,7 +210,8 @@ function Widgets() {
 			{widgets && widgets.length ? (
 				<ResponsiveGridLayout
 					className="layout"
-					cols={{ xl: 8, lg: 8, md: 7, sm: 4, xs: 3, xxs: 2 }}
+					breakpoints={{ xxl: 2000, xl: 1700, lg: 1200, md: 950, sm: 750, xs: 450, xxs: 0 }}
+					cols={{ xxl: 12, xl: 10, lg: 8, md: 6, sm: 5, xs: 3, xxs: 2 }}
 					isDraggable={editMode}
 					isResizable={editMode}
 					onDragStop={handleEditWidget}
