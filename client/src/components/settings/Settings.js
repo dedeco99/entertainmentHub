@@ -92,6 +92,7 @@ function Settings() {
 	const [settings, setSettings] = useState({});
 	const [selectedApp, setSelectedApp] = useState(null);
 	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
+	const [browserNotifications, setbrowserNotifications] = useState(false);
 
 	for (const userApp of user.apps) {
 		apps[userApp.platform].id = userApp._id;
@@ -109,6 +110,8 @@ function Settings() {
 			default:
 				break;
 		}
+
+		if(Notification.permission === "granted") setbrowserNotifications(true);
 	}, [match]);
 
 	async function handleSubmitSettings() {
@@ -141,6 +144,13 @@ function Settings() {
 
 	function handleCloseDeleteConfirmation() {
 		setOpenDeleteConfirmation(false);
+	}
+
+	async function handleBrowserNotifications(){
+		const result = await Notification.requestPermission();
+
+		if(result === "granted") setbrowserNotifications(true);
+		else if (result === "denied") setbrowserNotifications(false);
 	}
 
 	function renderApp(app) {
@@ -232,6 +242,16 @@ function Settings() {
 								/>
 							}
 							label={translate("borderColor")}
+						/>
+						<FormControlLabel
+							control={
+								<Checkbox
+									checked={browserNotifications}
+									color="primary"
+									onChange={() => handleBrowserNotifications()}
+								/>
+							}
+							label={translate("browserNotifications")}
 						/>
 					</FormControl>
 					<Button variant="contained" onClick={handleSubmitSettings}>

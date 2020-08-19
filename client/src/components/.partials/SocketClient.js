@@ -13,8 +13,6 @@ function SocketClient() {
 
 		socket.on("connect", () => {
 			socket.emit("bind", user);
-			
-			Notification.requestPermission();
 		});
 
 		socket.on("notification", notification => {
