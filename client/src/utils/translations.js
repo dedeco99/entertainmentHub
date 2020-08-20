@@ -187,6 +187,14 @@ const translations = {
 		en: "App is missing. Click here to add it",
 		pt: "App foi removida. Clique aqui para voltar a adicionar",
 	},
+	browserNotifications: {
+		en: "Enable browser notifications",
+		pt: "Ativar notificações do browser",
+	},
+	browserSettings: {
+		en: "This setting can only be changed in your browser",
+		pt: "Esta definição só pode ser alterada no browser",
+	},
 	multipleParamExample: (...params) => ({
 		en: `Hello ${params[0]}, my name is ${params[1]}`,
 		pt: `Boas ${params[0]}, o meu nome é ${params[1]}`,

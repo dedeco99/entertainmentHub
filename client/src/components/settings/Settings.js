@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useContext } from "react";
 import { Link, useRouteMatch } from "react-router-dom";
+import { toast } from "react-toastify";
 
 import {
 	makeStyles,
@@ -109,7 +110,21 @@ function Settings() {
 			default:
 				break;
 		}
+
+		setSettings({ ...settings, browserNotifications: Notification.permission });
 	}, [match]);
+
+	useEffect(() => {
+		async function fetchData() {
+			const notificationPermission = await navigator.permissions.query({ name: "notifications" });
+
+			notificationPermission.onchange = () => {
+				setSettings({ ...settings, browserNotifications: Notification.permission });
+			};
+		}
+
+		fetchData();
+	}, []);
 
 	async function handleSubmitSettings() {
 		const response = await editUser({ settings });
@@ -141,6 +156,18 @@ function Settings() {
 
 	function handleCloseDeleteConfirmation() {
 		setOpenDeleteConfirmation(false);
+	}
+
+	async function handleBrowserNotifications() {
+		const notificationPermission = await navigator.permissions.query({ name: "notifications" });
+
+		if (notificationPermission.state === "granted") {
+			toast.error(translate("browserSettings"));
+		} else {
+			const browserNotifications = await Notification.requestPermission();
+
+			setSettings({ ...settings, browserNotifications });
+		}
 	}
 
 	function renderApp(app) {
@@ -232,6 +259,17 @@ function Settings() {
 								/>
 							}
 							label={translate("borderColor")}
+						/>
+						<FormControlLabel
+							control={
+								<Checkbox
+									checked={settings.browserNotifications === "granted"}
+									disabled={settings.browserNotifications === "denied"}
+									color="primary"
+									onChange={handleBrowserNotifications}
+								/>
+							}
+							label={translate("browserNotifications")}
 						/>
 					</FormControl>
 					<Button variant="contained" onClick={handleSubmitSettings}>

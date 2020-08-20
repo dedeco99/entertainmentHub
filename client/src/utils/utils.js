@@ -17,6 +17,33 @@ function formatVideoDuration(duration) {
 	return values.join(":");
 }
 
+function formatNotification(notification) {
+	const { displayName, thumbnail, videoTitle, season, number } = notification.info;
+
+	switch (notification.type) {
+		case "youtube":
+			return {
+				thumbnail,
+				title: displayName,
+				subtitle: videoTitle,
+			};
+		case "tv":
+			const seasonLabel = season > 9 ? `S${season}` : `S0${season}`;
+			const episodeLabel = number > 9 ? `E${number}` : `E0${number}`;
+
+			return {
+				thumbnail,
+				title: displayName,
+				subtitle: `${seasonLabel}${episodeLabel}`,
+			};
+		default:
+			return {
+				title: displayName,
+				subtitle: displayName,
+			};
+	}
+}
+
 function htmlEscape(str) {
 	return String(str)
 		.replace(/&amp;/g, "&")
@@ -27,4 +54,4 @@ function htmlEscape(str) {
 		.replace(/<\/table>/g, "</table></div>");
 }
 
-export { formatDate, formatVideoDuration, htmlEscape };
+export { formatDate, formatVideoDuration, formatNotification, htmlEscape };

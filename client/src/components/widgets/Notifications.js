@@ -27,7 +27,7 @@ import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
 import { addToWatchLater } from "../../api/youtube";
 
-import { formatDate, formatVideoDuration } from "../../utils/utils";
+import { formatDate, formatVideoDuration, formatNotification } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
 import { notifications as widgetStyles } from "../../styles/Widgets";
@@ -187,26 +187,6 @@ function Notifications({ height }) {
 		}
 	}
 
-	function getNotificationContent(notification) {
-		const { displayName, season, number } = notification.info;
-
-		switch (notification.type) {
-			case "tv":
-				const seasonLabel = season > 9 ? `S${season}` : `S0${season}`;
-				const episodeLabel = number > 9 ? `E${number}` : `E0${number}`;
-
-				return {
-					title: displayName,
-					subtitle: `${seasonLabel}${episodeLabel}`,
-				};
-			default:
-				return {
-					title: <i className="material-icons">{notification.info.message}</i>,
-					subtitle: "Message",
-				};
-		}
-	}
-
 	function renderNotificationAction(notification) {
 		if (selectedNotification && selectedNotification._id === notification._id && actionLoading) {
 			return <Loading />;
@@ -273,7 +253,7 @@ function Notifications({ height }) {
 					</>
 				);
 			default:
-				const { title, subtitle } = getNotificationContent(notification);
+				const { title, subtitle } = formatNotification(notification);
 
 				return (
 					<>
