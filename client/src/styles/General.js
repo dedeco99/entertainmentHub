@@ -19,6 +19,7 @@ const general = {
 		display: "flex",
 		flexDirection: "row",
 		textAlign: "center",
+		overflowX: "auto",
 	},
 	loading: {
 		width: "100%",

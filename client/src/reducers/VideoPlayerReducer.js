@@ -25,8 +25,6 @@ export const videoPlayerReducer = (state, action) => {
 		case "SET_MINIMIZED":
 			minimized = action.minimized;
 
-			console.log(minimized);
-
 			return { ...state, minimized };
 		default:
 			return state;

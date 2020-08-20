@@ -6,7 +6,7 @@ const App = require("../models/app");
 async function getApps(event) {
 	const { user } = event;
 
-	const apps = await App.find({ user: user._id });
+	const apps = await App.find({ user: user._id }, "-refreshToken");
 
 	return response(200, "GET_APPS", apps);
 }
@@ -59,7 +59,6 @@ async function addApp(event) {
 		const newApp = new App({ user: user._id, platform, refreshToken: json.refresh_token });
 		await newApp.save();
 
-		// TODO: hide refreshToken
 		return response(201, "ADD_APP", newApp);
 	} else if (platform === "tv") {
 		const newApp = new App({ user: user._id, platform });
