@@ -147,7 +147,6 @@ function Widgets() {
 	}
 
 	function handleWidthChange(containerWidth, margin, cols, containerPadding = [0, 0]) {
-		console.log(containerWidth);
 		// prettier-ignore
 		setRowHeight((containerWidth - (margin[0] * (cols - 1)) - (containerPadding[0] * 2)) / cols);
 	}
