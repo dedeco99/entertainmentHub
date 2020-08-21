@@ -2,6 +2,7 @@ const { response } = require("../utils/request");
 const errors = require("../utils/errors");
 
 const tv = require("./tv");
+const twitch = require("./twitch");
 
 const Subscription = require("../models/subscription");
 
@@ -9,10 +10,28 @@ async function getSubscriptions(event) {
 	const { params, user } = event;
 	const { platform } = params;
 
-	const subscriptions = await Subscription.find({ user: user._id, platform })
+	let subscriptions = await Subscription.find({ user: user._id, platform })
 		.collation({ locale: "en" })
 		.sort({ displayName: 1 })
 		.lean();
+
+	if (platform === "twitch") {
+		const streams = await twitch.getStreams({ user, query: { skipGame: true } });
+
+		subscriptions = subscriptions.map(subscription => {
+			const stream = streams.body.data.find(s => s.user === subscription.displayName);
+
+			if (stream) {
+				return {
+					...subscription,
+					viewers: stream.viewers,
+					online: stream.live,
+				};
+			}
+
+			return subscription;
+		});
+	}
 
 	return response(200, "GET_SUBSCRIPTIONS", subscriptions);
 }
