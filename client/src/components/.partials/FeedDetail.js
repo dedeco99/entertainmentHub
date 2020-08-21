@@ -10,7 +10,6 @@ import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { RedditContext } from "../../contexts/RedditContext";
 
 import { addFeed, editFeed } from "../../api/feeds";
-import { getSubreddits } from "../../api/reddit";
 
 import { translate } from "../../utils/translations";
 
@@ -19,18 +18,11 @@ function FeedDetail({ open, feed, platform, onClose }) {
 	const { subscriptions } = state;
 	const [selectedSubscriptions, setSelectedSubscriptions] = useState([]);
 	const [name, setName] = useState("");
-	const [typingTimeout, setTypingTimeout] = useState(null);
 
 	function setFeedInfo() {
 		if (feed) {
 			setName(feed.displayName);
-			setSelectedSubscriptions(
-				platform === "youtube"
-					? subscriptions.filter(s => feed.subscriptions.includes(s.externalId))
-					: feed.subscriptions.map(s => ({
-							displayName: s,
-					  })),
-			);
+			setSelectedSubscriptions(subscriptions.filter(s => feed.subscriptions.includes(s.externalId)));
 		}
 	}
 
@@ -41,22 +33,6 @@ function FeedDetail({ open, feed, platform, onClose }) {
 	function handleCloseModal() {
 		onClose();
 		setFeedInfo();
-	}
-
-	function handleGetSubreddits(e, filter) {
-		if (!filter) return;
-
-		if (typingTimeout) clearTimeout(typingTimeout);
-
-		const timeout = setTimeout(async () => {
-			const response = await getSubreddits(filter);
-
-			if (response.status === 200) {
-				dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
-			}
-		}, 500);
-
-		setTypingTimeout(timeout);
 	}
 
 	function handleName(e) {
@@ -73,9 +49,7 @@ function FeedDetail({ open, feed, platform, onClose }) {
 		if (!name || !selectedSubscriptions.length) return;
 
 		// prettier-ignore
-		const mappedSubscriptions = platform === "youtube"
-			? selectedSubscriptions.map(s => s.externalId)
-			: selectedSubscriptions.map(s => s.displayName);
+		const mappedSubscriptions = selectedSubscriptions.map(s => s.externalId);
 
 		const response = await addFeed(platform, name, mappedSubscriptions);
 
@@ -105,15 +79,7 @@ function FeedDetail({ open, feed, platform, onClose }) {
 	}
 
 	function renderInput(params) {
-		return (
-			<Input
-				{...params}
-				label={platform === "youtube" ? "Subscriptions" : "Subreddits"}
-				variant="outlined"
-				fullWidth
-				margin="normal"
-			/>
-		);
+		return <Input {...params} label={"Subscriptions"} variant="outlined" fullWidth margin="normal" />;
 	}
 
 	function renderTags(value, getTagProps) {
@@ -158,7 +124,6 @@ function FeedDetail({ open, feed, platform, onClose }) {
 						value={selectedSubscriptions}
 						limitTags={2}
 						renderTags={renderTags}
-						onInputChange={platform === "reddit" ? handleGetSubreddits : null}
 						onChange={handleSelectedSubscriptions}
 						options={subscriptions || []}
 						renderInput={renderInput}

@@ -1,11 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useHistory, useRouteMatch } from "react-router-dom";
 
-import { Grid, IconButton } from "@material-ui/core";
+import { makeStyles, Grid, IconButton, Button } from "@material-ui/core";
 
+import Follows from "../.partials/Follows";
+import Subscriptions from "../.partials/Subscriptions";
 import FeedDetail from "../.partials/FeedDetail";
 import Feeds from "../.partials/Feeds";
+import Posts from "./Posts";
+
+import { tv as styles } from "../../styles/TV";
+
+const useStyles = makeStyles(styles);
 
 function Reddit() {
+	const history = useHistory();
+	const match = useRouteMatch();
+	const classes = useStyles();
+	const [blocks, setBlocks] = useState({
+		openFeeds: false,
+		openPosts: false,
+	});
 	const [openModal, setOpenModal] = useState(false);
 
 	function handleOpenModal() {
@@ -16,16 +31,85 @@ function Reddit() {
 		setOpenModal(false);
 	}
 
+	function handleShowFeedsBlock() {
+		setBlocks({ openFeeds: true, openPosts: false });
+	}
+
+	function handleShowPostsBlock() {
+		setBlocks({ openFeeds: false, openPosts: true });
+	}
+
+	function handleShowFeeds() {
+		history.push("/reddit");
+
+		handleShowFeedsBlock();
+	}
+
+	function handleShowPosts(id) {
+		if (match.params.sub !== id) {
+			history.push(`/reddit/${id}`);
+
+			handleShowPostsBlock();
+		}
+	}
+
+	useEffect(() => {
+		switch (match.path) {
+			case "/reddit":
+				handleShowFeedsBlock();
+				break;
+			case "/reddit/:sub":
+				handleShowPostsBlock();
+				break;
+			default:
+				break;
+		}
+	}, [match.url]); // eslint-disable-line
+
+	function renderButtons() {
+		return (
+			<div align="center">
+				<Button
+					onClick={handleShowFeeds}
+					className={classes.outlinedBtn}
+					color="primary"
+					variant="outlined"
+					fullWidth
+				>
+					{"Feeds"}
+				</Button>
+			</div>
+		);
+	}
+
+	function renderContent() {
+		if (blocks.openFeeds) {
+			return <Feeds platform="reddit" />;
+		} else if (blocks.openPosts) {
+			return <Posts />;
+		}
+
+		return <div />;
+	}
+
 	return (
 		<Grid container spacing={2}>
 			<Grid item sm={3} md={2}>
+				<Follows platform="reddit" />
+				{renderButtons()}
+				<Subscriptions
+					platform="reddit"
+					selected={match.params.seriesId}
+					idField="externalId"
+					action={handleShowPosts}
+				/>
 				<IconButton onClick={handleOpenModal}>
 					<i className="icofont-ui-add" />
 				</IconButton>
 				<FeedDetail open={openModal} platform="reddit" onClose={handleCloseModal} />
 			</Grid>
 			<Grid item sm={9} md={10}>
-				<Feeds platform="reddit" />
+				{renderContent()}
 			</Grid>
 		</Grid>
 	);

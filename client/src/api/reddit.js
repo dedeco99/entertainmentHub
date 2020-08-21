@@ -1,7 +1,9 @@
 import { api } from "../utils/request";
 
-async function getSubreddits(filter) {
-	const query = filter ? `?filter=${filter}` : "";
+async function getSubreddits(after, filter) {
+	let query = "";
+	query += after ? `?after=${after}` : "";
+	query += filter ? `${query ? "&" : "?"}filter=${filter}` : "";
 
 	const res = await api({
 		method: "get",

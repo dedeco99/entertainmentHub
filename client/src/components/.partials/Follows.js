@@ -22,9 +22,11 @@ import {
 
 import Loading from "../.partials/Loading";
 
+import { RedditContext } from "../../contexts/RedditContext";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { TwitchContext } from "../../contexts/TwitchContext";
 
+import { getSubreddits } from "../../api/reddit";
 import { getSubscriptions } from "../../api/youtube";
 import { getFollows } from "../../api/twitch";
 import { addSubscriptions } from "../../api/subscriptions";
@@ -35,10 +37,36 @@ import { youtube as styles } from "../../styles/Youtube";
 
 const useStyles = makeStyles(styles);
 
+function chooseContext(platform) {
+	switch (platform) {
+		case "reddit":
+			return RedditContext;
+		case "youtube":
+			return YoutubeContext;
+		case "twitch":
+			return TwitchContext;
+		default:
+			break;
+	}
+}
+
+function chooseApiCall(platform) {
+	switch (platform) {
+		case "reddit":
+			return getSubreddits;
+		case "youtube":
+			return getSubscriptions;
+		case "twitch":
+			return getFollows;
+		default:
+			break;
+	}
+}
+
 function Follows({ platform }) {
 	const history = useHistory();
 	const classes = useStyles();
-	const { state, dispatch } = useContext(platform === "youtube" ? YoutubeContext : TwitchContext);
+	const { state, dispatch } = useContext(chooseContext(platform));
 	const { follows } = state;
 	const [loading, setLoading] = useState(false);
 	const [pagination, setPagination] = useState({
@@ -64,10 +92,7 @@ function Follows({ platform }) {
 		if (!loading) {
 			setLoading(true);
 
-			// prettier-ignore
-			const response = platform === "youtube"
-				? await getSubscriptions(pagination.after)
-				: await getFollows(pagination.after);
+			const response = await chooseApiCall(platform)(pagination.after);
 
 			if (response.status === 401) return history.push("/settings");
 

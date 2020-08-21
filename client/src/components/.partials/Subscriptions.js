@@ -5,6 +5,7 @@ import Sidebar from "./Sidebar";
 import SubscriptionDetail from "./SubscriptionDetail";
 import DeleteConfirmation from "./DeleteConfirmation";
 
+import { RedditContext } from "../../contexts/RedditContext";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { TwitchContext } from "../../contexts/TwitchContext";
 import { TVContext } from "../../contexts/TVContext";
@@ -15,6 +16,8 @@ import { translate } from "../../utils/translations";
 
 function chooseContext(platform) {
 	switch (platform) {
+		case "reddit":
+			return RedditContext;
 		case "youtube":
 			return YoutubeContext;
 		case "twitch":
