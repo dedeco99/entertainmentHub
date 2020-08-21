@@ -26,9 +26,11 @@ function Header() {
 				<AppMenu />
 				<AppBar className={classes.appBar}>
 					<Toolbar>
-						<Link to="/" className={classes.brand}>
-							<img src={logo} id="logo" width="100px" alt="Logo" />
-						</Link>
+						<div className={classes.brand}>
+							<Link to="/">
+								<img src={logo} id="logo" width="100px" alt="Logo" />
+							</Link>
+						</div>
 						{links}
 					</Toolbar>
 				</AppBar>

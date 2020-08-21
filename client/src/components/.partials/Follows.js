@@ -145,6 +145,8 @@ function Follows({ platform }) {
 	}
 
 	function renderFollowsList() {
+		if (pagination.page === 0 && loading) return <Loading />;
+
 		return (
 			<List className={classes.root}>
 				{follows &&

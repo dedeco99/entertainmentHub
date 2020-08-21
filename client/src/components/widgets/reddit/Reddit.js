@@ -83,7 +83,7 @@ function Reddit({ subreddit, search, listView }) {
 				open={open}
 				subreddit={subreddit}
 				posts={posts}
-				multipleSubs={subreddit.includes("+")}
+				multipleSubs={subreddit.includes("+") || subreddit === "all"}
 				getPosts={handleGetPosts}
 				hasMorePosts={pagination.hasMore}
 				onShowSingleView={handleShowSingleView}
@@ -96,7 +96,7 @@ function Reddit({ subreddit, search, listView }) {
 			<SingleView
 				open={open}
 				post={posts[num]}
-				multipleSubs={subreddit.includes("+")}
+				multipleSubs={subreddit.includes("+") || subreddit === "all"}
 				onShowNextPost={handleShowNextPost}
 				onShowPreviousPost={handleShowPreviousPost}
 				onShowListView={handleShowListView}

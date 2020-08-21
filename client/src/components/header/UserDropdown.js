@@ -104,8 +104,7 @@ function UserDropdown() {
 									<i className="material-icons">{"translate"}</i>
 								</ListItemIcon>
 								<Select
-									value={user.language}
-									displayEmpty
+									value={user.language || "en"}
 									onChange={handleChangeLanguage}
 									MenuProps={{ disablePortal: true }}
 								>

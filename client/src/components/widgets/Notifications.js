@@ -27,7 +27,7 @@ import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
 import { addToWatchLater } from "../../api/youtube";
 
-import { formatDate, formatVideoDuration } from "../../utils/utils";
+import { formatDate, formatVideoDuration, formatNotification } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
 import { notifications as widgetStyles } from "../../styles/Widgets";
@@ -187,26 +187,6 @@ function Notifications({ height }) {
 		}
 	}
 
-	function getNotificationContent(notification) {
-		const { displayName, season, number } = notification.info;
-
-		switch (notification.type) {
-			case "tv":
-				const seasonLabel = season > 9 ? `S${season}` : `S0${season}`;
-				const episodeLabel = number > 9 ? `E${number}` : `E0${number}`;
-
-				return {
-					title: displayName,
-					subtitle: `${seasonLabel}${episodeLabel}`,
-				};
-			default:
-				return {
-					title: <i className="material-icons">{notification.info.message}</i>,
-					subtitle: "Message",
-				};
-		}
-	}
-
 	function renderNotificationAction(notification) {
 		if (selectedNotification && selectedNotification._id === notification._id && actionLoading) {
 			return <Loading />;
@@ -222,15 +202,17 @@ function Notifications({ height }) {
 	}
 
 	function renderNotificationContent(notification) {
+		const { thumbnail, overlay, title, subtitle } = formatNotification(notification);
+
 		switch (notification.type) {
 			case "youtube":
 				return (
 					<>
-						{notification.info.thumbnail ? (
+						{thumbnail ? (
 							<Box position="relative" flexShrink="0" width="100px" mr={2} className={classes.videoThumbnail}>
-								<img src={notification.info.thumbnail} width="100%" alt="Video thumbnail" />
+								<img src={thumbnail} width="100%" alt="Video thumbnail" />
 								<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
-									<Typography variant="caption"> {formatVideoDuration(notification.info.duration)} </Typography>
+									<Typography variant="caption">{formatVideoDuration(overlay)}</Typography>
 								</Box>
 								<Box
 									className={classes.videoPlayOverlay}
@@ -239,7 +221,7 @@ function Notifications({ height }) {
 									justifyContent="center"
 									onClick={() => handleAddToVideoPlayer(notification)}
 								>
-									<span className="material-icons"> {"play_arrow"} </span>
+									<span className="material-icons">{"play_arrow"}</span>
 								</Box>
 							</Box>
 						) : (
@@ -248,49 +230,58 @@ function Notifications({ height }) {
 							</Box>
 						)}
 						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
-							<Typography variant="body1" title={notification.info.videoTitle} noWrap>
+							<Typography variant="body1" title={subtitle} noWrap>
 								<Link
 									href={`https://www.youtube.com/watch?v=${notification.info.videoId}`}
 									target="_blank"
 									rel="noreferrer"
 									color="inherit"
 								>
-									{notification.info.videoTitle}
+									{subtitle}
 								</Link>
 							</Typography>
-							<Typography variant="body2" title={notification.info.displayName} noWrap>
+							<Typography variant="body2" title={title} noWrap>
 								<Link
 									href={`https://www.youtube.com/channel/${notification.info.channelId}`}
 									target="_blank"
 									rel="noreferrer"
 									color="inherit"
 								>
-									{notification.info.displayName}
+									{title}
 								</Link>
 							</Typography>
 							<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
 						</Box>
 					</>
 				);
-			default:
-				const { title, subtitle } = getNotificationContent(notification);
-
+			case "tv":
 				return (
 					<>
-						<Box display="flex" justifyContent="center" flexShrink="0" width="100px" mr={2}>
-							<Avatar className={classes.avatar}>{renderNotificationType(notification.type)}</Avatar>
-						</Box>
+						{thumbnail ? (
+							<Box position="relative" flexShrink="0" width="100px" mr={2} className={classes.videoThumbnail}>
+								<img src={thumbnail} width="100%" alt="Video thumbnail" />
+								<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
+									<Typography variant="caption">{overlay}</Typography>
+								</Box>
+							</Box>
+						) : (
+							<Box display="flex" justifyContent="center" flexShrink="0" width="100px" mr={2}>
+								<Avatar className={classes.avatar}>{renderNotificationType(notification.type)}</Avatar>
+							</Box>
+						)}
 						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
 							<Typography variant="body1" title={title} noWrap>
 								{title}
 							</Typography>
-							<Typography variant="body2" title={subtitle} noWrap>
-								{subtitle}
+							<Typography variant="body2" title={notification.info.episodeTitle || overlay} noWrap>
+								{notification.info.episodeTitle || overlay}
 							</Typography>
 							<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
 						</Box>
 					</>
 				);
+			default:
+				return null;
 		}
 	}
 
@@ -377,7 +368,7 @@ function Notifications({ height }) {
 							aria-controls="filter-menu"
 							aria-haspopup="true"
 							onClick={handleClickListItem}
-							endIcon={<i className="material-icons"> {"filter_list"} </i>}
+							endIcon={<i className="material-icons">{"filter_list"}</i>}
 						>
 							{filterOptions[selectedIndex]}
 						</Button>
