@@ -10,9 +10,12 @@ import {
 	IconButton,
 	Menu,
 	MenuItem,
+	Badge,
 } from "@material-ui/core";
 
 import Loading from "./Loading";
+
+import { formatNumber } from "../../utils/utils";
 
 import styles from "../../styles/General";
 
@@ -49,7 +52,11 @@ function Sidebar({ options, selected, idField, action, menu, loading, noResultsM
 						key={option[idField]}
 						id={option[idField]}
 					>
-						<ListItemText primary={option.displayName} />
+						<ListItemText
+							primary={option.displayName}
+							secondary={option.viewers && `${formatNumber(option.viewers)} views`}
+						/>
+						{option.online && <Badge variant="dot" color="secondary" />}
 						{menu && menu.length ? (
 							<ListItemSecondaryAction id={option[idField]} onClick={handleSetAnchorEl}>
 								<IconButton color="primary" edge="end">

@@ -25,7 +25,7 @@ async function getAccessToken(user, grantType) {
 
 async function getStreams(event) {
 	const { query, user } = event;
-	const { after } = query;
+	const { after, skipGame } = query;
 
 	const subscriptions = await Subscription.find({ user: user._id, platform: "twitch" }).lean();
 
@@ -60,21 +60,23 @@ async function getStreams(event) {
 		after: json.pagination.cursor,
 	}));
 
-	const gamesString = `id=${streams.map(s => s.game).join("&id=")}`;
+	if (!skipGame) {
+		const gamesString = `id=${streams.map(s => s.game).join("&id=")}`;
 
-	url = `https://api.twitch.tv/helix/games?${gamesString}`;
+		url = `https://api.twitch.tv/helix/games?${gamesString}`;
 
-	res = await api({ method: "get", url, headers });
-	json = res.data;
+		res = await api({ method: "get", url, headers });
+		json = res.data;
 
-	streams = streams.map(stream => {
-		const game = json.data.find(g => g.id === stream.game);
+		streams = streams.map(stream => {
+			const game = json.data.find(g => g.id === stream.game);
 
-		return {
-			...stream,
-			game: game && game.name,
-		};
-	});
+			return {
+				...stream,
+				game: game && game.name,
+			};
+		});
+	}
 
 	streams.sort((a, b) => (a.viewers <= b.viewers ? 1 : -1));
 
