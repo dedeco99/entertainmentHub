@@ -97,7 +97,8 @@ function VideoPlayer() {
 		if (!currentVideo || !videos.includes(currentVideo)) {
 			setCurrentVideo(videos[0]);
 		}
-		if (minimized && videos.length === 1) {
+
+		if (!currentVideo && videos.length === 1) {
 			handleMaximize();
 		}
 	}, [state]); // eslint-disable-line
@@ -106,7 +107,7 @@ function VideoPlayer() {
 
 	if (minimized) {
 		return (
-			<Box position="fixed" bottom="15px" right="15px">
+			<Box position="fixed" bottom="15px" right="15px" zIndex={1}>
 				<Tooltip title="Video player">
 					<Badge badgeContent={videos.length} overlap="circle" color="error">
 						<Fab size="medium" onClick={handleMaximize}>
@@ -120,7 +121,7 @@ function VideoPlayer() {
 
 	return (
 		<Rnd
-			style={{ position: "fixed" }}
+			style={{ position: "fixed", zIndex: 1 }}
 			size={{ width, height }}
 			position={{
 				x: calculateX(),
