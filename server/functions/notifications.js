@@ -4,6 +4,7 @@ const errors = require("../utils/errors");
 const Notification = require("../models/notification");
 const ScheduledNotification = require("../models/scheduledNotification");
 const Subscription = require("../models/subscription");
+const Episode = require("../models/episode");
 
 async function getNotifications(event) {
 	const { query, user } = event;
@@ -121,6 +122,11 @@ async function cronjob() {
 		switch (type) {
 			case "tv":
 				const userSeries = await Subscription.find({ platform: "tv", externalId: info.seriesId }).lean();
+				const episode = await Episode.findOne({
+					seriesId: info.seriesId,
+					season: info.season,
+					number: info.number,
+				}).lean();
 
 				for (const series of userSeries) {
 					notifications.push(
@@ -129,7 +135,12 @@ async function cronjob() {
 							notificationId: `${series.user}${notificationId}`,
 							user: series.user,
 							type,
-							info: { ...info, displayName: series.displayName },
+							info: {
+								...info,
+								displayName: series.displayName,
+								thumbnail: episode.image,
+								episodeTitle: episode.title,
+							},
 						}),
 					);
 				}

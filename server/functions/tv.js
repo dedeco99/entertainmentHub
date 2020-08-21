@@ -5,6 +5,7 @@ const { scheduleNotifications } = require("./notifications");
 
 const Subscription = require("../models/subscription");
 const Episode = require("../models/episode");
+const ScheduledNotification = require("../models/scheduledNotification");
 
 // eslint-disable-next-line complexity, max-lines-per-function
 async function fetchEpisodes(series) {
@@ -72,7 +73,7 @@ async function fetchEpisodes(series) {
 						});
 					}
 
-					console.log(`- S${episode.season_number}E${episode.episode_number} created`);
+					console.log(`${series.displayNames[0]} - S${episode.season_number}E${episode.episode_number} created`);
 				} else if (
 					(!episodeExists.image && episode.still_path) ||
 					episodeExists.title !== episode.name ||
@@ -96,7 +97,20 @@ async function fetchEpisodes(series) {
 						),
 					);
 
-					console.log(`- S${episode.season_number}E${episode.episode_number} edited`);
+					episodesToUpdate.push(
+						ScheduledNotification.updateOne(
+							{
+								"info.seriesId": series._id,
+								"info.season": episode.season_number,
+								"info.number": episode.episode_number,
+							},
+							{
+								dateToSend: episode.air_date,
+							},
+						),
+					);
+
+					console.log(`${series.displayNames[0]} - S${episode.season_number}E${episode.episode_number} edited`);
 				}
 			}
 		}
