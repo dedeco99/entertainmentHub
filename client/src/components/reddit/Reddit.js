@@ -99,7 +99,7 @@ function Reddit() {
 				{renderButtons()}
 				<Subscriptions
 					platform="reddit"
-					selected={match.params.seriesId}
+					selected={match.params.sub}
 					idField="externalId"
 					action={handleShowPosts}
 				/>

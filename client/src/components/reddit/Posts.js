@@ -2,15 +2,20 @@ import React, { useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroller";
 import { useRouteMatch } from "react-router-dom";
 
-import { Grid } from "@material-ui/core";
+import { makeStyles, Grid, Box } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
 import Post from "./Post";
 
 import { getPosts } from "../../api/reddit";
 
+import { posts as styles } from "../../styles/Reddit";
+
+const useStyles = makeStyles(styles);
+
 function Posts() {
 	const match = useRouteMatch();
+	const classes = useStyles();
 	const [posts, setPosts] = useState([]);
 	const [pagination, setPagination] = useState({
 		page: 0,
@@ -57,7 +62,9 @@ function Posts() {
 	function renderPosts() {
 		return posts.map(post => (
 			<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={post.id}>
-				<Post post={post} multipleSubs={match.params.sub.includes("+")} inList />
+				<Box variant="outlined" display="flex" flexDirection="column" className={classes.root}>
+					<Post post={post} multipleSubs={match.params.sub.includes("+")} inList />
+				</Box>
 			</Grid>
 		));
 	}
