@@ -6,10 +6,11 @@ const general = {
 		textAlign: "center",
 	},
 	goBackUp: {
-		bottom: 25,
-		right: 25,
+		bottom: 65,
+		right: 15,
 		position: "fixed",
 		cursor: "pointer",
+		zIndex: 1,
 	},
 	listMenu: {
 		backgroundColor: "#222",
