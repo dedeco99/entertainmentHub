@@ -3,6 +3,8 @@ import { Link, useHistory, useLocation } from "react-router-dom";
 
 import { makeStyles, List, ListItem, Typography } from "@material-ui/core";
 
+import Loading from "../.partials/Loading";
+
 import { UserContext } from "../../contexts/UserContext";
 
 import { getApps } from "../../api/apps";
@@ -18,6 +20,7 @@ function AppMenu() {
 	const { user, dispatch } = useContext(UserContext);
 	const [apps, setApps] = useState([]);
 	const [selectedMenu, setSelectedMenu] = useState(null);
+	const [loading, setLoading] = useState(false);
 
 	const allApps = [
 		{ platform: "reddit", name: "Reddit", icon: "icofont-reddit icofont-2x", endpoint: "/reddit" },
@@ -29,6 +32,8 @@ function AppMenu() {
 	useEffect(() => {
 		async function fetchData() {
 			if (user && user.token) {
+				setLoading(true);
+
 				const redirected = localStorage.getItem("redirected");
 
 				const response = await getApps();
@@ -43,6 +48,8 @@ function AppMenu() {
 
 					history.push("/settings");
 				}
+
+				setLoading(false);
 			}
 		}
 
@@ -62,6 +69,8 @@ function AppMenu() {
 	}, [allApps, location]);
 
 	function renderAppList() {
+		if (loading) return <Loading />;
+
 		return apps.map(app => (
 			<ListItem
 				key={app.platform}
@@ -88,17 +97,13 @@ function AppMenu() {
 		);
 	}
 
-	if (user && user.token) {
-		return (
-			<div className={classes.root}>
-				<List>
-					{renderAppList()}
-					{renderAddMoreApps()}
-				</List>
-			</div>
-		);
-	}
-
-	return <div />;
+	return (
+		<div className={classes.root}>
+			<List>
+				{renderAppList()}
+				{renderAddMoreApps()}
+			</List>
+		</div>
+	);
 }
 export default AppMenu;

@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 
 import { makeStyles, Zoom, Box, Typography, Link, List, ListItem } from "@material-ui/core";
 
+import Loading from "./Loading";
 import Widget from "../widgets/Widget";
 import FeedDetail from "./FeedDetail";
 import Post from "../reddit/Post";
@@ -148,6 +149,8 @@ function Feed({ feed }) {
 	}
 
 	function renderFeed() {
+		if (!open) return <Loading />;
+
 		return (
 			<Zoom in={open}>
 				<Box display="flex" flexDirection="column" className={classes.root}>
