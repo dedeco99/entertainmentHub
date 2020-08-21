@@ -112,7 +112,7 @@ function Settings() {
 		}
 
 		setSettings({ ...settings, browserNotifications: Notification.permission });
-	}, [match]);
+	}, [match]); // eslint-disable-line
 
 	useEffect(() => {
 		async function fetchData() {
@@ -124,7 +124,7 @@ function Settings() {
 		}
 
 		fetchData();
-	}, []);
+	}, []); // eslint-disable-line
 
 	async function handleSubmitSettings() {
 		const response = await editUser({ settings });

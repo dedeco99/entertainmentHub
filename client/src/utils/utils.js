@@ -6,6 +6,10 @@ function formatDate(date, format, relative, originalFormat) {
 	return moment(date, originalFormat).format(format);
 }
 
+function formatNumber(number) {
+	return number.toString().replace(/(.)(?=(\d{3})+$)/g, "$1 ");
+}
+
 function formatVideoDuration(duration) {
 	if (!duration || duration === "P0D") return "Live";
 
@@ -53,4 +57,4 @@ function htmlEscape(str) {
 		.replace(/<\/table>/g, "</table></div>");
 }
 
-export { formatDate, formatVideoDuration, formatNotification, htmlEscape };
+export { formatDate, formatNumber, formatVideoDuration, formatNotification, htmlEscape };
