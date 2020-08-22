@@ -38,7 +38,7 @@ function Reddit({ subreddit, search, listView }) {
 				setPosts(newPosts);
 				setPagination({
 					page: pagination.page + 1,
-					after: response.data[response.data.length - 1].after,
+					after: response.data.length ? response.data[0].after : null,
 					hasMore: !(response.data.length < 25),
 				});
 				setLoading(false);

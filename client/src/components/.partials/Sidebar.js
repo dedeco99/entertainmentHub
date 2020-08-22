@@ -5,6 +5,8 @@ import {
 	makeStyles,
 	List,
 	ListItem,
+	ListItemAvatar,
+	Avatar,
 	ListItemText,
 	ListItemSecondaryAction,
 	IconButton,
@@ -52,11 +54,21 @@ function Sidebar({ options, selected, idField, action, menu, loading, noResultsM
 						key={option[idField]}
 						id={option[idField]}
 					>
+						<ListItemAvatar>
+							<Avatar alt={option.displayName} src={option.image} />
+						</ListItemAvatar>
 						<ListItemText
 							primary={option.displayName}
-							secondary={option.viewers && `${formatNumber(option.viewers)} views`}
+							secondary={
+								option.viewers && (
+									<>
+										<Badge variant="dot" color="secondary" style={{ paddingLeft: 5, marginRight: 10 }} />
+										{formatNumber(option.viewers)}
+									</>
+								)
+							}
+							style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", width: 150 }}
 						/>
-						{option.online && <Badge variant="dot" color="secondary" />}
 						{menu && menu.length ? (
 							<ListItemSecondaryAction id={option[idField]} onClick={handleSetAnchorEl}>
 								<IconButton color="primary" edge="end">

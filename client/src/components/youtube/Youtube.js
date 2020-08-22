@@ -20,7 +20,7 @@ function Youtube() {
 
 	return (
 		<Grid container spacing={2}>
-			<Grid item sm={3} md={2}>
+			<Grid item xs={12} sm={2} md={4}>
 				<Follows platform="youtube" />
 				<Subscriptions platform="youtube" />
 				<IconButton onClick={handleOpenModal}>
@@ -28,7 +28,7 @@ function Youtube() {
 				</IconButton>
 				<FeedDetail open={openModal} platform="youtube" onClose={handleCloseModal} />
 			</Grid>
-			<Grid item sm={9} md={10}>
+			<Grid item xs={12} sm={10} md={8}>
 				<Feeds platform="youtube" />
 			</Grid>
 		</Grid>

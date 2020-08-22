@@ -103,7 +103,7 @@ function Follows({ platform }) {
 
 				setPagination({
 					page: pagination.page + 1,
-					after: response.data[0].after,
+					after: response.data.length ? response.data[0].after : null,
 					hasMore: !(response.data.length < 20),
 				});
 				setLoading(false);
