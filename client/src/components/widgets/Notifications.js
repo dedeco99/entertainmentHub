@@ -32,8 +32,9 @@ import { translate } from "../../utils/translations";
 
 import { notifications as widgetStyles } from "../../styles/Widgets";
 import { videoPlayer as videoPlayerStyles } from "../../styles/VideoPlayer";
+import generalStyles from "../../styles/General";
 
-const useStyles = makeStyles({ ...widgetStyles, ...videoPlayerStyles });
+const useStyles = makeStyles({ ...widgetStyles, ...videoPlayerStyles, ...generalStyles });
 
 function Notifications({ height }) {
 	const classes = useStyles();
@@ -211,9 +212,9 @@ function Notifications({ height }) {
 						{thumbnail ? (
 							<Box position="relative" flexShrink="0" width="100px" mr={2} className={classes.videoThumbnail}>
 								<img src={thumbnail} width="100%" alt="Video thumbnail" />
-								<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
-									<Typography variant="caption">{formatVideoDuration(overlay)}</Typography>
-								</Box>
+								<Typography variant="caption" className={classes.bottomRightOverlay}>
+									{formatVideoDuration(overlay)}
+								</Typography>
 								<Box
 									className={classes.videoPlayOverlay}
 									display="flex"
@@ -260,7 +261,7 @@ function Notifications({ height }) {
 						{thumbnail ? (
 							<Box position="relative" flexShrink="0" width="100px" mr={2} className={classes.videoThumbnail}>
 								<img src={thumbnail} width="100%" alt="Video thumbnail" />
-								<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
+								<Box className={classes.bottomRightOverlay}>
 									<Typography variant="caption">{overlay}</Typography>
 								</Box>
 							</Box>
