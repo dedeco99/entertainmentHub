@@ -35,7 +35,33 @@ import { youtube as styles } from "../../styles/Youtube";
 
 const useStyles = makeStyles(styles);
 
-function Follows({ platform }) {
+function chooseContext(platform) {
+	switch (platform) {
+		case "reddit":
+			return RedditContext;
+		case "youtube":
+			return YoutubeContext;
+		case "twitch":
+			return TwitchContext;
+		default:
+			break;
+	}
+}
+
+function chooseApiCall(platform) {
+	switch (platform) {
+		case "reddit":
+			return getSubreddits;
+		case "youtube":
+			return getSubscriptions;
+		case "twitch":
+			return getFollows;
+		default:
+			break;
+	}
+}
+
+function Follows({ open, platform, onClose }) {
 	const history = useHistory();
 	const classes = useStyles();
 	const { state, dispatch } = useContext(platform === "youtube" ? YoutubeContext : TwitchContext);
@@ -47,7 +73,6 @@ function Follows({ platform }) {
 		after: null,
 	});
 	const [checkedFollows, setCheckedFollows] = useState([]);
-	const [openModal, setOpenModal] = useState(false);
 	let isMounted = true;
 
 	useEffect(() => {
@@ -96,14 +121,6 @@ function Follows({ platform }) {
 		}
 	}
 
-	function handleOpenModal() {
-		setOpenModal(true);
-	}
-
-	function handleCloseModal() {
-		setOpenModal(false);
-	}
-
 	function handleFollowCheckbox(externalId) {
 		const foundFollow = checkedFollows.findIndex(f => f.externalId === externalId);
 		const updatedFollows = [...checkedFollows];
@@ -150,41 +167,38 @@ function Follows({ platform }) {
 	}
 
 	return (
-		<div>
-			<IconButton color="primary" onClick={handleOpenModal}>
-				<i className="icofont-ui-add" />
-			</IconButton>
-			<Modal
-				className={classes.modal}
-				open={openModal}
-				onClose={handleCloseModal}
-				closeAfterTransition
-				BackdropComponent={Backdrop}
-			>
-				<Paper variant="outlined" className={classes.modalContent}>
-					<Box flexGrow={1} style={{ overflow: "auto" }}>
-						<InfiniteScroll
-							loadMore={handleGetFollows}
-							hasMore={pagination.hasMore}
-							useWindow={false}
-							loader={<Loading key={0} />}
-						>
-							{renderFollowsList()}
-						</InfiniteScroll>
-					</Box>
-					<Box display="flex" justifyContent="flex-end" className={classes.modalFooter}>
-						<Button color="primary" variant="contained" onClick={handleAddFollows}>
-							{translate("submit")}
-						</Button>
-					</Box>
-				</Paper>
-			</Modal>
-		</div>
+		<Modal
+			className={classes.modal}
+			open={open}
+			onClose={onClose}
+			closeAfterTransition
+			BackdropComponent={Backdrop}
+		>
+			<Paper variant="outlined" className={classes.modalContent}>
+				<Box flexGrow={1} style={{ overflow: "auto" }}>
+					<InfiniteScroll
+						loadMore={handleGetFollows}
+						hasMore={pagination.hasMore}
+						useWindow={false}
+						loader={<Loading key={0} />}
+					>
+						{renderFollowsList()}
+					</InfiniteScroll>
+				</Box>
+				<Box display="flex" justifyContent="flex-end" className={classes.modalFooter}>
+					<Button color="primary" variant="contained" onClick={handleAddFollows}>
+						{translate("submit")}
+					</Button>
+				</Box>
+			</Paper>
+		</Modal>
 	);
 }
 
 Follows.propTypes = {
+	open: PropTypes.bool.isRequired,
 	platform: PropTypes.string.isRequired,
+	onClose: PropTypes.func.isRequired,
 };
 
 export default Follows;

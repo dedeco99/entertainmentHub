@@ -33,6 +33,11 @@ const general = {
 		width: "100%",
 		maxWidth: 300,
 	},
+	speedDial: {
+		bottom: 15,
+		right: 65,
+		position: "fixed",
+	},
 };
 
 export default general;
