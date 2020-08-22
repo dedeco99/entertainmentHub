@@ -33,6 +33,13 @@ const general = {
 		width: "100%",
 		maxWidth: 300,
 	},
+	bottomRightOverlay: {
+		position: "absolute",
+		bottom: 0,
+		right: 0,
+		backgroundColor: "#212121dd",
+		padding: 2,
+	},
 };
 
 export default general;
