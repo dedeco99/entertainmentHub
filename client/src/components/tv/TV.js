@@ -76,7 +76,7 @@ function TV() {
 		return (
 			<div align="center">
 				<Fab onClick={handleShowSearchBlock} variant="extended" size="medium" className={classes.searchBtn}>
-					<i className="material-icons">{"search"}</i>
+					<i className="icon-search icon-2x" />
 					{translate("search")}
 				</Fab>
 				<Button

@@ -54,7 +54,7 @@ function Price({ country, productId, widgetDimensions }) {
 					<Box display="flex" flexGrow={1} alignItems="center" justifyContent="center" color="#f4511e">
 						<Tooltip title="Highest price" placement="top">
 							<Typography variant="subtitle2" color="inherit">
-								<i className="icofont-caret-up" />
+								<i className="icon-caret-up" />
 								{product.history.highest}
 							</Typography>
 						</Tooltip>
@@ -70,7 +70,7 @@ function Price({ country, productId, widgetDimensions }) {
 					<Box display="flex" flexGrow={1} alignItems="center" justifyContent="center" color="#43a047">
 						<Tooltip title="Lowest price" placement="top">
 							<Typography variant="subtitle2" color="inherit">
-								<i className="icofont-caret-down" />
+								<i className="icon-caret-down" />
 								{product.history.lowest}
 							</Typography>
 						</Tooltip>

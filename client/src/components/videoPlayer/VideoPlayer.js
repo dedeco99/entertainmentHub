@@ -111,7 +111,7 @@ function VideoPlayer() {
 				<Tooltip title="Video player">
 					<Badge badgeContent={videos.length} overlap="circle" color="error">
 						<Fab size="medium" onClick={handleMaximize}>
-							<span className="material-icons"> {"video_library"} </span>
+							<i className="icon-video-library icon-2x" />
 						</Fab>
 					</Badge>
 				</Tooltip>
@@ -173,7 +173,7 @@ function VideoPlayer() {
 										</Box>
 										<ListItemSecondaryAction>
 											<IconButton edge="end" aria-label="delete" onClick={() => handleDeleteVideo(v)}>
-												<i className="material-icons"> {"delete"} </i>
+												<i className="icon-delete" />
 											</IconButton>
 										</ListItemSecondaryAction>
 									</ListItem>

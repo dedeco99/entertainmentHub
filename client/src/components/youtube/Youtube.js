@@ -24,7 +24,7 @@ function Youtube() {
 				<Follows platform="youtube" />
 				<Subscriptions platform="youtube" />
 				<IconButton onClick={handleOpenModal}>
-					<i className="icofont-ui-add" />
+					<i className="icon-add" />
 				</IconButton>
 				<FeedDetail open={openModal} platform="youtube" onClose={handleCloseModal} />
 			</Grid>

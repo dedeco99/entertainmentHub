@@ -115,7 +115,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 			<Box className={classes.root} onMouseEnter={handleShowActions} onMouseLeave={handleHideActions}>
 				{editMode || !hasApp ? (
 					<>
-						<i className={`${editIcon} icofont-2x`} />
+						<i className={`${editIcon} icon-2x`} />
 						<Typography variant="subtitle2">{editText}</Typography>
 						{!hasApp && (
 							<Typography variant="subtitle2">
@@ -134,14 +134,14 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 							<motion.div variants={variants} initial="hidden" animate="visibleR" exit="exitR">
 								<Paper component={Box} className={classes.action} onClick={handleRefresh}>
 									<IconButton size="small">
-										<i className="icofont-refresh" />
+										<i className="icon-refresh" />
 									</IconButton>
 								</Paper>
 							</motion.div>
 							<motion.div variants={variants} initial="hidden" animate="visibleM" exit="exitM">
 								<Paper component={Box} className={classes.action} onClick={handleMove}>
 									<IconButton size="small">
-										<i className="icofont-expand" />
+										<i className="icon-expand" />
 									</IconButton>
 								</Paper>
 							</motion.div>
@@ -149,7 +149,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 								<motion.div variants={variants} initial="hidden" animate="visibleE" exit="exitE">
 									<Paper component={Box} className={classes.action} onClick={handleEdit}>
 										<IconButton size="small">
-											<i className="icofont-ui-edit" />
+											<i className="icon-edit" />
 										</IconButton>
 									</Paper>
 								</motion.div>
@@ -158,7 +158,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 								<motion.div variants={variants} initial="hidden" animate="visibleD" exit="exitD">
 									<Paper component={Box} className={classes.action} onClick={handleOpenDeleteConfirmation}>
 										<IconButton size="small">
-											<i className="icofont-ui-delete" />
+											<i className="icon-delete" />
 										</IconButton>
 									</Paper>
 								</motion.div>

@@ -1,0 +1,154 @@
+@font-face {
+	font-family: "Ehub-icons";
+	src: url("fonts/Ehub-icons.eot?9xjkgr");
+	src: url("fonts/Ehub-icons.eot?9xjkgr#iefix") format("embedded-opentype"),
+		url("fonts/Ehub-icons.ttf?9xjkgr") format("truetype"), url("fonts/Ehub-icons.woff?9xjkgr") format("woff"),
+		url("fonts/Ehub-icons.svg?9xjkgr#Ehub-icons") format("svg");
+	font-weight: normal;
+	font-style: normal;
+	font-display: block;
+}
+
+[class^="icon-"],
+[class*=" icon-"] {
+	/* use !important to prevent issues with browser extensions that change fonts */
+	font-family: "Ehub-icons" !important;
+	speak: never;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
+
+	/* Enable Ligatures ================ */
+	letter-spacing: 0;
+	-webkit-font-feature-settings: "liga";
+	-moz-font-feature-settings: "liga=1";
+	-moz-font-feature-settings: "liga";
+	-ms-font-feature-settings: "liga" 1;
+	font-feature-settings: "liga";
+	-webkit-font-variant-ligatures: discretionary-ligatures;
+	font-variant-ligatures: discretionary-ligatures;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+.icon-apps:before {
+	content: "\e900";
+}
+.icon-arrow-left:before {
+	content: "\e901";
+}
+.icon-arrow-right:before {
+	content: "\e902";
+}
+.icon-arrow-up:before {
+	content: "\e903";
+}
+.icon-caret-down:before {
+	content: "\e904";
+}
+.icon-caret-up:before {
+	content: "\e905";
+}
+.icon-check-circled:before {
+	content: "\e906";
+}
+.icon-close-circled:before {
+	content: "\e907";
+}
+.icon-clouds:before {
+	content: "\e908";
+}
+.icon-comment:before {
+	content: "\e909";
+}
+.icon-logout:before {
+	content: "\e90a";
+}
+.icon-expand:before {
+	content: "\e90b";
+}
+.icon-filter:before {
+	content: "\e90c";
+}
+.icon-history:before {
+	content: "\e90d";
+}
+.icon-reddit-filled:before {
+	content: "\e90e";
+}
+.icon-feed:before {
+	content: "\e90f";
+}
+.icon-monitor-filled:before {
+	content: "\e910";
+}
+.icon-monitor:before {
+	content: "\e911";
+}
+.icon-more:before {
+	content: "\e912";
+}
+.icon-notifications:before {
+	content: "\e913";
+}
+.icon-play:before {
+	content: "\e914";
+}
+.icon-reddit:before {
+	content: "\e915";
+}
+.icon-refresh:before {
+	content: "\e916";
+}
+.icon-search:before {
+	content: "\e917";
+}
+.icon-settings:before {
+	content: "\e918";
+}
+.icon-sunrise:before {
+	content: "\e919";
+}
+.icon-sunset:before {
+	content: "\e91a";
+}
+.icon-thumbs-down:before {
+	content: "\e91b";
+}
+.icon-thumbs-up:before {
+	content: "\e91c";
+}
+.icon-translate:before {
+	content: "\e91d";
+}
+.icon-twitch-filled:before {
+	content: "\e91e";
+}
+.icon-twitch:before {
+	content: "\e91f";
+}
+.icon-add:before {
+	content: "\e920";
+}
+.icon-delete:before {
+	content: "\e921";
+}
+.icon-edit:before {
+	content: "\e922";
+}
+.icon-video-library:before {
+	content: "\e923";
+}
+.icon-youtube-filled:before {
+	content: "\e924";
+}
+.icon-2x {
+	font-size: 2em;
+}
+.icon-3x {
+	font-size: 3em;
+}

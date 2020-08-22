@@ -180,11 +180,11 @@ function Notifications({ height }) {
 	function renderNotificationType(type) {
 		switch (type) {
 			case "tv":
-				return <i className="material-icons">{"tv"}</i>;
+				return <i className="icon-monitor-filled" />;
 			case "youtube":
-				return <i className="icofont-youtube-play" />;
+				return <i className="icon-youtube-filled" />;
 			default:
-				return <i className="material-icons">{"notifications"}</i>;
+				return <i className="icon-notifications" />;
 		}
 	}
 
@@ -196,7 +196,7 @@ function Notifications({ height }) {
 		return (
 			<ListItemSecondaryAction id={notification._id} onClick={e => handleOptionsClick(e, notification)}>
 				<IconButton edge="end">
-					<i className="material-icons">{"more_vert"}</i>
+					<i className="icon-more" />
 				</IconButton>
 			</ListItemSecondaryAction>
 		);
@@ -222,7 +222,7 @@ function Notifications({ height }) {
 									justifyContent="center"
 									onClick={() => handleAddToVideoPlayer(notification)}
 								>
-									<span className="material-icons">{"play_arrow"}</span>
+									<i className="icon-play icon-2x" />
 								</Box>
 							</Box>
 						) : (
@@ -369,7 +369,7 @@ function Notifications({ height }) {
 							aria-controls="filter-menu"
 							aria-haspopup="true"
 							onClick={handleClickListItem}
-							endIcon={<i className="material-icons">{"filter_list"}</i>}
+							endIcon={<i className="icon-filter" />}
 						>
 							{filterOptions[selectedIndex]}
 						</Button>
@@ -395,7 +395,7 @@ function Notifications({ height }) {
 							))}
 						</Menu>
 						<IconButton color="primary" onClick={handleToggleHistory}>
-							<i className="material-icons">{pagination.history ? "notifications" : "history"}</i>
+							<i className={`icon-${pagination.history ? "notifications" : "history"}`} />
 						</IconButton>
 					</Box>
 				</Box>

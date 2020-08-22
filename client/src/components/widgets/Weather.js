@@ -49,7 +49,7 @@ function Weather({ city, country, lat, lon }) {
 
 		return (
 			<Tooltip title="Wind Direction/Speed">
-				<i className="icofont-arrow-up" style={rotation} />
+				<i className="icon-arrow-up" style={rotation} />
 			</Tooltip>
 		);
 	}
@@ -70,9 +70,9 @@ function Weather({ city, country, lat, lon }) {
 					{<img src={day.forecast.image} alt="Forecast" />}
 				</Tooltip>
 				<Typography variant="caption">
-					<i className="icofont-caret-up" />
+					<i className="icon-caret-up" />
 					{`${Math.round(day.maxTemp)}° `}
-					<i className="icofont-caret-down" />
+					<i className="icon-caret-down" />
 					{`${Math.round(day.minTemp)}°`}
 				</Typography>
 			</Box>
@@ -97,9 +97,9 @@ function Weather({ city, country, lat, lon }) {
 						<Box display="flex" flexDirection="column" alignItems="flex-end">
 							<Typography variant="h4">{`${Math.round(weather.current.temp)}°`}</Typography>
 							<Typography variant="caption">
-								<i className="icofont-caret-up" />
+								<i className="icon-caret-up" />
 								{`${Math.round(weather.current.maxTemp)}° `}
-								<i className="icofont-caret-down" />
+								<i className="icon-caret-down" />
 								{`${Math.round(weather.current.minTemp)}°`}
 							</Typography>
 							{showFeelsLike()}
@@ -109,7 +109,7 @@ function Weather({ city, country, lat, lon }) {
 						<Box display="flex" flexDirection="column" justifyContent="center" flexGrow={1}>
 							<Typography variant="caption" className={classes.info}>
 								<Tooltip title="Clouds">
-									<i className="icofont-clouds" />
+									<i className="icon-clouds" />
 								</Tooltip>
 								{`${Math.round(weather.current.clouds)}%`}
 							</Typography>
@@ -124,13 +124,13 @@ function Weather({ city, country, lat, lon }) {
 						<Box display="flex" flexDirection="column" justifyContent="center" alignItems="flex-end" flexGrow={1}>
 							<Typography variant="caption" className={classes.info}>
 								<Tooltip title="Sunrise">
-									<i className="icofont-sun-rise" />
+									<i className="icon-sunrise" />
 								</Tooltip>
 								{`${weather.current.sunrise}`}
 							</Typography>
 							<Typography variant="caption" className={classes.info}>
 								<Tooltip title="Sunset">
-									<i className="icofont-sun-set" />
+									<i className="icon-sunset" />
 								</Tooltip>
 								{`${weather.current.sunset}`}
 							</Typography>
