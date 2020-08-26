@@ -123,7 +123,7 @@ async function getSubreddits(event) {
 	const subreddits = json.data.children.map(subreddit => ({
 		externalId: subreddit.data.display_name,
 		displayName: subreddit.data.display_name,
-		image: subreddit.data.community_icon.split("?")[0],
+		image: subreddit.data.icon_img || subreddit.data.community_icon.split("?")[0],
 		subscribers: subreddit.data.subscribers,
 		nsfw: subreddit.data.over18,
 		created: subreddit.data.created,
