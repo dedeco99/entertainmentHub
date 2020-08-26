@@ -23,10 +23,10 @@ function AppMenu() {
 	const [loading, setLoading] = useState(false);
 
 	const allApps = [
-		{ platform: "reddit", name: "Reddit", icon: "icofont-reddit icofont-2x", endpoint: "/reddit" },
-		{ platform: "youtube", name: "Youtube", icon: "icofont-youtube-play icofont-2x", endpoint: "/youtube" },
-		{ platform: "twitch", name: "Twitch", icon: "icofont-twitch icofont-2x", endpoint: "/twitch" },
-		{ platform: "tv", name: "TV Series", icon: "icofont-monitor icofont-2x", endpoint: "/tv" },
+		{ platform: "reddit", name: "Reddit", icon: "icon-reddit-filled icon-2x", endpoint: "/reddit" },
+		{ platform: "youtube", name: "Youtube", icon: "icon-youtube-filled icon-2x", endpoint: "/youtube" },
+		{ platform: "twitch", name: "Twitch", icon: "icon-twitch-filled icon-2x", endpoint: "/twitch" },
+		{ platform: "tv", name: "TV Series", icon: "icon-monitor-filled icon-2x", endpoint: "/tv" },
 	];
 
 	useEffect(() => {
@@ -92,7 +92,7 @@ function AppMenu() {
 
 		return (
 			<ListItem button className={classes.appItem} component={Link} to="/settings/apps">
-				<i className="icofont-plus-circle icofont-2x" />
+				<i className="icon-add icon-2x" />
 			</ListItem>
 		);
 	}

@@ -144,13 +144,13 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList }
 					</Typography>
 				)}
 				<div className={`${classes.overlay} ${classes.comments}`}>
-					<i className="icofont-comment" />
+					<i className="icon-comment" />
 					{` ${post.comments}`}
 				</div>
 				<div className={`${classes.overlay} ${classes.score}`}>
-					<i className="icofont-caret-up" />
+					<i className="icon-caret-up" />
 					{post.score}
-					<i className="icofont-caret-down" />
+					<i className="icon-caret-down" />
 				</div>
 				<div className={`${classes.overlay} ${classes.date}`}>{formatDate(post.created * 1000, null, true)}</div>
 			</div>
@@ -187,14 +187,14 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList }
 					<Box display="flex" style={{ paddingLeft: 25 }}>
 						<Box display="flex" flexGrow={1} justifyContent="center">
 							<Typography variant="caption">
-								<i className="icofont-caret-up" />
+								<i className="icon-caret-up" />
 								{post.score}
-								<i className="icofont-caret-down" />
+								<i className="icon-caret-down" />
 							</Typography>
 						</Box>
 						<Box display="flex" flexGrow={1} justifyContent="center">
 							<Typography variant="caption">
-								<i className="icofont-comment" />
+								<i className="icon-comment" />
 								{` ${post.comments}`}
 							</Typography>
 						</Box>
@@ -232,9 +232,9 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList }
 				<Box display="flex">
 					<Box display="flex" flexGrow={1}>
 						<Typography variant="caption">
-							<i className="icofont-caret-up" />
+							<i className="icon-caret-up" />
 							{post.score}
-							<i className="icofont-caret-down" />
+							<i className="icon-caret-down" />
 						</Typography>
 					</Box>
 					<Box display="flex">
@@ -266,7 +266,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList }
 						{onShowPreviousPost && (
 							<Box className={classes.expandedBtn} onClick={onShowPreviousPost}>
 								<Box display="flex" alignItems="center" height="100%">
-									<i className="icofont-arrow-left icofont-3x" />
+									<i className="icon-arrow-left icon-2x" />
 								</Box>
 							</Box>
 						)}
@@ -276,7 +276,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList }
 						{onShowNextPost && (
 							<Box className={classes.expandedBtn} onClick={onShowNextPost}>
 								<Box display="flex" alignItems="center" height="100%">
-									<i className="icofont-arrow-right icofont-3x" />
+									<i className="icon-arrow-right icon-2x" />
 								</Box>
 							</Box>
 						)}

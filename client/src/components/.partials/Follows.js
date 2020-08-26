@@ -152,7 +152,7 @@ function Follows({ platform }) {
 	return (
 		<div>
 			<IconButton color="primary" onClick={handleOpenModal}>
-				<i className="icofont-ui-add" />
+				<i className="icon-add" />
 			</IconButton>
 			<Modal
 				className={classes.modal}
