@@ -98,7 +98,7 @@ function Feed({ feed }) {
 							justifyContent="center"
 							onClick={() => handleAddToVideoPlayer(post)}
 						>
-							<span className="material-icons"> {"play_arrow"} </span>
+							<i className="icon-play icon-2x" />
 						</Box>
 					</Box>
 					<Box style={{ paddingLeft: 5, paddingRight: 10 }}>
@@ -127,11 +127,11 @@ function Feed({ feed }) {
 						</Typography>
 						<Box display="flex" flexDirection="row" flex="1 1 auto" minWidth={0}>
 							<Typography variant="caption" style={{ paddingRight: "10px" }}>
-								<i className="icofont-thumbs-up" />
+								<i className="icon-thumbs-up" />
 								{` ${post.likes}`}
 							</Typography>
 							<Typography variant="caption">
-								<i className="icofont-thumbs-down" />
+								<i className="icon-thumbs-down" />
 								{` ${post.dislikes}`}
 							</Typography>
 						</Box>
@@ -179,7 +179,7 @@ function Feed({ feed }) {
 				type={"youtube"}
 				content={renderFeed()}
 				editText={feed.displayName}
-				editIcon={"icofont-youtube-play"}
+				editIcon={"icon-youtube-filled"}
 				onEdit={handleOpenModal}
 				onDelete={handleDeleteFeed}
 			/>

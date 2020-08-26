@@ -72,7 +72,7 @@ function Sidebar({ options, selected, idField, action, menu, loading, noResultsM
 						{menu && menu.length ? (
 							<ListItemSecondaryAction id={option[idField]} onClick={handleSetAnchorEl}>
 								<IconButton color="primary" edge="end">
-									<i className="material-icons">{"more_vert"}</i>
+									<i className="icon-more" />
 								</IconButton>
 							</ListItemSecondaryAction>
 						) : null}

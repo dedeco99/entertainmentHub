@@ -107,7 +107,7 @@ function Reddit() {
 					action={handleShowPosts}
 				/>
 				<IconButton onClick={handleOpenModal}>
-					<i className="icofont-ui-add" />
+					<i className="icon-add" />
 				</IconButton>
 				<FeedDetail open={openModal} platform="reddit" onClose={handleCloseModal} />
 			</Grid>

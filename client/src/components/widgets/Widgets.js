@@ -28,7 +28,7 @@ const widgetsInfo = {
 	notifications: widget => ({
 		content: <Notifications height="100%" />,
 		editText: "Notifications",
-		editIcon: "icofont-alarm",
+		editIcon: "icon-notifications",
 		dimensions: { w: widget.width || 1, h: widget.height || 4 },
 		restrictions: { minW: 2, minH: 2, maxW: 6, maxH: 6 },
 	}),
@@ -38,7 +38,7 @@ const widgetsInfo = {
 		),
 		borderColor: "#ff4500",
 		editText: `r/${widget.info.subreddit}`,
-		editIcon: "icofont-reddit",
+		editIcon: "icon-reddit-filled",
 		dimensions: { w: widget.width || 1, h: widget.height || 2 },
 		restrictions: { minW: 2, minH: 2, maxW: 4, maxH: 6 },
 	}),
@@ -46,7 +46,7 @@ const widgetsInfo = {
 		content: <Twitch />,
 		borderColor: "#6441a5",
 		editText: "Twitch",
-		editIcon: "icofont-twitch",
+		editIcon: "icon-twitch-filled",
 		dimensions: { w: widget.width || 1, h: widget.height || 2 },
 		restrictions: { minW: 2, minH: 2, maxW: 4, maxH: 6 },
 	}),
@@ -55,28 +55,28 @@ const widgetsInfo = {
 			<Weather city={widget.info.city} country={widget.info.country} lat={widget.info.lat} lon={widget.info.lon} />
 		),
 		editText: "Weather",
-		editIcon: "icofont-cloud",
+		editIcon: "icon-cloud",
 		dimensions: { w: widget.width || 1, h: widget.height || 2 },
 		restrictions: { minW: 2, minH: 1, maxW: 4, maxH: 2 },
 	}),
 	tv: widget => ({
 		content: <TV />,
 		editText: "TV",
-		editIcon: "icofont-contrast",
+		editIcon: "icon-monitor-filled",
 		dimensions: { w: widget.width || 1, h: widget.height || 4 },
 		restrictions: { minW: 2, minH: 2, maxW: 6, maxH: 6 },
 	}),
 	crypto: widget => ({
 		content: <Crypto coins={widget.info.coins} />,
 		editText: "Crypto",
-		editIcon: "icofont-bitcoin",
+		editIcon: "icon-crypto",
 		dimensions: { w: widget.width || 1, h: widget.height || 1 },
 		restrictions: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
 	}),
 	price: widget => ({
 		content: <Price country={widget.info.country} productId={widget.info.productId} />,
 		editText: "Price",
-		editIcon: "icofont-money",
+		editIcon: "icon-money",
 		dimensions: { w: widget.width || 1, h: widget.height || 1 },
 		restrictions: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
 	}),
@@ -227,7 +227,7 @@ function Widgets() {
 			<Box className={classes.addWidget}>
 				<Tooltip title="Add Widget">
 					<Fab onClick={handleWidgetDetailOpen}>
-						<span className="material-icons">{"add"}</span>
+						<i className="icon-add" />
 					</Fab>
 				</Tooltip>
 			</Box>

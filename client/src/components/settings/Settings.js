@@ -44,7 +44,7 @@ function Settings() {
 			active: false,
 			key: "reddit",
 			displayName: "Reddit",
-			icon: "icofont-reddit",
+			icon: "icon-reddit",
 			link: `https://www.reddit.com/api/v1/authorize
 				?client_id=VXMNKvXfKALA3A
 				&response_type=code
@@ -58,7 +58,7 @@ function Settings() {
 			active: false,
 			key: "twitch",
 			displayName: "Twitch",
-			icon: "icofont-twitch",
+			icon: "icon-twitch",
 			link: `https://api.twitch.tv/kraken/oauth2/authorize
 				?client_id=9haxv452ih4k8ewiml53vqetrbm0z9q
 				&response_type=code
@@ -70,7 +70,7 @@ function Settings() {
 			active: false,
 			key: "youtube",
 			displayName: "Youtube",
-			icon: "icofont-youtube-play",
+			icon: "icon-youtube-filled",
 			link: `https://accounts.google.com/o/oauth2/v2/auth
 				?redirect_uri=${REDIRECT}/apps/youtube
 				&prompt=consent
@@ -84,7 +84,7 @@ function Settings() {
 			active: false,
 			key: "tv",
 			displayName: "TV",
-			icon: "icofont-monitor",
+			icon: "icon-monitor",
 			link: "/apps/tv",
 			color: "linear-gradient(0deg, rgba(1,97,234,1) 0%, rgba(0,187,250,1) 100%)",
 		},
@@ -176,7 +176,7 @@ function Settings() {
 				<Box p={2} mb={1} display="flex">
 					<Box mr={2}>
 						<Box p={2} borderRadius="4px" style={{ background: app.color }}>
-							<i className={`${app.icon} icofont-3x`} />
+							<i className={`${app.icon} icon-2x`} />
 						</Box>
 					</Box>
 					<Box flexGrow={1}>
@@ -185,11 +185,11 @@ function Settings() {
 								<Typography> {app.displayName} </Typography>
 								{app.active ? (
 									<Typography variant="body2">
-										<i className="icofont-check-circled" /> {translate("appConnected", app.displayName)}
+										<i className="icon-check-circled" /> {translate("appConnected", app.displayName)}
 									</Typography>
 								) : (
 									<Typography variant="body2">
-										<i className="icofont-close-circled" /> {translate("appNotConnected", app.displayName)}
+										<i className="icon-close-circled" /> {translate("appNotConnected", app.displayName)}
 									</Typography>
 								)}
 							</Box>
@@ -298,13 +298,13 @@ function Settings() {
 					<List className={classes.listMenu}>
 						<ListItem button selected={selectedMenu === 0} component={Link} to="/settings/apps">
 							<ListItemIcon>
-								<i className={`material-icons ${classes.appIcon}`}>{"apps"}</i>
+								<i className={`icon-apps ${classes.appIcon}`} />
 							</ListItemIcon>
 							<ListItemText primary={translate("apps")} />
 						</ListItem>
 						<ListItem button selected={selectedMenu === 1} component={Link} to="/settings">
 							<ListItemIcon>
-								<i className={`material-icons ${classes.appIcon}`}>{"settings"}</i>
+								<i className={`icon-settings ${classes.appIcon}`} />
 							</ListItemIcon>
 							<ListItemText primary={translate("settings")} />
 						</ListItem>
