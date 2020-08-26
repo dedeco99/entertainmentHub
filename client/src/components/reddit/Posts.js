@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroller";
+import Masonry from "react-masonry-css";
 import { useHistory, useRouteMatch } from "react-router-dom";
 
 import { makeStyles, Grid, Box, Button, Menu, MenuItem } from "@material-ui/core";
@@ -130,15 +131,35 @@ function Posts() {
 				</Grid>
 				<Grid item xs={12}>
 					<InfiniteScroll loadMore={handleGetPosts} hasMore={pagination.hasMore} loader={<Loading key={0} />}>
-						<Grid container spacing={2}>
+						<Masonry
+							breakpointCols={{
+								default: 5,
+								1920: 4,
+								1500: 3,
+								1280: 2,
+								960: 1,
+								600: 1,
+							}}
+							className={classes.masonryRoot}
+							columnClassName={classes.masonryColumn}
+						>
 							{posts.map(post => (
-								<Grid item xs={12} sm={12} md={6} lg={4} xl={3} key={post.id}>
-									<Box variant="outlined" display="flex" flexDirection="column" className={classes.root}>
-										<Post post={post} multipleSubs={match.params.sub.includes("+")} inList />
-									</Box>
-								</Grid>
+								<Box
+									key={post.id}
+									variant="outlined"
+									display="flex"
+									flexDirection="column"
+									className={classes.root}
+								>
+									<Post
+										post={post}
+										multipleSubs={match.params.sub.includes("+")}
+										inList
+										customStyles={{ borderRadius: 3 }}
+									/>
+								</Box>
 							))}
-						</Grid>
+						</Masonry>
 					</InfiniteScroll>
 				</Grid>
 			</Grid>

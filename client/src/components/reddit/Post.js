@@ -20,7 +20,7 @@ import { reddit as styles } from "../../styles/Widgets";
 
 const useStyles = makeStyles(styles);
 
-function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList }) {
+function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, customStyles }) {
 	const classes = useStyles({ inList });
 	const [expandedView, setExpandedView] = useState(false);
 
@@ -34,7 +34,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList }
 
 	function formatTextPost() {
 		return (
-			<Box p={2}>
+			<Box p={2} maxHeight={400}>
 				{post.text === "null" ? (
 					<Typography>
 						<Link href={post.url} target="_blank" rel="noreferrer" color="inherit">
@@ -77,21 +77,27 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList }
 		} else if (post.domain === "imgur.com") {
 			const imgurId = post.url.substr(post.url.lastIndexOf("/") + 1);
 
-			const imgurLink =
-				post.url.includes("gallery") || post.url.includes("/a/")
-					? `https://imgur.com/a/${imgurId}/embed?pub=true`
-					: `https://imgur.com/${imgurId}/embed?pub=true`;
+			if (post.url.includes("gallery") || post.url.includes("/a/")) {
+				content = (
+					<CardMedia
+						component="iframe"
+						src={`https://imgur.com/a/${imgurId}/embed?pub=true`}
+						className={classes.media}
+						frameBorder={0}
+						allowFullScreen
+					/>
+				);
+			} else {
+				content = (
+					<CardMedia
+						component="img"
+						src={`${post.url}.png`}
+						className={classes.media}
+						onClick={handleOpenExpandedView}
+					/>
+				);
+			}
 
-			content = (
-				<CardMedia
-					component="iframe"
-					src={imgurLink}
-					className={classes.media}
-					frameBorder={0}
-					allowFullScreen
-					scrolling="no"
-				/>
-			);
 			expandedContent = content;
 		} else if (post.domain === "i.imgur.com" && post.url.substr(post.url.lastIndexOf(".") + 1) === "gifv") {
 			content = (
@@ -249,11 +255,11 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList }
 	const widgetInfo = isMedia ? renderInfoMedia() : renderInfo();
 
 	return (
-		<Box display="flex" flexDirection="column" flexGrow={1} className={classes.content}>
+		<Box display="flex" flexDirection="column" flexGrow={1} className={classes.content} style={customStyles}>
 			<Box display="flex" flexDirection="column" width="100%">
 				{inList && isMedia ? renderInfoOverlay() : widgetInfo}
 				{inList ? (
-					<Box position="relative" height="300px" overflow="auto">
+					<Box position="relative" overflow="auto">
 						{content}
 					</Box>
 				) : (
@@ -293,6 +299,7 @@ Post.propTypes = {
 	onShowPreviousPost: PropTypes.func,
 	onShowNextPost: PropTypes.func,
 	inList: PropTypes.bool,
+	customStyles: PropTypes.object,
 };
 
 export default Post;

@@ -9,7 +9,18 @@ const posts = {
 	root: {
 		backgroundColor: "#212121",
 		width: "100%",
-		height: "100%",
+		height: "auto",
+		marginBottom: 15,
+		borderRadius: 3,
+	},
+	masonryRoot: {
+		display: "flex",
+		paddingLeft: -15,
+		width: "auto",
+	},
+	masonryColumn: {
+		paddingLeft: 15,
+		backgroundClip: "padding-box",
 	},
 };
 
