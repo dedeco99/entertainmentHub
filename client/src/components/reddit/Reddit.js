@@ -59,6 +59,9 @@ function Reddit() {
 				handleShowFeedsBlock();
 				break;
 			case "/reddit/:sub":
+				history.push(`/reddit/${match.params.sub}/hot`);
+				break;
+			case "/reddit/:sub/:category":
 				handleShowPostsBlock();
 				break;
 			default:
@@ -94,7 +97,7 @@ function Reddit() {
 
 	return (
 		<Grid container spacing={2}>
-			<Grid item xs={12} sm={2} md={4}>
+			<Grid item xs={12} sm={2} md={3} lg={2}>
 				<Follows platform="reddit" />
 				{renderButtons()}
 				<Subscriptions
@@ -108,7 +111,7 @@ function Reddit() {
 				</IconButton>
 				<FeedDetail open={openModal} platform="reddit" onClose={handleCloseModal} />
 			</Grid>
-			<Grid item xs={12} sm={10} md={8}>
+			<Grid item xs={12} sm={10} md={9} lg={10}>
 				{renderContent()}
 			</Grid>
 		</Grid>

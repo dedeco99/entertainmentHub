@@ -13,10 +13,10 @@ async function getSubreddits(after, filter) {
 	return res;
 }
 
-async function getPosts(subreddit, after) {
+async function getPosts(subreddit, filter = "hot", after) {
 	const res = await api({
 		method: "get",
-		url: `/api/reddit/${subreddit}/hot${after ? `?after=${after}` : ""}`,
+		url: `/api/reddit/${subreddit}/${filter}${after ? `?after=${after}` : ""}`,
 	});
 
 	return res;

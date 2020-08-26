@@ -28,7 +28,7 @@ function Reddit({ subreddit, search, listView }) {
 			if (search) {
 				response = await getSearch(subreddit, search, pagination.after);
 			} else {
-				response = await getPosts(subreddit, pagination.after);
+				response = await getPosts(subreddit, "hot", pagination.after);
 			}
 
 			if (response.status === 200 && isMounted) {
