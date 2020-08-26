@@ -48,8 +48,6 @@ function Youtube() {
 	function handleShowVideos(id) {
 		if (match.params.channel !== id) {
 			history.push(`/youtube/${id}`);
-			history.push("cobna");
-			console.log(history.push(`/youtube/${id}`));
 
 			handleShowVideosBlock();
 		}
