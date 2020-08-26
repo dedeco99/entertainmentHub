@@ -19,6 +19,10 @@ const youtube = {
 		backgroundColor: "#424242",
 		padding: 8,
 	},
+	outlinedBtn: {
+		marginTop: 10,
+		marginBottom: 10,
+	},
 };
 
 const feed = {

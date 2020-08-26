@@ -89,6 +89,7 @@ function App() {
 				<PrivateRoute exact path="/apps/:app" component={Apps} />
 
 				<PrivateRoute exact path="/youtube" component={Youtube} />
+				<PrivateRoute exact path="/youtube/:channel" component={Youtube} />
 
 				<PrivateRoute exact path="/reddit" component={Reddit} />
 				<PrivateRoute exact path="/reddit/:sub" component={Reddit} />
