@@ -24,11 +24,11 @@ function Posts() {
 		hasMore: false,
 		after: null,
 	});
+	const [callApi, setCallApi] = useState(true);
 	const [categoryAnchorEl, setCategoryAnchorEl] = useState(null);
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 	const categoryOptions = ["Hot", "New", "Best", "Rising", "Controversial", "Top"];
-	let isMounted = true;
 
 	async function handleGetPosts() {
 		if (!loading) {
@@ -38,7 +38,7 @@ function Posts() {
 
 			const response = await getPosts(match.params.sub, match.params.category, pagination.after);
 
-			if (response.status === 200 && isMounted) {
+			if (response.status === 200) {
 				const newPosts = pagination.page === 0 ? response.data : posts.concat(response.data);
 
 				setPosts(newPosts);
@@ -48,31 +48,30 @@ function Posts() {
 					after: response.data.length ? response.data[0].after : null,
 				});
 				setLoading(false);
-				if (pagination.page === 0) setOpen(true);
+				setOpen(true);
 			}
 		}
 	}
 
 	useEffect(() => {
-		async function fetchData() {
-			if (categoryOptions.map(c => c.toLowerCase()).includes(match.params.category)) {
-				await handleGetPosts();
-			} else {
-				setPosts([]);
-				setPagination({ page: 0, hasMore: false, after: null });
+		if (categoryOptions.map(c => c.toLowerCase()).includes(match.params.category)) {
+			setPagination({ page: 0, hasMore: false, after: null });
+		} else {
+			history.push(`/reddit/${match.params.sub}/hot`);
+		}
 
-				history.push(`/reddit/${match.params.sub}/hot`);
-			}
+		setCallApi(!callApi);
+	}, [match.url]); // eslint-disable-line
+
+	useEffect(() => {
+		async function fetchData() {
+			await handleGetPosts();
 		}
 
 		fetchData();
-
-		return () => (isMounted = false); // eslint-disable-line
-	}, [match.url]); // eslint-disable-line
+	}, [callApi]); // eslint-disable-line
 
 	function applyCategory(category) {
-		setPagination({ ...pagination, page: 0, after: null });
-
 		history.push(`/reddit/${match.params.sub}/${category}`);
 	}
 

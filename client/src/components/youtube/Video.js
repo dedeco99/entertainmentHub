@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
 
 import { makeStyles, Typography, Link, ListItem, Box } from "@material-ui/core";

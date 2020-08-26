@@ -22,9 +22,9 @@ function Videos() {
 		hasMore: false,
 		after: null,
 	});
+	const [callApi, setCallApi] = useState(true);
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
-	let isMounted = true;
 
 	async function handleGetVideos() {
 		if (!loading) {
@@ -34,7 +34,7 @@ function Videos() {
 
 			const response = await getVideos(match.params.channel);
 
-			if (response.status === 200 && isMounted) {
+			if (response.status === 200) {
 				const newVideos = pagination.page === 0 ? response.data : videos.concat(response.data);
 
 				setVideos(newVideos);
@@ -51,14 +51,17 @@ function Videos() {
 	}
 
 	useEffect(() => {
+		setPagination({ page: 0, hasMore: false, after: null });
+		setCallApi(!callApi);
+	}, [match.url]); // eslint-disable-line
+
+	useEffect(() => {
 		async function fetchData() {
 			await handleGetVideos();
 		}
 
 		fetchData();
-
-		return () => (isMounted = false); // eslint-disable-line
-	}, [match.url]); // eslint-disable-line
+	}, [callApi]); // eslint-disable-line
 
 	function renderVideos() {
 		return videos.map(video => (

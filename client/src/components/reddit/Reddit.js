@@ -47,7 +47,7 @@ function Reddit() {
 
 	function handleShowPosts(id) {
 		if (match.params.sub !== id) {
-			history.push(`/reddit/${id}`);
+			history.push(`/reddit/${id}/hot`);
 
 			handleShowPostsBlock();
 		}
