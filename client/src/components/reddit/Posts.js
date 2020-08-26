@@ -41,7 +41,7 @@ function Posts() {
 				setPagination({
 					page: pagination.page + 1,
 					hasMore: !(response.data.length < 25),
-					after: response.data[response.data.length - 1].after,
+					after: response.data.length ? response.data[0].after : null,
 				});
 				setLoading(false);
 				if (pagination.page === 0) setOpen(true);

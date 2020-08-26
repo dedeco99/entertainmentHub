@@ -111,7 +111,7 @@ function Settings() {
 				break;
 		}
 
-		setSettings({ ...settings, browserNotifications: Notification.permission });
+		setSettings({ ...user.settings, browserNotifications: Notification.permission });
 	}, [match]); // eslint-disable-line
 
 	useEffect(() => {

@@ -16,13 +16,14 @@ import { getVideos } from "../../api/youtube";
 import { getPosts } from "../../api/reddit";
 import { deleteFeed } from "../../api/feeds";
 
-import { formatDate, formatVideoDuration } from "../../utils/utils";
+import { formatDate, formatNumber, formatVideoDuration } from "../../utils/utils";
 
 import { widget as widgetStyles } from "../../styles/Widgets";
 import { feed as feedStyles } from "../../styles/Youtube";
 import { videoPlayer as videoPlayerStyles } from "../../styles/VideoPlayer";
+import generalStyles from "../../styles/General";
 
-const useStyles = makeStyles({ ...widgetStyles, ...feedStyles, ...videoPlayerStyles });
+const useStyles = makeStyles({ ...widgetStyles, ...feedStyles, ...videoPlayerStyles, ...generalStyles });
 
 function Feed({ feed }) {
 	const classes = useStyles();
@@ -87,9 +88,9 @@ function Feed({ feed }) {
 				<Box display="flex" flexDirection="column" flex="auto" minWidth={0}>
 					<Box position="relative" className={classes.videoThumbnail}>
 						<img src={post.thumbnail} width="100%" alt="Video thumbnail" />
-						<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
-							<Typography variant="caption">{formatVideoDuration(post.duration)}</Typography>
-						</Box>
+						<Typography variant="caption" className={classes.bottomRightOverlay}>
+							{formatVideoDuration(post.duration)}
+						</Typography>
 						<Box
 							className={classes.videoPlayOverlay}
 							display="flex"
@@ -122,7 +123,7 @@ function Feed({ feed }) {
 							</Link>
 						</Typography>
 						<Typography variant="caption">
-							{`${formatDate(post.published, "DD-MM-YYYY HH:mm", true)} • ${post.views} views`}
+							{`${formatDate(post.published, "DD-MM-YYYY HH:mm", true)} • ${formatNumber(post.views)} views`}
 						</Typography>
 						<Box display="flex" flexDirection="row" flex="1 1 auto" minWidth={0}>
 							<Typography variant="caption" style={{ paddingRight: "10px" }}>

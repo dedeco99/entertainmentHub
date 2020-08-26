@@ -6,9 +6,12 @@ import Loading from "../.partials/Loading";
 
 import { getStreams } from "../../api/twitch";
 
-import { twitch as styles } from "../../styles/Widgets";
+import { formatNumber } from "../../utils/utils";
 
-const useStyles = makeStyles(styles);
+import { twitch as twitchStyles } from "../../styles/Widgets";
+import generalStyles from "../../styles/General";
+
+const useStyles = makeStyles({ ...twitchStyles, ...generalStyles });
 
 function Twitch() {
 	const classes = useStyles();
@@ -40,10 +43,10 @@ function Twitch() {
 				<List>
 					{streams.map(stream => (
 						<ListItem key={stream.id} button divider>
-							<Box flex="1" flexGrow={1} className={classes.imageWrapper}>
+							<Box className={classes.imageWrapper}>
 								<img alt={`${stream.user}-preview`} src={stream.thumbnail} width="100%" />
-								<Typography variant="caption" className={classes.viewers}>
-									{stream.viewers}
+								<Typography variant="caption" className={classes.bottomRightOverlay}>
+									{formatNumber(stream.viewers)}
 								</Typography>
 							</Box>
 							<Box p={1} flex="1" flexGrow={2} minWidth="0%">
