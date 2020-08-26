@@ -102,7 +102,7 @@ function Posts() {
 						aria-controls="category-menu"
 						aria-haspopup="true"
 						onClick={handleClickListItem}
-						endIcon={<i className="material-icons">{"filter_list"}</i>}
+						endIcon={<i className="icon-filter" />}
 						style={{ float: "right" }}
 					>
 						{categoryOptions[selectedIndex]}

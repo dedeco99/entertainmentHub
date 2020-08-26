@@ -40,6 +40,10 @@ const general = {
 		backgroundColor: "#212121dd",
 		padding: 2,
 	},
+	outlinedBtn: {
+		marginTop: 10,
+		marginBottom: 10,
+	},
 };
 
 export default general;

@@ -9,7 +9,7 @@ import FeedDetail from "../.partials/FeedDetail";
 import Feeds from "../.partials/Feeds";
 import Videos from "./Videos";
 
-import { youtube as styles } from "../../styles/Youtube";
+import styles from "../../styles/General";
 
 const useStyles = makeStyles(styles);
 
@@ -22,7 +22,7 @@ function Youtube() {
 		openVideos: false,
 	});
 	const [openModal, setOpenModal] = useState(false);
-	
+
 	function handleOpenModal() {
 		setOpenModal(true);
 	}
@@ -66,7 +66,7 @@ function Youtube() {
 		}
 	}, [match.url]); // eslint-disable-line
 
-	function renderButtons(){
+	function renderButtons() {
 		return (
 			<div align="center">
 				<Button
@@ -86,7 +86,7 @@ function Youtube() {
 		if (blocks.openFeeds) {
 			return <Feeds platform="youtube" />;
 		} else if (blocks.openVideos) {
-			return <Videos />
+			return <Videos />;
 		}
 
 		return <div />;
@@ -94,7 +94,7 @@ function Youtube() {
 
 	return (
 		<Grid container spacing={2}>
-			<Grid item xs={12} sm={2} md={2}>
+			<Grid item xs={12} sm={2} md={3} lg={2}>
 				<Follows platform="youtube" />
 				{renderButtons()}
 				<Subscriptions
@@ -108,7 +108,7 @@ function Youtube() {
 				</IconButton>
 				<FeedDetail open={openModal} platform="youtube" onClose={handleCloseModal} />
 			</Grid>
-			<Grid item xs={12} sm={10} md={10}>
+			<Grid item xs={12} sm={10} md={9} lg={10}>
 				{renderContent()}
 			</Grid>
 		</Grid>

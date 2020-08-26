@@ -9,7 +9,7 @@ import Video from "./Video";
 
 import { getVideos } from "../../api/youtube";
 
-import { posts as styles } from "../../styles/Reddit";
+import { videos as styles } from "../../styles/Youtube";
 
 const useStyles = makeStyles(styles);
 
@@ -35,15 +35,10 @@ function Videos() {
 			const response = await getVideos(match.params.channel);
 
 			if (response.status === 200 && isMounted) {
-
-				const newVideos = pagination.page === 0 ? response.data : videos.length ? response.data : videos.concat(response.data);
+				const newVideos = pagination.page === 0 ? response.data : videos.concat(response.data);
 
 				setVideos(newVideos);
 
-				console.log(response.data.length);
-				console.log(videos.length);
-
-				
 				setPagination({
 					page: pagination.page + 1,
 					hasMore: !(response.data.length < 25),
@@ -66,7 +61,6 @@ function Videos() {
 	}, [match.url]); // eslint-disable-line
 
 	function renderVideos() {
-		console.log(videos);
 		return videos.map(video => (
 			<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={video.id}>
 				<Card variant="outlined" display="flex" flexDirection="column" className={classes.root}>
@@ -96,5 +90,3 @@ function Videos() {
 }
 
 export default Videos;
-
-

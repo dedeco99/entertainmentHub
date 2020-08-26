@@ -10,13 +10,13 @@ import { formatDate, formatVideoDuration } from "../../utils/utils";
 import { feed as feedStyles } from "../../styles/Youtube";
 import { videoPlayer as videoPlayerStyles } from "../../styles/VideoPlayer";
 
-const useStyles = makeStyles({ ...feedStyles ,...videoPlayerStyles });
+const useStyles = makeStyles({ ...feedStyles, ...videoPlayerStyles });
 
 function Video({ video }) {
-    const classes = useStyles();
-    const videoPlayer = useContext(VideoPlayerContext);
+	const classes = useStyles();
+	const videoPlayer = useContext(VideoPlayerContext);
 
-    function handleAddToVideoPlayer(video) {
+	function handleAddToVideoPlayer(video) {
 		videoPlayer.dispatch({
 			type: "ADD_VIDEO",
 			video: {
@@ -29,9 +29,9 @@ function Video({ video }) {
 		});
 	}
 
-    function renderVideo() {
-        return (
-            <ListItem key={video.videoId} divider style={{ padding: 0, margin: 0 }}>
+	function renderVideo() {
+		return (
+			<ListItem key={video.videoId} divider style={{ padding: 0, margin: 0 }}>
 				<Box display="flex" flexDirection="column" flex="auto" minWidth={0}>
 					<Box position="relative" className={classes.videoThumbnail}>
 						<img src={video.thumbnail} width="100%" alt="Video thumbnail" />
@@ -45,10 +45,10 @@ function Video({ video }) {
 							justifyContent="center"
 							onClick={() => handleAddToVideoPlayer(video)}
 						>
-							<span className="material-icons"> {"play_arrow"} </span>
+							<i className="icon-play icon-2x" />
 						</Box>
 					</Box>
-					<Box style={{ paddingLeft: 5, paddingRight: 10, height: 108, }}>
+					<Box style={{ paddingLeft: 5, paddingRight: 10, height: 108 }}>
 						<Typography className={classes.videoTitle} variant="body1" title={video.videoTitle}>
 							<Link
 								href={`https://www.youtube.com/watch?v=${video.videoId}`}
@@ -74,22 +74,21 @@ function Video({ video }) {
 						</Typography>
 						<Box display="flex" flexDirection="row" flex="1 1 auto" minWidth={0}>
 							<Typography variant="caption" style={{ paddingRight: "10px" }}>
-								<i className="icofont-thumbs-up" />
+								<i className="icon-thumbs-up" />
 								{` ${video.likes}`}
 							</Typography>
 							<Typography variant="caption">
-								<i className="icofont-thumbs-down" />
+								<i className="icon-thumbs-down" />
 								{` ${video.dislikes}`}
 							</Typography>
 						</Box>
 					</Box>
 				</Box>
 			</ListItem>
-        );
-    }
+		);
+	}
 
-    return renderVideo();
-	
+	return renderVideo();
 }
 
 Video.propTypes = {

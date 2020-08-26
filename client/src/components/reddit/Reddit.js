@@ -9,7 +9,7 @@ import FeedDetail from "../.partials/FeedDetail";
 import Feeds from "../.partials/Feeds";
 import Posts from "./Posts";
 
-import { tv as styles } from "../../styles/TV";
+import styles from "../../styles/General";
 
 const useStyles = makeStyles(styles);
 

@@ -71,6 +71,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 					allowFullScreen
 					className={classes.media}
 					scrolling="no"
+					style={{ minHeight: 400 }}
 				/>
 			);
 			expandedContent = content;

@@ -19,10 +19,6 @@ const youtube = {
 		backgroundColor: "#424242",
 		padding: 8,
 	},
-	outlinedBtn: {
-		marginTop: 10,
-		marginBottom: 10,
-	},
 };
 
 const feed = {
@@ -42,4 +38,13 @@ const feed = {
 	},
 };
 
-export { youtube, feed };
+const videos = {
+	root: {
+		backgroundColor: "#212121",
+		width: "100%",
+		height: "100%",
+		borderRadius: 3,
+	},
+};
+
+export { youtube, feed, videos };
