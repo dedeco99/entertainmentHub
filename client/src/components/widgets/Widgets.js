@@ -55,7 +55,7 @@ const widgetsInfo = {
 			<Weather city={widget.info.city} country={widget.info.country} lat={widget.info.lat} lon={widget.info.lon} />
 		),
 		editText: "Weather",
-		editIcon: "icon-weather",
+		editIcon: "icon-cloud",
 		dimensions: { w: widget.width || 1, h: widget.height || 2 },
 		restrictions: { minW: 2, minH: 1, maxW: 4, maxH: 2 },
 	}),
