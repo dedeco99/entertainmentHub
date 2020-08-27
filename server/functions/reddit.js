@@ -105,8 +105,8 @@ async function getSubreddits(event) {
 
 	if (accessToken.status === 401) return errors.redditRefreshToken;
 
-	let url = "https://oauth.reddit.com/subreddits/mine/subscriber";
-	if (after) url += `?after=${after}`;
+	let url = "https://oauth.reddit.com/subreddits/mine/subscriber?limit=20";
+	if (after) url += `&after=${after}`;
 
 	if (filter) {
 		url = `https://oauth.reddit.com/subreddits/search?q=${filter}`;
@@ -121,11 +121,13 @@ async function getSubreddits(event) {
 	const json = res.data;
 
 	const subreddits = json.data.children.map(subreddit => ({
+		externalId: subreddit.data.display_name,
 		displayName: subreddit.data.display_name,
+		image: subreddit.data.icon_img || subreddit.data.community_icon.split("?")[0],
 		subscribers: subreddit.data.subscribers,
 		nsfw: subreddit.data.over18,
 		created: subreddit.data.created,
-		after: json.after,
+		after: json.data.after,
 	}));
 
 	if (!filter) {

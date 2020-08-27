@@ -8,11 +8,11 @@ import Subscriptions from "../.partials/Subscriptions";
 function Twitch() {
 	return (
 		<Grid container spacing={2}>
-			<Grid item sm={3} md={2}>
+			<Grid item xs={12} sm={2} md={4}>
 				<Follows platform="twitch" />
 				<Subscriptions platform="twitch" />
 			</Grid>
-			<Grid item sm={9} md={10} lg={10} />
+			<Grid item xs={12} sm={10} md={8} />
 		</Grid>
 	);
 }

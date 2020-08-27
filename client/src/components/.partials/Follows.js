@@ -22,9 +22,11 @@ import {
 
 import Loading from "../.partials/Loading";
 
+import { RedditContext } from "../../contexts/RedditContext";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { TwitchContext } from "../../contexts/TwitchContext";
 
+import { getSubreddits } from "../../api/reddit";
 import { getSubscriptions } from "../../api/youtube";
 import { getFollows } from "../../api/twitch";
 import { addSubscriptions } from "../../api/subscriptions";
@@ -64,7 +66,7 @@ function chooseApiCall(platform) {
 function Follows({ open, platform, onClose }) {
 	const history = useHistory();
 	const classes = useStyles();
-	const { state, dispatch } = useContext(platform === "youtube" ? YoutubeContext : TwitchContext);
+	const { state, dispatch } = useContext(chooseContext(platform));
 	const { follows } = state;
 	const [loading, setLoading] = useState(false);
 	const [pagination, setPagination] = useState({
@@ -89,10 +91,7 @@ function Follows({ open, platform, onClose }) {
 		if (!loading) {
 			setLoading(true);
 
-			// prettier-ignore
-			const response = platform === "youtube"
-				? await getSubscriptions(pagination.after)
-				: await getFollows(pagination.after);
+			const response = await chooseApiCall(platform)(pagination.after);
 
 			if (response.status === 401) return history.push("/settings");
 
@@ -103,7 +102,7 @@ function Follows({ open, platform, onClose }) {
 
 				setPagination({
 					page: pagination.page + 1,
-					after: response.data[0].after,
+					after: response.data.length ? response.data[0].after : null,
 					hasMore: !(response.data.length < 20),
 				});
 				setLoading(false);

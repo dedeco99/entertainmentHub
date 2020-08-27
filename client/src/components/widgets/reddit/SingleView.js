@@ -24,13 +24,13 @@ function SingleView({ open, post, multipleSubs, onShowPreviousPost, onShowNextPo
 					/>
 					<Box display="flex" className={classes.arrows}>
 						<Box display="flex" flex="1" justifyContent="center" alignItems="center" onClick={onShowPreviousPost}>
-							<i className="icofont-caret-left" />
+							<i className="icon-caret-left" />
 						</Box>
 						<Box display="flex" onClick={onShowListView} className={classes.header}>
-							<i className="icofont-listing-box" />
+							<i className="icon-feed" />
 						</Box>
 						<Box display="flex" flex="1" justifyContent="center" alignItems="center" onClick={onShowNextPost}>
-							<i className="icofont-caret-right" />
+							<i className="icon-caret-right" />
 						</Box>
 					</Box>
 				</Box>

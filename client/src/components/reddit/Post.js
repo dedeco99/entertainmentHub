@@ -20,7 +20,7 @@ import { reddit as styles } from "../../styles/Widgets";
 
 const useStyles = makeStyles(styles);
 
-function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList }) {
+function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, customStyles }) {
 	const classes = useStyles({ inList });
 	const [expandedView, setExpandedView] = useState(false);
 
@@ -34,7 +34,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList }
 
 	function formatTextPost() {
 		return (
-			<Box p={2}>
+			<Box p={2} maxHeight={400}>
 				{post.text === "null" ? (
 					<Typography>
 						<Link href={post.url} target="_blank" rel="noreferrer" color="inherit">
@@ -71,27 +71,34 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList }
 					allowFullScreen
 					className={classes.media}
 					scrolling="no"
+					style={{ minHeight: 400 }}
 				/>
 			);
 			expandedContent = content;
 		} else if (post.domain === "imgur.com") {
 			const imgurId = post.url.substr(post.url.lastIndexOf("/") + 1);
 
-			const imgurLink =
-				post.url.includes("gallery") || post.url.includes("/a/")
-					? `https://imgur.com/a/${imgurId}/embed?pub=true`
-					: `https://imgur.com/${imgurId}/embed?pub=true`;
+			if (post.url.includes("gallery") || post.url.includes("/a/")) {
+				content = (
+					<CardMedia
+						component="iframe"
+						src={`https://imgur.com/a/${imgurId}/embed?pub=true`}
+						className={classes.media}
+						frameBorder={0}
+						allowFullScreen
+					/>
+				);
+			} else {
+				content = (
+					<CardMedia
+						component="img"
+						src={`${post.url}.png`}
+						className={classes.media}
+						onClick={handleOpenExpandedView}
+					/>
+				);
+			}
 
-			content = (
-				<CardMedia
-					component="iframe"
-					src={imgurLink}
-					className={classes.media}
-					frameBorder={0}
-					allowFullScreen
-					scrolling="no"
-				/>
-			);
 			expandedContent = content;
 		} else if (post.domain === "i.imgur.com" && post.url.substr(post.url.lastIndexOf(".") + 1) === "gifv") {
 			content = (
@@ -144,13 +151,13 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList }
 					</Typography>
 				)}
 				<div className={`${classes.overlay} ${classes.comments}`}>
-					<i className="icofont-comment" />
+					<i className="icon-comment" />
 					{` ${post.comments}`}
 				</div>
 				<div className={`${classes.overlay} ${classes.score}`}>
-					<i className="icofont-caret-up" />
+					<i className="icon-caret-up" />
 					{post.score}
-					<i className="icofont-caret-down" />
+					<i className="icon-caret-down" />
 				</div>
 				<div className={`${classes.overlay} ${classes.date}`}>{formatDate(post.created * 1000, null, true)}</div>
 			</div>
@@ -187,14 +194,14 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList }
 					<Box display="flex" style={{ paddingLeft: 25 }}>
 						<Box display="flex" flexGrow={1} justifyContent="center">
 							<Typography variant="caption">
-								<i className="icofont-caret-up" />
+								<i className="icon-caret-up" />
 								{post.score}
-								<i className="icofont-caret-down" />
+								<i className="icon-caret-down" />
 							</Typography>
 						</Box>
 						<Box display="flex" flexGrow={1} justifyContent="center">
 							<Typography variant="caption">
-								<i className="icofont-comment" />
+								<i className="icon-comment" />
 								{` ${post.comments}`}
 							</Typography>
 						</Box>
@@ -232,9 +239,9 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList }
 				<Box display="flex">
 					<Box display="flex" flexGrow={1}>
 						<Typography variant="caption">
-							<i className="icofont-caret-up" />
+							<i className="icon-caret-up" />
 							{post.score}
-							<i className="icofont-caret-down" />
+							<i className="icon-caret-down" />
 						</Typography>
 					</Box>
 					<Box display="flex">
@@ -249,11 +256,11 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList }
 	const widgetInfo = isMedia ? renderInfoMedia() : renderInfo();
 
 	return (
-		<Box display="flex" flexDirection="column" flexGrow={1} className={classes.content}>
+		<Box display="flex" flexDirection="column" flexGrow={1} className={classes.content} style={customStyles}>
 			<Box display="flex" flexDirection="column" width="100%">
 				{inList && isMedia ? renderInfoOverlay() : widgetInfo}
 				{inList ? (
-					<Box position="relative" height="300px" overflow="auto">
+					<Box position="relative" overflow="auto">
 						{content}
 					</Box>
 				) : (
@@ -266,7 +273,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList }
 						{onShowPreviousPost && (
 							<Box className={classes.expandedBtn} onClick={onShowPreviousPost}>
 								<Box display="flex" alignItems="center" height="100%">
-									<i className="icofont-arrow-left icofont-3x" />
+									<i className="icon-arrow-left icon-2x" />
 								</Box>
 							</Box>
 						)}
@@ -276,7 +283,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList }
 						{onShowNextPost && (
 							<Box className={classes.expandedBtn} onClick={onShowNextPost}>
 								<Box display="flex" alignItems="center" height="100%">
-									<i className="icofont-arrow-right icofont-3x" />
+									<i className="icon-arrow-right icon-2x" />
 								</Box>
 							</Box>
 						)}
@@ -293,6 +300,7 @@ Post.propTypes = {
 	onShowPreviousPost: PropTypes.func,
 	onShowNextPost: PropTypes.func,
 	inList: PropTypes.bool,
+	customStyles: PropTypes.object,
 };
 
 export default Post;

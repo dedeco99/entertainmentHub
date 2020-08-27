@@ -32,8 +32,9 @@ import { translate } from "../../utils/translations";
 
 import { notifications as widgetStyles } from "../../styles/Widgets";
 import { videoPlayer as videoPlayerStyles } from "../../styles/VideoPlayer";
+import generalStyles from "../../styles/General";
 
-const useStyles = makeStyles({ ...widgetStyles, ...videoPlayerStyles });
+const useStyles = makeStyles({ ...widgetStyles, ...videoPlayerStyles, ...generalStyles });
 
 function Notifications({ height }) {
 	const classes = useStyles();
@@ -179,11 +180,11 @@ function Notifications({ height }) {
 	function renderNotificationType(type) {
 		switch (type) {
 			case "tv":
-				return <i className="material-icons">{"tv"}</i>;
+				return <i className="icon-monitor-filled" />;
 			case "youtube":
-				return <i className="icofont-youtube-play" />;
+				return <i className="icon-youtube-filled" />;
 			default:
-				return <i className="material-icons">{"notifications"}</i>;
+				return <i className="icon-notifications" />;
 		}
 	}
 
@@ -195,7 +196,7 @@ function Notifications({ height }) {
 		return (
 			<ListItemSecondaryAction id={notification._id} onClick={e => handleOptionsClick(e, notification)}>
 				<IconButton edge="end">
-					<i className="material-icons">{"more_vert"}</i>
+					<i className="icon-more" />
 				</IconButton>
 			</ListItemSecondaryAction>
 		);
@@ -211,9 +212,9 @@ function Notifications({ height }) {
 						{thumbnail ? (
 							<Box position="relative" flexShrink="0" width="100px" mr={2} className={classes.videoThumbnail}>
 								<img src={thumbnail} width="100%" alt="Video thumbnail" />
-								<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
-									<Typography variant="caption">{formatVideoDuration(overlay)}</Typography>
-								</Box>
+								<Typography variant="caption" className={classes.bottomRightOverlay}>
+									{formatVideoDuration(overlay)}
+								</Typography>
 								<Box
 									className={classes.videoPlayOverlay}
 									display="flex"
@@ -221,7 +222,7 @@ function Notifications({ height }) {
 									justifyContent="center"
 									onClick={() => handleAddToVideoPlayer(notification)}
 								>
-									<span className="material-icons">{"play_arrow"}</span>
+									<i className="icon-play icon-2x" />
 								</Box>
 							</Box>
 						) : (
@@ -260,7 +261,7 @@ function Notifications({ height }) {
 						{thumbnail ? (
 							<Box position="relative" flexShrink="0" width="100px" mr={2} className={classes.videoThumbnail}>
 								<img src={thumbnail} width="100%" alt="Video thumbnail" />
-								<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
+								<Box className={classes.bottomRightOverlay}>
 									<Typography variant="caption">{overlay}</Typography>
 								</Box>
 							</Box>
@@ -368,7 +369,7 @@ function Notifications({ height }) {
 							aria-controls="filter-menu"
 							aria-haspopup="true"
 							onClick={handleClickListItem}
-							endIcon={<i className="material-icons">{"filter_list"}</i>}
+							endIcon={<i className="icon-filter" />}
 						>
 							{filterOptions[selectedIndex]}
 						</Button>
@@ -394,7 +395,7 @@ function Notifications({ height }) {
 							))}
 						</Menu>
 						<IconButton color="primary" onClick={handleToggleHistory}>
-							<i className="material-icons">{pagination.history ? "notifications" : "history"}</i>
+							<i className={`icon-${pagination.history ? "notifications" : "history"}`} />
 						</IconButton>
 					</Box>
 				</Box>
