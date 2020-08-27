@@ -92,13 +92,14 @@ function UserDropdown() {
 				</IconButton>
 				<Grow in={open} style={{ transformOrigin: "right top" }}>
 					<Paper variant="outlined" className={classes.paper}>
-						<Box p={1}>
-							<Typography variant="body1" align="center">
-								{user.email}
-							</Typography>
-						</Box>
-						<Divider />
 						<List disablePadding>
+							<ListItem key="user">
+								<ListItemIcon>
+									<i className="icon-user icon-2x" />
+								</ListItemIcon>
+								<ListItemText primary={user.email} />
+							</ListItem>
+							<Divider />
 							<ListItem key={"langs"}>
 								<ListItemIcon>
 									<i className="icon-translate icon-2x" />
