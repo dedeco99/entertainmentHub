@@ -48,7 +48,7 @@ const general = {
 	},
 	speedDial: {
 		bottom: 15,
-		left: 65,
+		left: -3,
 		position: "fixed",
 	},
 };

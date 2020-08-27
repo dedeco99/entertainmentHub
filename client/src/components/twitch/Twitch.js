@@ -49,15 +49,13 @@ function Twitch() {
 				onOpen={handleOpenOptions}
 				open={openOptions}
 				className={classes.speedDial}
-				FabProps={{ size: "medium" }}
-				direction="right"
+				FabProps={{ size: "small" }}
 			>
 				{actions.map(action => (
 					<SpeedDialAction
 						key={action.name}
 						icon={action.icon}
 						tooltipTitle={action.name}
-						tooltipPlacement="top"
 						onClick={action.handleClick}
 					/>
 				))}

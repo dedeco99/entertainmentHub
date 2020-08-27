@@ -1,7 +1,8 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 
-import { makeStyles, Box, Tooltip, Fab } from "@material-ui/core";
+import { makeStyles, Box } from "@material-ui/core";
+import { SpeedDial, SpeedDialAction } from "@material-ui/lab";
 
 import Loading from "../.partials/Loading";
 import Widget from "../widgets/Widget";
@@ -18,9 +19,10 @@ import { WidgetContext } from "../../contexts/WidgetContext";
 
 import { getWidgets, editWidget, deleteWidget } from "../../api/widgets";
 
-import { widgets as styles } from "../../styles/Widgets";
+import generalStyles from "../../styles/General";
+import { widgets as widgetStyles } from "../../styles/Widgets";
 
-const useStyles = makeStyles(styles);
+const useStyles = makeStyles({ ...generalStyles, ...widgetStyles });
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -88,6 +90,7 @@ function Widgets() {
 	const { widgets, editMode } = state;
 	const [loading, setLoading] = useState(false);
 	const [openWidgetDetail, setOpenWidgetDetail] = useState(false);
+	const [openOptions, setOpenOptions] = useState(false);
 	const [rowHeight, setRowHeight] = useState(150);
 	const [layouts, setLayouts] = useState({});
 	const [selectedWidget, setSelectedWidget] = useState(null);
@@ -112,6 +115,14 @@ function Widgets() {
 		return () => (isMounted = false);
 	}, []); // eslint-disable-line
 
+	function handleOpenOptions() {
+		setOpenOptions(true);
+	}
+
+	function handleCloseOptions() {
+		setOpenOptions(false);
+	}
+
 	function handleWidgetDetailOpen(e, widget) {
 		if (widget) setSelectedWidget(widget);
 		setOpenWidgetDetail(true);
@@ -120,6 +131,10 @@ function Widgets() {
 	function handleWidgetDetailClose() {
 		setSelectedWidget(null);
 		setOpenWidgetDetail(false);
+	}
+
+	function handleEditMode() {
+		dispatch({ type: "SET_EDIT_MODE", editMode: !editMode });
 	}
 
 	async function handleEditWidget(updatedWidgets) {
@@ -204,6 +219,11 @@ function Widgets() {
 		);
 	}
 
+	const actions = [
+		{ name: "Add Widget", icon: <i className="icon-add" />, handleClick: handleWidgetDetailOpen },
+		{ name: "Move & Resize", icon: <i className="icon-expand" />, handleClick: handleEditMode },
+	];
+
 	return (
 		<Box pt={5}>
 			{widgets && widgets.length ? (
@@ -225,11 +245,24 @@ function Widgets() {
 			) : null}
 			<WidgetDetail open={openWidgetDetail} widget={selectedWidget} onClose={handleWidgetDetailClose} />
 			<Box className={classes.addWidget}>
-				<Tooltip title="Add Widget">
-					<Fab onClick={handleWidgetDetailOpen}>
-						<i className="icon-add" />
-					</Fab>
-				</Tooltip>
+				<SpeedDial
+					ariaLabel="Options"
+					icon={<i className="icon-add" />}
+					onClose={handleCloseOptions}
+					onOpen={handleOpenOptions}
+					open={openOptions}
+					className={classes.speedDial}
+					FabProps={{ size: "small" }}
+				>
+					{actions.map(action => (
+						<SpeedDialAction
+							key={action.name}
+							icon={action.icon}
+							tooltipTitle={action.name}
+							onClick={action.handleClick}
+						/>
+					))}
+				</SpeedDial>
 			</Box>
 		</Box>
 	);
