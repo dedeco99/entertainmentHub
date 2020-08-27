@@ -63,7 +63,7 @@ function chooseApiCall(platform) {
 	}
 }
 
-function Follows({ platform }) {
+function Follows({ open, platform, onClose }) {
 	const history = useHistory();
 	const classes = useStyles();
 	const { state, dispatch } = useContext(chooseContext(platform));
@@ -75,7 +75,6 @@ function Follows({ platform }) {
 		after: null,
 	});
 	const [checkedFollows, setCheckedFollows] = useState([]);
-	const [openModal, setOpenModal] = useState(false);
 	let isMounted = true;
 
 	useEffect(() => {
@@ -119,14 +118,6 @@ function Follows({ platform }) {
 
 			setCheckedFollows([]);
 		}
-	}
-
-	function handleOpenModal() {
-		setOpenModal(true);
-	}
-
-	function handleCloseModal() {
-		setOpenModal(false);
 	}
 
 	function handleFollowCheckbox(externalId) {
@@ -175,41 +166,38 @@ function Follows({ platform }) {
 	}
 
 	return (
-		<div>
-			<IconButton color="primary" onClick={handleOpenModal}>
-				<i className="icon-add" />
-			</IconButton>
-			<Modal
-				className={classes.modal}
-				open={openModal}
-				onClose={handleCloseModal}
-				closeAfterTransition
-				BackdropComponent={Backdrop}
-			>
-				<Paper variant="outlined" className={classes.modalContent}>
-					<Box flexGrow={1} style={{ overflow: "auto" }}>
-						<InfiniteScroll
-							loadMore={handleGetFollows}
-							hasMore={pagination.hasMore}
-							useWindow={false}
-							loader={<Loading key={0} />}
-						>
-							{renderFollowsList()}
-						</InfiniteScroll>
-					</Box>
-					<Box display="flex" justifyContent="flex-end" className={classes.modalFooter}>
-						<Button color="primary" variant="contained" onClick={handleAddFollows}>
-							{translate("submit")}
-						</Button>
-					</Box>
-				</Paper>
-			</Modal>
-		</div>
+		<Modal
+			className={classes.modal}
+			open={open}
+			onClose={onClose}
+			closeAfterTransition
+			BackdropComponent={Backdrop}
+		>
+			<Paper variant="outlined" className={classes.modalContent}>
+				<Box flexGrow={1} style={{ overflow: "auto" }}>
+					<InfiniteScroll
+						loadMore={handleGetFollows}
+						hasMore={pagination.hasMore}
+						useWindow={false}
+						loader={<Loading key={0} />}
+					>
+						{renderFollowsList()}
+					</InfiniteScroll>
+				</Box>
+				<Box display="flex" justifyContent="flex-end" className={classes.modalFooter}>
+					<Button color="primary" variant="contained" onClick={handleAddFollows}>
+						{translate("submit")}
+					</Button>
+				</Box>
+			</Paper>
+		</Modal>
 	);
 }
 
 Follows.propTypes = {
+	open: PropTypes.bool.isRequired,
 	platform: PropTypes.string.isRequired,
+	onClose: PropTypes.func.isRequired,
 };
 
 export default Follows;

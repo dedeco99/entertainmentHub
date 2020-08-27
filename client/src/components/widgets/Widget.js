@@ -23,12 +23,6 @@ const variants = {
 	visibleR: {
 		y: 0,
 		transition: {
-			delay: 0.15,
-		},
-	},
-	visibleM: {
-		y: 0,
-		transition: {
 			delay: 0.1,
 		},
 	},
@@ -44,28 +38,22 @@ const variants = {
 	exitR: {
 		y: 50,
 	},
-	exitM: {
+	exitE: {
 		y: 50,
 		transition: {
 			delay: 0.05,
 		},
 	},
-	exitE: {
+	exitD: {
 		y: 50,
 		transition: {
 			delay: 0.1,
 		},
 	},
-	exitD: {
-		y: 50,
-		transition: {
-			delay: 0.15,
-		},
-	},
 };
 
 function Widget({ id, type, content, borderColor, editText, editIcon, widgetDimensions, onEdit, onDelete }) {
-	const { state, dispatch } = useContext(WidgetContext);
+	const { state } = useContext(WidgetContext);
 	const { editMode } = state;
 	const { user } = useContext(UserContext);
 	const classes = useStyles({ borderColor: user.settings && user.settings.borderColor ? borderColor : null });
@@ -75,10 +63,6 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 
 	function handleRefresh() {
 		setRefreshToken(new Date());
-	}
-
-	function handleMove() {
-		dispatch({ type: "SET_EDIT_MODE", editMode: !editMode });
 	}
 
 	function handleEdit() {
@@ -135,13 +119,6 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 								<Paper component={Box} className={classes.action} onClick={handleRefresh}>
 									<IconButton size="small">
 										<i className="icon-refresh" />
-									</IconButton>
-								</Paper>
-							</motion.div>
-							<motion.div variants={variants} initial="hidden" animate="visibleM" exit="exitM">
-								<Paper component={Box} className={classes.action} onClick={handleMove}>
-									<IconButton size="small">
-										<i className="icon-expand" />
 									</IconButton>
 								</Paper>
 							</motion.div>

@@ -15,6 +15,8 @@ const general = {
 	listMenu: {
 		backgroundColor: "#222",
 		padding: 0,
+		maxHeight: "80vh",
+		overflow: "auto",
 	},
 	horizontal: {
 		display: "flex",
@@ -43,6 +45,11 @@ const general = {
 	outlinedBtn: {
 		marginTop: 10,
 		marginBottom: 10,
+	},
+	speedDial: {
+		bottom: 15,
+		left: -3,
+		position: "fixed",
 	},
 };
 

@@ -22,7 +22,9 @@ function Episode({ episode }) {
 		<Card className={classes.root}>
 			<CardActionArea>
 				<CardMedia component="img" height="150" image={image} />
-				<div className={`${classes.overlay} ${classes.title}`}>{episode.title}</div>
+				<div className={`${classes.overlay} ${classes.title}`} title={episode.title}>
+					{episode.title}
+				</div>
 				<div className={episode.series ? `${classes.overlay} ${classes.seriesName}` : ""}>
 					{episode.series && episode.series.displayName}
 				</div>

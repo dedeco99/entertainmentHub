@@ -32,6 +32,9 @@ const episode = {
 	title: {
 		top: "5px",
 		left: "5px",
+		whiteSpace: "nowrap",
+		overflow: "hidden",
+		maxWidth: "95%",
 	},
 	seriesName: {
 		top: "30px",
