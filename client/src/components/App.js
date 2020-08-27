@@ -85,10 +85,18 @@ function App() {
 			<Switch>
 				<Route exact path="/" component={Index} />
 				<Route exact path="/login" component={Login} />
+
 				<PrivateRoute exact path="/apps/:app" component={Apps} />
+
 				<PrivateRoute exact path="/youtube" component={Youtube} />
-				<PrivateRoute exact path="/reddit/:sub?/:category?" component={Reddit} />
+				<PrivateRoute exact path="/youtube/:channel" component={Youtube} />
+
+				<PrivateRoute exact path="/reddit" component={Reddit} />
+				<PrivateRoute exact path="/reddit/:sub" component={Reddit} />
+				<PrivateRoute exact path="/reddit/:sub/:category" component={Reddit} />
+
 				<PrivateRoute exact path="/twitch" component={Twitch} />
+
 				<PrivateRoute exact path="/tv" component={TV} />
 				<PrivateRoute exact path="/tv/all" component={TV} />
 				<PrivateRoute exact path="/tv/popular" component={TV} />

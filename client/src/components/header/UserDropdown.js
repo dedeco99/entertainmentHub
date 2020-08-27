@@ -86,8 +86,8 @@ function UserDropdown() {
 		<ClickAwayListener onClickAway={handleClickAway}>
 			<div className={classes.wrapper}>
 				<IconButton size="small" onClick={handleClick}>
-					<Avatar alt="Profile image" src={user.image} className={classes.avatar}>
-						{"?"}
+					<Avatar alt={user.email} src={user.image} className={classes.avatar}>
+						{user.email[0].toUpperCase()}
 					</Avatar>
 				</IconButton>
 				<Grow in={open} style={{ transformOrigin: "right top" }}>

@@ -38,4 +38,13 @@ const feed = {
 	},
 };
 
-export { youtube, feed };
+const videos = {
+	root: {
+		backgroundColor: "#212121",
+		width: "100%",
+		height: "100%",
+		borderRadius: 3,
+	},
+};
+
+export { youtube, feed, videos };
