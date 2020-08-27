@@ -162,7 +162,7 @@ function Episodes() {
 	function renderAllEpisodes() {
 		return (
 			<Grid container spacing={2}>
-				<Grid item sm={3} md={2}>
+				<Grid item xs={6} md={4} lg={3} xl={2}>
 					<Button
 						onClick={handleGetPassedEpisodes}
 						className={classes.episodesBtn}
@@ -173,7 +173,7 @@ function Episodes() {
 						{translate("releasedEpisodes")}
 					</Button>
 				</Grid>
-				<Grid item sm={3} md={2}>
+				<Grid item xs={6} md={4} lg={3} xl={2}>
 					<Button
 						onClick={handleGetFutureEpisodes}
 						className={classes.episodesBtn}

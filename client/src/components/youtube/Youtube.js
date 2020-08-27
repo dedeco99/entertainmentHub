@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
 
-import { makeStyles, Grid, IconButton, Button } from "@material-ui/core";
-import { SpeedDial, SpeedDialIcon, SpeedDialAction } from "@material-ui/lab";
+import { makeStyles, Grid, Button } from "@material-ui/core";
+import { SpeedDial, SpeedDialAction } from "@material-ui/lab";
 
 import Follows from "../.partials/Follows";
 import Subscriptions from "../.partials/Subscriptions";
@@ -23,7 +23,7 @@ function Youtube() {
 		openVideos: false,
 	});
 	const [openOptions, setOpenOptions] = useState(false);
-	const [openModal, setOpenModal] = useState(false);
+	const [openFeedDetail, setOpenFeedDetail] = useState(false);
 	const [openFollows, setOpenFollows] = useState(false);
 
 	function handleOpenOptions() {
@@ -34,12 +34,12 @@ function Youtube() {
 		setOpenOptions(false);
 	}
 
-	function handleOpenModal() {
-		setOpenModal(true);
+	function handleOpenFeedDetail() {
+		setOpenFeedDetail(true);
 	}
 
-	function handleCloseModal() {
-		setOpenModal(false);
+	function handleCloseFeedDetail() {
+		setOpenFeedDetail(false);
 	}
 
 	function handleOpenFollows() {
@@ -113,7 +113,7 @@ function Youtube() {
 
 	const actions = [
 		{ name: "Add Subscriptions", icon: <i className="icon-user" />, handleClick: handleOpenFollows },
-		{ name: "Add Feed", icon: <i className="icon-feed" />, handleClick: handleOpenModal },
+		{ name: "Add Feed", icon: <i className="icon-feed" />, handleClick: handleOpenFeedDetail },
 	];
 
 	return (
@@ -127,28 +127,27 @@ function Youtube() {
 					idField="externalId"
 					action={handleShowVideos}
 				/>
-				<IconButton onClick={handleOpenModal}>
-					<i className="icon-add" />
-				</IconButton>
-				<FeedDetail open={openModal} platform="youtube" onClose={handleCloseModal} />
+				<FeedDetail open={openFeedDetail} platform="youtube" onClose={handleCloseFeedDetail} />
 			</Grid>
 			<Grid item xs={12} sm={10} md={9} lg={10}>
 				{renderContent()}
 			</Grid>
 			<SpeedDial
 				ariaLabel="Options"
-				icon={<SpeedDialIcon />}
+				icon={<i className="icon-add" />}
 				onClose={handleCloseOptions}
 				onOpen={handleOpenOptions}
 				open={openOptions}
 				className={classes.speedDial}
 				FabProps={{ size: "medium" }}
+				direction="right"
 			>
 				{actions.map(action => (
 					<SpeedDialAction
 						key={action.name}
 						icon={action.icon}
 						tooltipTitle={action.name}
+						tooltipPlacement="top"
 						onClick={action.handleClick}
 					/>
 				))}
