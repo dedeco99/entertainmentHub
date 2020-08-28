@@ -16,7 +16,7 @@ import {
 	ListItemSecondaryAction,
 	Avatar,
 	Link,
-	Badge
+	Badge,
 } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
@@ -363,7 +363,7 @@ function Notifications({ height }) {
 				<Box display="flex" alignItems="center" className={classes.header}>
 					<Box display="flex" flexGrow={1}>
 						<Typography variant="subtitle1">{translate("notifications")}</Typography>
-						<Badge color="secondary" badgeContent={total} max={999} style={{ marginTop: "13px", marginLeft: "30px" }}/>
+						<Badge className={classes.badge} color="secondary" badgeContent={total} max={999} />
 					</Box>
 					<Box display="flex" justifyContent="flex-end">
 						<Button
