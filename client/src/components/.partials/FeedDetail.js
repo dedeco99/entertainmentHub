@@ -26,10 +26,7 @@ function FeedDetail({ open, feed, platform, onClose }) {
 	useEffect(() => {
 		const subscription = submitSubject
 			.pipe(
-				distinctUntilChanged((a, b) => {
-					console.log(a, b);
-					return a.name === b.name && a.selectedSubscriptions === b.selectedSubscriptions;
-				}),
+				distinctUntilChanged((a, b) => a.name === b.name && a.selectedSubscriptions === b.selectedSubscriptions),
 			)
 			.subscribe(async () => {
 				if (feed) {
