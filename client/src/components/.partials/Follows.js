@@ -22,9 +22,11 @@ import {
 
 import Loading from "../.partials/Loading";
 
+import { RedditContext } from "../../contexts/RedditContext";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { TwitchContext } from "../../contexts/TwitchContext";
 
+import { getSubreddits } from "../../api/reddit";
 import { getSubscriptions } from "../../api/youtube";
 import { getFollows } from "../../api/twitch";
 import { addSubscriptions } from "../../api/subscriptions";
@@ -35,10 +37,36 @@ import { youtube as styles } from "../../styles/Youtube";
 
 const useStyles = makeStyles(styles);
 
-function Follows({ platform }) {
+function chooseContext(platform) {
+	switch (platform) {
+		case "reddit":
+			return RedditContext;
+		case "youtube":
+			return YoutubeContext;
+		case "twitch":
+			return TwitchContext;
+		default:
+			break;
+	}
+}
+
+function chooseApiCall(platform) {
+	switch (platform) {
+		case "reddit":
+			return getSubreddits;
+		case "youtube":
+			return getSubscriptions;
+		case "twitch":
+			return getFollows;
+		default:
+			break;
+	}
+}
+
+function Follows({ open, platform, onClose }) {
 	const history = useHistory();
 	const classes = useStyles();
-	const { state, dispatch } = useContext(platform === "youtube" ? YoutubeContext : TwitchContext);
+	const { state, dispatch } = useContext(chooseContext(platform));
 	const { follows } = state;
 	const [loading, setLoading] = useState(false);
 	const [pagination, setPagination] = useState({
@@ -47,7 +75,6 @@ function Follows({ platform }) {
 		after: null,
 	});
 	const [checkedFollows, setCheckedFollows] = useState([]);
-	const [openModal, setOpenModal] = useState(false);
 	let isMounted = true;
 
 	useEffect(() => {
@@ -64,10 +91,7 @@ function Follows({ platform }) {
 		if (!loading) {
 			setLoading(true);
 
-			// prettier-ignore
-			const response = platform === "youtube"
-				? await getSubscriptions(pagination.after)
-				: await getFollows(pagination.after);
+			const response = await chooseApiCall(platform)(pagination.after);
 
 			if (response.status === 401) return history.push("/settings");
 
@@ -78,7 +102,7 @@ function Follows({ platform }) {
 
 				setPagination({
 					page: pagination.page + 1,
-					after: response.data[0].after,
+					after: response.data.length ? response.data[0].after : null,
 					hasMore: !(response.data.length < 20),
 				});
 				setLoading(false);
@@ -94,14 +118,6 @@ function Follows({ platform }) {
 
 			setCheckedFollows([]);
 		}
-	}
-
-	function handleOpenModal() {
-		setOpenModal(true);
-	}
-
-	function handleCloseModal() {
-		setOpenModal(false);
 	}
 
 	function handleFollowCheckbox(externalId) {
@@ -120,6 +136,8 @@ function Follows({ platform }) {
 	}
 
 	function renderFollowsList() {
+		if (pagination.page === 0 && loading) return <Loading />;
+
 		return (
 			<List className={classes.root}>
 				{follows &&
@@ -148,41 +166,38 @@ function Follows({ platform }) {
 	}
 
 	return (
-		<div>
-			<IconButton color="primary" onClick={handleOpenModal}>
-				<i className="icofont-ui-add" />
-			</IconButton>
-			<Modal
-				className={classes.modal}
-				open={openModal}
-				onClose={handleCloseModal}
-				closeAfterTransition
-				BackdropComponent={Backdrop}
-			>
-				<Paper variant="outlined" className={classes.modalContent}>
-					<Box flexGrow={1} style={{ overflow: "auto" }}>
-						<InfiniteScroll
-							loadMore={handleGetFollows}
-							hasMore={pagination.hasMore}
-							useWindow={false}
-							loader={<Loading key={0} />}
-						>
-							{renderFollowsList()}
-						</InfiniteScroll>
-					</Box>
-					<Box display="flex" justifyContent="flex-end" className={classes.modalFooter}>
-						<Button color="primary" variant="contained" onClick={handleAddFollows}>
-							{translate("submit")}
-						</Button>
-					</Box>
-				</Paper>
-			</Modal>
-		</div>
+		<Modal
+			className={classes.modal}
+			open={open}
+			onClose={onClose}
+			closeAfterTransition
+			BackdropComponent={Backdrop}
+		>
+			<Paper variant="outlined" className={classes.modalContent}>
+				<Box flexGrow={1} style={{ overflow: "auto" }}>
+					<InfiniteScroll
+						loadMore={handleGetFollows}
+						hasMore={pagination.hasMore}
+						useWindow={false}
+						loader={<Loading key={0} />}
+					>
+						{renderFollowsList()}
+					</InfiniteScroll>
+				</Box>
+				<Box display="flex" justifyContent="flex-end" className={classes.modalFooter}>
+					<Button color="primary" variant="contained" onClick={handleAddFollows}>
+						{translate("submit")}
+					</Button>
+				</Box>
+			</Paper>
+		</Modal>
 	);
 }
 
 Follows.propTypes = {
+	open: PropTypes.bool.isRequired,
 	platform: PropTypes.string.isRequired,
+	onClose: PropTypes.func.isRequired,
 };
 
 export default Follows;

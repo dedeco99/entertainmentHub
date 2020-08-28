@@ -5,6 +5,7 @@ import Sidebar from "./Sidebar";
 import SubscriptionDetail from "./SubscriptionDetail";
 import DeleteConfirmation from "./DeleteConfirmation";
 
+import { RedditContext } from "../../contexts/RedditContext";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { TwitchContext } from "../../contexts/TwitchContext";
 import { TVContext } from "../../contexts/TVContext";
@@ -15,6 +16,8 @@ import { translate } from "../../utils/translations";
 
 function chooseContext(platform) {
 	switch (platform) {
+		case "reddit":
+			return RedditContext;
 		case "youtube":
 			return YoutubeContext;
 		case "twitch":
@@ -32,15 +35,20 @@ function Subscriptions({ platform, selected, idField, action }) {
 	const [selectedSubscription, setSelectedSubscription] = useState(null);
 	const [openModal, setOpenModal] = useState(false);
 	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
+	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
 		let isMounted = true;
 
 		async function fetchData() {
+			setLoading(true);
+
 			const response = await getSubscriptions(platform);
 
 			if (response.status === 200 && isMounted) {
 				dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
+
+				setLoading(false);
 			}
 		}
 
@@ -108,6 +116,7 @@ function Subscriptions({ platform, selected, idField, action }) {
 				idField={idField}
 				action={action}
 				menu={menuOptions}
+				loading={loading}
 				noResultsMessage={translate("noSubscriptions")}
 			/>
 			<SubscriptionDetail

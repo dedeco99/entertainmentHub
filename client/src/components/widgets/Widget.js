@@ -23,12 +23,6 @@ const variants = {
 	visibleR: {
 		y: 0,
 		transition: {
-			delay: 0.15,
-		},
-	},
-	visibleM: {
-		y: 0,
-		transition: {
 			delay: 0.1,
 		},
 	},
@@ -44,28 +38,22 @@ const variants = {
 	exitR: {
 		y: 50,
 	},
-	exitM: {
+	exitE: {
 		y: 50,
 		transition: {
 			delay: 0.05,
 		},
 	},
-	exitE: {
+	exitD: {
 		y: 50,
 		transition: {
 			delay: 0.1,
 		},
 	},
-	exitD: {
-		y: 50,
-		transition: {
-			delay: 0.15,
-		},
-	},
 };
 
 function Widget({ id, type, content, borderColor, editText, editIcon, widgetDimensions, onEdit, onDelete }) {
-	const { state, dispatch } = useContext(WidgetContext);
+	const { state } = useContext(WidgetContext);
 	const { editMode } = state;
 	const { user } = useContext(UserContext);
 	const classes = useStyles({ borderColor: user.settings && user.settings.borderColor ? borderColor : null });
@@ -75,10 +63,6 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 
 	function handleRefresh() {
 		setRefreshToken(new Date());
-	}
-
-	function handleMove() {
-		dispatch({ type: "SET_EDIT_MODE", editMode: !editMode });
 	}
 
 	function handleEdit() {
@@ -115,7 +99,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 			<Box className={classes.root} onMouseEnter={handleShowActions} onMouseLeave={handleHideActions}>
 				{editMode || !hasApp ? (
 					<>
-						<i className={`${editIcon} icofont-2x`} />
+						<i className={`${editIcon} icon-2x`} />
 						<Typography variant="subtitle2">{editText}</Typography>
 						{!hasApp && (
 							<Typography variant="subtitle2">
@@ -134,14 +118,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 							<motion.div variants={variants} initial="hidden" animate="visibleR" exit="exitR">
 								<Paper component={Box} className={classes.action} onClick={handleRefresh}>
 									<IconButton size="small">
-										<i className="icofont-refresh" />
-									</IconButton>
-								</Paper>
-							</motion.div>
-							<motion.div variants={variants} initial="hidden" animate="visibleM" exit="exitM">
-								<Paper component={Box} className={classes.action} onClick={handleMove}>
-									<IconButton size="small">
-										<i className="icofont-expand" />
+										<i className="icon-refresh" />
 									</IconButton>
 								</Paper>
 							</motion.div>
@@ -149,7 +126,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 								<motion.div variants={variants} initial="hidden" animate="visibleE" exit="exitE">
 									<Paper component={Box} className={classes.action} onClick={handleEdit}>
 										<IconButton size="small">
-											<i className="icofont-ui-edit" />
+											<i className="icon-edit" />
 										</IconButton>
 									</Paper>
 								</motion.div>
@@ -158,7 +135,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 								<motion.div variants={variants} initial="hidden" animate="visibleD" exit="exitD">
 									<Paper component={Box} className={classes.action} onClick={handleOpenDeleteConfirmation}>
 										<IconButton size="small">
-											<i className="icofont-ui-delete" />
+											<i className="icon-delete" />
 										</IconButton>
 									</Paper>
 								</motion.div>

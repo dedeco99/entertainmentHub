@@ -76,7 +76,7 @@ function TV() {
 		return (
 			<div align="center">
 				<Fab onClick={handleShowSearchBlock} variant="extended" size="medium" className={classes.searchBtn}>
-					<i className="material-icons">{"search"}</i>
+					<i className="icon-search icon-2x" />
 					{translate("search")}
 				</Fab>
 				<Button
@@ -115,7 +115,7 @@ function TV() {
 
 	return (
 		<Grid container spacing={2}>
-			<Grid item sm={3} md={2}>
+			<Grid item xs={12} sm={2} md={3} lg={2}>
 				{renderButtons()}
 				<Subscriptions
 					platform="tv"
@@ -124,7 +124,7 @@ function TV() {
 					action={handleShowEpisodes}
 				/>
 			</Grid>
-			<Grid item sm={9} md={10} lg={10}>
+			<Grid item xs={12} sm={10} md={9} lg={10}>
 				{renderContent()}
 			</Grid>
 		</Grid>

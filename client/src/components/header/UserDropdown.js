@@ -67,17 +67,17 @@ function UserDropdown() {
 	const options = [
 		{
 			title: translate("settings"),
-			icon: "settings",
+			icon: "icon-settings icon-2x",
 			handleClick: handleSettingsClick,
 		},
 		{
 			title: translate("apps"),
-			icon: "apps",
+			icon: "icon-apps icon-2x",
 			handleClick: handleConnectionsClick,
 		},
 		{
 			title: translate("logout"),
-			icon: "exit_to_app",
+			icon: "icon-logout icon-2x",
 			handleClick: handleLogoutClick,
 		},
 	];
@@ -86,26 +86,26 @@ function UserDropdown() {
 		<ClickAwayListener onClickAway={handleClickAway}>
 			<div className={classes.wrapper}>
 				<IconButton size="small" onClick={handleClick}>
-					<Avatar alt="Profile image" src={user.image} className={classes.avatar}>
-						{"?"}
+					<Avatar alt={user.email} src={user.image} className={classes.avatar}>
+						{user.email[0].toUpperCase()}
 					</Avatar>
 				</IconButton>
 				<Grow in={open} style={{ transformOrigin: "right top" }}>
 					<Paper variant="outlined" className={classes.paper}>
-						<Box p={1}>
-							<Typography variant="body1" align="center">
-								{user.email}
-							</Typography>
-						</Box>
-						<Divider />
 						<List disablePadding>
+							<ListItem key="user">
+								<ListItemIcon>
+									<i className="icon-user icon-2x" />
+								</ListItemIcon>
+								<ListItemText primary={user.email} />
+							</ListItem>
+							<Divider />
 							<ListItem key={"langs"}>
 								<ListItemIcon>
-									<i className="material-icons">{"translate"}</i>
+									<i className="icon-translate icon-2x" />
 								</ListItemIcon>
 								<Select
-									value={user.language}
-									displayEmpty
+									value={user.language || "en"}
 									onChange={handleChangeLanguage}
 									MenuProps={{ disablePortal: true }}
 								>
@@ -116,7 +116,7 @@ function UserDropdown() {
 							{options.map(op => (
 								<ListItem key={op.title} button onClick={op.handleClick}>
 									<ListItemIcon>
-										<i className="material-icons">{op.icon}</i>
+										<i className={op.icon} />
 									</ListItemIcon>
 									<ListItemText primary={op.title} />
 								</ListItem>

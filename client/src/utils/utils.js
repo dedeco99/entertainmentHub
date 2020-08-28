@@ -6,6 +6,10 @@ function formatDate(date, format, relative, originalFormat) {
 	return moment(date, originalFormat).format(format);
 }
 
+function formatNumber(number) {
+	return number.toString().replace(/(.)(?=(\d{3})+$)/g, "$1 ");
+}
+
 function formatVideoDuration(duration) {
 	if (!duration || duration === "P0D") return "Live";
 
@@ -15,6 +19,32 @@ function formatVideoDuration(duration) {
 	}
 
 	return values.join(":");
+}
+
+function formatNotification(notification) {
+	const { displayName, thumbnail, duration, videoTitle, episodeTitle, season, number } = notification.info;
+
+	switch (notification.type) {
+		case "youtube":
+			return {
+				thumbnail,
+				overlay: duration,
+				title: displayName,
+				subtitle: videoTitle,
+			};
+		case "tv":
+			const seasonLabel = season > 9 ? `S${season}` : `S0${season}`;
+			const episodeLabel = number > 9 ? `E${number}` : `E0${number}`;
+
+			return {
+				thumbnail,
+				overlay: `${seasonLabel}${episodeLabel}`,
+				title: displayName,
+				subtitle: `${seasonLabel}${episodeLabel} - ${episodeTitle}`,
+			};
+		default:
+			return null;
+	}
 }
 
 function htmlEscape(str) {
@@ -27,4 +57,4 @@ function htmlEscape(str) {
 		.replace(/<\/table>/g, "</table></div>");
 }
 
-export { formatDate, formatVideoDuration, htmlEscape };
+export { formatDate, formatNumber, formatVideoDuration, formatNotification, htmlEscape };

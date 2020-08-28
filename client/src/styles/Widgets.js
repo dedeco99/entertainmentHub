@@ -73,6 +73,9 @@ const notifications = {
 		color: "white",
 		backgroundColor: "#444",
 	},
+	badge: {
+		marginLeft: "25px",
+	},
 };
 
 const reddit = {
@@ -351,14 +354,8 @@ const twitch = {
 		height: "100%",
 	},
 	imageWrapper: {
+		width: "100px",
 		position: "relative",
-	},
-	viewers: {
-		position: "absolute",
-		bottom: 2,
-		left: 0,
-		backgroundColor: "#212121dd",
-		padding: 2,
 	},
 };
 

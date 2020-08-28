@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Subject } from "rxjs";
-import { debounceTime, filter, distinctUntilChanged } from "rxjs/operators";
+import { distinctUntilChanged } from "rxjs/operators";
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Chip } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
@@ -12,7 +12,6 @@ import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { RedditContext } from "../../contexts/RedditContext";
 
 import { addFeed, editFeed } from "../../api/feeds";
-import { getSubreddits } from "../../api/reddit";
 
 import { translate } from "../../utils/translations";
 
@@ -22,25 +21,7 @@ function FeedDetail({ open, feed, platform, onClose }) {
 	const [selectedSubscriptions, setSelectedSubscriptions] = useState([]);
 	const [name, setName] = useState("");
 
-	const getSubredditsSubject = new Subject();
 	const submitSubject = new Subject();
-
-	useEffect(() => {
-		const subscription = getSubredditsSubject
-			.pipe(
-				debounceTime(250),
-				filter(query => query),
-			)
-			.subscribe(async query => {
-				const response = await getSubreddits(query);
-
-				if (response.status === 200) {
-					dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
-				}
-			});
-
-		return () => subscription.unsubscribe();
-	});
 
 	useEffect(() => {
 		const subscription = submitSubject
@@ -61,10 +42,7 @@ function FeedDetail({ open, feed, platform, onClose }) {
 						onClose();
 					}
 				} else {
-					// prettier-ignore
-					const mappedSubscriptions = platform === "youtube"
-				? selectedSubscriptions.map(s => s.externalId)
-				: selectedSubscriptions.map(s => s.displayName);
+					const mappedSubscriptions = selectedSubscriptions.map(s => s.externalId);
 
 					const response = await addFeed(platform, name, mappedSubscriptions);
 
@@ -81,13 +59,7 @@ function FeedDetail({ open, feed, platform, onClose }) {
 	function setFeedInfo() {
 		if (feed) {
 			setName(feed.displayName);
-			setSelectedSubscriptions(
-				platform === "youtube"
-					? subscriptions.filter(s => feed.subscriptions.includes(s.externalId))
-					: feed.subscriptions.map(s => ({
-							displayName: s,
-					  })),
-			);
+			setSelectedSubscriptions(subscriptions.filter(s => feed.subscriptions.includes(s.externalId)));
 		}
 	}
 
@@ -98,10 +70,6 @@ function FeedDetail({ open, feed, platform, onClose }) {
 	function handleCloseModal() {
 		onClose();
 		setFeedInfo();
-	}
-
-	function handleGetSubreddits(e, filter) {
-		getSubredditsSubject.next(query);
 	}
 
 	function handleName(e) {
@@ -123,15 +91,7 @@ function FeedDetail({ open, feed, platform, onClose }) {
 	}
 
 	function renderInput(params) {
-		return (
-			<Input
-				{...params}
-				label={platform === "youtube" ? "Subscriptions" : "Subreddits"}
-				variant="outlined"
-				fullWidth
-				margin="normal"
-			/>
-		);
+		return <Input {...params} label={"Subscriptions"} variant="outlined" fullWidth margin="normal" />;
 	}
 
 	function renderTags(value, getTagProps) {
@@ -176,7 +136,6 @@ function FeedDetail({ open, feed, platform, onClose }) {
 						value={selectedSubscriptions}
 						limitTags={2}
 						renderTags={renderTags}
-						onInputChange={platform === "reddit" ? handleGetSubreddits : null}
 						onChange={handleSelectedSubscriptions}
 						options={subscriptions || []}
 						renderInput={renderInput}

@@ -17,6 +17,12 @@ export const twitchReducer = (state, action) => {
 		case "SET_SUBSCRIPTIONS":
 			follows = follows.filter(f => subscriptions.map(s => s.externalId).includes(f.externalId));
 
+			action.subscriptions.sort((a, b) => (a.online === b.online ? -1 : 1));
+			action.subscriptions.sort((a, b) => {
+				if (!a.viewers && !b.viewers) return 0;
+				return a.viewers < b.viewers ? 1 : -1;
+			});
+
 			return { ...state, follows, subscriptions: action.subscriptions };
 		case "ADD_SUBSCRIPTION":
 			subscriptions = [...subscriptions, ...action.subscription].sort((a, b) =>

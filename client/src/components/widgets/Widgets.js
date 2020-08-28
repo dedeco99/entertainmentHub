@@ -1,7 +1,8 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 
-import { makeStyles, Box, Tooltip, Fab } from "@material-ui/core";
+import { makeStyles, Box } from "@material-ui/core";
+import { SpeedDial, SpeedDialAction } from "@material-ui/lab";
 
 import Loading from "../.partials/Loading";
 import Widget from "../widgets/Widget";
@@ -18,9 +19,10 @@ import { WidgetContext } from "../../contexts/WidgetContext";
 
 import { getWidgets, editWidget, deleteWidget } from "../../api/widgets";
 
-import { widgets as styles } from "../../styles/Widgets";
+import generalStyles from "../../styles/General";
+import { widgets as widgetStyles } from "../../styles/Widgets";
 
-const useStyles = makeStyles(styles);
+const useStyles = makeStyles({ ...generalStyles, ...widgetStyles });
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -28,7 +30,7 @@ const widgetsInfo = {
 	notifications: widget => ({
 		content: <Notifications height="100%" />,
 		editText: "Notifications",
-		editIcon: "icofont-alarm",
+		editIcon: "icon-notifications",
 		dimensions: { w: widget.width || 1, h: widget.height || 4 },
 		restrictions: { minW: 2, minH: 2, maxW: 6, maxH: 6 },
 	}),
@@ -38,7 +40,7 @@ const widgetsInfo = {
 		),
 		borderColor: "#ff4500",
 		editText: `r/${widget.info.subreddit}`,
-		editIcon: "icofont-reddit",
+		editIcon: "icon-reddit-filled",
 		dimensions: { w: widget.width || 1, h: widget.height || 2 },
 		restrictions: { minW: 2, minH: 2, maxW: 4, maxH: 6 },
 	}),
@@ -46,7 +48,7 @@ const widgetsInfo = {
 		content: <Twitch />,
 		borderColor: "#6441a5",
 		editText: "Twitch",
-		editIcon: "icofont-twitch",
+		editIcon: "icon-twitch-filled",
 		dimensions: { w: widget.width || 1, h: widget.height || 2 },
 		restrictions: { minW: 2, minH: 2, maxW: 4, maxH: 6 },
 	}),
@@ -55,28 +57,28 @@ const widgetsInfo = {
 			<Weather city={widget.info.city} country={widget.info.country} lat={widget.info.lat} lon={widget.info.lon} />
 		),
 		editText: "Weather",
-		editIcon: "icofont-cloud",
+		editIcon: "icon-cloud",
 		dimensions: { w: widget.width || 1, h: widget.height || 2 },
 		restrictions: { minW: 2, minH: 1, maxW: 4, maxH: 2 },
 	}),
 	tv: widget => ({
 		content: <TV />,
 		editText: "TV",
-		editIcon: "icofont-contrast",
+		editIcon: "icon-monitor-filled",
 		dimensions: { w: widget.width || 1, h: widget.height || 4 },
 		restrictions: { minW: 2, minH: 2, maxW: 6, maxH: 6 },
 	}),
 	crypto: widget => ({
 		content: <Crypto coins={widget.info.coins} />,
 		editText: "Crypto",
-		editIcon: "icofont-bitcoin",
+		editIcon: "icon-crypto",
 		dimensions: { w: widget.width || 1, h: widget.height || 1 },
 		restrictions: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
 	}),
 	price: widget => ({
 		content: <Price country={widget.info.country} productId={widget.info.productId} />,
 		editText: "Price",
-		editIcon: "icofont-money",
+		editIcon: "icon-money",
 		dimensions: { w: widget.width || 1, h: widget.height || 1 },
 		restrictions: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
 	}),
@@ -88,6 +90,7 @@ function Widgets() {
 	const { widgets, editMode } = state;
 	const [loading, setLoading] = useState(false);
 	const [openWidgetDetail, setOpenWidgetDetail] = useState(false);
+	const [openOptions, setOpenOptions] = useState(false);
 	const [rowHeight, setRowHeight] = useState(150);
 	const [layouts, setLayouts] = useState({});
 	const [selectedWidget, setSelectedWidget] = useState(null);
@@ -112,6 +115,14 @@ function Widgets() {
 		return () => (isMounted = false);
 	}, []); // eslint-disable-line
 
+	function handleOpenOptions() {
+		setOpenOptions(true);
+	}
+
+	function handleCloseOptions() {
+		setOpenOptions(false);
+	}
+
 	function handleWidgetDetailOpen(e, widget) {
 		if (widget) setSelectedWidget(widget);
 		setOpenWidgetDetail(true);
@@ -120,6 +131,10 @@ function Widgets() {
 	function handleWidgetDetailClose() {
 		setSelectedWidget(null);
 		setOpenWidgetDetail(false);
+	}
+
+	function handleEditMode() {
+		dispatch({ type: "SET_EDIT_MODE", editMode: !editMode });
 	}
 
 	async function handleEditWidget(updatedWidgets) {
@@ -146,7 +161,7 @@ function Widgets() {
 		}
 	}
 
-	function handleWidthChange(containerWidth, margin, cols, containerPadding) {
+	function handleWidthChange(containerWidth, margin, cols, containerPadding = [0, 0]) {
 		// prettier-ignore
 		setRowHeight((containerWidth - (margin[0] * (cols - 1)) - (containerPadding[0] * 2)) / cols);
 	}
@@ -204,12 +219,18 @@ function Widgets() {
 		);
 	}
 
+	const actions = [
+		{ name: "Add Widget", icon: <i className="icon-add" />, handleClick: handleWidgetDetailOpen },
+		{ name: "Move & Resize", icon: <i className="icon-expand" />, handleClick: handleEditMode },
+	];
+
 	return (
 		<Box pt={5}>
 			{widgets && widgets.length ? (
 				<ResponsiveGridLayout
 					className="layout"
-					cols={{ xl: 8, lg: 8, md: 7, sm: 4, xs: 3, xxs: 2 }}
+					breakpoints={{ xxl: 2000, xl: 1700, lg: 1200, md: 950, sm: 750, xs: 450, xxs: 0 }}
+					cols={{ xxl: 12, xl: 10, lg: 8, md: 6, sm: 5, xs: 3, xxs: 2 }}
 					isDraggable={editMode}
 					isResizable={editMode}
 					onDragStop={handleEditWidget}
@@ -224,11 +245,24 @@ function Widgets() {
 			) : null}
 			<WidgetDetail open={openWidgetDetail} widget={selectedWidget} onClose={handleWidgetDetailClose} />
 			<Box className={classes.addWidget}>
-				<Tooltip title="Add Widget">
-					<Fab onClick={handleWidgetDetailOpen}>
-						<span className="material-icons">{"add"}</span>
-					</Fab>
-				</Tooltip>
+				<SpeedDial
+					ariaLabel="Options"
+					icon={<i className="icon-add" />}
+					onClose={handleCloseOptions}
+					onOpen={handleOpenOptions}
+					open={openOptions}
+					className={classes.speedDial}
+					FabProps={{ size: "small" }}
+				>
+					{actions.map(action => (
+						<SpeedDialAction
+							key={action.name}
+							icon={action.icon}
+							tooltipTitle={action.name}
+							onClick={action.handleClick}
+						/>
+					))}
+				</SpeedDial>
 			</Box>
 		</Box>
 	);

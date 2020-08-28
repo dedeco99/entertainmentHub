@@ -5,14 +5,19 @@ import {
 	makeStyles,
 	List,
 	ListItem,
+	ListItemAvatar,
+	Avatar,
 	ListItemText,
 	ListItemSecondaryAction,
 	IconButton,
 	Menu,
 	MenuItem,
+	Badge,
 } from "@material-ui/core";
 
 import Loading from "./Loading";
+
+import { formatNumber } from "../../utils/utils";
 
 import styles from "../../styles/General";
 
@@ -49,11 +54,25 @@ function Sidebar({ options, selected, idField, action, menu, loading, noResultsM
 						key={option[idField]}
 						id={option[idField]}
 					>
-						<ListItemText primary={option.displayName} />
+						<ListItemAvatar>
+							<Avatar alt={option.displayName} src={option.image} />
+						</ListItemAvatar>
+						<ListItemText
+							primary={option.displayName}
+							secondary={
+								option.viewers && (
+									<>
+										<Badge variant="dot" color="secondary" style={{ paddingLeft: 5, marginRight: 10 }} />
+										{formatNumber(option.viewers)}
+									</>
+								)
+							}
+							style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", width: 150 }}
+						/>
 						{menu && menu.length ? (
 							<ListItemSecondaryAction id={option[idField]} onClick={handleSetAnchorEl}>
 								<IconButton color="primary" edge="end">
-									<i className="material-icons">{"more_vert"}</i>
+									<i className="icon-more" />
 								</IconButton>
 							</ListItemSecondaryAction>
 						) : null}

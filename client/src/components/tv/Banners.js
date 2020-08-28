@@ -47,11 +47,7 @@ function Banners({ series, getMore, hasMore }) {
 			);
 		} else if (!seriesIds.includes(s.externalId.toString())) {
 			return (
-				<i
-					id={s.externalId}
-					className={`${classes.addSeriesIcon} icofont-ui-add icofont-3x`}
-					onClick={handleAddSeries}
-				/>
+				<i id={s.externalId} className={`${classes.addSeriesIcon} icon-add icon-3x`} onClick={handleAddSeries} />
 			);
 		}
 

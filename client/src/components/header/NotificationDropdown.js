@@ -31,7 +31,7 @@ function NotificationDropdown() {
 			<div className={classes.wrapper}>
 				<Badge badgeContent={total} max={999} overlap="circle" color="secondary">
 					<IconButton color="primary" onClick={handleClick}>
-						<i className="icofont-alarm" />
+						<i className="icon-notifications" />
 					</IconButton>
 				</Badge>
 				<Grow in={open} style={{ transformOrigin: "right top" }}>

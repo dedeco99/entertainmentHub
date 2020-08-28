@@ -28,7 +28,7 @@ function Reddit({ subreddit, search, listView }) {
 			if (search) {
 				response = await getSearch(subreddit, search, pagination.after);
 			} else {
-				response = await getPosts(subreddit, pagination.after);
+				response = await getPosts(subreddit, "hot", pagination.after);
 			}
 
 			if (response.status === 200 && isMounted) {
@@ -38,7 +38,7 @@ function Reddit({ subreddit, search, listView }) {
 				setPosts(newPosts);
 				setPagination({
 					page: pagination.page + 1,
-					after: response.data[response.data.length - 1].after,
+					after: response.data.length ? response.data[0].after : null,
 					hasMore: !(response.data.length < 25),
 				});
 				setLoading(false);
@@ -83,7 +83,7 @@ function Reddit({ subreddit, search, listView }) {
 				open={open}
 				subreddit={subreddit}
 				posts={posts}
-				multipleSubs={subreddit.includes("+")}
+				multipleSubs={subreddit.includes("+") || subreddit === "all"}
 				getPosts={handleGetPosts}
 				hasMorePosts={pagination.hasMore}
 				onShowSingleView={handleShowSingleView}
@@ -96,7 +96,7 @@ function Reddit({ subreddit, search, listView }) {
 			<SingleView
 				open={open}
 				post={posts[num]}
-				multipleSubs={subreddit.includes("+")}
+				multipleSubs={subreddit.includes("+") || subreddit === "all"}
 				onShowNextPost={handleShowNextPost}
 				onShowPreviousPost={handleShowPreviousPost}
 				onShowListView={handleShowListView}

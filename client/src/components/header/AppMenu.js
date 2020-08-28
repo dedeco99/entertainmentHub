@@ -3,6 +3,8 @@ import { Link, useHistory, useLocation } from "react-router-dom";
 
 import { makeStyles, List, ListItem, Typography } from "@material-ui/core";
 
+import Loading from "../.partials/Loading";
+
 import { UserContext } from "../../contexts/UserContext";
 
 import { getApps } from "../../api/apps";
@@ -18,17 +20,20 @@ function AppMenu() {
 	const { user, dispatch } = useContext(UserContext);
 	const [apps, setApps] = useState([]);
 	const [selectedMenu, setSelectedMenu] = useState(null);
+	const [loading, setLoading] = useState(false);
 
 	const allApps = [
-		{ platform: "reddit", name: "Reddit", icon: "icofont-reddit icofont-2x", endpoint: "/reddit" },
-		{ platform: "youtube", name: "Youtube", icon: "icofont-youtube-play icofont-2x", endpoint: "/youtube" },
-		{ platform: "twitch", name: "Twitch", icon: "icofont-twitch icofont-2x", endpoint: "/twitch" },
-		{ platform: "tv", name: "TV Series", icon: "icofont-monitor icofont-2x", endpoint: "/tv" },
+		{ platform: "reddit", name: "Reddit", icon: "icon-reddit-filled icon-2x", endpoint: "/reddit" },
+		{ platform: "youtube", name: "Youtube", icon: "icon-youtube-filled icon-2x", endpoint: "/youtube" },
+		{ platform: "twitch", name: "Twitch", icon: "icon-twitch-filled icon-2x", endpoint: "/twitch" },
+		{ platform: "tv", name: "TV Series", icon: "icon-monitor-filled icon-2x", endpoint: "/tv" },
 	];
 
 	useEffect(() => {
 		async function fetchData() {
 			if (user && user.token) {
+				setLoading(true);
+
 				const redirected = localStorage.getItem("redirected");
 
 				const response = await getApps();
@@ -43,6 +48,8 @@ function AppMenu() {
 
 					history.push("/settings");
 				}
+
+				setLoading(false);
 			}
 		}
 
@@ -62,6 +69,8 @@ function AppMenu() {
 	}, [allApps, location]);
 
 	function renderAppList() {
+		if (loading) return <Loading />;
+
 		return apps.map(app => (
 			<ListItem
 				key={app.platform}
@@ -83,22 +92,18 @@ function AppMenu() {
 
 		return (
 			<ListItem button className={classes.appItem} component={Link} to="/settings/apps">
-				<i className="icofont-plus-circle icofont-2x" />
+				<i className="icon-add icon-2x" />
 			</ListItem>
 		);
 	}
 
-	if (user && user.token) {
-		return (
-			<div className={classes.root}>
-				<List>
-					{renderAppList()}
-					{renderAddMoreApps()}
-				</List>
-			</div>
-		);
-	}
-
-	return <div />;
+	return (
+		<div className={classes.root}>
+			<List>
+				{renderAppList()}
+				{renderAddMoreApps()}
+			</List>
+		</div>
+	);
 }
 export default AppMenu;

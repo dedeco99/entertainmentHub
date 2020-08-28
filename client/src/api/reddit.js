@@ -1,7 +1,9 @@
 import { api } from "../utils/request";
 
-async function getSubreddits(filter) {
-	const query = filter ? `?filter=${filter}` : "";
+async function getSubreddits(after, filter) {
+	let query = "";
+	query += after ? `?after=${after}` : "";
+	query += filter ? `${query ? "&" : "?"}filter=${filter}` : "";
 
 	const res = await api({
 		method: "get",
@@ -11,10 +13,10 @@ async function getSubreddits(filter) {
 	return res;
 }
 
-async function getPosts(subreddit, after) {
+async function getPosts(subreddit, filter = "hot", after) {
 	const res = await api({
 		method: "get",
-		url: `/api/reddit/${subreddit}/hot${after ? `?after=${after}` : ""}`,
+		url: `/api/reddit/${subreddit}/${filter}${after ? `?after=${after}` : ""}`,
 	});
 
 	return res;
