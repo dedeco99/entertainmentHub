@@ -361,8 +361,10 @@ function Notifications({ height }) {
 				style={{ height: height ? height : "calc( 100vh - 200px )" }}
 			>
 				<Box display="flex" alignItems="center" className={classes.header}>
-					<Box display="flex" flexGrow={1}>
+					<Box display="flex">
 						<Typography variant="subtitle1">{translate("notifications")}</Typography>
+					</Box>
+					<Box display="flex" flexGrow={1}>
 						<Badge className={classes.badge} color="secondary" badgeContent={total} max={999} />
 					</Box>
 					<Box display="flex" justifyContent="flex-end">

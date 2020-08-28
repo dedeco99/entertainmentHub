@@ -74,8 +74,7 @@ const notifications = {
 		backgroundColor: "#444",
 	},
 	badge: {
-		marginTop: "13px", 
-		marginLeft: "30px",
+		marginLeft: "25px",
 	},
 };
 
