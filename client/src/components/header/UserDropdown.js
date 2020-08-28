@@ -12,8 +12,6 @@ import {
 	ListItem,
 	ListItemIcon,
 	ListItemText,
-	Typography,
-	Box,
 	Divider,
 	Select,
 	MenuItem,
