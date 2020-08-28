@@ -73,6 +73,9 @@ const notifications = {
 		color: "white",
 		backgroundColor: "#444",
 	},
+	badge: {
+		marginLeft: "25px",
+	},
 };
 
 const reddit = {
