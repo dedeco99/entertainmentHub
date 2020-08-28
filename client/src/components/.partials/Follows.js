@@ -2,6 +2,8 @@ import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroller";
+import { Subject } from "rxjs";
+import { distinctUntilChanged } from "rxjs/operators";
 
 import {
 	makeStyles,
@@ -77,6 +79,24 @@ function Follows({ open, platform, onClose }) {
 	const [checkedFollows, setCheckedFollows] = useState([]);
 	let isMounted = true;
 
+	const submitSubject = new Subject();
+
+	useEffect(() => {
+		const subscription = submitSubject
+			.pipe(distinctUntilChanged((a, b) => a.checkedFollows === b.checkedFollows))
+			.subscribe(async () => {
+				const response = await addSubscriptions(platform, checkedFollows);
+
+				if (response.status === 201) {
+					dispatch({ type: "ADD_SUBSCRIPTION", subscription: response.data });
+
+					setCheckedFollows([]);
+				}
+			});
+
+		return () => subscription.unsubscribe();
+	});
+
 	useEffect(() => {
 		async function fetchData() {
 			await handleGetFollows();
@@ -111,13 +131,7 @@ function Follows({ open, platform, onClose }) {
 	}
 
 	async function handleAddFollows() {
-		const response = await addSubscriptions(platform, checkedFollows);
-
-		if (response.status === 201) {
-			dispatch({ type: "ADD_SUBSCRIPTION", subscription: response.data });
-
-			setCheckedFollows([]);
-		}
+		submitSubject.next({ checkedFollows });
 	}
 
 	function handleFollowCheckbox(externalId) {
