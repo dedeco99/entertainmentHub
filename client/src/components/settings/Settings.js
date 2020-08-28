@@ -51,7 +51,7 @@ function Settings() {
 				&state=some_state
 				&redirect_uri=${REDIRECT}/apps/reddit
 				&duration=permanent
-				&scope=read`,
+				&scope=read,mysubreddits`,
 			color: "#fd4500",
 		},
 		twitch: {
