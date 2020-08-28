@@ -16,6 +16,7 @@ import {
 	ListItemSecondaryAction,
 	Avatar,
 	Link,
+	Badge
 } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
@@ -39,7 +40,7 @@ const useStyles = makeStyles({ ...widgetStyles, ...videoPlayerStyles, ...general
 function Notifications({ height }) {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(NotificationContext);
-	const { notifications } = state;
+	const { notifications, total } = state;
 	const videoPlayer = useContext(VideoPlayerContext);
 	const [pagination, setPagination] = useState({
 		loading: false,
@@ -362,6 +363,7 @@ function Notifications({ height }) {
 				<Box display="flex" alignItems="center" className={classes.header}>
 					<Box display="flex" flexGrow={1}>
 						<Typography variant="subtitle1">{translate("notifications")}</Typography>
+						<Badge color="secondary" badgeContent={total} max={999} style={{ marginTop: "13px", marginLeft: "30px" }}/>
 					</Box>
 					<Box display="flex" justifyContent="flex-end">
 						<Button
