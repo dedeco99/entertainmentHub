@@ -1,5 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import { Subject } from "rxjs";
+import { distinctUntilChanged } from "rxjs/operators";
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Chip } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
@@ -18,6 +20,41 @@ function FeedDetail({ open, feed, platform, onClose }) {
 	const { subscriptions } = state;
 	const [selectedSubscriptions, setSelectedSubscriptions] = useState([]);
 	const [name, setName] = useState("");
+
+	const submitSubject = new Subject();
+
+	useEffect(() => {
+		const subscription = submitSubject
+			.pipe(
+				distinctUntilChanged((a, b) => {
+					console.log(a, b);
+					return a.name === b.name && a.selectedSubscriptions === b.selectedSubscriptions;
+				}),
+			)
+			.subscribe(async () => {
+				if (feed) {
+					const mappedSubscriptions = selectedSubscriptions.map(s => s.externalId);
+
+					const response = await editFeed({ ...feed, displayName: name, subscriptions: mappedSubscriptions });
+
+					if (response.status === 200) {
+						dispatch({ type: "EDIT_FEED", feed: response.data });
+						onClose();
+					}
+				} else {
+					const mappedSubscriptions = selectedSubscriptions.map(s => s.externalId);
+
+					const response = await addFeed(platform, name, mappedSubscriptions);
+
+					if (response.status === 201) {
+						dispatch({ type: "ADD_FEED", feed: response.data });
+						onClose();
+					}
+				}
+			});
+
+		return () => subscription.unsubscribe();
+	});
 
 	function setFeedInfo() {
 		if (feed) {
@@ -46,32 +83,7 @@ function FeedDetail({ open, feed, platform, onClose }) {
 	async function handleSubmit(e) {
 		e.preventDefault();
 
-		if (!name || !selectedSubscriptions.length) return;
-
-		// prettier-ignore
-		const mappedSubscriptions = selectedSubscriptions.map(s => s.externalId);
-
-		const response = await addFeed(platform, name, mappedSubscriptions);
-
-		if (response.status === 201) {
-			dispatch({ type: "ADD_FEED", feed: response.data });
-			onClose();
-		}
-	}
-
-	async function handleUpdate(e) {
-		e.preventDefault();
-
-		if (!feed || !name || !selectedSubscriptions.length) return;
-
-		const mappedSubscriptions = selectedSubscriptions.map(s => s.externalId);
-
-		const response = await editFeed({ ...feed, displayName: name, subscriptions: mappedSubscriptions });
-
-		if (response.status === 200) {
-			dispatch({ type: "EDIT_FEED", feed: response.data });
-			onClose();
-		}
+		submitSubject.next({ name, selectedSubscriptions });
 	}
 
 	function renderOptionLabel(option) {
@@ -104,7 +116,7 @@ function FeedDetail({ open, feed, platform, onClose }) {
 			fullWidth
 			maxWidth="xs"
 		>
-			<form onSubmit={feed ? handleUpdate : handleSubmit}>
+			<form onSubmit={handleSubmit}>
 				<DialogTitle id="simple-dialog-title">{feed ? translate("editFeed") : translate("newFeed")}</DialogTitle>
 				<DialogContent>
 					<Input
