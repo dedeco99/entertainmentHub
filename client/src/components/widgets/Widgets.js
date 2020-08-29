@@ -225,7 +225,7 @@ function Widgets() {
 	];
 
 	return (
-		<Box pt={5}>
+		<>
 			{widgets && widgets.length ? (
 				<ResponsiveGridLayout
 					className="layout"
@@ -244,27 +244,25 @@ function Widgets() {
 				</ResponsiveGridLayout>
 			) : null}
 			<WidgetDetail open={openWidgetDetail} widget={selectedWidget} onClose={handleWidgetDetailClose} />
-			<Box className={classes.addWidget}>
-				<SpeedDial
-					ariaLabel="Options"
-					icon={<i className="icon-add" />}
-					onClose={handleCloseOptions}
-					onOpen={handleOpenOptions}
-					open={openOptions}
-					className={classes.speedDial}
-					FabProps={{ size: "small" }}
-				>
-					{actions.map(action => (
-						<SpeedDialAction
-							key={action.name}
-							icon={action.icon}
-							tooltipTitle={action.name}
-							onClick={action.handleClick}
-						/>
-					))}
-				</SpeedDial>
-			</Box>
-		</Box>
+			<SpeedDial
+				ariaLabel="Options"
+				icon={<i className="icon-add" />}
+				onClose={handleCloseOptions}
+				onOpen={handleOpenOptions}
+				open={openOptions}
+				className={classes.speedDial}
+				FabProps={{ size: "small" }}
+			>
+				{actions.map(action => (
+					<SpeedDialAction
+						key={action.name}
+						icon={action.icon}
+						tooltipTitle={action.name}
+						onClick={action.handleClick}
+					/>
+				))}
+			</SpeedDial>
+		</>
 	);
 }
 
