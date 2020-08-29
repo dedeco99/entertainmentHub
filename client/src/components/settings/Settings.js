@@ -285,6 +285,10 @@ function Settings() {
 							}
 							label={translate("browserNotifications")}
 						/>
+						<Divider style={{ marginTop: 20, marginBottom: 20 }} />
+						<Typography variant="h6" style={{ marginBottom: 10 }}>
+							{"Youtube"}
+						</Typography>
 						<Input
 							label="Youtube Watch Later Default Playlist"
 							id="watchLaterPlaylist"

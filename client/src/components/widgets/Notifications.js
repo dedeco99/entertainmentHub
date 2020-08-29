@@ -24,6 +24,7 @@ import AnimatedList from "../.partials/AnimatedList";
 
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
+import { UserContext } from "../../contexts/UserContext";
 
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
 import { addToWatchLater } from "../../api/youtube";
@@ -42,6 +43,7 @@ function Notifications({ height }) {
 	const { state, dispatch } = useContext(NotificationContext);
 	const { notifications, total } = state;
 	const videoPlayer = useContext(VideoPlayerContext);
+	const { user } = useContext(UserContext);
 	const [pagination, setPagination] = useState({
 		loading: false,
 		page: 0,
@@ -336,10 +338,13 @@ function Notifications({ height }) {
 
 			switch (selectedNotification.type) {
 				case "youtube":
-					return [
-						{ name: translate("markAsRead"), onClick: handleHideNotification },
-						{ name: translate("watchLater"), onClick: handleWatchLaterOption },
-					];
+					const youtubeOptions = [{ name: translate("markAsRead"), onClick: handleHideNotification }];
+
+					if (user.settings.youtube && user.settings.youtube.watchLaterPlaylist) {
+						youtubeOptions.push({ name: translate("watchLater"), onClick: handleWatchLaterOption });
+					}
+
+					return youtubeOptions;
 				default:
 					return [{ name: translate("markAsRead"), onClick: handleHideNotification }];
 			}

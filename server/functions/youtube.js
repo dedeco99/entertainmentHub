@@ -160,6 +160,8 @@ async function addToWatchLater(event) {
 	const { params, user } = event;
 	const { id } = params;
 
+	if (!user.settings.youtube.watchLaterPlaylist) return errors.requiredFieldsMissing;
+
 	const accessToken = await getAccessToken(user);
 
 	if (accessToken.status === 401) return errors.youtubeRefreshToken;
@@ -172,7 +174,7 @@ async function addToWatchLater(event) {
 
 	const body = {
 		snippet: {
-			playlistId: "WL",
+			playlistId: user.settings.youtube.watchLaterPlaylist,
 			resourceId: {
 				videoId: id,
 				kind: "youtube#video",
