@@ -111,7 +111,8 @@ function Follows({ open, platform, onClose }) {
 		if (!loading) {
 			setLoading(true);
 
-			const response = await chooseApiCall(platform)(pagination.after);
+			// TODO: change mine with dynamic flag (search, popular) - only for reddit
+			const response = await chooseApiCall(platform)(pagination.after, "mine");
 
 			if (response.status === 401) return history.push("/settings");
 

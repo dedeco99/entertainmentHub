@@ -1,13 +1,13 @@
 import { api } from "../utils/request";
 
-async function getSubreddits(after, filter) {
+async function getSubreddits(after, type, filter) {
 	let query = "";
 	query += after ? `?after=${after}` : "";
 	query += filter ? `${query ? "&" : "?"}filter=${filter}` : "";
 
 	const res = await api({
 		method: "get",
-		url: `/api/reddit/subreddits${query}`,
+		url: `/api/reddit/subreddits/${type}${query}`,
 	});
 
 	return res;
