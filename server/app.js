@@ -123,7 +123,7 @@ app.post("/api/youtube/watchlater/:id", token, (req, res) => middleware(req, res
 
 app.get("/api/twitch/streams", token, (req, res) => middleware(req, res, twitch.getStreams));
 
-app.get("/api/twitch/follows", token, (req, res) => middleware(req, res, twitch.getFollows));
+app.get("/api/twitch/follows/:type?", token, (req, res) => middleware(req, res, twitch.getFollows));
 
 /*
 app.get("/api/twitch/games/", token, (req, res) => middleware(req, res, twitch.getGames));
