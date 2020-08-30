@@ -115,7 +115,7 @@ app.put("/api/feeds/:id", token, (req, res) => middleware(req, res, feeds.editFe
 
 app.delete("/api/feeds/:id", token, (req, res) => middleware(req, res, feeds.deleteFeed));
 
-app.get("/api/youtube/subscriptions", token, (req, res) => middleware(req, res, youtube.getSubscriptions));
+app.get("/api/youtube/subscriptions/:type?", token, (req, res) => middleware(req, res, youtube.getSubscriptions));
 
 app.get("/api/youtube/videos/:channels", token, (req, res) => middleware(req, res, youtube.getVideos));
 
