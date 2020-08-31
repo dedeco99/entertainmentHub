@@ -7,7 +7,10 @@ export const VideoPlayerContext = createContext();
 
 const VideoPlayerContextProvider = ({ children }) => {
 	const initState = {
-		videos: [],
+		videos: {
+			youtube: [],
+			twitch: [],
+		},
 		x: null,
 		y: null,
 		width: 600,

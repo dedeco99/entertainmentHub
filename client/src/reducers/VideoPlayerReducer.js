@@ -3,11 +3,13 @@ export const videoPlayerReducer = (state, action) => {
 
 	switch (action.type) {
 		case "ADD_VIDEO":
-			if (!videos.find(v => v.url === action.video.url)) videos.push(action.video);
+			if (!videos[action.videoSource].find(v => v.url === action.video.url)) {
+				videos = { ...videos, [action.videoSource]: [...videos[action.videoSource], action.video] };
+			}
 
 			return { ...state, videos };
 		case "DELETE_VIDEO":
-			videos = videos.filter(v => v.url !== action.video.url);
+			videos = { ...videos, [action.videoSource]: videos[action.videoSource].filter(v => v.url !== action.video.url) };
 
 			return { ...state, videos };
 

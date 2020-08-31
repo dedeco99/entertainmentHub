@@ -24,17 +24,32 @@ import { videoPlayer as styles } from "../../styles/VideoPlayer";
 
 const useStyles = makeStyles(styles);
 
+const tabs = [
+	{
+		name: "youtube",
+		icon: "icon-youtube-filled icon-2x",
+	},
+	{
+		name: "twitch",
+		icon: "icon-twitch-filled icon-2x",
+	},
+];
+
 function VideoPlayer() {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(VideoPlayerContext);
 	const { videos, x, y, width, height, minimized } = state;
-	const [currentVideo, setCurrentVideo] = useState(videos[0]);
+	const [currentTab, setCurrentTab] = useState(null);
+	const [currentVideo, setCurrentVideo] = useState(null);
 	const [restrictions, setRestrictions] = useState({
 		minWidth: 600,
 		minHeight: 300,
 		maxWidth: document.documentElement.clientWidth - 20,
 		maxHeight: document.documentElement.clientHeight - 80,
 	});
+	const [totalVideos, setTotalVideos] = useState(
+		Object.keys(videos).map(source => videos[source].length).reduce((a, b) => a + b),
+	);
 
 	useEffect(() => {
 		fromEvent(window, "resize")
@@ -48,8 +63,26 @@ function VideoPlayer() {
 			});
 	}, []); // eslint-disable-line
 
+	useEffect(() => {
+		if (!currentTab) {
+			for (const tab of tabs) {
+				if (videos[tab.name].length) {
+					setCurrentTab(tab.name);
+					break;
+				}
+			}
+		} else if (currentTab && !currentVideo) {
+			setCurrentVideo(videos[currentTab][0]);
+		}
+	}, [currentTab, videos, currentVideo]);
+
+	useEffect(() => {
+		setTotalVideos(Object.keys(videos).map(source => videos[source].length).reduce((a, b) => a + b));
+	}, [videos]);
+
 	function handleDeleteVideo(video) {
-		dispatch({ type: "DELETE_VIDEO", video });
+		dispatch({ type: "DELETE_VIDEO", videoSource: currentTab, video });
+		if (currentVideo.url === video.url) setCurrentVideo(null);
 	}
 
 	function handleChangePosition(e, d) {
@@ -94,22 +127,18 @@ function VideoPlayer() {
 	}
 
 	useEffect(() => {
-		if (!currentVideo || !videos.includes(currentVideo)) {
-			setCurrentVideo(videos[0]);
-		}
-
-		if (!currentVideo && videos.length === 1) {
+		if (!currentVideo && totalVideos === 1) {
 			handleMaximize();
 		}
-	}, [state]); // eslint-disable-line
+	}, [currentVideo, totalVideos]); // eslint-disable-line
 
-	if (!currentVideo || !videos.length) return null;
+	if (!currentVideo || !totalVideos) return null;
 
 	if (minimized) {
 		return (
 			<Box position="fixed" bottom="15px" right="15px" zIndex={1}>
 				<Tooltip title="Video player">
-					<Badge badgeContent={videos.length} overlap="circle" color="error">
+					<Badge badgeContent={totalVideos} overlap="circle" color="error">
 						<Fab size="medium" onClick={handleMaximize}>
 							<i className="icon-video-library icon-2x" />
 						</Fab>
@@ -121,7 +150,7 @@ function VideoPlayer() {
 
 	return (
 		<Rnd
-			style={{ position: "fixed", zIndex: 1 }}
+			className={classes.playerContainer}
 			size={{ width, height }}
 			position={{
 				x: calculateX(),
@@ -133,52 +162,78 @@ function VideoPlayer() {
 			// bounds="parent"
 		>
 			<Paper square variant="outlined" component={Box} height="100%">
-				<Box display="flex" height="100%" width="100%">
-					<Box flexGrow={1}>
-						<ReactPlayer
-							playing
-							controls
-							url={currentVideo.url}
-							height="100%"
-							width="100%"
-							onEnded={() => handleDeleteVideo(currentVideo)}
-						/>
-					</Box>
-					<Box display="flex" flexDirection="column" height="100%" width="200px" className={classes.sidebar}>
-						<Box display="flex" alignItems="center" p={1}>
-							<Typography component={Box} flexGrow={1}>
-								{`${videos.length} videos in queue`}
-							</Typography>
+				<Box display="flex" flexDirection="column" height="100%" width="100%">
+					<Box display="flex" alignItems="center" className={classes.background}>
+						<Box flex="1" height="100%">
+							<List disablePadding component={Box} height="100%" display="flex" flexDirection="row">
+								{ tabs.map(tab => {
+									if (videos[tab.name].length) {
+										return (
+											<ListItem
+												className={classes.horizontalListItem}
+												key={tab.name}
+												button
+												selected={tab.name === currentTab}
+												onClick={tab.name === currentTab ? null : () => setCurrentTab(tab.name)}
+											>
+												<Box display="flex" alignItems="center" justifyContent="center" minWidth="56px">
+													<i className={tab.icon} />
+												</Box>
+											</ListItem>
+										);
+									}
+									return null;
+								})}
+							</List>
+						</Box>
+						<Box p={1}>
 							<IconButton size="small" aria-label="delete" onClick={handleMinimize}>
 								<span>{"─"}</span>
 							</IconButton>
 						</Box>
-						<Box flexGrow={1} overflow="auto">
-							<List disablePadding>
-								{videos.map(v => (
-									<ListItem
-										button
-										divider
-										key={v.url}
-										onClick={() => setCurrentVideo(v)}
-										selected={currentVideo.url === v.url}
-									>
-										<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
-											<Typography variant="body1" title={v.name} noWrap>
-												{v.name}
-											</Typography>
-											<Typography variant="caption" title={v.channelName} noWrap>
-												{v.channelName}
-											</Typography>
-										</Box>
-										<ListItemSecondaryAction>
-											<IconButton edge="end" aria-label="delete" onClick={() => handleDeleteVideo(v)}>
-												<i className="icon-delete" />
-											</IconButton>
-										</ListItemSecondaryAction>
-									</ListItem>
-								))}
-							</List>
+					</Box>
+					<Box display="flex" flexGrow="1" minHeight="0">
+						<Box flexGrow={1}>
+							<ReactPlayer
+								// playing
+								controls
+								url={currentVideo.url}
+								height="100%"
+								width="100%"
+								onEnded={() => handleDeleteVideo(currentVideo)}
+							/>
+						</Box>
+						<Box display="flex" flexDirection="column" height="100%" width="200px" className={classes.background}>
+							<Typography textAlign="center" component={Box} p={1}>
+								{`${videos[currentTab].length} video${videos[currentTab].length > 1 ? "s" : ""} in queue`}
+							</Typography>
+							<Box flexGrow={1} overflow="auto">
+								<List disablePadding>
+									{videos[currentTab].map(v => (
+										<ListItem
+											button
+											divider
+											key={v.url}
+											onClick={() => setCurrentVideo(v)}
+											selected={currentVideo.url === v.url}
+										>
+											<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
+												<Typography variant="body1" title={v.name} noWrap>
+													{v.name}
+												</Typography>
+												<Typography variant="caption" title={v.channelName} noWrap>
+													{v.channelName}
+												</Typography>
+											</Box>
+											<ListItemSecondaryAction>
+												<IconButton edge="end" aria-label="delete" onClick={() => handleDeleteVideo(v)}>
+													<i className="icon-delete" />
+												</IconButton>
+											</ListItemSecondaryAction>
+										</ListItem>
+									))}
+								</List>
+							</Box>
 						</Box>
 					</Box>
 				</Box>
