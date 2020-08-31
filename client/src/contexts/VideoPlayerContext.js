@@ -20,7 +20,20 @@ const VideoPlayerContextProvider = ({ children }) => {
 
 	const [state, dispatch] = useReducer(videoPlayerReducer, initState, () => {
 		const localData = localStorage.getItem("videoPlayer");
-		return localData ? JSON.parse(localData) : initState;
+
+		if (localData) {
+			const parsedData = JSON.parse(localData);
+			if (!parsedData.videos.youtube) {
+				parsedData.videos = {
+					youtube: parsedData.videos,
+					twitch: [],
+				};
+
+				return parsedData;
+			}
+		}
+
+		return initState;
 	});
 
 	useEffect(() => {
