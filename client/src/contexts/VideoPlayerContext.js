@@ -23,14 +23,13 @@ const VideoPlayerContextProvider = ({ children }) => {
 
 		if (localData) {
 			const parsedData = JSON.parse(localData);
-			if (!parsedData.videos.youtube) {
+			if (parsedData.videos.youtube === undefined) {
 				parsedData.videos = {
 					youtube: parsedData.videos,
 					twitch: [],
 				};
-
-				return parsedData;
 			}
+			return parsedData;
 		}
 
 		return initState;

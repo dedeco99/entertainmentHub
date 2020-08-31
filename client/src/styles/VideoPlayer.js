@@ -6,10 +6,6 @@ const videoPlayer = {
 		width: "auto", 
 		padding: "0"
 	},
-	playerContainer: {
-		position: "fixed",
-		zIndex: 1
-	},
 	videoThumbnail: {
 		"&:hover": {
 			"& $videoPlayOverlay": {

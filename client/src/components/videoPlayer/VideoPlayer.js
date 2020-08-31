@@ -150,7 +150,7 @@ function VideoPlayer() {
 
 	return (
 		<Rnd
-			className={classes.playerContainer}
+			style={{ position: "fixed", zIndex: 1 }}
 			size={{ width, height }}
 			position={{
 				x: calculateX(),
