@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 
 import { makeStyles, Zoom, List, ListItem, Box, Typography } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
+
+import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 
 import { getStreams } from "../../api/twitch";
 
@@ -17,6 +19,7 @@ function Twitch() {
 	const classes = useStyles();
 	const [streams, setStreams] = useState([]);
 	const [open, setOpen] = useState(false);
+	const videoPlayer = useContext(VideoPlayerContext);
 
 	useEffect(() => {
 		let isMounted = true;
@@ -35,6 +38,20 @@ function Twitch() {
 		return () => (isMounted = false);
 	}, []); // eslint-disable-line
 
+	function handleAddToVideoPlayer(videoSource, stream) {
+		console.log(stream);
+		videoPlayer.dispatch({
+			type: "ADD_VIDEO",
+			videoSource,
+			video: {
+				name: stream.title,
+				thumbnail: stream.thumbnail,
+				url: `https://www.twitch.tv/${stream.user}`,
+				channelName: stream.user,
+			},
+		});
+	}
+
 	if (!open) return <Loading />;
 
 	return (
@@ -42,7 +59,7 @@ function Twitch() {
 			<Box className={classes.root}>
 				<List>
 					{streams.map(stream => (
-						<ListItem key={stream.id} button divider>
+						<ListItem key={stream.id} button divider onClick={() => handleAddToVideoPlayer("twitch", stream)}>
 							<Box className={classes.imageWrapper}>
 								<img alt={`${stream.user}-preview`} src={stream.thumbnail} width="100%" />
 								<Typography variant="caption" className={classes.bottomRightOverlay}>

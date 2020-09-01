@@ -48,7 +48,9 @@ function VideoPlayer() {
 		maxHeight: document.documentElement.clientHeight - 80,
 	});
 	const [totalVideos, setTotalVideos] = useState(
-		Object.keys(videos).map(source => videos[source].length).reduce((a, b) => a + b),
+		Object.keys(videos)
+			.map(source => videos[source].length)
+			.reduce((a, b) => a + b),
 	);
 
 	useEffect(() => {
@@ -77,7 +79,11 @@ function VideoPlayer() {
 	}, [currentTab, videos, currentVideo]);
 
 	useEffect(() => {
-		setTotalVideos(Object.keys(videos).map(source => videos[source].length).reduce((a, b) => a + b));
+		setTotalVideos(
+			Object.keys(videos)
+				.map(source => videos[source].length)
+				.reduce((a, b) => a + b),
+		);
 	}, [videos]);
 
 	function handleDeleteVideo(video) {
@@ -148,6 +154,48 @@ function VideoPlayer() {
 		);
 	}
 
+	function renderQueueOrChat() {
+		if (currentTab === "youtube") {
+			return (
+				<Box display="flex" flexDirection="column" height="100%" width="200px" className={classes.background}>
+					<Typography textAlign="center" component={Box} p={1}>
+						{`${videos[currentTab].length} video${videos[currentTab].length > 1 ? "s" : ""} in queue`}
+					</Typography>
+					<Box flexGrow={1} overflow="auto">
+						<List disablePadding>
+							{videos[currentTab].map(v => (
+								<ListItem
+									button
+									divider
+									key={v.url}
+									onClick={() => setCurrentVideo(v)}
+									selected={currentVideo.url === v.url}
+								>
+									<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
+										<Typography variant="body1" title={v.name} noWrap>
+											{v.name}
+										</Typography>
+										<Typography variant="caption" title={v.channelName} noWrap>
+											{v.channelName}
+										</Typography>
+									</Box>
+									<ListItemSecondaryAction>
+										<IconButton edge="end" aria-label="delete" onClick={() => handleDeleteVideo(v)}>
+											<i className="icon-delete" />
+										</IconButton>
+									</ListItemSecondaryAction>
+								</ListItem>
+							))}
+						</List>
+					</Box>
+				</Box>
+			);
+		}
+
+		const url = `https://www.twitch.tv/embed/${currentVideo.displayName}"/chat?parent=https://entertainmenthub.ddns.net/c`;
+		return <iframe frameBorder="0" scrolling="no" id="chat_embed" src={url} height="inherit" width="350"></iframe>;
+	}
+
 	return (
 		<Rnd
 			style={{ position: "fixed", zIndex: 1 }}
@@ -166,7 +214,7 @@ function VideoPlayer() {
 					<Box display="flex" alignItems="center" className={classes.background}>
 						<Box flex="1" height="100%">
 							<List disablePadding component={Box} height="100%" display="flex" flexDirection="row">
-								{ tabs.map(tab => {
+								{tabs.map(tab => {
 									if (videos[tab.name].length) {
 										return (
 											<ListItem
@@ -203,38 +251,7 @@ function VideoPlayer() {
 								onEnded={() => handleDeleteVideo(currentVideo)}
 							/>
 						</Box>
-						<Box display="flex" flexDirection="column" height="100%" width="200px" className={classes.background}>
-							<Typography textAlign="center" component={Box} p={1}>
-								{`${videos[currentTab].length} video${videos[currentTab].length > 1 ? "s" : ""} in queue`}
-							</Typography>
-							<Box flexGrow={1} overflow="auto">
-								<List disablePadding>
-									{videos[currentTab].map(v => (
-										<ListItem
-											button
-											divider
-											key={v.url}
-											onClick={() => setCurrentVideo(v)}
-											selected={currentVideo.url === v.url}
-										>
-											<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
-												<Typography variant="body1" title={v.name} noWrap>
-													{v.name}
-												</Typography>
-												<Typography variant="caption" title={v.channelName} noWrap>
-													{v.channelName}
-												</Typography>
-											</Box>
-											<ListItemSecondaryAction>
-												<IconButton edge="end" aria-label="delete" onClick={() => handleDeleteVideo(v)}>
-													<i className="icon-delete" />
-												</IconButton>
-											</ListItemSecondaryAction>
-										</ListItem>
-									))}
-								</List>
-							</Box>
-						</Box>
+						{renderQueueOrChat()}
 					</Box>
 				</Box>
 			</Paper>
