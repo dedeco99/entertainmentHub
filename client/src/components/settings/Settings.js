@@ -17,14 +17,17 @@ import {
 	Box,
 	Paper,
 	Divider,
+	MenuItem,
 } from "@material-ui/core";
 
+import Input from "../.partials/Input";
 import DeleteConfirmation from "../.partials/DeleteConfirmation";
 
 import { UserContext } from "../../contexts/UserContext";
 
 import { deleteApp } from "../../api/apps";
 import { editUser } from "../../api/users";
+import { getPlaylists } from "../../api/youtube";
 
 import { translate } from "../../utils/translations";
 
@@ -33,7 +36,7 @@ import { settings as styles } from "../../styles/Header";
 const useStyles = makeStyles(styles);
 
 function Settings() {
-	const REDIRECT = "https://entertainmenthub.ddns.net";
+	const REDIRECT = "https://ehub.rabbitsoftware.dev";
 
 	const match = useRouteMatch();
 	const classes = useStyles();
@@ -91,6 +94,7 @@ function Settings() {
 	};
 	const [selectedMenu, setSelectedMenu] = useState(0);
 	const [settings, setSettings] = useState({});
+	const [playlists, setPlaylists] = useState([]);
 	const [selectedApp, setSelectedApp] = useState(null);
 	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
 
@@ -121,6 +125,12 @@ function Settings() {
 			notificationPermission.onchange = () => {
 				setSettings({ ...settings, browserNotifications: Notification.permission });
 			};
+
+			const response = await getPlaylists();
+
+			if (response.status === 200) {
+				setPlaylists(response.data);
+			}
 		}
 
 		fetchData();
@@ -146,6 +156,10 @@ function Settings() {
 
 	function handleCheckboxChange(property) {
 		setSettings({ ...settings, [property]: !settings[property] });
+	}
+
+	function handleChange(e) {
+		setSettings({ ...settings, youtube: { ...settings.youtube, watchLaterPlaylist: e.target.value } });
 	}
 
 	function handleOpenDeleteConfirmation(key) {
@@ -271,6 +285,25 @@ function Settings() {
 							}
 							label={translate("browserNotifications")}
 						/>
+						<Divider style={{ marginTop: 20, marginBottom: 20 }} />
+						<Typography variant="h6" style={{ marginBottom: 10 }}>
+							{"Youtube"}
+						</Typography>
+						<Input
+							label="Youtube Watch Later Default Playlist"
+							id="watchLaterPlaylist"
+							value={settings.youtube ? settings.youtube.watchLaterPlaylist : ""}
+							onChange={handleChange}
+							variant="outlined"
+							select
+							fullWidth
+						>
+							{playlists.map(p => (
+								<MenuItem key={p.externalId} value={p.externalId}>
+									{p.displayName}
+								</MenuItem>
+							))}
+						</Input>
 					</FormControl>
 					<Button variant="contained" onClick={handleSubmitSettings}>
 						{translate("save")}

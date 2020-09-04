@@ -7,17 +7,34 @@ export const VideoPlayerContext = createContext();
 
 const VideoPlayerContextProvider = ({ children }) => {
 	const initState = {
-		videos: [],
+		videos: {
+			youtube: [],
+			twitch: [],
+		},
 		x: null,
 		y: null,
 		width: 600,
 		height: 300,
 		minimized: false,
+		selectedTab: null,
+		currentVideo: null,
 	};
 
 	const [state, dispatch] = useReducer(videoPlayerReducer, initState, () => {
 		const localData = localStorage.getItem("videoPlayer");
-		return localData ? JSON.parse(localData) : initState;
+
+		if (localData) {
+			const parsedData = JSON.parse(localData);
+			if (!parsedData.videos.youtube) {
+				parsedData.videos = {
+					youtube: parsedData.videos,
+					twitch: [],
+				};
+			}
+			return parsedData;
+		}
+
+		return initState;
 	});
 
 	useEffect(() => {

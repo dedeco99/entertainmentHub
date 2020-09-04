@@ -19,6 +19,7 @@ function Video({ video }) {
 	function handleAddToVideoPlayer(video) {
 		videoPlayer.dispatch({
 			type: "ADD_VIDEO",
+			videoSource: "youtube",
 			video: {
 				name: video.videoTitle,
 				thumbnail: video.thumbnail,

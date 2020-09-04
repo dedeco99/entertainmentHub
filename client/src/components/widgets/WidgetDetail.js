@@ -32,7 +32,7 @@ import { widgetDetail as styles } from "../../styles/Widgets";
 
 const useStyles = makeStyles(styles);
 
-function WidgetDetail({ open, widget, onClose }) {
+function WidgetDetail({ open, widget, widgetRestrictions, onClose }) {
 	const classes = useStyles();
 	const { dispatch } = useContext(WidgetContext);
 	const { user } = useContext(UserContext);
@@ -90,7 +90,12 @@ function WidgetDetail({ open, widget, onClose }) {
 					setInfo({});
 				}
 			} else {
-				const response = await addWidget({ type, info });
+				const response = await addWidget({
+					type,
+					width: widgetRestrictions[type].minW,
+					height: widgetRestrictions[type].minH,
+					info,
+				});
 
 				if (response.status === 201) {
 					dispatch({ type: "ADD_WIDGET", widget: response.data });
@@ -365,6 +370,7 @@ function WidgetDetail({ open, widget, onClose }) {
 WidgetDetail.propTypes = {
 	open: PropTypes.bool.isRequired,
 	widget: PropTypes.object,
+	widgetRestrictions: PropTypes.object.isRequired,
 	onClose: PropTypes.func.isRequired,
 };
 

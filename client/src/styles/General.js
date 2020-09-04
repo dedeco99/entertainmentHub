@@ -1,6 +1,6 @@
 const general = {
 	main: {
-		padding: "75px 25px 15px 65px",
+		margin: "75px 15px 15px 65px",
 	},
 	center: {
 		textAlign: "center",

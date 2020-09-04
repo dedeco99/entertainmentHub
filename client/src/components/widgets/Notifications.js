@@ -24,6 +24,7 @@ import AnimatedList from "../.partials/AnimatedList";
 
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
+import { UserContext } from "../../contexts/UserContext";
 
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
 import { addToWatchLater } from "../../api/youtube";
@@ -42,6 +43,7 @@ function Notifications({ height }) {
 	const { state, dispatch } = useContext(NotificationContext);
 	const { notifications, total } = state;
 	const videoPlayer = useContext(VideoPlayerContext);
+	const { user } = useContext(UserContext);
 	const [pagination, setPagination] = useState({
 		loading: false,
 		page: 0,
@@ -59,7 +61,7 @@ function Notifications({ height }) {
 
 	async function handleGetNotifications() {
 		if (!pagination.loading) {
-			setPagination({ ...pagination, loading: true });
+			setPagination(prev => ({ ...prev, loading: true }));
 
 			let filter = pagination.filter.substring(7);
 			filter = filter === "all" ? "" : filter;
@@ -74,12 +76,12 @@ function Notifications({ height }) {
 
 				dispatch({ type: "SET_NOTIFICATIONS", notifications: newNotifications, total: response.data.total });
 
-				setPagination({
-					...pagination,
-					page: pagination.page + 1,
+				setPagination(prev => ({
+					...prev,
+					page: prev.page + 1,
 					hasMore: !(response.data.notifications.length < 25),
 					loading: false,
-				});
+				}));
 				setOpen(true);
 			}
 		}
@@ -134,11 +136,11 @@ function Notifications({ height }) {
 	}
 
 	function handleToggleHistory() {
-		setPagination({ ...pagination, history: !pagination.history, page: 0 });
+		setPagination(prev => ({ ...prev, history: !prev.history, page: 0 }));
 	}
 
 	function applyFilter(filter) {
-		setPagination({ ...pagination, filter, page: 0 });
+		setPagination(prev => ({ ...prev, filter, page: 0, hasMore: false }));
 	}
 
 	function handleClickListItem(e) {
@@ -165,9 +167,10 @@ function Notifications({ height }) {
 		setNotificationAnchorEl(null);
 	}
 
-	function handleAddToVideoPlayer(notification) {
+	function handleAddToVideoPlayer(videoSource, notification) {
 		videoPlayer.dispatch({
 			type: "ADD_VIDEO",
+			videoSource,
 			video: {
 				name: notification.info.videoTitle,
 				thumbnail: notification.info.thumbnail,
@@ -221,7 +224,7 @@ function Notifications({ height }) {
 									display="flex"
 									alignItems="center"
 									justifyContent="center"
-									onClick={() => handleAddToVideoPlayer(notification)}
+									onClick={() => handleAddToVideoPlayer("youtube", notification)}
 								>
 									<i className="icon-play icon-2x" />
 								</Box>
@@ -336,10 +339,13 @@ function Notifications({ height }) {
 
 			switch (selectedNotification.type) {
 				case "youtube":
-					return [
-						{ name: translate("markAsRead"), onClick: handleHideNotification },
-						{ name: translate("watchLater"), onClick: handleWatchLaterOption },
-					];
+					const youtubeOptions = [{ name: translate("markAsRead"), onClick: handleHideNotification }];
+
+					if (user.settings.youtube && user.settings.youtube.watchLaterPlaylist) {
+						youtubeOptions.push({ name: translate("watchLater"), onClick: handleWatchLaterOption });
+					}
+
+					return youtubeOptions;
 				default:
 					return [{ name: translate("markAsRead"), onClick: handleHideNotification }];
 			}
@@ -413,6 +419,7 @@ function Notifications({ height }) {
 				>
 					<InfiniteScroll
 						style={{ minWidth: "100%" }}
+						initialLoad={false}
 						loadMore={handleGetNotifications}
 						hasMore={pagination.hasMore}
 						useWindow={false}

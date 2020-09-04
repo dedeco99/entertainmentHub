@@ -141,9 +141,40 @@ async function getVideos(event) {
 	return response(200, "GET_YOUTUBE_VIDEOS", items);
 }
 
+async function getPlaylists(event) {
+	const { query, user } = event;
+	const { after } = query;
+
+	const accessToken = await getAccessToken(user);
+
+	if (accessToken.status === 401) return errors.youtubeRefreshToken;
+
+	// prettier-ignore
+	let url = "https://www.googleapis.com/youtube/v3/playlists?part=snippet&mine=true&order=alphabetical&maxResults=20";
+	if (after) url += `&pageToken=${after}`;
+
+	const headers = {
+		Authorization: `Bearer ${accessToken}`,
+	};
+
+	const res = await api({ method: "get", url, headers });
+	const json = res.data;
+
+	const playlists = json.items.map(playlist => ({
+		externalId: playlist.id,
+		displayName: playlist.snippet.title,
+		image: playlist.snippet.thumbnails.default.url,
+		after: json.nextPageToken,
+	}));
+
+	return response(200, "GET_YOUTUBE_SUBSCRIPTIONS", playlists);
+}
+
 async function addToWatchLater(event) {
 	const { params, user } = event;
 	const { id } = params;
+
+	if (!user.settings.youtube.watchLaterPlaylist) return errors.requiredFieldsMissing;
 
 	const accessToken = await getAccessToken(user);
 
@@ -157,7 +188,7 @@ async function addToWatchLater(event) {
 
 	const body = {
 		snippet: {
-			playlistId: "WL",
+			playlistId: user.settings.youtube.watchLaterPlaylist,
 			resourceId: {
 				videoId: id,
 				kind: "youtube#video",
@@ -239,6 +270,7 @@ async function cronjob() {
 module.exports = {
 	getSubscriptions,
 	getVideos,
+	getPlaylists,
 	addToWatchLater,
 	cronjob,
 };
