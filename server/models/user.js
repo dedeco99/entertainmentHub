@@ -9,6 +9,9 @@ const UserSchema = new Schema(
 			useCustomScrollbar: { type: Boolean, default: false },
 			animations: { type: Boolean, default: true },
 			borderColor: { type: Boolean, default: false },
+			youtube: {
+				watchLaterPlaylist: { type: String },
+			},
 		},
 	},
 	{ timestamps: { createdAt: "_created", updatedAt: "_modified" } },
