@@ -33,7 +33,7 @@ import { settings as styles } from "../../styles/Header";
 const useStyles = makeStyles(styles);
 
 function Settings() {
-	const REDIRECT = "https://entertainmenthub.ddns.net";
+	const REDIRECT = "https://ehub.rabbitsoftware.dev";
 
 	const match = useRouteMatch();
 	const classes = useStyles();

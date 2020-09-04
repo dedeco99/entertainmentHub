@@ -11,7 +11,7 @@ function SocketClient() {
 	const { dispatch } = useContext(NotificationContext);
 
 	useEffect(() => {
-		const socket = socketio("wss://entertainmenthub.ddns.net", { transports: ["websocket"] });
+		const socket = socketio("wss://ehub.rabbitsoftware.dev", { transports: ["websocket"] });
 
 		socket.on("connect", () => {
 			socket.emit("bind", user);
