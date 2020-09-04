@@ -17,7 +17,7 @@ async function getWidgets(event) {
 // eslint-disable-next-line complexity
 async function addWidget(event) {
 	const { body, user } = event;
-	const { type, info } = body;
+	const { type, width, height, info } = body;
 
 	if (!type) return errors.requiredFieldsMissing;
 
@@ -54,6 +54,8 @@ async function addWidget(event) {
 	const widget = new Widget({
 		user: user._id,
 		type,
+		width,
+		height,
 		info,
 	});
 

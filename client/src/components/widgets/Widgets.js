@@ -26,13 +26,23 @@ const useStyles = makeStyles({ ...generalStyles, ...widgetStyles });
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
+const widgetRestrictions = {
+	notifications: { minW: 2, minH: 2, maxW: 6, maxH: 6 },
+	reddit: { minW: 2, minH: 2, maxW: 4, maxH: 6 },
+	twitch: { minW: 2, minH: 2, maxW: 4, maxH: 6 },
+	weather: { minW: 2, minH: 1, maxW: 4, maxH: 2 },
+	tv: { minW: 2, minH: 2, maxW: 6, maxH: 6 },
+	crypto: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
+	price: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
+};
+
 const widgetsInfo = {
 	notifications: widget => ({
 		content: <Notifications height="100%" />,
 		editText: "Notifications",
 		editIcon: "icon-notifications",
 		dimensions: { w: widget.width || 1, h: widget.height || 4 },
-		restrictions: { minW: 2, minH: 2, maxW: 6, maxH: 6 },
+		restrictions: widgetRestrictions.notifications,
 	}),
 	reddit: widget => ({
 		content: (
@@ -42,7 +52,7 @@ const widgetsInfo = {
 		editText: `r/${widget.info.subreddit}`,
 		editIcon: "icon-reddit-filled",
 		dimensions: { w: widget.width || 1, h: widget.height || 2 },
-		restrictions: { minW: 2, minH: 2, maxW: 4, maxH: 6 },
+		restrictions: widgetRestrictions.reddit,
 	}),
 	twitch: widget => ({
 		content: <Twitch />,
@@ -50,7 +60,7 @@ const widgetsInfo = {
 		editText: "Twitch",
 		editIcon: "icon-twitch-filled",
 		dimensions: { w: widget.width || 1, h: widget.height || 2 },
-		restrictions: { minW: 2, minH: 2, maxW: 4, maxH: 6 },
+		restrictions: widgetRestrictions.twitch,
 	}),
 	weather: widget => ({
 		content: (
@@ -59,28 +69,28 @@ const widgetsInfo = {
 		editText: "Weather",
 		editIcon: "icon-cloud",
 		dimensions: { w: widget.width || 1, h: widget.height || 2 },
-		restrictions: { minW: 2, minH: 1, maxW: 4, maxH: 2 },
+		restrictions: widgetRestrictions.weather,
 	}),
 	tv: widget => ({
 		content: <TV />,
 		editText: "TV",
 		editIcon: "icon-monitor-filled",
 		dimensions: { w: widget.width || 1, h: widget.height || 4 },
-		restrictions: { minW: 2, minH: 2, maxW: 6, maxH: 6 },
+		restrictions: widgetRestrictions.tv,
 	}),
 	crypto: widget => ({
 		content: <Crypto coins={widget.info.coins} />,
 		editText: "Crypto",
 		editIcon: "icon-crypto",
 		dimensions: { w: widget.width || 1, h: widget.height || 1 },
-		restrictions: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
+		restrictions: widgetRestrictions.crypto,
 	}),
 	price: widget => ({
 		content: <Price country={widget.info.country} productId={widget.info.productId} />,
 		editText: "Price",
 		editIcon: "icon-money",
 		dimensions: { w: widget.width || 1, h: widget.height || 1 },
-		restrictions: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
+		restrictions: widgetRestrictions.price,
 	}),
 };
 
@@ -225,7 +235,7 @@ function Widgets() {
 	];
 
 	return (
-		<Box pt={5}>
+		<>
 			{widgets && widgets.length ? (
 				<ResponsiveGridLayout
 					className="layout"
@@ -243,28 +253,31 @@ function Widgets() {
 					{renderWidgets()}
 				</ResponsiveGridLayout>
 			) : null}
-			<WidgetDetail open={openWidgetDetail} widget={selectedWidget} onClose={handleWidgetDetailClose} />
-			<Box className={classes.addWidget}>
-				<SpeedDial
-					ariaLabel="Options"
-					icon={<i className="icon-add" />}
-					onClose={handleCloseOptions}
-					onOpen={handleOpenOptions}
-					open={openOptions}
-					className={classes.speedDial}
-					FabProps={{ size: "small" }}
-				>
-					{actions.map(action => (
-						<SpeedDialAction
-							key={action.name}
-							icon={action.icon}
-							tooltipTitle={action.name}
-							onClick={action.handleClick}
-						/>
-					))}
-				</SpeedDial>
-			</Box>
-		</Box>
+			<WidgetDetail
+				open={openWidgetDetail}
+				widget={selectedWidget}
+				widgetRestrictions={widgetRestrictions}
+				onClose={handleWidgetDetailClose}
+			/>
+			<SpeedDial
+				ariaLabel="Options"
+				icon={<i className="icon-add" />}
+				onClose={handleCloseOptions}
+				onOpen={handleOpenOptions}
+				open={openOptions}
+				className={classes.speedDial}
+				FabProps={{ size: "small" }}
+			>
+				{actions.map(action => (
+					<SpeedDialAction
+						key={action.name}
+						icon={action.icon}
+						tooltipTitle={action.name}
+						onClick={action.handleClick}
+					/>
+				))}
+			</SpeedDial>
+		</>
 	);
 }
 
