@@ -167,9 +167,10 @@ function Notifications({ height }) {
 		setNotificationAnchorEl(null);
 	}
 
-	function handleAddToVideoPlayer(notification) {
+	function handleAddToVideoPlayer(videoSource, notification) {
 		videoPlayer.dispatch({
 			type: "ADD_VIDEO",
+			videoSource,
 			video: {
 				name: notification.info.videoTitle,
 				thumbnail: notification.info.thumbnail,
@@ -223,7 +224,7 @@ function Notifications({ height }) {
 									display="flex"
 									alignItems="center"
 									justifyContent="center"
-									onClick={() => handleAddToVideoPlayer(notification)}
+									onClick={() => handleAddToVideoPlayer("youtube", notification)}
 								>
 									<i className="icon-play icon-2x" />
 								</Box>

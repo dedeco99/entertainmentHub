@@ -50,7 +50,9 @@ function Sidebar({ options, selected, idField, action, menu, loading, noResultsM
 					<ListItem
 						button
 						selected={selected === option[idField]}
-						onClick={() => handleClick(option[idField])}
+						onClick={() => {
+							option.viewers ? handleClick(option) : handleClick(option[idField]);
+						}}
 						key={option[idField]}
 						id={option[idField]}
 					>

@@ -1,6 +1,10 @@
 const videoPlayer = {
-	sidebar: {
+	background: {
 		backgroundColor: "#212121",
+	},
+	horizontalListItem: {
+		width: "auto", 
+		padding: "0"
 	},
 	videoThumbnail: {
 		"&:hover": {
