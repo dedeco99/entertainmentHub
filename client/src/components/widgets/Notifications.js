@@ -61,7 +61,7 @@ function Notifications({ height }) {
 
 	async function handleGetNotifications() {
 		if (!pagination.loading) {
-			setPagination({ ...pagination, loading: true });
+			setPagination(prev => ({ ...prev, loading: true }));
 
 			let filter = pagination.filter.substring(7);
 			filter = filter === "all" ? "" : filter;
@@ -76,12 +76,12 @@ function Notifications({ height }) {
 
 				dispatch({ type: "SET_NOTIFICATIONS", notifications: newNotifications, total: response.data.total });
 
-				setPagination({
-					...pagination,
-					page: pagination.page + 1,
+				setPagination(prev => ({
+					...prev,
+					page: prev.page + 1,
 					hasMore: !(response.data.notifications.length < 25),
 					loading: false,
-				});
+				}));
 				setOpen(true);
 			}
 		}
@@ -136,11 +136,11 @@ function Notifications({ height }) {
 	}
 
 	function handleToggleHistory() {
-		setPagination({ ...pagination, history: !pagination.history, page: 0 });
+		setPagination(prev => ({ ...prev, history: !prev.history, page: 0 }));
 	}
 
 	function applyFilter(filter) {
-		setPagination({ ...pagination, filter, page: 0 });
+		setPagination(prev => ({ ...prev, filter, page: 0, hasMore: false }));
 	}
 
 	function handleClickListItem(e) {
@@ -418,6 +418,7 @@ function Notifications({ height }) {
 				>
 					<InfiniteScroll
 						style={{ minWidth: "100%" }}
+						initialLoad={false}
 						loadMore={handleGetNotifications}
 						hasMore={pagination.hasMore}
 						useWindow={false}
