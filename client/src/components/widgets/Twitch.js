@@ -39,7 +39,6 @@ function Twitch() {
 	}, []); // eslint-disable-line
 
 	function handleAddToVideoPlayer(videoSource, stream) {
-		console.log(stream);
 		videoPlayer.dispatch({
 			type: "ADD_VIDEO",
 			videoSource,

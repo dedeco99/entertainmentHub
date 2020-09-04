@@ -24,34 +24,30 @@ import { videoPlayer as styles } from "../../styles/VideoPlayer";
 
 const useStyles = makeStyles(styles);
 
-const tabs = [
-	{
-		name: "youtube",
-		icon: "icon-youtube-filled icon-2x",
-	},
-	{
-		name: "twitch",
-		icon: "icon-twitch-filled icon-2x",
-	},
-];
-
 function VideoPlayer() {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(VideoPlayerContext);
-	const { videos, x, y, width, height, minimized } = state;
-	const [currentTab, setCurrentTab] = useState(null);
-	const [currentVideo, setCurrentVideo] = useState(null);
+	const { currentVideo, videos, x, y, width, height, minimized, selectedTab } = state;
 	const [restrictions, setRestrictions] = useState({
 		minWidth: 600,
 		minHeight: 300,
 		maxWidth: document.documentElement.clientWidth - 20,
 		maxHeight: document.documentElement.clientHeight - 80,
 	});
-	const [totalVideos, setTotalVideos] = useState(
-		Object.keys(videos)
-			.map(source => videos[source].length)
-			.reduce((a, b) => a + b),
-	);
+
+	const tabs = [
+		{
+			name: "youtube",
+			icon: "icon-youtube-filled icon-2x",
+		},
+		{
+			name: "twitch",
+			icon: "icon-twitch-filled icon-2x",
+		},
+	];
+	const totalVideos = Object.keys(videos)
+		.map(source => videos[source].length)
+		.reduce((a, b) => a + b);
 
 	useEffect(() => {
 		fromEvent(window, "resize")
@@ -66,29 +62,17 @@ function VideoPlayer() {
 	}, []); // eslint-disable-line
 
 	useEffect(() => {
-		if (!currentTab) {
-			for (const tab of tabs) {
-				if (videos[tab.name].length) {
-					setCurrentTab(tab.name);
-					break;
-				}
-			}
-		} else if (currentTab && !currentVideo) {
-			setCurrentVideo(videos[currentTab][0]);
-		}
-	}, [currentTab, videos, currentVideo]);
+		if (!selectedTab) {
+			const tab = tabs.find(t => videos[t.name].length);
 
-	useEffect(() => {
-		setTotalVideos(
-			Object.keys(videos)
-				.map(source => videos[source].length)
-				.reduce((a, b) => a + b),
-		);
-	}, [videos]);
+			if (tab) dispatch({ type: "SET_SELECTED_TAB", selectedTab: tab.name });
+		} else if (selectedTab && !currentVideo) {
+			dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[selectedTab][0] });
+		}
+	}, [selectedTab, videos, currentVideo]);
 
 	function handleDeleteVideo(video) {
-		dispatch({ type: "DELETE_VIDEO", videoSource: currentTab, video });
-		if (currentVideo.url === video.url) setCurrentVideo(null);
+		dispatch({ type: "DELETE_VIDEO", videoSource: selectedTab, video });
 	}
 
 	function handleChangePosition(e, d) {
@@ -104,6 +88,10 @@ function VideoPlayer() {
 				width: Number(ref.style.width.replace("px", "")),
 			},
 		});
+	}
+
+	function handleTabChange(tab) {
+		dispatch({ type: "SET_SELECTED_TAB", selectedTab: tab });
 	}
 
 	function calculateX() {
@@ -155,45 +143,64 @@ function VideoPlayer() {
 	}
 
 	function renderQueueOrChat() {
-		if (currentTab === "youtube") {
-			return (
-				<Box display="flex" flexDirection="column" height="100%" width="200px" className={classes.background}>
-					<Typography textAlign="center" component={Box} p={1}>
-						{`${videos[currentTab].length} video${videos[currentTab].length > 1 ? "s" : ""} in queue`}
-					</Typography>
-					<Box flexGrow={1} overflow="auto">
-						<List disablePadding>
-							{videos[currentTab].map(v => (
-								<ListItem
-									button
-									divider
-									key={v.url}
-									onClick={() => setCurrentVideo(v)}
-									selected={currentVideo.url === v.url}
-								>
-									<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
-										<Typography variant="body1" title={v.name} noWrap>
-											{v.name}
-										</Typography>
-										<Typography variant="caption" title={v.channelName} noWrap>
-											{v.channelName}
-										</Typography>
-									</Box>
-									<ListItemSecondaryAction>
-										<IconButton edge="end" aria-label="delete" onClick={() => handleDeleteVideo(v)}>
-											<i className="icon-delete" />
-										</IconButton>
-									</ListItemSecondaryAction>
-								</ListItem>
-							))}
-						</List>
+		switch (selectedTab) {
+			case "youtube":
+				return (
+					<Box display="flex" flexDirection="column" height="100%" width="250px" className={classes.background}>
+						<Typography textAlign="center" component={Box} p={1}>
+							{`${videos[selectedTab].length} video${videos[selectedTab].length > 1 ? "s" : ""} in queue`}
+						</Typography>
+						<Box flexGrow={1} overflow="auto">
+							<List disablePadding>
+								{videos[selectedTab].map(v => (
+									<ListItem
+										button
+										divider
+										key={v.url}
+										onClick={() => dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: v })}
+										selected={currentVideo.url === v.url}
+									>
+										<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
+											<Typography variant="body1" title={v.name} noWrap>
+												{v.name}
+											</Typography>
+											<Typography variant="caption" title={v.channelName} noWrap>
+												{v.channelName}
+											</Typography>
+										</Box>
+										<ListItemSecondaryAction>
+											<IconButton edge="end" aria-label="delete" onClick={() => handleDeleteVideo(v)}>
+												<i className="icon-delete" />
+											</IconButton>
+										</ListItemSecondaryAction>
+									</ListItem>
+								))}
+							</List>
+						</Box>
 					</Box>
-				</Box>
-			);
+				);
+			case "twitch":
+				return (
+					<Box display="flex" flexDirection="column">
+						<Box flexGrow={1}>
+							<iframe
+								frameBorder="0"
+								scrolling="no"
+								src={`https://www.twitch.tv/embed/${currentVideo.channelName}/chat?parent=${window.location.hostname}`}
+								width="250px"
+								height="100%"
+							/>
+						</Box>
+						<Box textAlign="center">
+							<IconButton edge="end" aria-label="delete" onClick={() => handleDeleteVideo(currentVideo)}>
+								<i className="icon-delete" />
+							</IconButton>
+						</Box>
+					</Box>
+				);
+			default:
+				return null;
 		}
-
-		const url = `https://www.twitch.tv/embed/${currentVideo.displayName}"/chat?parent=https://entertainmenthub.ddns.net/c`;
-		return <iframe frameBorder="0" scrolling="no" id="chat_embed" src={url} height="inherit" width="350"></iframe>;
 	}
 
 	return (
@@ -221,8 +228,8 @@ function VideoPlayer() {
 												className={classes.horizontalListItem}
 												key={tab.name}
 												button
-												selected={tab.name === currentTab}
-												onClick={tab.name === currentTab ? null : () => setCurrentTab(tab.name)}
+												selected={tab.name === selectedTab}
+												onClick={tab.name === selectedTab ? null : () => handleTabChange(tab.name)}
 											>
 												<Box display="flex" alignItems="center" justifyContent="center" minWidth="56px">
 													<i className={tab.icon} />

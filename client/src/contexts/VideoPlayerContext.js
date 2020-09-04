@@ -16,6 +16,8 @@ const VideoPlayerContextProvider = ({ children }) => {
 		width: 600,
 		height: 300,
 		minimized: false,
+		selectedTab: null,
+		currentVideo: null,
 	};
 
 	const [state, dispatch] = useReducer(videoPlayerReducer, initState, () => {
@@ -23,7 +25,7 @@ const VideoPlayerContextProvider = ({ children }) => {
 
 		if (localData) {
 			const parsedData = JSON.parse(localData);
-			if (parsedData.videos.youtube === undefined) {
+			if (!parsedData.videos.youtube) {
 				parsedData.videos = {
 					youtube: parsedData.videos,
 					twitch: [],
