@@ -35,7 +35,11 @@ function Twitch() {
 	}
 
 	const actions = [
-		{ name: "Add Subscriptions", icon: <i className="icon-user" />, handleClick: handleOpenFollows },
+		{
+			name: "Add Subscriptions",
+			icon: <i className="icon-user" />,
+			handleClick: handleOpenFollows,
+		},
 	];
 
 	function handleAddToVideoPlayer(stream) {

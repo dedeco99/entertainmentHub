@@ -171,9 +171,9 @@ function Widgets() {
 		}
 	}
 
-	function handleWidthChange(containerWidth, margin, cols, containerPadding = [0, 0]) {
+	function handleWidthChange(containerWidth, margin, cols) {
 		// prettier-ignore
-		setRowHeight((containerWidth - (margin[0] * (cols - 1)) - (containerPadding[0] * 2)) / cols);
+		setRowHeight((containerWidth - (margin[0] * (cols - 1))) / cols);
 	}
 
 	function handleLayoutChange(layout, layouts) {

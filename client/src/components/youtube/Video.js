@@ -16,7 +16,7 @@ function Video({ video }) {
 	const classes = useStyles();
 	const videoPlayer = useContext(VideoPlayerContext);
 
-	function handleAddToVideoPlayer(video) {
+	function handleAddToVideoPlayer() {
 		videoPlayer.dispatch({
 			type: "ADD_VIDEO",
 			videoSource: "youtube",
@@ -44,7 +44,7 @@ function Video({ video }) {
 							display="flex"
 							alignItems="center"
 							justifyContent="center"
-							onClick={() => handleAddToVideoPlayer(video)}
+							onClick={handleAddToVideoPlayer}
 						>
 							<i className="icon-play icon-2x" />
 						</Box>
