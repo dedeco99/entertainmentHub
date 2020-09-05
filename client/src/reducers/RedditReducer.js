@@ -3,7 +3,11 @@ export const redditReducer = (state, action) => {
 
 	switch (action.type) {
 		case "SET_FOLLOWS":
-			follows = action.follows.filter(f => !subscriptions.map(s => s.externalId).includes(f.externalId));
+			if (action.filter === "mine") {
+				follows = action.follows.filter(f => !subscriptions.map(s => s.externalId).includes(f.externalId));
+			} else {
+				follows = action.follows;
+			}
 
 			return { ...state, follows };
 		case "ADD_FOLLOW":

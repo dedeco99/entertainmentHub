@@ -3,11 +3,10 @@ import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 import InfiniteScroll from "react-infinite-scroller";
 import { Subject } from "rxjs";
-import { distinctUntilChanged, debounceTime } from "rxjs/operators";
+import { distinctUntilChanged, tap, debounceTime } from "rxjs/operators";
 
 import {
 	makeStyles,
-	IconButton,
 	Modal,
 	Backdrop,
 	List,
@@ -20,13 +19,11 @@ import {
 	Paper,
 	Box,
 	Button,
-	FormControl,
-	InputLabel,
-	OutlinedInput,
 	InputAdornment,
 } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
+import Input from "../.partials/Input";
 
 import { RedditContext } from "../../contexts/RedditContext";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
@@ -73,16 +70,14 @@ function Follows({ open, platform, onClose }) {
 	const history = useHistory();
 	const classes = useStyles();
 	const { state, dispatch } = useContext(chooseContext(platform));
-	const { follows } = state;
-	const [loading, setLoading] = useState(false);
-	const [pagination, setPagination] = useState({
-		page: 0,
-		hasMore: false,
-		after: null,
-	});
+	const { follows, subscriptions } = state;
+	const [pagination, setPagination] = useState({ page: 0, hasMore: false, after: null });
+	const [filter, setFilter] = useState({ type: "mine", query: "" });
 	const [checkedFollows, setCheckedFollows] = useState([]);
+	const [loading, setLoading] = useState(false);
+	const [loader, setLoader] = useState(false);
+	const [callApi, setCallApi] = useState(false);
 	let isMounted = true;
-	const [filterFollows, setFilterFollows] = useState([]);
 
 	const submitSubject = new Subject();
 	const inputSubject = new Subject();
@@ -99,13 +94,47 @@ function Follows({ open, platform, onClose }) {
 					setCheckedFollows([]);
 				}
 			});
-
-		const inputSubscription = inputSubject.pipe(debounceTime(750)).subscribe(value => handleFilterFollows(value));
-
-		return () => {
-			subscription.unsubscribe(), inputSubscription.unsubscribe();
-		};
+		return () => subscription.unsubscribe();
 	});
+
+	useEffect(() => {
+		const subscription = inputSubject
+			.pipe(
+				tap(value => {
+					setLoader(true);
+					setFilter({ type: value ? "search" : "mine", query: value });
+				}),
+				debounceTime(1000),
+			)
+			.subscribe(() => {
+				setPagination({ page: 0, hasMore: false, after: null });
+				setCallApi(!callApi);
+			});
+	});
+
+	async function handleGetFollows() {
+		if (!loading) {
+			setLoading(true);
+
+			const response = await chooseApiCall(platform)(pagination.after, filter.type, filter.query);
+
+			if (response.status === 401) return history.push("/settings");
+
+			if (response.status === 200 && isMounted) {
+				let newFollows = pagination.page === 0 ? response.data : follows.concat(response.data);
+
+				dispatch({ type: "SET_FOLLOWS", filter: filter.type, follows: newFollows });
+
+				setPagination(prev => ({
+					page: prev.page + 1,
+					hasMore: !(response.data.length < 20),
+					after: response.data.length ? response.data[0].after : null,
+				}));
+				setLoading(false);
+				setLoader(false);
+			}
+		}
+	}
 
 	useEffect(() => {
 		async function fetchData() {
@@ -113,31 +142,10 @@ function Follows({ open, platform, onClose }) {
 		}
 
 		fetchData();
+	}, [callApi]);
 
-		return () => (isMounted = false); // eslint-disable-line
-	}, []); // eslint-disable-line
-
-	async function handleGetFollows() {
-		if (!loading) {
-			setLoading(true);
-
-			// TODO: change mine with dynamic flag (search, popular) - only for reddit
-			const response = await chooseApiCall(platform)(pagination.after, "mine");
-
-			if (response.status === 401) return history.push("/settings");
-
-			if (response.status === 200 && isMounted) {
-				let newFollows = pagination.page === 0 ? response.data : follows.concat(response.data);
-
-				dispatch({ type: "SET_FOLLOWS", follows: newFollows });
-				setPagination({
-					page: pagination.page + 1,
-					after: response.data.length ? response.data[0].after : null,
-					hasMore: !(response.data.length < 20),
-				});
-				setLoading(false);
-			}
-		}
+	async function handleSearchFollows(e) {
+		inputSubject.next(e.target.value);
 	}
 
 	async function handleAddFollows() {
@@ -159,44 +167,53 @@ function Follows({ open, platform, onClose }) {
 		setCheckedFollows(updatedFollows);
 	}
 
-	async function handleFilterFollows(value) {
-		if (!value) {
-			setFilterFollows([]);
-			return;
-		}
-
-		const response = await chooseApiCall(platform)(pagination.after, "search", value);
-
-		if (response.status === 200) {
-			setFilterFollows(response.data);
-		}
-	}
-
 	function renderFollowsList() {
-		if (pagination.page === 0 && loading) return <Loading />;
-
-		const follow = filterFollows.length === 0 ? follows : filterFollows;
-
 		return (
 			<List className={classes.root}>
-				{follow &&
-					follow.map(follow => {
+				{follows &&
+					follows.map(follow => {
+						const isSubscription = subscriptions.map(s => s.externalId).includes(follow.externalId);
 						const labelId = `checkbox-list-secondary-label-${follow.externalId}`;
+
 						return (
 							<ListItem key={follow.displayName} button onClick={() => handleFollowCheckbox(follow.externalId)}>
 								<ListItemAvatar>
 									<Avatar alt={follow.title} src={follow.image} />
 								</ListItemAvatar>
-								<ListItemText id={labelId} primary={follow.displayName} />
-								<ListItemSecondaryAction>
-									<Checkbox
-										color="primary"
-										edge="end"
-										onChange={() => handleFollowCheckbox(follow.externalId)}
-										checked={Boolean(checkedFollows.find(f => f.externalId === follow.externalId))}
-										inputProps={{ "aria-labelledby": labelId }}
-									/>
-								</ListItemSecondaryAction>
+								{filter.type === "mine" ? (
+									<>
+										<ListItemText id={labelId} primary={follow.displayName} />
+										<ListItemSecondaryAction>
+											<Checkbox
+												color="primary"
+												edge="end"
+												onChange={() => handleFollowCheckbox(follow.externalId)}
+												checked={Boolean(checkedFollows.find(f => f.externalId === follow.externalId))}
+												inputProps={{ "aria-labelledby": labelId }}
+											/>
+										</ListItemSecondaryAction>
+									</>
+								) : (
+									<>
+										<ListItemText
+											id={labelId}
+											primary={follow.displayName}
+											secondary={follow.isSubscribed && "Subscribed"}
+										/>
+										<ListItemSecondaryAction>
+											<Checkbox
+												color="primary"
+												edge="end"
+												onChange={() => handleFollowCheckbox(follow.externalId)}
+												checked={
+													isSubscription || Boolean(checkedFollows.find(f => f.externalId === follow.externalId))
+												}
+												inputProps={{ "aria-labelledby": labelId }}
+												disabled={isSubscription}
+											/>
+										</ListItemSecondaryAction>
+									</>
+								)}
 							</ListItem>
 						);
 					})}
@@ -214,30 +231,36 @@ function Follows({ open, platform, onClose }) {
 		>
 			<Paper variant="outlined" className={classes.modalContent}>
 				<Box flexGrow={1} style={{ overflow: "auto" }}>
-					<InfiniteScroll
-						loadMore={handleGetFollows}
-						hasMore={pagination.hasMore}
-						useWindow={false}
-						loader={<Loading key={0} />}
-					>
-						{renderFollowsList()}
-					</InfiniteScroll>
+					{loader ? (
+						<Loading />
+					) : (
+						<InfiniteScroll
+							loadMore={handleGetFollows}
+							hasMore={pagination.hasMore}
+							useWindow={false}
+							loader={<Loading key={0} />}
+						>
+							{renderFollowsList()}
+						</InfiniteScroll>
+					)}
 				</Box>
 				<Box display="flex" justifyContent="flex-end" className={classes.modalFooter}>
-					<FormControl variant="outlined" style={{ marginRight: "30px", marginTop: "10px", marginBottom: "15px" }}>
-						<InputLabel htmlFor="outlined-adornment-amount">{translate("search")}</InputLabel>
-						<OutlinedInput
-							id="outlined-adornment-amount"
-							onChange={e => inputSubject.next(e.target.value)}
-							startAdornment={
+					<Input
+						id="search"
+						label={translate("search")}
+						value={filter.query}
+						onChange={handleSearchFollows}
+						InputProps={{
+							startAdornment: (
 								<InputAdornment position="start">
 									<i className="icon-search icon-1.9x" style={{ fontSize: "1.4em" }} />
 								</InputAdornment>
-							}
-							labelWidth={60}
-							style={{ height: "43px" }}
-						/>
-					</FormControl>
+							),
+							style: { height: "43px" },
+						}}
+						variant="outlined"
+						style={{ marginRight: "30px", marginTop: "10px", marginBottom: "15px" }}
+					/>
 					<Button
 						color="primary"
 						variant="contained"

@@ -137,6 +137,7 @@ async function getSubreddits(event) {
 		displayName: subreddit.data.display_name,
 		image: subreddit.data.icon_img || subreddit.data.community_icon.split("?")[0],
 		subscribers: subreddit.data.subscribers,
+		isSubscribed: subreddit.data.user_is_subscriber,
 		nsfw: subreddit.data.over18,
 		created: subreddit.data.created,
 		after: json.data.after,
