@@ -3,8 +3,8 @@ const videoPlayer = {
 		backgroundColor: "#212121",
 	},
 	horizontalListItem: {
-		width: "auto", 
-		padding: "0"
+		width: "auto",
+		padding: "0",
 	},
 	videoThumbnail: {
 		"&:hover": {

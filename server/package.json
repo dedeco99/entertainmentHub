@@ -1,6 +1,6 @@
 {
 	"name": "entertainmenthub",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"author": "Andre Coelho",
 	"license": "MIT",
 	"main": "app.js",
@@ -18,24 +18,24 @@
 		"client-lint": "cd ../client && eslint '**/*.js' --ignore-pattern node_modules/ --ignore-pattern public/",
 		"dev": "concurrently \"npm run server\" \"npm run client\""
 	},
-	"devDependencies": {
-		"concurrently": "^5.3.0",
-		"eslint": "^7.6.0",
-		"jest": "^26.4.0",
-		"nodemon": "^2.0.4"
-	},
 	"dependencies": {
 		"all-the-cities": "^3.1.0",
-		"axios": "^0.19.2",
+		"axios": "^0.20.0",
 		"bcryptjs": "^2.4.3",
 		"cheerio": "^1.0.0-rc.3",
 		"express": "^4.17.1",
 		"moment": "^2.27.0",
-		"mongoose": "^5.9.29",
+		"mongoose": "^5.10.3",
 		"morgan": "^1.10.0",
 		"node-cron": "^2.0.3",
 		"rss-converter": "^1.1.6",
-		"sanitize-html": "^1.27.3",
+		"sanitize-html": "^1.27.4",
 		"socket.io": "^2.3.0"
+	},
+	"devDependencies": {
+		"concurrently": "^5.3.0",
+		"eslint": "^7.8.1",
+		"jest": "^26.4.2",
+		"nodemon": "^2.0.4"
 	}
 }
