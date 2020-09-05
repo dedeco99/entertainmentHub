@@ -84,14 +84,26 @@ async function getStreams(event) {
 }
 
 async function getFollows(event) {
-	const { query, user } = event;
-	const { after } = query;
+	const { params, query, user } = event;
+	const { type } = params;
+	const { filter, after } = query;
 
 	const accessToken = await getAccessToken(user, "refresh_token");
 
 	if (accessToken.status === 401) return errors.twitchRefreshToken;
 
-	let url = "https://api.twitch.tv/helix/users";
+	let url = null;
+	switch (type) {
+		case "mine":
+			url = "https://api.twitch.tv/helix/users";
+			break;
+		case "search":
+			url = `https://api.twitch.tv/helix/search/channels?query=${filter}`;
+			break;
+		default:
+			url = "https://api.twitch.tv/helix/users";
+			break;
+	}
 
 	const headers = {
 		"Client-ID": process.env.twitchClientId,

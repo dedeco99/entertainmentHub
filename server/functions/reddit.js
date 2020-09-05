@@ -98,19 +98,31 @@ async function isSubreddit(subreddit, user) {
 }
 
 async function getSubreddits(event) {
-	const { query, user } = event;
+	const { params, query, user } = event;
+	const { type } = params;
 	const { filter, after } = query;
 
 	const accessToken = await getAccessToken(user);
 
 	if (accessToken.status === 401) return errors.redditRefreshToken;
 
-	let url = "https://oauth.reddit.com/subreddits/mine/subscriber?limit=20";
-	if (after) url += `&after=${after}`;
-
-	if (filter) {
-		url = `https://oauth.reddit.com/subreddits/search?q=${filter}`;
+	let url = null;
+	switch (type) {
+		case "mine":
+			url = "https://oauth.reddit.com/subreddits/mine/subscriber?limit=20";
+			break;
+		case "search":
+			url = `https://oauth.reddit.com/subreddits/search?q=${filter}&limit=20`;
+			break;
+		case "popular":
+			url = "https://oauth.reddit.com/subreddits/popular?limit=20";
+			break;
+		default:
+			url = "https://oauth.reddit.com/subreddits/mine/subscriber?limit=20";
+			break;
 	}
+
+	if (after) url += `&after=${after}`;
 
 	const headers = {
 		"User-Agent": "Entertainment-Hub by dedeco99",
@@ -125,14 +137,11 @@ async function getSubreddits(event) {
 		displayName: subreddit.data.display_name,
 		image: subreddit.data.icon_img || subreddit.data.community_icon.split("?")[0],
 		subscribers: subreddit.data.subscribers,
+		isSubscribed: subreddit.data.user_is_subscriber,
 		nsfw: subreddit.data.over18,
 		created: subreddit.data.created,
 		after: json.data.after,
 	}));
-
-	if (!filter) {
-		subreddits.sort((a, b) => (a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1));
-	}
 
 	return response(200, "GET_SUBREDDITS", subreddits);
 }

@@ -69,7 +69,7 @@ function VideoPlayer() {
 		} else if (selectedTab && !currentVideo) {
 			dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[selectedTab][0] });
 		}
-	}, [selectedTab, videos, currentVideo]);
+	}, [selectedTab, videos, currentVideo]); // eslint-disable-line
 
 	function handleDeleteVideo(video) {
 		dispatch({ type: "DELETE_VIDEO", videoSource: selectedTab, video });
@@ -104,8 +104,8 @@ function VideoPlayer() {
 	}
 
 	function calculateY() {
-		const minY = 75;
-		const maxY = document.documentElement.clientHeight - height - 10;
+		const minY = 0;
+		const maxY = document.documentElement.clientHeight - height - 85;
 
 		if (y < minY) return minY;
 		if (y > maxY) return maxY;
@@ -184,6 +184,7 @@ function VideoPlayer() {
 					<Box display="flex" flexDirection="column">
 						<Box flexGrow={1}>
 							<iframe
+								title={currentVideo.channelName}
 								frameBorder="0"
 								scrolling="no"
 								src={`https://www.twitch.tv/embed/${currentVideo.channelName}/chat?parent=${window.location.hostname}`}

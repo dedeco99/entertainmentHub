@@ -54,15 +54,29 @@ async function getVideoDuration(items) {
 }
 
 async function getSubscriptions(event) {
-	const { query, user } = event;
-	const { after } = query;
+	const { params, query, user } = event;
+	const { type } = params;
+	const { filter, after } = query;
 
 	const accessToken = await getAccessToken(user);
 
 	if (accessToken.status === 401) return errors.youtubeRefreshToken;
 
-	// prettier-ignore
-	let url = "https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&order=alphabetical&maxResults=20";
+	let url = null;
+	switch (type) {
+		case "mine":
+			// prettier-ignore
+			url =	"https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&order=alphabetical&maxResults=20";
+			break;
+		case "search":
+			url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${filter}&maxResults=20`;
+			break;
+		default:
+			// prettier-ignore
+			url =	"https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&order=alphabetical&maxResults=20";
+			break;
+	}
+
 	if (after) url += `&pageToken=${after}`;
 
 	const headers = {
@@ -73,7 +87,7 @@ async function getSubscriptions(event) {
 	const json = res.data;
 
 	const channels = json.items.map(channel => ({
-		externalId: channel.snippet.resourceId.channelId,
+		externalId: channel.snippet.channelId,
 		displayName: channel.snippet.title,
 		image: channel.snippet.thumbnails.default.url,
 		after: json.nextPageToken,

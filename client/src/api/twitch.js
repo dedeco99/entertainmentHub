@@ -9,10 +9,14 @@ async function getStreams(after) {
 	return res;
 }
 
-async function getFollows(after) {
+async function getFollows(after, type, filter) {
+	let query = "";
+	query += after ? `?after=${after}` : "";
+	query += filter ? `${query ? "&" : "?"}filter=${filter}` : "";
+
 	const res = await api({
 		method: "get",
-		url: `/api/twitch/follows${after ? `?after=${after}` : ""}`,
+		url: `/api/twitch/follows/${type}${query}`,
 	});
 
 	return res;

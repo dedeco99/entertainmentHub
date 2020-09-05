@@ -1,9 +1,13 @@
 import { api } from "../utils/request";
 
-async function getSubscriptions(after) {
+async function getSubscriptions(after, type, filter) {
+	let query = "";
+	query += after ? `?after=${after}` : "";
+	query += filter ? `${query ? "&" : "?"}filter=${filter}` : "";
+
 	const res = await api({
 		method: "get",
-		url: `/api/youtube/subscriptions${after ? `?after=${after}` : ""}`,
+		url: `/api/youtube/subscriptions/${type}${query}`,
 	});
 
 	return res;

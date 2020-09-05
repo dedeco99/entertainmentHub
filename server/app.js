@@ -93,7 +93,7 @@ app.get("/api/crypto/:coins", token, (req, res) => middleware(req, res, crypto.g
 
 app.get("/api/price/:country/:product", token, (req, res) => middleware(req, res, price.getProduct));
 
-app.get("/api/reddit/subreddits", token, (req, res) => middleware(req, res, reddit.getSubreddits));
+app.get("/api/reddit/subreddits/:type?", token, (req, res) => middleware(req, res, reddit.getSubreddits));
 
 app.get("/api/reddit/:subreddit/:category", token, (req, res) => middleware(req, res, reddit.getPosts));
 
@@ -115,7 +115,7 @@ app.put("/api/feeds/:id", token, (req, res) => middleware(req, res, feeds.editFe
 
 app.delete("/api/feeds/:id", token, (req, res) => middleware(req, res, feeds.deleteFeed));
 
-app.get("/api/youtube/subscriptions", token, (req, res) => middleware(req, res, youtube.getSubscriptions));
+app.get("/api/youtube/subscriptions/:type?", token, (req, res) => middleware(req, res, youtube.getSubscriptions));
 
 app.get("/api/youtube/videos/:channels", token, (req, res) => middleware(req, res, youtube.getVideos));
 
@@ -125,7 +125,7 @@ app.post("/api/youtube/watchlater/:id", token, (req, res) => middleware(req, res
 
 app.get("/api/twitch/streams", token, (req, res) => middleware(req, res, twitch.getStreams));
 
-app.get("/api/twitch/follows", token, (req, res) => middleware(req, res, twitch.getFollows));
+app.get("/api/twitch/follows/:type?", token, (req, res) => middleware(req, res, twitch.getFollows));
 
 /*
 app.get("/api/twitch/games/", token, (req, res) => middleware(req, res, twitch.getGames));
