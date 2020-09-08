@@ -1,7 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import { Responsive, WidthProvider } from "react-grid-layout";
 
-import { makeStyles, Box } from "@material-ui/core";
+import { makeStyles, Box, Tabs, Tab } from "@material-ui/core";
 import { SpeedDial, SpeedDialAction } from "@material-ui/lab";
 
 import Loading from "../.partials/Loading";
@@ -104,6 +104,8 @@ function Widgets() {
 	const [rowHeight, setRowHeight] = useState(150);
 	const [layouts, setLayouts] = useState({});
 	const [selectedWidget, setSelectedWidget] = useState(null);
+	const [tabs, setTabs] = useState([]);
+	const [selectedTab, setSelectedTab] = useState(0);
 
 	useEffect(() => {
 		let isMounted = true;
@@ -114,7 +116,34 @@ function Widgets() {
 			const response = await getWidgets();
 
 			if (response.status === 200 && isMounted) {
-				dispatch({ type: "SET_WIDGETS", widgets: response.data });
+				response.data.push({
+					_id: "5f2c20b433c9b86cc638a853",
+					type: "crypto",
+					group: { _id: 1, name: "crypto" },
+					x: 3,
+					y: 2,
+					width: 2,
+					height: 2,
+					user: "5da2f39971ff3e1d0cfcda97",
+					info: { coins: "BAT,BTC,ETH" },
+					_created: "2020-08-06T15:24:36.429Z",
+					_modified: "2020-09-08T17:18:48.860Z",
+					__v: 0,
+				});
+
+				const uniqueTabs = [];
+
+				const newWidgets = response.data.map(widget => {
+					widget.group = widget.group ? widget.group : { _id: 0, name: "Default" };
+
+					if (!uniqueTabs.find(tab => tab._id === widget.group._id)) uniqueTabs.push(widget.group);
+
+					return widget;
+				});
+
+				setTabs(uniqueTabs);
+
+				dispatch({ type: "SET_WIDGETS", widgets: newWidgets });
 
 				setLoading(false);
 			}
@@ -181,6 +210,10 @@ function Widgets() {
 		setLayouts(layouts);
 	}
 
+	function handleChangeTab(e, tab) {
+		setSelectedTab(tab);
+	}
+
 	async function handleDeleteWidget(id) {
 		const response = await deleteWidget(id);
 
@@ -191,6 +224,7 @@ function Widgets() {
 
 	function renderWidgets() {
 		return widgets
+			.filter(widget => widget.group._id === selectedTab)
 			.sort((a, b) => a.y - b.y)
 			.map(widget => {
 				const widgetInfo = widgetsInfo[widget.type](widget);
@@ -236,6 +270,11 @@ function Widgets() {
 
 	return (
 		<>
+			{tabs.length > 1 && (
+				<Tabs value={selectedTab} onChange={handleChangeTab}>
+					{tabs.map(tab => (tab ? <Tab key={tab._id} label={tab.name} /> : <Tab key={0} label={"Default"} />))}
+				</Tabs>
+			)}
 			{widgets && widgets.length ? (
 				<ResponsiveGridLayout
 					className="layout"
