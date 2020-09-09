@@ -116,34 +116,7 @@ function Widgets() {
 			const response = await getWidgets();
 
 			if (response.status === 200 && isMounted) {
-				response.data.push({
-					_id: "5f2c20b433c9b86cc638a853",
-					type: "crypto",
-					group: { _id: 1, name: "crypto" },
-					x: 3,
-					y: 2,
-					width: 2,
-					height: 2,
-					user: "5da2f39971ff3e1d0cfcda97",
-					info: { coins: "BAT,BTC,ETH" },
-					_created: "2020-08-06T15:24:36.429Z",
-					_modified: "2020-09-08T17:18:48.860Z",
-					__v: 0,
-				});
-
-				const uniqueTabs = [];
-
-				const newWidgets = response.data.map(widget => {
-					widget.group = widget.group ? widget.group : { _id: 0, name: "Default" };
-
-					if (!uniqueTabs.find(tab => tab._id === widget.group._id)) uniqueTabs.push(widget.group);
-
-					return widget;
-				});
-
-				setTabs(uniqueTabs);
-
-				dispatch({ type: "SET_WIDGETS", widgets: newWidgets });
+				dispatch({ type: "SET_WIDGETS", widgets: response.data });
 
 				setLoading(false);
 			}
@@ -153,6 +126,20 @@ function Widgets() {
 
 		return () => (isMounted = false);
 	}, []); // eslint-disable-line
+
+	useEffect(() => {
+		const uniqueTabs = [];
+
+		for (const widget of widgets) {
+			widget.group = widget.group ? widget.group : { name: "Ungrouped" };
+
+			if (!uniqueTabs.find(tab => tab.name === widget.group.name)) uniqueTabs.push(widget.group);
+		}
+
+		if (uniqueTabs.length < tabs.length) setSelectedTab(0);
+
+		setTabs(uniqueTabs);
+	}, [widgets]);
 
 	function handleOpenOptions() {
 		setOpenOptions(true);
@@ -224,7 +211,7 @@ function Widgets() {
 
 	function renderWidgets() {
 		return widgets
-			.filter(widget => widget.group._id === selectedTab)
+			.filter(widget => widget.group.name === tabs[selectedTab].name)
 			.sort((a, b) => a.y - b.y)
 			.map(widget => {
 				const widgetInfo = widgetsInfo[widget.type](widget);
@@ -272,7 +259,9 @@ function Widgets() {
 		<>
 			{tabs.length > 1 && (
 				<Tabs value={selectedTab} onChange={handleChangeTab}>
-					{tabs.map(tab => (tab ? <Tab key={tab._id} label={tab.name} /> : <Tab key={0} label={"Default"} />))}
+					{tabs.map(tab => (
+						<Tab key={tab.name} label={tab.name} />
+					))}
 				</Tabs>
 			)}
 			{widgets && widgets.length ? (
@@ -295,6 +284,7 @@ function Widgets() {
 			<WidgetDetail
 				open={openWidgetDetail}
 				widget={selectedWidget}
+				widgetGroups={tabs}
 				widgetRestrictions={widgetRestrictions}
 				onClose={handleWidgetDetailClose}
 			/>
