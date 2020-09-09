@@ -35,6 +35,14 @@ export const videoPlayerReducer = (state, action) => {
 			}
 
 			return { ...state, videos, selectedTab, currentVideo };
+		case "CHANGE_ORDER":
+			videos[action.videoSource].splice(
+				action.newPosition,
+				0,
+				videos[action.videoSource].splice(action.oldPosition, 1)[0],
+			);
+
+			return { ...state, videos };
 		case "SET_POSITION":
 			x = action.position.x;
 			y = action.position.y;
