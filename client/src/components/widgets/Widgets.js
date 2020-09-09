@@ -258,7 +258,16 @@ function Widgets() {
 	return (
 		<>
 			{tabs.length > 1 && (
-				<Tabs value={selectedTab} onChange={handleChangeTab}>
+				<Tabs
+					value={selectedTab}
+					onChange={handleChangeTab}
+					variant="scrollable"
+					style={{
+						backgroundColor: "#222",
+						marginLeft: 10,
+						marginRight: document.body.scrollHeight > document.body.clientHeight ? -2 : 10,
+					}}
+				>
 					{tabs.map(tab => (
 						<Tab key={tab.name} label={tab.name} />
 					))}
