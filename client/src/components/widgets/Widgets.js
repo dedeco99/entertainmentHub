@@ -139,7 +139,7 @@ function Widgets() {
 		if (uniqueTabs.length < tabs.length) setSelectedTab(0);
 
 		setTabs(uniqueTabs);
-	}, [widgets]);
+	}, [widgets]); // eslint-disable-line
 
 	function handleOpenOptions() {
 		setOpenOptions(true);
@@ -242,7 +242,7 @@ function Widgets() {
 			});
 	}
 
-	if (loading) {
+	if (loading || !tabs.length) {
 		return (
 			<Box className={classes.root}>
 				<Loading />
