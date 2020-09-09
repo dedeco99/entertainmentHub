@@ -188,7 +188,7 @@ function VideoPlayer() {
 												justifyContent="center"
 												style={{ cursor: "grab" }}
 											>
-												<i className="icon-delete" />
+												<i className="icon-drag-handle" />
 											</Box>
 											<ListItem
 												button
