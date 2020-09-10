@@ -30,7 +30,7 @@ const widgetRestrictions = {
 	notifications: { minW: 2, minH: 2, maxW: 6, maxH: 6 },
 	reddit: { minW: 2, minH: 2, maxW: 4, maxH: 6 },
 	twitch: { minW: 2, minH: 2, maxW: 4, maxH: 6 },
-	weather: { minW: 2, minH: 1, maxW: 4, maxH: 2 },
+	weather: { minW: 1, minH: 1, maxW: 4, maxH: 2 },
 	tv: { minW: 2, minH: 2, maxW: 6, maxH: 6 },
 	crypto: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
 	price: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
