@@ -120,8 +120,8 @@ function Weather({ city, country, lat, lon, widgetDimensions }) {
 					</Box>
 					<Box
 						display="flex"
-						flexDirection="initial"
-						alignItems="flex-end"
+						justifyContent="center"
+						alignItems="center"
 						flexGrow={1}
 						className={classes.content}
 						style={{ marginTop: "-18px" }}
@@ -287,16 +287,13 @@ function Weather({ city, country, lat, lon, widgetDimensions }) {
 	}
 
 	function renderWeatherWidget() {
-		const weatherWidget =
-			widgetDimensions.h === 2 && widgetDimensions.w === 2
-				? renderWeather2x2()
-				: widgetDimensions.h === 1 && widgetDimensions.w === 2
-				? renderWeather1x2()
-				: widgetDimensions.h === 1 && widgetDimensions.w === 1
-				? renderWeather1x1()
-				: null;
+		if (widgetDimensions.h === 2 && widgetDimensions.w >= 2) {
+			return renderWeather2x2();
+		} else if (widgetDimensions.h === 1 && widgetDimensions.w >= 2) {
+			return renderWeather1x2();
+		}
 
-		return weatherWidget;
+		return renderWeather1x1();
 	}
 
 	if (!open) return <Loading />;
