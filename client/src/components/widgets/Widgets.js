@@ -1,5 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
-import { Responsive, WidthProvider } from "react-grid-layout";
+import GridLayout, { Responsive, WidthProvider } from "react-grid-layout";
 
 import { makeStyles, Box, Tabs, Tab } from "@material-ui/core";
 import { SpeedDial, SpeedDialAction } from "@material-ui/lab";
@@ -106,6 +106,7 @@ function Widgets() {
 	const [selectedWidget, setSelectedWidget] = useState(null);
 	const [tabs, setTabs] = useState([]);
 	const [selectedTab, setSelectedTab] = useState(0);
+	const [tabsEditMode, setTabsEditMode] = useState(false);
 
 	useEffect(() => {
 		let isMounted = true;
@@ -161,6 +162,10 @@ function Widgets() {
 
 	function handleEditMode() {
 		dispatch({ type: "SET_EDIT_MODE", editMode: !editMode });
+	}
+
+	function handleTabEditMode() {
+		setTabsEditMode(prev => !prev);
 	}
 
 	async function handleEditWidget(updatedWidgets) {
@@ -253,6 +258,7 @@ function Widgets() {
 	const actions = [
 		{ name: "Add Widget", icon: <i className="icon-add" />, handleClick: handleWidgetDetailOpen },
 		{ name: "Move & Resize", icon: <i className="icon-expand" />, handleClick: handleEditMode },
+		{ name: "Edit tabs", icon: <i className="icon-expand" />, handleClick: handleTabEditMode },
 	];
 
 	return (
@@ -264,13 +270,40 @@ function Widgets() {
 					variant="scrollable"
 					style={{
 						backgroundColor: "#222",
-						marginLeft: 10,
-						marginRight: document.body.scrollHeight > document.body.clientHeight ? -2 : 10,
+						//marginRight: document.body.scrollHeight > document.body.clientHeight ? -2 : 10,
 					}}
 				>
-					{tabs.map(tab => (
-						<Tab key={tab.name} label={tab.name} />
-					))}
+					{tabsEditMode ? (
+						<GridLayout
+							className="layout"
+							rowHeight={48}
+							cols={tabs.length}
+							width={160 * tabs.length}
+							margin={[0, 0]}
+							compactType="horizontal"
+							isResizable={false}
+							maxRows={1}
+						>
+							{tabs.map((tab, i) => (
+								<div key={tab.name} data-grid={{ x: i, y: 0, w: 1, h: 1 }}>
+									<Tab label={tab.name} />
+									<Box
+										position="absolute"
+										bottom="0"
+										left="0"
+										width="100%"
+										display="flex"
+										alignItems="center"
+										justifyContent="center"
+									>
+										<i className="icon-drag-handle" />
+									</Box>
+								</div>
+							))}
+						</GridLayout>
+					) : (
+						tabs.map(tab => <Tab key={tab.name} label={tab.name} />)
+					)}
 				</Tabs>
 			)}
 			{widgets && widgets.length ? (
@@ -286,6 +319,7 @@ function Widgets() {
 					rowHeight={rowHeight}
 					layouts={layouts}
 					onLayoutChange={handleLayoutChange}
+					containerPadding={[0, 10]}
 				>
 					{renderWidgets()}
 				</ResponsiveGridLayout>
