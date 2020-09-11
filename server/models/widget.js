@@ -6,6 +6,7 @@ const WidgetSchema = new Schema(
 		type: { type: String, default: "", required: true },
 		group: {
 			name: { type: String },
+			pos: { type: Number },
 		},
 		x: { type: Number, default: 0 },
 		y: { type: Number, default: 0 },

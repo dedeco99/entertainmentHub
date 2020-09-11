@@ -30,6 +30,16 @@ async function editWidget(widget) {
 	return res;
 }
 
+async function editWidgets(widgets) {
+	const res = await api({
+		method: "put",
+		url: "/api/widgets",
+		data: widgets,
+	});
+
+	return res;
+}
+
 async function deleteWidget(id) {
 	const res = await api({
 		method: "delete",
@@ -40,9 +50,4 @@ async function deleteWidget(id) {
 	return res;
 }
 
-export {
-	getWidgets,
-	addWidget,
-	editWidget,
-	deleteWidget,
-};
+export { getWidgets, addWidget, editWidget, editWidgets, deleteWidget };

@@ -17,7 +17,7 @@ import WidgetDetail from "../widgets/WidgetDetail";
 
 import { WidgetContext } from "../../contexts/WidgetContext";
 
-import { getWidgets, editWidget, deleteWidget } from "../../api/widgets";
+import { getWidgets, editWidget, editWidgets, deleteWidget } from "../../api/widgets";
 
 import generalStyles from "../../styles/General";
 import { widgets as widgetStyles } from "../../styles/Widgets";
@@ -169,6 +169,7 @@ function Widgets() {
 	}
 
 	async function handleEditWidget(updatedWidgets) {
+		const widgetsToUpdate = [];
 		for (const updatedWidget of updatedWidgets) {
 			const widgetToUpdate = widgets.find(w => w._id === updatedWidget.i);
 
@@ -183,10 +184,41 @@ function Widgets() {
 				widgetToUpdate.width = updatedWidget.w;
 				widgetToUpdate.height = updatedWidget.h;
 
-				const response = await editWidget(widgetToUpdate);
+				widgetsToUpdate.push(widgetToUpdate);
+			}
+		}
 
-				if (response.status === 200) {
-					dispatch({ type: "EDIT_WIDGET", widget: response.data });
+		if (widgetsToUpdate.length) {
+			const response = await editWidgets(widgetsToUpdate);
+
+			if (response.status === 200) {
+				for (const widget of response.data) {
+					dispatch({ type: "EDIT_WIDGET", widget });
+				}
+			}
+		}
+	}
+
+	async function handleEditTab(updatedTabs) {
+		const widgetsToUpdate = [];
+		for (const updatedTab of updatedTabs) {
+			const widgetsToMaybeUpdate = widgets.filter(w => w.group.name === updatedTab.i);
+
+			if (widgetsToMaybeUpdate[0].group.pos !== updatedTab.x) {
+				for (const widgetToUpdate of widgetsToMaybeUpdate) {
+					widgetToUpdate.group = { ...widgetToUpdate.group, pos: updatedTab.x };
+
+					widgetsToUpdate.push(widgetToUpdate);
+				}
+			}
+		}
+
+		if (widgetsToUpdate.length) {
+			const response = await editWidgets(widgetsToUpdate);
+
+			if (response.status === 200) {
+				for (const widget of response.data) {
+					dispatch({ type: "EDIT_WIDGET", widget });
 				}
 			}
 		}
@@ -212,6 +244,74 @@ function Widgets() {
 		if (response.status === 200) {
 			dispatch({ type: "DELETE_WIDGET", widget: response.data });
 		}
+	}
+
+	function renderTabs() {
+		if (tabs.length <= 1) return null;
+
+		if (tabsEditMode) {
+			return (
+				<div
+					value={selectedTab}
+					onChange={handleChangeTab}
+					style={{
+						backgroundColor: "#222",
+						marginRight: document.body.scrollHeight > document.body.clientHeight ? -10 : 0,
+						overflowX: "scroll",
+						width: "100%",
+					}}
+				>
+					<GridLayout
+						className="layout"
+						rowHeight={48}
+						cols={tabs.length}
+						width={160 * tabs.length}
+						margin={[0, 0]}
+						compactType="horizontal"
+						isResizable={false}
+						maxRows={1}
+						onDragStop={handleEditTab}
+					>
+						{tabs
+							.sort((a, b) => a.pos - b.pos)
+							.map((tab, i) => (
+								<div key={tab.name} data-grid={{ x: i, y: 0, w: 1, h: 1 }}>
+									<Tab label={tab.name} />
+									<Box
+										position="absolute"
+										bottom="0"
+										left="0"
+										width="100%"
+										display="flex"
+										alignItems="center"
+										justifyContent="center"
+									>
+										<i className="icon-drag-handle" />
+									</Box>
+								</div>
+							))}
+					</GridLayout>
+				</div>
+			);
+		}
+
+		return (
+			<Tabs
+				value={selectedTab}
+				onChange={handleChangeTab}
+				variant="scrollable"
+				style={{
+					backgroundColor: "#222",
+					marginRight: document.body.scrollHeight > document.body.clientHeight ? -10 : 0,
+				}}
+			>
+				{tabs
+					.sort((a, b) => a.pos - b.pos)
+					.map(tab => (
+						<Tab key={tab.name} label={tab.name} />
+					))}
+			</Tabs>
+		);
 	}
 
 	function renderWidgets() {
@@ -263,49 +363,7 @@ function Widgets() {
 
 	return (
 		<>
-			{tabs.length > 1 && (
-				<Tabs
-					value={selectedTab}
-					onChange={handleChangeTab}
-					variant="scrollable"
-					style={{
-						backgroundColor: "#222",
-						//marginRight: document.body.scrollHeight > document.body.clientHeight ? -2 : 10,
-					}}
-				>
-					{tabsEditMode ? (
-						<GridLayout
-							className="layout"
-							rowHeight={48}
-							cols={tabs.length}
-							width={160 * tabs.length}
-							margin={[0, 0]}
-							compactType="horizontal"
-							isResizable={false}
-							maxRows={1}
-						>
-							{tabs.map((tab, i) => (
-								<div key={tab.name} data-grid={{ x: i, y: 0, w: 1, h: 1 }}>
-									<Tab label={tab.name} />
-									<Box
-										position="absolute"
-										bottom="0"
-										left="0"
-										width="100%"
-										display="flex"
-										alignItems="center"
-										justifyContent="center"
-									>
-										<i className="icon-drag-handle" />
-									</Box>
-								</div>
-							))}
-						</GridLayout>
-					) : (
-						tabs.map(tab => <Tab key={tab.name} label={tab.name} />)
-					)}
-				</Tabs>
-			)}
+			{renderTabs()}
 			{widgets && widgets.length ? (
 				<ResponsiveGridLayout
 					className="layout"
