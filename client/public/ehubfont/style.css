@@ -140,6 +140,9 @@
 .icon-more:before {
 	content: "\e917";
 }
+.icon-drag-handle:before {
+	content: "\e92b";
+}
 .icon-play:before {
 	content: "\e919";
 }

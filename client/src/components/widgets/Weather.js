@@ -13,7 +13,7 @@ import { weather as styles } from "../../styles/Widgets";
 
 const useStyles = makeStyles(styles);
 
-function Weather({ city, country, lat, lon }) {
+function Weather({ city, country, lat, lon, widgetDimensions }) {
 	const classes = useStyles();
 	const [open, setOpen] = useState(false);
 	const [weather, setWeather] = useState(false);
@@ -44,6 +44,17 @@ function Weather({ city, country, lat, lon }) {
 		return null;
 	}
 
+	function renderMinMaxTemps(day) {
+		return (
+			<Typography variant="caption">
+				<i className="icon-caret-up" />
+				{`${Math.round(day ? day.maxTemp : weather.current.maxTemp)}° `}
+				<i className="icon-caret-down" />
+				{`${Math.round(day ? day.minTemp : weather.current.minTemp)}°`}
+			</Typography>
+		);
+	}
+
 	function renderWindDirection() {
 		const rotation = { transform: `rotate(${weather.current.windDirection}deg)` };
 
@@ -51,6 +62,42 @@ function Weather({ city, country, lat, lon }) {
 			<Tooltip title="Wind Direction/Speed">
 				<i className="icon-arrow-up" style={rotation} />
 			</Tooltip>
+		);
+	}
+
+	function renderWind() {
+		return (
+			<>
+				<Typography variant="caption" className={classes.info}>
+					<Tooltip title="Clouds">
+						<i className="icon-clouds" />
+					</Tooltip>
+					{`${Math.round(weather.current.clouds)}%`}
+				</Typography>
+				<Typography variant="caption" className={classes.info}>
+					{renderWindDirection()}
+					{`${Math.round(weather.current.windSpeed)} m/s`}
+				</Typography>
+			</>
+		);
+	}
+
+	function renderSun(oneByOne) {
+		return (
+			<>
+				<Typography variant="caption" className={classes.info}>
+					<Tooltip title="Sunrise">
+						<i className="icon-sunrise" />
+					</Tooltip>
+					{`${weather.current.sunrise}`}
+				</Typography>
+				<Typography variant="caption" className={classes.info} style={oneByOne && { marginLeft: 15 }}>
+					<Tooltip title="Sunset">
+						<i className="icon-sunset" />
+					</Tooltip>
+					{`${weather.current.sunset}`}
+				</Typography>
+			</>
 		);
 	}
 
@@ -69,23 +116,82 @@ function Weather({ city, country, lat, lon }) {
 				<Tooltip title={day.forecast.description} placement="top">
 					{<img src={day.forecast.image} alt="Forecast" />}
 				</Tooltip>
-				<Typography variant="caption">
-					<i className="icon-caret-up" />
-					{`${Math.round(day.maxTemp)}° `}
-					<i className="icon-caret-down" />
-					{`${Math.round(day.minTemp)}°`}
-				</Typography>
+				{renderMinMaxTemps(day)}
 			</Box>
 		));
 
 		return nextDays;
 	}
 
-	if (!open) return <Loading />;
+	function render1x1() {
+		return (
+			<>
+				<Box display="flex" flexDirection="column" flexGrow={1} className={classes.content}>
+					<Box display="flex">
+						<Box
+							display="flex"
+							flexDirection="column"
+							justifyContent="center"
+							flexGrow={1}
+							style={{ top: -5, position: "relative" }}
+						>
+							<Typography variant="h4">{`${Math.round(weather.current.temp)}°`}</Typography>
+						</Box>
+						<Box display="flex" flexDirection="column" alignItems="flex-end">
+							{renderMinMaxTemps()}
+						</Box>
+					</Box>
+				</Box>
+				<Box display="flex" justifyContent="center" alignItems="center" style={{ top: -15, position: "relative" }}>
+					<Tooltip title={`${city}, ${country}`}>
+						{<img src={weather.current.forecast.image} alt="Forecast" />}
+					</Tooltip>
+				</Box>
+				<Box display="flex" justifyContent="center" alignItems="center" style={{ top: -25, position: "relative" }}>
+					{renderSun(true)}
+				</Box>
+			</>
+		);
+	}
 
-	return (
-		<Zoom in={open}>
-			<Box className={classes.root}>
+	function render1x2() {
+		return (
+			<Box display="flex" flexDirection="column" flexGrow={1} className={classes.content}>
+				<Box display="flex">
+					<Box display="flex" flexDirection="column" justifyContent="center" flexGrow={1}>
+						<Typography variant="h6">{`${city}, ${country}`}</Typography>
+						<Typography variant="subtitle1" className={classes.description}>
+							{weather.current.forecast.description}
+						</Typography>
+					</Box>
+					<Box display="flex" flexDirection="column" alignItems="flex-end">
+						<Typography variant="h4">{`${Math.round(weather.current.temp)}°`}</Typography>
+						{renderMinMaxTemps()}
+					</Box>
+				</Box>
+				<Box display="flex" flexGrow={1}>
+					<Box display="flex" flexDirection="column" justifyContent="center" flexGrow={1}>
+						{renderWind()}
+					</Box>
+					<Box
+						display="flex"
+						justifyContent="center"
+						alignItems="center"
+						style={{ top: -5, position: "relative" }}
+					>
+						{<img src={weather.current.forecast.image} alt="Forecast" />}
+					</Box>
+					<Box display="flex" flexDirection="column" justifyContent="center" alignItems="flex-end" flexGrow={1}>
+						{renderSun()}
+					</Box>
+				</Box>
+			</Box>
+		);
+	}
+
+	function render2x2() {
+		return (
+			<>
 				<Box display="flex" flexDirection="column" flexGrow={1} className={classes.content}>
 					<Box display="flex">
 						<Box display="flex" flexDirection="column" justifyContent="center" flexGrow={1}>
@@ -96,51 +202,44 @@ function Weather({ city, country, lat, lon }) {
 						</Box>
 						<Box display="flex" flexDirection="column" alignItems="flex-end">
 							<Typography variant="h4">{`${Math.round(weather.current.temp)}°`}</Typography>
-							<Typography variant="caption">
-								<i className="icon-caret-up" />
-								{`${Math.round(weather.current.maxTemp)}° `}
-								<i className="icon-caret-down" />
-								{`${Math.round(weather.current.minTemp)}°`}
-							</Typography>
+							{renderMinMaxTemps()}
 							{showFeelsLike()}
 						</Box>
 					</Box>
 					<Box display="flex" flexGrow={1}>
 						<Box display="flex" flexDirection="column" justifyContent="center" flexGrow={1}>
-							<Typography variant="caption" className={classes.info}>
-								<Tooltip title="Clouds">
-									<i className="icon-clouds" />
-								</Tooltip>
-								{`${Math.round(weather.current.clouds)}%`}
-							</Typography>
-							<Typography variant="caption" className={classes.info}>
-								{renderWindDirection()}
-								{`${Math.round(weather.current.windSpeed)} m/s`}
-							</Typography>
+							{renderWind()}
 						</Box>
 						<Box display="flex" justifyContent="center" alignItems="center">
 							{<img src={weather.current.forecast.image} alt="Forecast" />}
 						</Box>
 						<Box display="flex" flexDirection="column" justifyContent="center" alignItems="flex-end" flexGrow={1}>
-							<Typography variant="caption" className={classes.info}>
-								<Tooltip title="Sunrise">
-									<i className="icon-sunrise" />
-								</Tooltip>
-								{`${weather.current.sunrise}`}
-							</Typography>
-							<Typography variant="caption" className={classes.info}>
-								<Tooltip title="Sunset">
-									<i className="icon-sunset" />
-								</Tooltip>
-								{`${weather.current.sunset}`}
-							</Typography>
+							{renderSun()}
 						</Box>
 					</Box>
 				</Box>
 				<Box display="flex" className={classes.nextDays}>
 					{renderNextDays()}
 				</Box>
-			</Box>
+			</>
+		);
+	}
+
+	function renderWeatherWidget() {
+		if (widgetDimensions.h === 2 && widgetDimensions.w >= 2) {
+			return render2x2();
+		} else if (widgetDimensions.h === 1 && widgetDimensions.w >= 2) {
+			return render1x2();
+		}
+
+		return render1x1();
+	}
+
+	if (!open) return <Loading />;
+
+	return (
+		<Zoom in={open}>
+			<Box className={classes.root}>{renderWeatherWidget()}</Box>
 		</Zoom>
 	);
 }
@@ -150,6 +249,7 @@ Weather.propTypes = {
 	country: PropTypes.string.isRequired,
 	lat: PropTypes.number.isRequired,
 	lon: PropTypes.number.isRequired,
+	widgetDimensions: PropTypes.object,
 };
 
 export default Weather;

@@ -90,7 +90,8 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 	}
 
 	const nonAppWidgets = ["notifications", "weather", "crypto", "price"];
-	const hasApp = user.apps
+	// prettier-ignore
+	const hasApp = user.apps && user.apps.length
 		? user.apps.find(app => app.platform === type || nonAppWidgets.includes(type))
 		: nonAppWidgets.includes(type);
 
