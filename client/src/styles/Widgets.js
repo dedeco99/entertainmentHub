@@ -218,14 +218,13 @@ const weather = {
 	root: {
 		display: "flex",
 		flexDirection: "column",
-		backgroundColor: "#212121dd",
 		boxSizing: "border-box",
 		width: "100%",
 		height: "100%",
 	},
 	content: {
-		padding: 16,
-		paddingBottom: 0,
+		padding: 10,
+		height: "100%",
 	},
 	description: {
 		textTransform: "capitalize",

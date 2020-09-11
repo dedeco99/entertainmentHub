@@ -125,21 +125,19 @@ function Weather({ city, country, lat, lon, widgetDimensions }) {
 
 	function render1x1() {
 		return (
-			<>
-				<Box display="flex" flexDirection="column" flexGrow={1} className={classes.content}>
-					<Box display="flex">
-						<Box
-							display="flex"
-							flexDirection="column"
-							justifyContent="center"
-							flexGrow={1}
-							style={{ top: -5, position: "relative" }}
-						>
-							<Typography variant="h4">{`${Math.round(weather.current.temp)}°`}</Typography>
-						</Box>
-						<Box display="flex" flexDirection="column" alignItems="flex-end">
-							{renderMinMaxTemps()}
-						</Box>
+			<Box display="flex" flexDirection="column" flexGrow={1} className={classes.content}>
+				<Box display="flex">
+					<Box
+						display="flex"
+						flexDirection="column"
+						justifyContent="center"
+						flexGrow={1}
+						style={{ top: -5, position: "relative" }}
+					>
+						<Typography variant="h4">{`${Math.round(weather.current.temp)}°`}</Typography>
+					</Box>
+					<Box display="flex" flexDirection="column" alignItems="flex-end">
+						{renderMinMaxTemps()}
 					</Box>
 				</Box>
 				<Box display="flex" justifyContent="center" alignItems="center" style={{ top: -15, position: "relative" }}>
@@ -150,7 +148,7 @@ function Weather({ city, country, lat, lon, widgetDimensions }) {
 				<Box display="flex" justifyContent="center" alignItems="center" style={{ top: -25, position: "relative" }}>
 					{renderSun(true)}
 				</Box>
-			</>
+			</Box>
 		);
 	}
 
