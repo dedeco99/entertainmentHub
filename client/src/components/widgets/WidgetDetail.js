@@ -37,7 +37,7 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 	const { dispatch } = useContext(WidgetContext);
 	const { user } = useContext(UserContext);
 	const [type, setType] = useState("notifications");
-	const [group, setGroup] = useState({ name: "Ungrouped" });
+	const [group, setGroup] = useState({ name: "Ungrouped", pos: widgetGroups.length });
 	const [info, setInfo] = useState({});
 	const [cities, setCities] = useState([]);
 	const [coins, setCoins] = useState([]);
@@ -137,8 +137,10 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 				setSelectedCity({ name: widget.info.city, country: widget.info.country });
 			}
 		} else {
+			const hasUngrouped = widgetGroups.find(g => g.name === "Ungrouped");
+
 			setType("notifications");
-			setGroup({ name: "Ungrouped" });
+			setGroup({ name: "Ungrouped", pos: hasUngrouped ? hasUngrouped.pos : widgetGroups.length });
 			setInfo({});
 			setSelectedCity(null);
 			setSelectedCoins([]);
@@ -176,7 +178,7 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 	}
 
 	function handleChangeGroup(e, value) {
-		setGroup(value);
+		if (value) setGroup(value);
 	}
 
 	function handleAddGroup(e, name) {
