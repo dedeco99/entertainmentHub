@@ -75,6 +75,8 @@ app.post("/api/widgets", token, (req, res) => middleware(req, res, widgets.addWi
 
 app.put("/api/widgets/:id", token, (req, res) => middleware(req, res, widgets.editWidget));
 
+app.put("/api/widgets", token, (req, res) => middleware(req, res, widgets.editWidgets));
+
 app.delete("/api/widgets/:id", token, (req, res) => middleware(req, res, widgets.deleteWidget));
 
 app.get("/api/notifications", token, (req, res) => middleware(req, res, notifications.getNotifications));

@@ -32,20 +32,36 @@ import { widgetDetail as styles } from "../../styles/Widgets";
 
 const useStyles = makeStyles(styles);
 
-function WidgetDetail({ open, widget, widgetRestrictions, onClose }) {
+function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose }) {
 	const classes = useStyles();
 	const { dispatch } = useContext(WidgetContext);
 	const { user } = useContext(UserContext);
 	const [type, setType] = useState("notifications");
+	const [group, setGroup] = useState({ name: "Ungrouped", pos: widgetGroups.length });
 	const [info, setInfo] = useState({});
 	const [cities, setCities] = useState([]);
 	const [coins, setCoins] = useState([]);
 	const [selectedCity, setSelectedCity] = useState(null);
 	const [selectedCoins, setSelectedCoins] = useState([]);
 
+	const addGroupSubject = new Subject();
 	const getCitiesSubject = new Subject();
 	const getCoinsSubject = new Subject();
 	const submitSubject = new Subject();
+
+	useEffect(() => {
+		const subscription = addGroupSubject
+			.pipe(
+				debounceTime(250),
+				filter(name => name),
+			)
+			.subscribe(name => {
+				widgetGroups.push({ name });
+
+				setGroup({ name });
+			});
+		return () => subscription.unsubscribe();
+	});
 
 	useEffect(() => {
 		const subscription = getCitiesSubject
@@ -82,7 +98,7 @@ function WidgetDetail({ open, widget, widgetRestrictions, onClose }) {
 	useEffect(() => {
 		const subscription = submitSubject.pipe(distinctUntilChanged((a, b) => a === b)).subscribe(async () => {
 			if (widget) {
-				const response = await editWidget({ ...widget, info });
+				const response = await editWidget({ ...widget, group, info });
 
 				if (response.status === 200) {
 					dispatch({ type: "EDIT_WIDGET", widget: response.data });
@@ -92,6 +108,7 @@ function WidgetDetail({ open, widget, widgetRestrictions, onClose }) {
 			} else {
 				const response = await addWidget({
 					type,
+					group,
 					width: widgetRestrictions[type].minW,
 					height: widgetRestrictions[type].minH,
 					info,
@@ -110,6 +127,7 @@ function WidgetDetail({ open, widget, widgetRestrictions, onClose }) {
 	useEffect(() => {
 		if (widget) {
 			setType(widget.type);
+			if (widget.group) setGroup(widget.group);
 			setInfo(widget.info);
 
 			if (widget.type === "crypto") {
@@ -119,7 +137,10 @@ function WidgetDetail({ open, widget, widgetRestrictions, onClose }) {
 				setSelectedCity({ name: widget.info.city, country: widget.info.country });
 			}
 		} else {
+			const hasUngrouped = widgetGroups.find(g => g.name === "Ungrouped");
+
 			setType("notifications");
+			setGroup({ name: "Ungrouped", pos: hasUngrouped ? hasUngrouped.pos : widgetGroups.length });
 			setInfo({});
 			setSelectedCity(null);
 			setSelectedCoins([]);
@@ -156,10 +177,26 @@ function WidgetDetail({ open, widget, widgetRestrictions, onClose }) {
 		}
 	}
 
+	function handleChangeGroup(e, value) {
+		if (value) setGroup(value);
+	}
+
+	function handleAddGroup(e, name) {
+		addGroupSubject.next(name);
+	}
+
 	function handleSubmit(e) {
 		e.preventDefault();
 
 		submitSubject.next(info);
+	}
+
+	function renderGroupOptionLabel(option) {
+		return option.name || option;
+	}
+
+	function renderGroupInput(params) {
+		return <Input {...params} label="Widget Group" variant="outlined" fullWidth margin="normal" />;
 	}
 
 	function renderCitiesOptionLabel(option) {
@@ -320,23 +357,37 @@ function WidgetDetail({ open, widget, widgetRestrictions, onClose }) {
 		types = types.filter(t => appTypes.includes(t.value));
 
 		return (
-			<Input
-				label="Type"
-				id="type"
-				value={type}
-				onChange={handleChange}
-				variant="outlined"
-				select
-				fullWidth
-				required
-				disabled={Boolean(widget)}
-			>
-				{types.map(t => (
-					<MenuItem key={t.value} value={t.value}>
-						{t.displayName}
-					</MenuItem>
-				))}
-			</Input>
+			<>
+				<Input
+					label="Type"
+					id="type"
+					value={type}
+					onChange={handleChange}
+					variant="outlined"
+					select
+					fullWidth
+					required
+					disabled={Boolean(widget)}
+				>
+					{types.map(t => (
+						<MenuItem key={t.value} value={t.value}>
+							{t.displayName}
+						</MenuItem>
+					))}
+				</Input>
+				<Autocomplete
+					freeSolo
+					value={group}
+					renderTags={renderTags}
+					options={widgetGroups || []}
+					onChange={handleChangeGroup}
+					onInputChange={handleAddGroup}
+					className={classes.autocomplete}
+					getOptionLabel={renderGroupOptionLabel}
+					renderInput={renderGroupInput}
+					fullWidth
+				/>
+			</>
 		);
 	}
 
@@ -370,6 +421,7 @@ function WidgetDetail({ open, widget, widgetRestrictions, onClose }) {
 WidgetDetail.propTypes = {
 	open: PropTypes.bool.isRequired,
 	widget: PropTypes.object,
+	widgetGroups: PropTypes.array.isRequired,
 	widgetRestrictions: PropTypes.object.isRequired,
 	onClose: PropTypes.func.isRequired,
 };

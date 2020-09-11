@@ -2,8 +2,12 @@ const { Schema, model } = require("mongoose");
 
 const WidgetSchema = new Schema(
 	{
-		user: { type: Schema.ObjectId, ref: "User" },
-		type: { type: String, default: "" },
+		user: { type: Schema.ObjectId, ref: "User", required: true },
+		type: { type: String, default: "", required: true },
+		group: {
+			name: { type: String },
+			pos: { type: Number },
+		},
 		x: { type: Number, default: 0 },
 		y: { type: Number, default: 0 },
 		width: { type: Number, default: null },

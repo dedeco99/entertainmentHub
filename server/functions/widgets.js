@@ -17,7 +17,7 @@ async function getWidgets(event) {
 // eslint-disable-next-line complexity
 async function addWidget(event) {
 	const { body, user } = event;
-	const { type, width, height, info } = body;
+	const { type, group, width, height, info } = body;
 
 	if (!type) return errors.requiredFieldsMissing;
 
@@ -54,6 +54,7 @@ async function addWidget(event) {
 	const widget = new Widget({
 		user: user._id,
 		type,
+		group,
 		width,
 		height,
 		info,
@@ -67,15 +68,35 @@ async function addWidget(event) {
 async function editWidget(event) {
 	const { params, body } = event;
 	const { id } = params;
-	const { info, x, y, width, height } = body;
+	const { group, info, x, y, width, height } = body;
 
 	const widgetExists = await Widget.findOne({ _id: id }).lean();
 
 	if (!widgetExists) return response(404, "Widget doesn't exist");
 
-	const widget = await Widget.findOneAndUpdate({ _id: id }, { info, x, y, width, height }, { new: true }).lean();
+	const widget = await Widget.findOneAndUpdate(
+		{ _id: id },
+		{ group, info, x, y, width, height },
+		{ new: true },
+	).lean();
 
 	return response(200, "EDIT_WIDGET", widget);
+}
+
+async function editWidgets(event) {
+	const { body } = event;
+	const widgets = body;
+
+	const promises = [];
+	for (const widget of widgets) {
+		const { _id, group, info, x, y, width, height } = widget;
+
+		promises.push(Widget.findOneAndUpdate({ _id }, { group, info, x, y, width, height }, { new: true }).lean());
+	}
+
+	const updatedWidgets = await Promise.all(promises);
+
+	return response(200, "EDIT_WIDGETS", updatedWidgets);
 }
 
 async function deleteWidget(event) {
@@ -98,5 +119,6 @@ module.exports = {
 	getWidgets,
 	addWidget,
 	editWidget,
+	editWidgets,
 	deleteWidget,
 };
