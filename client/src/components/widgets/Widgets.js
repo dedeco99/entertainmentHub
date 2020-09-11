@@ -358,7 +358,7 @@ function Widgets() {
 	const actions = [
 		{ name: "Add Widget", icon: <i className="icon-add" />, handleClick: handleWidgetDetailOpen },
 		{ name: "Move & Resize", icon: <i className="icon-expand" />, handleClick: handleEditMode },
-		{ name: "Edit tabs", icon: <i className="icon-expand" />, handleClick: handleTabEditMode },
+		{ name: "Edit tabs", icon: <i className="icon-tabs" />, handleClick: handleTabEditMode },
 	];
 
 	return (
