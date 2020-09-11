@@ -23,6 +23,16 @@ const videoPlayer = {
 		backgroundColor: "#212121DD",
 		cursor: "pointer",
 	},
+	queueList: {
+		overflowX: "hidden",
+		overflowY: "auto",
+	},
+	listItemAction: {
+		top: "50%",
+		right: "16px",
+		position: "absolute",
+		transform: "translateY(-50%)",
+	},
 };
 
 export { videoPlayer };

@@ -1,9 +1,9 @@
 @font-face {
 	font-family: "Ehub-icons";
-	src: url("fonts/Ehub-icons.eot?tvrutn");
-	src: url("fonts/Ehub-icons.eot?tvrutn#iefix") format("embedded-opentype"),
-		url("fonts/Ehub-icons.ttf?tvrutn") format("truetype"), url("fonts/Ehub-icons.woff?tvrutn") format("woff"),
-		url("fonts/Ehub-icons.svg?tvrutn#Ehub-icons") format("svg");
+	src: url("fonts/Ehub-icons.eot?fuk7dd");
+	src: url("fonts/Ehub-icons.eot?fuk7dd#iefix") format("embedded-opentype"),
+		url("fonts/Ehub-icons.ttf?fuk7dd") format("truetype"), url("fonts/Ehub-icons.woff?fuk7dd") format("woff"),
+		url("fonts/Ehub-icons.svg?fuk7dd#Ehub-icons") format("svg");
 	font-weight: normal;
 	font-style: normal;
 	font-display: block;
@@ -136,6 +136,9 @@
 }
 .icon-more:before {
 	content: "\e917";
+}
+.icon-drag-handle:before {
+	content: "\e92b";
 }
 .icon-play:before {
 	content: "\e919";

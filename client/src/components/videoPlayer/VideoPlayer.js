@@ -3,19 +3,20 @@ import ReactPlayer from "react-player";
 import { Rnd } from "react-rnd";
 import { fromEvent } from "rxjs";
 import { debounceTime } from "rxjs/operators";
+import GridLayout from "react-grid-layout";
 
 import {
 	makeStyles,
 	List,
 	ListItem,
 	Box,
-	ListItemSecondaryAction,
 	IconButton,
 	Typography,
 	Paper,
 	Tooltip,
 	Fab,
 	Badge,
+	Divider,
 } from "@material-ui/core";
 
 import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
@@ -120,6 +121,10 @@ function VideoPlayer() {
 		dispatch({ type: "SET_MINIMIZED", minimized: false });
 	}
 
+	function handleOrderChange(layout, oldItem, newItem) {
+		dispatch({ type: "CHANGE_ORDER", videoSource: selectedTab, oldPosition: oldItem.y, newPosition: newItem.y });
+	}
+
 	useEffect(() => {
 		if (!currentVideo && totalVideos === 1) {
 			handleMaximize();
@@ -142,6 +147,12 @@ function VideoPlayer() {
 		);
 	}
 
+	function calcQueueWidth() {
+		const ROW_HEIGHT = 55;
+		const HEADER_HEIGHT = 83;
+		return videos[selectedTab].length * ROW_HEIGHT + HEADER_HEIGHT > height ? 233 : 250;
+	}
+
 	function renderQueueOrChat() {
 		switch (selectedTab) {
 			case "youtube":
@@ -150,32 +161,65 @@ function VideoPlayer() {
 						<Typography textAlign="center" component={Box} p={1}>
 							{`${videos[selectedTab].length} video${videos[selectedTab].length > 1 ? "s" : ""} in queue`}
 						</Typography>
-						<Box flexGrow={1} overflow="auto">
-							<List disablePadding>
-								{videos[selectedTab].map(v => (
-									<ListItem
-										button
-										divider
-										key={v.url}
-										onClick={() => dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: v })}
-										selected={currentVideo.url === v.url}
-									>
-										<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
-											<Typography variant="body1" title={v.name} noWrap>
-												{v.name}
-											</Typography>
-											<Typography variant="caption" title={v.channelName} noWrap>
-												{v.channelName}
-											</Typography>
+						<Divider />
+						<Box flexGrow={1} className={classes.queueList}>
+							<GridLayout
+								className="layout"
+								cols={1}
+								rowHeight={55}
+								width={calcQueueWidth()}
+								margin={[0, 0]}
+								isResizable={false}
+								onDragStart={(layout, oldItem, newItem, placeholder, e) => {
+									e.stopPropagation();
+								}}
+								onDragStop={handleOrderChange}
+								draggableHandle=".handleListItem"
+							>
+								{videos[selectedTab].map((v, i) => (
+									<div key={v.url} data-grid={{ x: 0, y: i, w: 1, h: 1 }}>
+										<Box display="flex" height="100%" width="100%" position="relative">
+											<Box
+												display="flex"
+												className="handleListItem"
+												width="30px"
+												height="100%"
+												alignItems="center"
+												justifyContent="center"
+												style={{ cursor: "grab" }}
+											>
+												<i className="icon-drag-handle" />
+											</Box>
+											<ListItem
+												button
+												disableGutters
+												onClick={() => dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: v })}
+												selected={currentVideo.url === v.url}
+												component={Box}
+												flex={1}
+												pl={1}
+												pr={6}
+												minWidth={0}
+											>
+												<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
+													<Typography variant="body1" title={v.name} noWrap>
+														{v.name}
+													</Typography>
+													<Typography variant="caption" title={v.channelName} noWrap>
+														{v.channelName}
+													</Typography>
+												</Box>
+											</ListItem>
+											<Box className={classes.listItemAction}>
+												<IconButton edge="end" aria-label="delete" onClick={() => handleDeleteVideo(v)}>
+													<i className="icon-delete" />
+												</IconButton>
+											</Box>
 										</Box>
-										<ListItemSecondaryAction>
-											<IconButton edge="end" aria-label="delete" onClick={() => handleDeleteVideo(v)}>
-												<i className="icon-delete" />
-											</IconButton>
-										</ListItemSecondaryAction>
-									</ListItem>
+										<Divider />
+									</div>
 								))}
-							</List>
+							</GridLayout>
 						</Box>
 					</Box>
 				);
