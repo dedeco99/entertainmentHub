@@ -1,5 +1,6 @@
 const { response } = require("../utils/request");
 const errors = require("../utils/errors");
+const { toObjectId } = require("../utils/utils");
 
 const Notification = require("../models/notification");
 const ScheduledNotification = require("../models/scheduledNotification");
@@ -8,7 +9,7 @@ const Episode = require("../models/episode");
 
 async function getNotifications(event) {
 	const { query, user } = event;
-	const { type, history, page } = query;
+	const { type, history, after } = query;
 
 	const searchQuery = {
 		user: user._id,
@@ -17,6 +18,7 @@ async function getNotifications(event) {
 
 	const total = await Notification.countDocuments(searchQuery);
 
+	if (after) searchQuery._id = { $lt: toObjectId(after) };
 	if (type) searchQuery.type = type;
 
 	const sortQuery = { dateToSend: -1, _id: -1 };
@@ -24,7 +26,6 @@ async function getNotifications(event) {
 	const notifications = await Notification.aggregate([
 		{ $match: searchQuery },
 		{ $sort: sortQuery },
-		{ $skip: page ? page * 25 : 0 },
 		{ $limit: 25 },
 	]);
 

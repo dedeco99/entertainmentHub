@@ -66,7 +66,9 @@ function Notifications({ height }) {
 			let filter = pagination.filter.substring(7);
 			filter = filter === "all" ? "" : filter;
 
-			const response = await getNotifications(pagination.page, pagination.history, filter);
+			const after = pagination.page > 0 && notifications[notifications.length - 1]._id;
+
+			const response = await getNotifications(after, pagination.history, filter);
 
 			if (response.status === 200 && isMounted) {
 				// prettier-ignore

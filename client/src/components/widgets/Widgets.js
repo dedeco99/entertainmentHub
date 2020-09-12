@@ -17,7 +17,7 @@ import WidgetDetail from "../widgets/WidgetDetail";
 
 import { WidgetContext } from "../../contexts/WidgetContext";
 
-import { getWidgets, editWidget, editWidgets, deleteWidget } from "../../api/widgets";
+import { getWidgets, editWidgets, deleteWidget } from "../../api/widgets";
 
 import generalStyles from "../../styles/General";
 import { widgets as widgetStyles } from "../../styles/Widgets";
@@ -257,6 +257,7 @@ function Widgets() {
 					style={{
 						backgroundColor: "#222",
 						marginRight: document.body.scrollHeight > document.body.clientHeight ? -10 : 0,
+						borderRadius: 3,
 						overflowX: "scroll",
 						width: "100%",
 					}}
@@ -303,6 +304,7 @@ function Widgets() {
 				style={{
 					backgroundColor: "#222",
 					marginRight: document.body.scrollHeight > document.body.clientHeight ? -10 : 0,
+					borderRadius: 3,
 				}}
 			>
 				{tabs
