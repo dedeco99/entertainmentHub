@@ -1,8 +1,8 @@
 import { api } from "../utils/request";
 
-async function getNotifications(page, history, filter) {
+async function getNotifications(after, history, filter) {
 	let query = "";
-	query += page >= 0 ? `?page=${page}` : "";
+	query += after ? `?after=${after}` : "";
 	query += history ? `${query ? "&" : "?"}history=true` : "";
 	query += filter ? `${query ? "&" : "?"}type=${filter}` : "";
 
@@ -33,8 +33,4 @@ async function deleteNotifications(id) {
 	return res;
 }
 
-export {
-	getNotifications,
-	patchNotifications,
-	deleteNotifications,
-};
+export { getNotifications, patchNotifications, deleteNotifications };
