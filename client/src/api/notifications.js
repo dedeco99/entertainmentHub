@@ -14,20 +14,21 @@ async function getNotifications(after, history, filter) {
 	return res;
 }
 
-async function patchNotifications(id, active) {
+async function patchNotifications(notifications, active) {
 	const res = await api({
 		method: "patch",
-		url: `/api/notifications/${id}`,
-		data: { active },
+		url: "/api/notifications",
+		data: { notifications, active },
 	});
 
 	return res;
 }
 
-async function deleteNotifications(id) {
+async function deleteNotifications(notifications) {
 	const res = await api({
 		method: "delete",
-		url: `/api/notifications/${id}`,
+		url: "/api/notifications",
+		data: { notifications },
 	});
 
 	return res;

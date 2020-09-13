@@ -103,11 +103,11 @@ function Notifications({ height }) {
 		setActionLoading(true);
 
 		const response = pagination.history
-			? await deleteNotifications(selectedNotification._id)
-			: await patchNotifications(selectedNotification._id, false);
+			? await deleteNotifications([selectedNotification._id])
+			: await patchNotifications([selectedNotification._id], false);
 
 		if (response.status === 200) {
-			dispatch({ type: "DELETE_NOTIFICATION", notification: response.data });
+			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
 		}
 
 		setActionLoading(false);
@@ -116,10 +116,10 @@ function Notifications({ height }) {
 	async function handleRestoreNotification() {
 		setActionLoading(true);
 
-		const response = await patchNotifications(selectedNotification._id, true);
+		const response = await patchNotifications([selectedNotification._id], true);
 
 		if (response.status === 200) {
-			dispatch({ type: "DELETE_NOTIFICATION", notification: response.data });
+			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
 		}
 
 		setActionLoading(false);
