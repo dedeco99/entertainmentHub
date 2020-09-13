@@ -99,6 +99,15 @@ function Crypto({ coins, widgetDimensions }) {
 				<Box display="flex" alignItems="center">
 					<Typography variant="h6">{renderPrice(coin.price)}</Typography>
 				</Box>
+				<Box>
+					<Tooltip title="% 1h" style={{ marginRight: 10 }}>
+						{renderPercentages("caption", coin.change1h)}
+					</Tooltip>
+					<Tooltip title="% 24h" style={{ marginRight: 10 }}>
+						{renderPercentages("caption", coin.change24h)}
+					</Tooltip>
+					<Tooltip title="% 7d">{renderPercentages("caption", coin.change7d)}</Tooltip>
+				</Box>
 			</Box>
 		);
 	}
@@ -239,7 +248,10 @@ function Crypto({ coins, widgetDimensions }) {
 	}
 
 	function renderType() {
-		if (widgetDimensions.h === 1 && widgetDimensions.w === 1) {
+		if (
+			(widgetDimensions.h >= 1 && widgetDimensions.w === 1) ||
+			(widgetDimensions.h === 1 && widgetDimensions.w === 2)
+		) {
 			return render1x1(crypto[selectedCoin]);
 		} else if (showListView) {
 			return renderListView();
