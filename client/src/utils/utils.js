@@ -1,9 +1,10 @@
-import moment from "moment";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+
+dayjs.extend(relativeTime);
 
 function formatDate(date, format, relative, originalFormat) {
-	if (relative) return moment(date).fromNow();
-
-	return moment(date, originalFormat).format(format);
+	return relative ? dayjs(date).fromNow() : dayjs(date, originalFormat).format(format);
 }
 
 function formatNumber(number) {
