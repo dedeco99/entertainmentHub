@@ -32,37 +32,26 @@ async function getNotifications(event) {
 	return response(200, "GET_NOTIFICATIONS", { notifications, total });
 }
 
-async function patchNotification(event) {
-	const { params, body } = event;
-	const { id } = params;
-	const { active } = body;
+async function patchNotifications(event) {
+	const { body } = event;
+	const { notifications, active } = body;
 
-	let notification = null;
-	try {
-		notification = await Notification.findOneAndUpdate({ _id: id }, { active }, { new: true });
-	} catch (e) {
-		return errors.notFound;
-	}
+	await Notification.updateMany({ _id: { $in: notifications } }, { active });
 
-	if (!notification) return errors.notFound;
+	const updatedNotifications = await Notification.find({ _id: { $in: notifications } }).lean();
 
-	return response(200, "EDIT_NOTIFICATION", notification);
+	return response(200, "EDIT_NOTIFICATIONS", updatedNotifications);
 }
 
-async function deleteNotification(event) {
-	const { params } = event;
-	const { id } = params;
+async function deleteNotifications(event) {
+	const { body } = event;
+	const { notifications } = body;
 
-	let notification = null;
-	try {
-		notification = await Notification.findOneAndDelete({ _id: id });
-	} catch (e) {
-		return errors.notFound;
-	}
+	await Notification.deleteMany({ _id: { $in: notifications } });
 
-	if (!notification) return errors.notFound;
+	const updatedNotifications = notifications.map(_id => ({ _id }));
 
-	return response(200, "DELETE_NOTIFICATION", notification);
+	return response(200, "DELETE_NOTIFICATION", updatedNotifications);
 }
 
 async function addNotifications(notifications) {
@@ -159,8 +148,8 @@ async function cronjob() {
 
 module.exports = {
 	getNotifications,
-	patchNotification,
-	deleteNotification,
+	patchNotifications,
+	deleteNotifications,
 	addNotifications,
 	scheduleNotifications,
 	cronjob,

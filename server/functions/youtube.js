@@ -8,6 +8,7 @@ const { addNotifications } = require("./notifications");
 
 const App = require("../models/app");
 const Subscription = require("../models/subscription");
+const Notification = require("../models/notification");
 
 async function getAccessToken(user) {
 	const app = await App.findOne({ user: user._id, platform: "youtube" }).lean();
@@ -171,8 +172,8 @@ async function getPlaylists(event) {
 }
 
 async function addToWatchLater(event) {
-	const { params, user } = event;
-	const { id } = params;
+	const { body, user } = event;
+	const { videos } = body;
 
 	if (!user.settings.youtube.watchLaterPlaylist) return errors.requiredFieldsMissing;
 
@@ -186,22 +187,33 @@ async function addToWatchLater(event) {
 		Authorization: `Bearer ${accessToken}`,
 	};
 
-	const body = {
-		snippet: {
-			playlistId: user.settings.youtube.watchLaterPlaylist,
-			resourceId: {
-				videoId: id,
-				kind: "youtube#video",
+	const notificationsToHide = [];
+	for (const video of videos) {
+		const data = {
+			snippet: {
+				playlistId: user.settings.youtube.watchLaterPlaylist,
+				resourceId: {
+					videoId: video.videoId,
+					kind: "youtube#video",
+				},
 			},
-		},
-	};
+		};
 
-	const res = await api({ method: "post", url, data: body, headers });
+		await api({ method: "post", url, data, headers });
 
-	if (res.status === 409) return errors.duplicated;
-	if (res.status === 403) return errors.youtubeForbidden;
+		/*
+		if (res.status === 409) return errors.duplicated;
+		if (res.status === 403) return errors.youtubeForbidden;
+		*/
 
-	return response(200, "WATCH_LATER", true);
+		notificationsToHide.push(video._id);
+	}
+
+	await Notification.updateMany({ _id: { $in: notificationsToHide } }, { active: false });
+
+	const updatedNotifications = await Notification.find({ _id: { $in: notificationsToHide } }).lean();
+
+	return response(200, "WATCH_LATER", updatedNotifications);
 }
 
 async function cronjob() {

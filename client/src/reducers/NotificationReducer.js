@@ -9,7 +9,8 @@ export const notificationReducer = (state, action) => {
 
 			return { ...state, notifications, total: state.total + 1 };
 		case "DELETE_NOTIFICATION":
-			notifications = notifications.filter(n => n._id !== action.notification._id);
+			const notificationIds = action.notifications.map(n => n._id);
+			notifications = notifications.filter(n => !notificationIds.includes(n._id));
 
 			return { ...state, notifications, total: state.total - 1 };
 		default:

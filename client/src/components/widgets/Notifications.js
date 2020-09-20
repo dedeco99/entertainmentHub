@@ -17,6 +17,7 @@ import {
 	Avatar,
 	Link,
 	Badge,
+	Checkbox,
 } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
@@ -57,6 +58,8 @@ function Notifications({ height }) {
 	const [selectedNotification, setSelectedNotification] = useState(null);
 	const [actionLoading, setActionLoading] = useState(false);
 	const [open, setOpen] = useState(false);
+	const [selection, setSelection] = useState(false);
+	const [selectedNotifications, setSelectedNotifications] = useState({});
 	let isMounted = true;
 
 	async function handleGetNotifications() {
@@ -99,27 +102,29 @@ function Notifications({ height }) {
 		return () => (isMounted = false); // eslint-disable-line
 	}, [pagination.filter, pagination.history]); // eslint-disable-line
 
-	async function handleHideNotification() {
+	async function handleHideNotification(notificationsToHide = [selectedNotification._id]) {
 		setActionLoading(true);
 
 		const response = pagination.history
-			? await deleteNotifications(selectedNotification._id)
-			: await patchNotifications(selectedNotification._id, false);
+			? await deleteNotifications(notificationsToHide)
+			: await patchNotifications(notificationsToHide, false);
 
 		if (response.status === 200) {
-			dispatch({ type: "DELETE_NOTIFICATION", notification: response.data });
+			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
+			setSelectedNotifications({});
 		}
 
 		setActionLoading(false);
 	}
 
-	async function handleRestoreNotification() {
+	async function handleRestoreNotification(notificationsToRestore = [selectedNotification._id]) {
 		setActionLoading(true);
 
-		const response = await patchNotifications(selectedNotification._id, true);
+		const response = await patchNotifications(notificationsToRestore, true);
 
 		if (response.status === 200) {
-			dispatch({ type: "DELETE_NOTIFICATION", notification: response.data });
+			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
+			setSelectedNotifications({});
 		}
 
 		setActionLoading(false);
@@ -128,10 +133,11 @@ function Notifications({ height }) {
 	async function handleWatchLaterOption() {
 		setActionLoading(true);
 
-		const response = await addToWatchLater(selectedNotification.info.videoId);
+		const response = await addToWatchLater([selectedNotification.info.videoId]);
 
 		if (response.status === 200 || response.status === 409) {
-			await handleHideNotification();
+			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
+			setSelectedNotifications({});
 		}
 
 		setActionLoading(false);
@@ -181,6 +187,62 @@ function Notifications({ height }) {
 				channelUrl: `https://www.youtube.com/channel/${notification.info.channelId}`,
 			},
 		});
+	}
+
+	function handleToggleSelection() {
+		if (selection) setSelectedNotifications({});
+		setSelection(prev => !prev);
+	}
+
+	function handleSelectNotification(notification) {
+		const { _id, type, info } = notification;
+		const newSelected = { ...selectedNotifications };
+
+		if (_id in newSelected) {
+			delete newSelected[_id];
+		} else {
+			newSelected[_id] = { type, videoId: info.videoId };
+		}
+
+		setSelectedNotifications(newSelected);
+	}
+
+	function handleHideBatch() {
+		handleHideNotification(Object.keys(selectedNotifications));
+	}
+
+	function handleRestoreBatch() {
+		handleRestoreNotification(Object.keys(selectedNotifications));
+	}
+
+	async function handleWatchLaterBatch() {
+		const response = await addToWatchLater(
+			Object.entries(selectedNotifications).map(([key, value]) => ({ _id: key, videoId: value.videoId })),
+		);
+
+		if (response.status === 200 || response.status === 409) {
+			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
+			setSelectedNotifications({});
+		}
+	}
+
+	function renderBatchButtons() {
+		if (Object.keys(selectedNotifications).length) {
+			return pagination.history ? (
+				<>
+					<Button onClick={handleRestoreBatch}>{translate("restore")}</Button>
+					<Button onClick={handleHideBatch}>{translate("delete")}</Button>
+				</>
+			) : (
+				<>
+					<Button onClick={handleHideBatch}>{translate("markAsRead")}</Button>
+					{Object.values(selectedNotifications).every(v => v.type === "youtube") && (
+						<Button onClick={handleWatchLaterBatch}>{translate("watchLater")}</Button>
+					)}
+				</>
+			);
+		}
+		return null;
 	}
 
 	function renderNotificationType(type) {
@@ -313,8 +375,15 @@ function Notifications({ height }) {
 				<AnimatedList>
 					{notifications.map(notification => (
 						<ListItem key={notification._id} divider>
+							{selection && (
+								<Checkbox
+									style={{ marginRight: 10 }}
+									checked={notification._id in selectedNotifications}
+									onChange={() => handleSelectNotification(notification)}
+								/>
+							)}
 							{renderNotificationContent(notification)}
-							{renderNotificationAction(notification)}
+							{!selection && renderNotificationAction(notification)}
 						</ListItem>
 					))}
 				</AnimatedList>
@@ -376,39 +445,46 @@ function Notifications({ height }) {
 						<Badge className={classes.badge} color="secondary" badgeContent={total} max={999} />
 					</Box>
 					<Box display="flex" justifyContent="flex-end">
-						<Button
-							size="small"
-							aria-controls="filter-menu"
-							aria-haspopup="true"
-							onClick={handleClickListItem}
-							endIcon={<i className="icon-filter" />}
-						>
-							{filterOptions[selectedIndex]}
-						</Button>
-						<Menu
-							id="filter-menu"
-							anchorEl={filterAnchorEl}
-							keepMounted
-							open={Boolean(filterAnchorEl)}
-							onClose={handleClose}
-							getContentAnchorEl={null}
-							anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-							transformOrigin={{ vertical: "top", horizontal: "right" }}
-						>
-							{filterOptions.map((option, index) => (
-								<MenuItem
-									key={option}
-									id={`filter-${option.toLowerCase()}`}
-									selected={index === selectedIndex}
-									onClick={event => handleMenuItemClick(event, index)}
+						{selection ? (
+							renderBatchButtons()
+						) : (
+							<>
+								<Button
+									size="small"
+									aria-controls="filter-menu"
+									aria-haspopup="true"
+									onClick={handleClickListItem}
+									endIcon={<i className="icon-filter" />}
 								>
-									{option}
-								</MenuItem>
-							))}
-						</Menu>
-						<IconButton color="primary" onClick={handleToggleHistory}>
-							<i className={`icon-${pagination.history ? "notifications" : "history"}`} />
-						</IconButton>
+									{filterOptions[selectedIndex]}
+								</Button>
+								<Menu
+									id="filter-menu"
+									anchorEl={filterAnchorEl}
+									keepMounted
+									open={Boolean(filterAnchorEl)}
+									onClose={handleClose}
+									getContentAnchorEl={null}
+									anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+									transformOrigin={{ vertical: "top", horizontal: "right" }}
+								>
+									{filterOptions.map((option, index) => (
+										<MenuItem
+											key={option}
+											id={`filter-${option.toLowerCase()}`}
+											selected={index === selectedIndex}
+											onClick={event => handleMenuItemClick(event, index)}
+										>
+											{option}
+										</MenuItem>
+									))}
+								</Menu>
+								<IconButton color="primary" onClick={handleToggleHistory}>
+									<i className={`icon-${pagination.history ? "notifications" : "history"}`} />
+								</IconButton>
+							</>
+						)}
+						<Checkbox checked={selection} onChange={handleToggleSelection} style={{ margin: "3px 0" }} />
 					</Box>
 				</Box>
 				<Box
