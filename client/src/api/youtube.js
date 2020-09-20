@@ -31,10 +31,11 @@ async function getPlaylists(after) {
 	return res;
 }
 
-async function addToWatchLater(id) {
+async function addToWatchLater(videos) {
 	const res = await api({
 		method: "post",
-		url: `/api/youtube/watchlater/${id}`,
+		url: "/api/youtube/watchlater",
+		data: { videos },
 		message: true,
 	});
 
