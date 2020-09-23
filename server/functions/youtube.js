@@ -189,16 +189,21 @@ async function getPlaylistVideos(event) {
 	};
 
 	const res = await api({ method: "get", url, headers });
-	const json = res.data;
+	if (res.status === 200) {
+		const json = res.data;
 
-	const videos = json.items.map(video => ({
-		externalId: video.id,
-		displayName: video.snippet.title,
-		image: video.snippet.thumbnails.default.url,
-		after: json.nextPageToken,
-	}));
+		const videos = json.items.map(video => ({
+			channelName: video.snippet.channelTitle,
+			channelUrl: `https://www.youtube.com/channel/${video.snippet.channelId}`,
+			name: video.snippet.title,
+			thumbnail: video.snippet.thumbnails.default.url,
+			url: `https://www.youtube.com/watch?v=${video.snippet.resourceId.videoId}`,
+			after: json.nextPageToken,
+		}));
 
-	return response(200, "GET_PLAYLIST_VIDEOS", videos);
+		return response(200, "GET_PLAYLIST_VIDEOS", videos);
+	}
+	return response(res.status, "PLAYLIST_NOT_FOUND");
 }
 
 async function addToWatchLater(event) {
