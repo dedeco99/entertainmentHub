@@ -17,6 +17,14 @@ export const videoPlayerReducer = (state, action) => {
 			}
 
 			return { ...state, videos, selectedTab, currentVideo };
+		case "SET_VIDEOS":
+			videos = {
+				...videos,
+				[action.videoSource]: action.videos,
+			};
+			currentVideo = videos[action.videoSource][0];
+
+			return { ...state, videos, currentVideo };
 		case "DELETE_VIDEO":
 			videos = {
 				...videos,
@@ -28,8 +36,12 @@ export const videoPlayerReducer = (state, action) => {
 				const videosBySource = sources.map(source => videos[source].length);
 				const nextTabIndex = videosBySource.findIndex(numberOfVideos => numberOfVideos > 0);
 
-				selectedTab = nextTabIndex >= 0 && sources[nextTabIndex];
-				currentVideo = nextTabIndex >= 0 && videos[selectedTab][0];
+				if (!selectedTab === "youtube-playlists") {
+					selectedTab = nextTabIndex >= 0 && sources[nextTabIndex];
+					currentVideo = nextTabIndex >= 0 && videos[selectedTab][0];
+				} else {
+					currentVideo = null;
+				}
 			} else if (currentVideo.url === action.video.url) {
 				currentVideo = videos[selectedTab][0];
 			}

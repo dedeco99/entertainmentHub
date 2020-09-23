@@ -17,11 +17,19 @@ import {
 	Fab,
 	Badge,
 	Divider,
+	DialogContent,
+	Input,
+	Button,
+	DialogActions,
 } from "@material-ui/core";
+
+import { getPlaylistVideos } from "../../api/youtube";
 
 import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 
 import { videoPlayer as styles } from "../../styles/VideoPlayer";
+
+import { translate } from "../../utils/translations";
 
 const useStyles = makeStyles(styles);
 
@@ -35,6 +43,7 @@ function VideoPlayer() {
 		maxWidth: document.documentElement.clientWidth - 20,
 		maxHeight: document.documentElement.clientHeight - 80,
 	});
+	const [playlistId, setPlaylistId] = useState("");
 
 	const tabs = [
 		{
@@ -44,6 +53,11 @@ function VideoPlayer() {
 		{
 			name: "twitch",
 			icon: "icon-twitch-filled icon-2x",
+		},
+		{
+			name: "youtube-playlists",
+			icon: "icon-youtube-filled icon-2x",
+			showAlways: true,
 		},
 	];
 	const totalVideos = Object.keys(videos)
@@ -68,7 +82,8 @@ function VideoPlayer() {
 
 			if (tab) dispatch({ type: "SET_SELECTED_TAB", selectedTab: tab.name });
 		} else if (selectedTab && !currentVideo) {
-			dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[selectedTab][0] });
+			const tab = tabs.find(t => t.name === selectedTab);
+			if (!tab.showAlways) dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[selectedTab][0] });
 		}
 	}, [selectedTab, videos, currentVideo]); // eslint-disable-line
 
@@ -131,7 +146,10 @@ function VideoPlayer() {
 		}
 	}, [currentVideo, totalVideos]); // eslint-disable-line
 
-	if (!currentVideo || !totalVideos) return null;
+	const tab = tabs.find(t => t.name === selectedTab);
+	if (!tab.showAlways) {
+		if (!currentVideo || !totalVideos) return null;
+	}
 
 	if (minimized) {
 		return (
@@ -153,8 +171,56 @@ function VideoPlayer() {
 		return videos[selectedTab].length * ROW_HEIGHT + HEADER_HEIGHT > height ? 233 : 250;
 	}
 
+	function handleYoutubeLink(e) {
+		const youtubeLink = new URLSearchParams(e.target.value);
+		const playlistID = youtubeLink.get("list");
+
+		setPlaylistId(playlistID);
+	}
+
+	async function handleSubmit(e) {
+		e.preventDefault();
+
+		const response = await getPlaylistVideos(playlistId);
+
+		if (response.status === 200) {
+			dispatch({
+				type: "SET_VIDEOS",
+				videoSource: "youtube-playlists",
+				videos: response.data,
+			});
+		}
+	}
+
 	function renderQueueOrChat() {
 		switch (selectedTab) {
+			case "youtube-playlists":
+				if (videos[selectedTab].length === 0) {
+					return (
+						<Box display="flex" flexDirection="column">
+							<Box textAlign="center">
+								<form onSubmit={handleSubmit}>
+									<DialogContent>
+										<Input
+											type="text"
+											label={translate("name")}
+											margin="normal"
+											variant="outlined"
+											fullWidth
+											onChange={handleYoutubeLink}
+											required
+										/>
+									</DialogContent>
+									<DialogActions>
+										<Button type="submit" variant="contained" color="primary" autoFocus fullWidth>
+											{translate("add")}
+										</Button>
+									</DialogActions>
+								</form>
+							</Box>
+						</Box>
+					);
+				}
 			case "youtube":
 				return (
 					<Box display="flex" flexDirection="column" height="100%" width="250px" className={classes.background}>
@@ -267,7 +333,7 @@ function VideoPlayer() {
 						<Box flex="1" height="100%">
 							<List disablePadding component={Box} height="100%" display="flex" flexDirection="row">
 								{tabs.map(tab => {
-									if (videos[tab.name].length) {
+									if (tab.showAlways || videos[tab.name].length) {
 										return (
 											<ListItem
 												className={classes.horizontalListItem}
@@ -297,7 +363,7 @@ function VideoPlayer() {
 							<ReactPlayer
 								// playing
 								controls
-								url={currentVideo.url}
+								url={currentVideo ? currentVideo.url : null}
 								height="100%"
 								width="100%"
 								onEnded={() => handleDeleteVideo(currentVideo)}
