@@ -1,3 +1,4 @@
+/* eslint-disable complexity */
 export const videoPlayerReducer = (state, action) => {
 	let { videos, x, y, height, width, minimized, selectedTab, currentVideo } = state;
 
@@ -36,14 +37,32 @@ export const videoPlayerReducer = (state, action) => {
 				const videosBySource = sources.map(source => videos[source].length);
 				const nextTabIndex = videosBySource.findIndex(numberOfVideos => numberOfVideos > 0);
 
-				if (!selectedTab === "youtube-playlists") {
+				if (selectedTab === "youtubePlaylists") {
+					currentVideo = null;
+				} else {
 					selectedTab = nextTabIndex >= 0 && sources[nextTabIndex];
 					currentVideo = nextTabIndex >= 0 && videos[selectedTab][0];
-				} else {
-					currentVideo = null;
 				}
 			} else if (currentVideo.url === action.video.url) {
 				currentVideo = videos[selectedTab][0];
+			}
+
+			return { ...state, videos, selectedTab, currentVideo };
+		case "DELETE_VIDEOS":
+			videos = {
+				...videos,
+				[action.videoSource]: [],
+			};
+
+			const sources = Object.keys(videos);
+			const videosBySource = sources.map(source => videos[source].length);
+			const nextTabIndex = videosBySource.findIndex(numberOfVideos => numberOfVideos > 0);
+
+			if (selectedTab === "youtubePlaylists") {
+				currentVideo = null;
+			} else {
+				selectedTab = nextTabIndex >= 0 && sources[nextTabIndex];
+				currentVideo = nextTabIndex >= 0 && videos[selectedTab][0];
 			}
 
 			return { ...state, videos, selectedTab, currentVideo };
