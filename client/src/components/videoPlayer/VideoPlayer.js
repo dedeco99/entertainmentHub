@@ -56,7 +56,7 @@ function VideoPlayer() {
 		},
 		{
 			name: "youtubePlaylists",
-			icon: "icon-youtube-filled icon-2x",
+			icon: "icon-playlist icon-2x",
 			showAlways: true,
 		},
 	];
@@ -340,7 +340,7 @@ function VideoPlayer() {
 						</Box>
 						<Box p={1}>
 							<IconButton size="small" aria-label="delete" onClick={handleMinimize}>
-								<span>{"─"}</span>
+								<i className="icon-minimize" />
 							</IconButton>
 						</Box>
 					</Box>
