@@ -18,7 +18,7 @@ async function fetchEpisodes(series) {
 	const res = await api({ method: "get", url });
 	let json = res.data;
 
-	console.log(`${series.displayNames[0]} - ${res.status} started`);
+	console.log(`${series.displayName} - ${res.status} started`);
 
 	let seasons = [];
 	if (json.seasons) {
@@ -73,7 +73,7 @@ async function fetchEpisodes(series) {
 						});
 					}
 
-					console.log(`${series.displayNames[0]} - S${episode.season_number}E${episode.episode_number} created`);
+					console.log(`${series.displayName} - S${episode.season_number}E${episode.episode_number} created`);
 				} else if (
 					(!episodeExists.image && episode.still_path) ||
 					episodeExists.title !== episode.name ||
@@ -110,7 +110,7 @@ async function fetchEpisodes(series) {
 						),
 					);
 
-					console.log(`${series.displayNames[0]} - S${episode.season_number}E${episode.episode_number} edited`);
+					console.log(`${series.displayName} - S${episode.season_number}E${episode.episode_number} edited`);
 				}
 			}
 		}
@@ -120,7 +120,7 @@ async function fetchEpisodes(series) {
 	if (episodesToUpdate.length) await Promise.all(episodesToUpdate);
 	if (notificationsToAdd.length) await scheduleNotifications(notificationsToAdd);
 
-	console.log(`${series.displayNames[0]} finished`);
+	console.log(`${series.displayName} finished`);
 
 	return true;
 }
@@ -131,8 +131,7 @@ async function cronjob() {
 		{
 			$group: {
 				_id: "$externalId",
-				displayNames: { $push: "$displayName" },
-				users: { $push: "$user" },
+				displayName: { $first: "$displayName" },
 			},
 		},
 		{ $sort: { _id: 1 } },

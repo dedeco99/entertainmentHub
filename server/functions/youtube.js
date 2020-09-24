@@ -257,8 +257,9 @@ async function cronjob() {
 		{
 			$group: {
 				_id: "$externalId",
-				displayName: { $first: "$displayName" },
-				users: { $push: "$user" },
+				users: {
+					$push: { _id: "$user", subscriptionDisplayName: "$displayName", notifications: "$notifications" },
+				},
 			},
 		},
 		{ $sort: { _id: 1 } },
@@ -288,21 +289,23 @@ async function cronjob() {
 
 		if (subscription) {
 			for (const user of subscription.users) {
-				notifications.push({
-					dateToSend: video.published,
-					sent: true,
-					notificationId: `${user}${video.yt_videoId}`,
-					user,
-					type: "youtube",
-					info: {
-						displayName: video.author.name,
-						thumbnail: video.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),
-						duration: videoDurationItem.contentDetails.duration,
-						videoTitle: video.title,
-						videoId: video.yt_videoId,
-						channelId: video.yt_channelId,
-					},
-				});
+				if (user.notifications.active) {
+					notifications.push({
+						dateToSend: video.published,
+						sent: true,
+						notificationId: `${user._id}${video.yt_videoId}`,
+						user,
+						type: "youtube",
+						info: {
+							displayName: user.subscriptionDisplayName,
+							thumbnail: video.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),
+							duration: videoDurationItem.contentDetails.duration,
+							videoTitle: video.title,
+							videoId: video.yt_videoId,
+							channelId: video.yt_channelId,
+						},
+					});
+				}
 			}
 		}
 
