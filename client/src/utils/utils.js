@@ -14,9 +14,20 @@ function formatNumber(number) {
 function formatVideoDuration(duration) {
 	if (!duration || duration === "P0D") return "Live";
 
+	const hasHours = duration.includes("H");
+	const hasMinutes = duration.includes("M");
+	const hasSeconds = duration.includes("S");
+
 	const values = duration.substring(2).slice(0, -1).split(/[HM]/g);
 	for (let i = 1; i < values.length; i++) {
 		if (values[i].length < 2) values[i] = `0${values[i]}`;
+	}
+
+	if (hasHours) {
+		if (!hasMinutes) values.push("00");
+		if (!hasSeconds) values.push("00");
+	} else if (hasMinutes && !hasSeconds) {
+		values.push("00");
 	}
 
 	return values.join(":");
