@@ -35,7 +35,14 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 	useEffect(() => {
 		if (subscription) {
 			setTitle(subscription.displayName);
-			if (subscription.notifications) setNotifications(subscription.notifications);
+			if (subscription.notifications) {
+				setNotifications({
+					...subscription.notifications,
+					watchLaterPlaylist: subscription.notifications.watchLaterPlaylist
+						? subscription.notifications.watchLaterPlaylist
+						: user.settings.youtube.watchLaterPlaylist,
+				});
+			}
 		}
 	}, [subscription]); // eslint-disable-line
 
