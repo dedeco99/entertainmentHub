@@ -31,6 +31,15 @@ async function getPlaylists(after) {
 	return res;
 }
 
+async function getPlaylistVideos(id, after) {
+	const res = await api({
+		method: "get",
+		url: `/api/youtube/playlist/${id}${after ? `?after=${after}` : ""}`,
+	});
+
+	return res;
+}
+
 async function addToWatchLater(videos) {
 	const res = await api({
 		method: "post",
@@ -42,4 +51,4 @@ async function addToWatchLater(videos) {
 	return res;
 }
 
-export { getSubscriptions, getVideos, getPlaylists, addToWatchLater };
+export { getSubscriptions, getVideos, getPlaylists, getPlaylistVideos, addToWatchLater };
