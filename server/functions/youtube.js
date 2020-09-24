@@ -222,11 +222,21 @@ async function addToWatchLater(event) {
 		Authorization: `Bearer ${accessToken}`,
 	};
 
+	const subscriptions = await Subscription.find({
+		user: user._id,
+		platform: "youtube",
+		externalId: { $in: videos.map(v => v.channelId) },
+	}).lean();
+
 	const notificationsToHide = [];
 	for (const video of videos) {
+		const subscription = subscriptions.find(s => s.externalId === video.channelId);
+
 		const data = {
 			snippet: {
-				playlistId: user.settings.youtube.watchLaterPlaylist,
+				playlistId: subscription.notifications.watchLaterPlaylist
+					? subscription.notifications.watchLaterPlaylist
+					: user.settings.youtube.watchLaterPlaylist,
 				resourceId: {
 					videoId: video.videoId,
 					kind: "youtube#video",
