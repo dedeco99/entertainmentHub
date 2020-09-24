@@ -34,7 +34,6 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 
 	useEffect(() => {
 		if (subscription) {
-			console.log(subscription);
 			setTitle(subscription.displayName);
 			if (subscription.notifications) setNotifications(subscription.notifications);
 		}

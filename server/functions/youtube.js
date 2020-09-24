@@ -251,12 +251,15 @@ async function addToWatchLater(event) {
 		if (res.status === 403) return errors.youtubeForbidden;
 		*/
 
-		notificationsToHide.push(video._id);
+		if (video._id) notificationsToHide.push(video._id);
 	}
 
-	await Notification.updateMany({ _id: { $in: notificationsToHide } }, { active: false });
+	let updatedNotifications = [];
+	if (notificationsToHide.length) {
+		await Notification.updateMany({ _id: { $in: notificationsToHide } }, { active: false });
 
-	const updatedNotifications = await Notification.find({ _id: { $in: notificationsToHide } }).lean();
+		updatedNotifications = await Notification.find({ _id: { $in: notificationsToHide } }).lean();
+	}
 
 	return response(200, "WATCH_LATER", updatedNotifications);
 }
@@ -265,10 +268,24 @@ async function cronjob() {
 	const subscriptions = await Subscription.aggregate([
 		{ $match: { platform: "youtube" } },
 		{
+			$lookup: {
+				from: "users",
+				localField: "user",
+				foreignField: "_id",
+				as: "user",
+			},
+		},
+		{ $unwind: "$user" },
+		{
 			$group: {
 				_id: "$externalId",
 				users: {
-					$push: { _id: "$user", subscriptionDisplayName: "$displayName", notifications: "$notifications" },
+					$push: {
+						_id: "$user._id",
+						watchLaterPlaylist: "$user.settings.youtube.watchLaterPlaylist",
+						subscriptionDisplayName: "$displayName",
+						notifications: "$notifications",
+					},
 				},
 			},
 		},
@@ -314,6 +331,13 @@ async function cronjob() {
 							videoId: video.yt_videoId,
 							channelId: video.yt_channelId,
 						},
+					});
+				}
+
+				if (user.notifications.autoAddToWatchLater) {
+					addToWatchLater({
+						user: { _id: user._id, settings: { youtube: { watchLaterPlaylist: user.watchLaterPlaylist } } },
+						body: { videos: [{ videoId: video.yt_videoId, channelId: video.yt_channelId }] },
 					});
 				}
 			}
