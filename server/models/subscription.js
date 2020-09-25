@@ -7,6 +7,13 @@ const SubscriptionSchema = new Schema(
 		externalId: { type: String, default: "", required: true },
 		displayName: { type: String, default: "", required: true },
 		image: { type: String, default: "" },
+		notifications: {
+			active: { type: Boolean, default: true },
+
+			// youtube
+			autoAddToWatchLater: { type: Boolean, default: false },
+			watchLaterPlaylist: { type: String },
+		},
 	},
 	{ timestamps: { createdAt: "_created", updatedAt: "_modified" } },
 );

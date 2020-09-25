@@ -133,7 +133,13 @@ function Notifications({ height }) {
 	async function handleWatchLaterOption() {
 		setActionLoading(true);
 
-		const response = await addToWatchLater([selectedNotification.info.videoId]);
+		const response = await addToWatchLater([
+			{
+				_id: selectedNotification._id,
+				videoId: selectedNotification.info.videoId,
+				channelId: selectedNotification.info.channelId,
+			},
+		]);
 
 		if (response.status === 200 || response.status === 409) {
 			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
@@ -201,7 +207,7 @@ function Notifications({ height }) {
 		if (_id in newSelected) {
 			delete newSelected[_id];
 		} else {
-			newSelected[_id] = { type, videoId: info.videoId };
+			newSelected[_id] = { type, videoId: info.videoId, channelId: info.channelId };
 		}
 
 		setSelectedNotifications(newSelected);
@@ -217,7 +223,11 @@ function Notifications({ height }) {
 
 	async function handleWatchLaterBatch() {
 		const response = await addToWatchLater(
-			Object.entries(selectedNotifications).map(([key, value]) => ({ _id: key, videoId: value.videoId })),
+			Object.entries(selectedNotifications).map(([key, value]) => ({
+				_id: key,
+				videoId: value.videoId,
+				channelId: value.channelId,
+			})),
 		);
 
 		if (response.status === 200 || response.status === 409) {

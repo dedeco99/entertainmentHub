@@ -222,11 +222,21 @@ async function addToWatchLater(event) {
 		Authorization: `Bearer ${accessToken}`,
 	};
 
+	const subscriptions = await Subscription.find({
+		user: user._id,
+		platform: "youtube",
+		externalId: { $in: videos.map(v => v.channelId) },
+	}).lean();
+
 	const notificationsToHide = [];
 	for (const video of videos) {
+		const subscription = subscriptions.find(s => s.externalId === video.channelId);
+
 		const data = {
 			snippet: {
-				playlistId: user.settings.youtube.watchLaterPlaylist,
+				playlistId: subscription.notifications.watchLaterPlaylist
+					? subscription.notifications.watchLaterPlaylist
+					: user.settings.youtube.watchLaterPlaylist,
 				resourceId: {
 					videoId: video.videoId,
 					kind: "youtube#video",
@@ -241,12 +251,15 @@ async function addToWatchLater(event) {
 		if (res.status === 403) return errors.youtubeForbidden;
 		*/
 
-		notificationsToHide.push(video._id);
+		if (video._id) notificationsToHide.push(video._id);
 	}
 
-	await Notification.updateMany({ _id: { $in: notificationsToHide } }, { active: false });
+	let updatedNotifications = [];
+	if (notificationsToHide.length) {
+		await Notification.updateMany({ _id: { $in: notificationsToHide } }, { active: false });
 
-	const updatedNotifications = await Notification.find({ _id: { $in: notificationsToHide } }).lean();
+		updatedNotifications = await Notification.find({ _id: { $in: notificationsToHide } }).lean();
+	}
 
 	return response(200, "WATCH_LATER", updatedNotifications);
 }
@@ -255,10 +268,25 @@ async function cronjob() {
 	const subscriptions = await Subscription.aggregate([
 		{ $match: { platform: "youtube" } },
 		{
+			$lookup: {
+				from: "users",
+				localField: "user",
+				foreignField: "_id",
+				as: "user",
+			},
+		},
+		{ $unwind: "$user" },
+		{
 			$group: {
 				_id: "$externalId",
-				displayName: { $first: "$displayName" },
-				users: { $push: "$user" },
+				users: {
+					$push: {
+						_id: "$user._id",
+						watchLaterPlaylist: "$user.settings.youtube.watchLaterPlaylist",
+						subscriptionDisplayName: "$displayName",
+						notifications: "$notifications",
+					},
+				},
 			},
 		},
 		{ $sort: { _id: 1 } },
@@ -288,21 +316,30 @@ async function cronjob() {
 
 		if (subscription) {
 			for (const user of subscription.users) {
-				notifications.push({
-					dateToSend: video.published,
-					sent: true,
-					notificationId: `${user}${video.yt_videoId}`,
-					user,
-					type: "youtube",
-					info: {
-						displayName: video.author.name,
-						thumbnail: video.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),
-						duration: videoDurationItem.contentDetails.duration,
-						videoTitle: video.title,
-						videoId: video.yt_videoId,
-						channelId: video.yt_channelId,
-					},
-				});
+				if (user.notifications.active) {
+					notifications.push({
+						dateToSend: video.published,
+						sent: true,
+						notificationId: `${user._id}${video.yt_videoId}`,
+						user,
+						type: "youtube",
+						info: {
+							displayName: user.subscriptionDisplayName,
+							thumbnail: video.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),
+							duration: videoDurationItem.contentDetails.duration,
+							videoTitle: video.title,
+							videoId: video.yt_videoId,
+							channelId: video.yt_channelId,
+						},
+					});
+				}
+
+				if (user.notifications.autoAddToWatchLater) {
+					addToWatchLater({
+						user: { _id: user._id, settings: { youtube: { watchLaterPlaylist: user.watchLaterPlaylist } } },
+						body: { videos: [{ videoId: video.yt_videoId, channelId: video.yt_channelId }] },
+					});
+				}
 			}
 		}
 

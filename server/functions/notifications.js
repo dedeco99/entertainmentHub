@@ -111,7 +111,11 @@ async function cronjob() {
 
 		switch (type) {
 			case "tv":
-				const userSeries = await Subscription.find({ platform: "tv", externalId: info.seriesId }).lean();
+				const userSeries = await Subscription.find({
+					platform: "tv",
+					externalId: info.seriesId,
+					"notifications.active": true,
+				}).lean();
 				const episode = await Episode.findOne({
 					seriesId: info.seriesId,
 					season: info.season,
