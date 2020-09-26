@@ -21,6 +21,7 @@ import { getWidgets, editWidgets, deleteWidget } from "../../api/widgets";
 
 import generalStyles from "../../styles/General";
 import { widgets as widgetStyles } from "../../styles/Widgets";
+import { translate } from "../../utils/translations";
 
 const useStyles = makeStyles({ ...generalStyles, ...widgetStyles });
 
@@ -349,7 +350,7 @@ function Widgets() {
 			});
 	}
 
-	if (loading || !tabs.length) {
+	if (loading) {
 		return (
 			<Box className={classes.root}>
 				<Loading />
@@ -386,7 +387,9 @@ function Widgets() {
 				>
 					{renderWidgets()}
 				</ResponsiveGridLayout>
-			) : null}
+			) : (
+				<Box className={classes.root}>{translate("noWidgets")}</Box>
+			)}
 			<WidgetDetail
 				open={openWidgetDetail}
 				widget={selectedWidget}

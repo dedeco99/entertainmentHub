@@ -7,7 +7,6 @@ const widgets = {
 		alignItems: "center",
 		flexDirection: "column",
 		paddingTop: "50%",
-		cursor: "pointer",
 	},
 };
 
