@@ -118,7 +118,7 @@ function Login() {
 										</Box>
 									</Box>
 									{openRegister ? (
-										<Register />
+										<Register onClose={handleHideRegister} />
 									) : (
 										<form onSubmit={handleSubmit}>
 											<Input
