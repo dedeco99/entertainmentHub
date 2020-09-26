@@ -5,6 +5,7 @@ async function register(user) {
 		method: "post",
 		url: "/api/auth/register",
 		data: user,
+		message: true,
 	});
 
 	return res;
@@ -26,8 +27,4 @@ function logout() {
 	window.location.replace("/");
 }
 
-export {
-	register,
-	login,
-	logout,
-};
+export { register, login, logout };

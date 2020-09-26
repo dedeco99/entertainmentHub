@@ -179,6 +179,10 @@ const translations = {
 		en: "You have no notifications",
 		pt: "Não há mais notificações",
 	},
+	noWidgets: {
+		en: "You have no widgets",
+		pt: "Não há widgets",
+	},
 	all: {
 		en: "All",
 		pt: "Tudo",

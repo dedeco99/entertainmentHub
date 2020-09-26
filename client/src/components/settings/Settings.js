@@ -126,10 +126,12 @@ function Settings() {
 				setSettings({ ...settings, browserNotifications: Notification.permission });
 			};
 
-			const response = await getPlaylists();
+			if (apps.youtube.active) {
+				const response = await getPlaylists();
 
-			if (response.status === 200) {
-				setPlaylists(response.data);
+				if (response.status === 200) {
+					setPlaylists(response.data);
+				}
 			}
 		}
 
@@ -285,25 +287,29 @@ function Settings() {
 							}
 							label={translate("browserNotifications")}
 						/>
-						<Divider style={{ marginTop: 20, marginBottom: 20 }} />
-						<Typography variant="h6" style={{ marginBottom: 10 }}>
-							{"Youtube"}
-						</Typography>
-						<Input
-							label="Youtube Watch Later Default Playlist"
-							id="watchLaterPlaylist"
-							value={settings.youtube ? settings.youtube.watchLaterPlaylist : ""}
-							onChange={handleChange}
-							variant="outlined"
-							select
-							fullWidth
-						>
-							{playlists.map(p => (
-								<MenuItem key={p.externalId} value={p.externalId}>
-									{p.displayName}
-								</MenuItem>
-							))}
-						</Input>
+						{apps.youtube.active && (
+							<>
+								<Divider style={{ marginTop: 20, marginBottom: 20 }} />
+								<Typography variant="h6" style={{ marginBottom: 10 }}>
+									{"Youtube"}
+								</Typography>
+								<Input
+									label="Youtube Watch Later Default Playlist"
+									id="watchLaterPlaylist"
+									value={settings.youtube ? settings.youtube.watchLaterPlaylist : ""}
+									onChange={handleChange}
+									variant="outlined"
+									select
+									fullWidth
+								>
+									{playlists.map(p => (
+										<MenuItem key={p.externalId} value={p.externalId}>
+											{p.displayName}
+										</MenuItem>
+									))}
+								</Input>
+							</>
+						)}
 					</FormControl>
 					<Button variant="contained" onClick={handleSubmitSettings}>
 						{translate("save")}
