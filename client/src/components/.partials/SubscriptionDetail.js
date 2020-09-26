@@ -28,7 +28,7 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 	const [notifications, setNotifications] = useState({
 		active: true,
 		autoAddToWatchLater: false,
-		watchLaterPlaylist: user.settings.youtube.watchLaterPlaylist,
+		watchLaterPlaylist: user.settings.youtube && user.settings.youtube.watchLaterPlaylist,
 	});
 	const [playlists, setPlaylists] = useState([]);
 
@@ -40,7 +40,7 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 					...subscription.notifications,
 					watchLaterPlaylist: subscription.notifications.watchLaterPlaylist
 						? subscription.notifications.watchLaterPlaylist
-						: user.settings.youtube.watchLaterPlaylist,
+						: user.settings.youtube && user.settings.youtube.watchLaterPlaylist,
 				});
 			}
 		}
@@ -48,10 +48,14 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 
 	useEffect(() => {
 		async function fetchData() {
-			const response = await getPlaylists();
+			const hasYoutube = user.apps.find(app => app.platform === "youtube");
 
-			if (response.status === 200) {
-				setPlaylists(response.data);
+			if (hasYoutube) {
+				const response = await getPlaylists();
+
+				if (response.status === 200) {
+					setPlaylists(response.data);
+				}
 			}
 		}
 

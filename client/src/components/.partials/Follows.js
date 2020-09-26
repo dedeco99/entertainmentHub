@@ -173,10 +173,11 @@ function Follows({ open, platform, onClose }) {
 				{follows &&
 					follows.map(follow => {
 						const isSubscription = subscriptions.map(s => s.externalId).includes(follow.externalId);
+						const isChecked = checkedFollows.find(f => f.externalId === follow.externalId);
 						const labelId = `checkbox-list-secondary-label-${follow.externalId}`;
 
 						return (
-							<ListItem key={follow.displayName} button onClick={() => handleFollowCheckbox(follow.externalId)}>
+							<ListItem key={follow.externalId} button onClick={() => handleFollowCheckbox(follow.externalId)}>
 								<ListItemAvatar>
 									<Avatar alt={follow.title} src={follow.image} />
 								</ListItemAvatar>
@@ -188,7 +189,7 @@ function Follows({ open, platform, onClose }) {
 												color="primary"
 												edge="end"
 												onChange={() => handleFollowCheckbox(follow.externalId)}
-												checked={Boolean(checkedFollows.find(f => f.externalId === follow.externalId))}
+												checked={Boolean(isChecked)}
 												inputProps={{ "aria-labelledby": labelId }}
 											/>
 										</ListItemSecondaryAction>
@@ -205,9 +206,7 @@ function Follows({ open, platform, onClose }) {
 												color="primary"
 												edge="end"
 												onChange={() => handleFollowCheckbox(follow.externalId)}
-												checked={
-													isSubscription || Boolean(checkedFollows.find(f => f.externalId === follow.externalId))
-												}
+												checked={isSubscription || Boolean(isChecked)}
 												inputProps={{ "aria-labelledby": labelId }}
 												disabled={isSubscription}
 											/>
