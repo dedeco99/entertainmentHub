@@ -28,6 +28,8 @@ function formatVideoDuration(duration) {
 		if (!hasSeconds) values.push("00");
 	} else if (hasMinutes && !hasSeconds) {
 		values.push("00");
+	} else if (hasSeconds && !hasMinutes) {
+		values.unshift("00");
 	}
 
 	return values.join(":");
