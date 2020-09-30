@@ -84,31 +84,19 @@ async function getStreams(event) {
 }
 
 async function getFollows(event) {
-	const { params, query, user } = event;
-	const { type } = params;
-	const { filter, after } = query;
+	const { query, user } = event;
+	const { after } = query;
 
 	const accessToken = await getAccessToken(user, "refresh_token");
 
 	if (accessToken.status === 401) return errors.twitchRefreshToken;
 
-	let url = null;
-	switch (type) {
-		case "mine":
-			url = "https://api.twitch.tv/helix/users";
-			break;
-		case "search":
-			url = `https://api.twitch.tv/helix/search/channels?query=${filter}`;
-			break;
-		default:
-			url = "https://api.twitch.tv/helix/users";
-			break;
-	}
-
 	const headers = {
 		"Client-ID": process.env.twitchClientId,
 		Authorization: `Bearer ${accessToken}`,
 	};
+
+	let url = "https://api.twitch.tv/helix/users";
 
 	let res = await api({ method: "get", url, headers });
 	let json = res.data;
@@ -144,6 +132,35 @@ async function getFollows(event) {
 			})
 			.sort((a, b) => (a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1));
 	}
+
+	return response(200, "GET_CHANNELS", channels);
+}
+
+async function getSearch(event) {
+	const { query, user } = event;
+	const { filter, after } = query;
+
+	const accessToken = await getAccessToken(user, "refresh_token");
+
+	if (accessToken.status === 401) return errors.twitchRefreshToken;
+
+	const headers = {
+		"Client-ID": process.env.twitchClientId,
+		Authorization: `Bearer ${accessToken}`,
+	};
+
+	let url = `https://api.twitch.tv/helix/search/channels?query=${filter}`;
+	if (after) url += `&after=${after}`;
+
+	const res = await api({ method: "get", url, headers });
+	const json = res.data;
+
+	const channels = json.data.map(follow => ({
+		externalId: follow.id,
+		displayName: follow.display_name,
+		image: follow.thumbnail_url,
+		after: json.pagination.cursor,
+	}));
 
 	return response(200, "GET_CHANNELS", channels);
 }
@@ -184,4 +201,5 @@ async function testWebhooks(accessToken) {
 module.exports = {
 	getStreams,
 	getFollows,
+	getSearch,
 };
