@@ -60,6 +60,9 @@ function Notifications({ height }) {
 	const [open, setOpen] = useState(false);
 	const [selection, setSelection] = useState(false);
 	const [selectedNotifications, setSelectedNotifications] = useState({});
+	const [loadingBatchWatchLater, setLoadingBatchWatchLater] = useState(false);
+	const [loadingBatchDelete, setLoadingBatchDelete] = useState(false);
+	const [loadingBatchRestore, setLoadingBatchRestore] = useState(false);
 	let isMounted = true;
 
 	async function handleGetNotifications() {
@@ -213,15 +216,20 @@ function Notifications({ height }) {
 		setSelectedNotifications(newSelected);
 	}
 
-	function handleHideBatch() {
-		handleHideNotification(Object.keys(selectedNotifications));
+	async function handleHideBatch() {
+		setLoadingBatchDelete(true);
+		await handleHideNotification(Object.keys(selectedNotifications));
+		setLoadingBatchDelete(false);
 	}
 
-	function handleRestoreBatch() {
-		handleRestoreNotification(Object.keys(selectedNotifications));
+	async function handleRestoreBatch() {
+		setLoadingBatchRestore(true);
+		await handleRestoreNotification(Object.keys(selectedNotifications));
+		setLoadingBatchRestore(false);
 	}
 
 	async function handleWatchLaterBatch() {
+		setLoadingBatchWatchLater(true);
 		const response = await addToWatchLater(
 			Object.entries(selectedNotifications).map(([key, value]) => ({
 				_id: key,
@@ -234,20 +242,29 @@ function Notifications({ height }) {
 			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
 			setSelectedNotifications({});
 		}
+		setLoadingBatchWatchLater(false);
 	}
 
 	function renderBatchButtons() {
 		if (Object.keys(selectedNotifications).length) {
 			return pagination.history ? (
 				<>
-					<Button onClick={handleRestoreBatch}>{translate("restore")}</Button>
-					<Button onClick={handleHideBatch}>{translate("delete")}</Button>
+					{loadingBatchRestore ? (
+						<Loading />
+					) : (
+						<Button onClick={handleRestoreBatch}>{translate("restore")}</Button>
+					)}
+					{loadingBatchDelete ? <Loading /> : <Button onClick={handleHideBatch}>{translate("delete")}</Button>}
 				</>
 			) : (
 				<>
-					<Button onClick={handleHideBatch}>{translate("markAsRead")}</Button>
-					{Object.values(selectedNotifications).every(v => v.type === "youtube") && (
-						<Button onClick={handleWatchLaterBatch}>{translate("watchLater")}</Button>
+					{loadingBatchDelete ? <Loading /> : <Button onClick={handleHideBatch}>{translate("markAsRead")}</Button>}
+					{loadingBatchWatchLater ? (
+						<Loading />
+					) : (
+						Object.values(selectedNotifications).every(v => v.type === "youtube") && (
+							<Button onClick={handleWatchLaterBatch}>{translate("watchLater")}</Button>
+						)
 					)}
 				</>
 			);
@@ -452,7 +469,16 @@ function Notifications({ height }) {
 						<Typography variant="subtitle1">{translate("notifications")}</Typography>
 					</Box>
 					<Box display="flex" flexGrow={1}>
-						<Badge className={classes.badge} color="secondary" badgeContent={total} max={999} />
+						{selection ? (
+							<Badge
+								className={classes.badge}
+								color="secondary"
+								badgeContent={Object.keys(selectedNotifications).length}
+								max={999}
+							/>
+						) : (
+							<Badge className={classes.badge} color="secondary" badgeContent={total} max={999} />
+						)}
 					</Box>
 					<Box display="flex" justifyContent="flex-end">
 						{selection ? (
