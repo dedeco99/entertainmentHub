@@ -129,7 +129,9 @@ app.post("/api/youtube/watchlater", token, (req, res) => middleware(req, res, yo
 
 app.get("/api/twitch/streams", token, (req, res) => middleware(req, res, twitch.getStreams));
 
-app.get("/api/twitch/follows/:type?", token, (req, res) => middleware(req, res, twitch.getFollows));
+app.get("/api/twitch/follows/mine", token, (req, res) => middleware(req, res, twitch.getFollows));
+
+app.get("/api/twitch/follows/search", token, (req, res) => middleware(req, res, twitch.getSearch));
 
 /*
 app.get("/api/twitch/games/", token, (req, res) => middleware(req, res, twitch.getGames));

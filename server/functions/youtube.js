@@ -316,30 +316,24 @@ async function cronjob() {
 
 		if (subscription) {
 			for (const user of subscription.users) {
-				if (user.notifications.active) {
-					notifications.push({
-						dateToSend: video.published,
-						sent: true,
-						notificationId: `${user._id}${video.yt_videoId}`,
-						user,
-						type: "youtube",
-						info: {
-							displayName: user.subscriptionDisplayName,
-							thumbnail: video.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),
-							duration: videoDurationItem.contentDetails.duration,
-							videoTitle: video.title,
-							videoId: video.yt_videoId,
-							channelId: video.yt_channelId,
-						},
-					});
-				}
-
-				if (user.notifications.autoAddToWatchLater) {
-					addToWatchLater({
-						user: { _id: user._id, settings: { youtube: { watchLaterPlaylist: user.watchLaterPlaylist } } },
-						body: { videos: [{ videoId: video.yt_videoId, channelId: video.yt_channelId }] },
-					});
-				}
+				notifications.push({
+					active: user.notifications.active,
+					dateToSend: video.published,
+					sent: true,
+					notificationId: `${user._id}${video.yt_videoId}`,
+					user: user._id,
+					type: "youtube",
+					info: {
+						displayName: user.subscriptionDisplayName,
+						thumbnail: video.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),
+						duration: videoDurationItem.contentDetails.duration,
+						videoTitle: video.title,
+						videoId: video.yt_videoId,
+						channelId: video.yt_channelId,
+						watchLaterPlaylist: user.watchLaterPlaylist,
+						autoAddToWatchLater: user.notifications.autoAddToWatchLater,
+					},
+				});
 			}
 		}
 
