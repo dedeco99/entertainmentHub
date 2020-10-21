@@ -105,7 +105,7 @@ function Widgets() {
 	const [rowHeight, setRowHeight] = useState(150);
 	const [layouts, setLayouts] = useState({});
 	const [selectedWidget, setSelectedWidget] = useState(null);
-	const [tabs, setTabs] = useState([]);
+	const [tabs, setTabs] = useState([{ name: "Ungrouped" }]);
 	const [selectedTab, setSelectedTab] = useState(0);
 	const [tabsEditMode, setTabsEditMode] = useState(false);
 
