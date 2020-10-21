@@ -12,7 +12,7 @@ export const notificationReducer = (state, action) => {
 			const notificationIds = action.notifications.map(n => n._id);
 			notifications = notifications.filter(n => !notificationIds.includes(n._id));
 
-			return { ...state, notifications, total: state.total - 1 };
+			return { ...state, notifications, total: state.total - action.notifications.length };
 		default:
 			return state;
 	}
