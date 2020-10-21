@@ -1,8 +1,6 @@
 const { response } = require("../utils/request");
 const { toObjectId } = require("../utils/utils");
 
-const { addToWatchLater } = require("./youtube");
-
 const Notification = require("../models/notification");
 const ScheduledNotification = require("../models/scheduledNotification");
 const Subscription = require("../models/subscription");
@@ -81,6 +79,8 @@ async function addNotifications(notifications) {
 			}
 
 			if (info.autoAddToWatchLater) {
+				const { addToWatchLater } = require("./youtube"); //eslint-disable-line
+
 				addToWatchLater({
 					user: { _id: user, settings: { youtube: { watchLaterPlaylist: info.watchLaterPlaylist } } },
 					body: { videos: [{ videoId: info.videoId, channelId: info.channelId }] },
