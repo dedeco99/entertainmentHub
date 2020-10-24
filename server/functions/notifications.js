@@ -60,17 +60,18 @@ async function addNotifications(notifications) {
 		const notificationExists = await Notification.findOne({ user, type, notificationId }).lean();
 
 		if (!notificationExists) {
+			const newNotification = new Notification({
+				active,
+				dateToSend,
+				notificationId,
+				user,
+				type,
+				info,
+			});
+
+			await newNotification.save();
+
 			if (active) {
-				const newNotification = new Notification({
-					dateToSend,
-					notificationId,
-					user,
-					type,
-					info,
-				});
-
-				await newNotification.save();
-
 				if (global.sockets[user]) {
 					for (const socket of global.sockets[user]) {
 						socket.emit("notification", newNotification);
