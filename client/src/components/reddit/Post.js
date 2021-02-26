@@ -124,6 +124,17 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 				/>
 			);
 			expandedContent = content;
+		} else if (post.url.includes("streamable")) {
+			content = (
+				<CardMedia
+					component="iframe"
+					src="https://streamable.com/e/c2h6di"
+					className={classes.media}
+					frameBorder={0}
+					allowFullScreen
+				/>
+			);
+			expandedContent = content;
 		} else {
 			isMedia = false;
 			content = formatTextPost(post);
