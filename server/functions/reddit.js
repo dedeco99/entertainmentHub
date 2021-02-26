@@ -63,7 +63,7 @@ function formatResponse(json) {
 			score: data.score,
 			comments: data.num_comments,
 			crossposts: data.num_crossposts,
-			flairs: data.link_flair_richtext.map(flair => flair.t).filter(flair => flair),
+			flairs: data.link_flair_richtext.map(flair => flair.t).filter(flair => flair && flair !== " "),
 			author: data.author,
 			stickied: data.stickied,
 			domain: data.domain,
