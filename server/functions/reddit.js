@@ -45,12 +45,18 @@ function formatResponse(json) {
 
 		let videoHeight = null;
 		let videoPreview = null;
+		let gallery = null;
 		if (data.media && data.media.oembed) {
 			videoHeight = data.media.oembed.height;
 		} else if (data.preview && data.preview.images && data.preview.images[0].resolutions) {
 			const resolutions = data.preview.images[0].resolutions;
 			if (resolutions[resolutions.length - 1]) {
 				videoPreview = resolutions[resolutions.length - 1].url;
+			}
+		} else if (data.url.includes("https://www.reddit.com/gallery")) {
+			gallery = [];
+			for (const image in data.media_metadata) {
+				gallery.push(data.media_metadata[image].s.u.replace(/amp;/g, ""));
 			}
 		}
 
@@ -70,6 +76,7 @@ function formatResponse(json) {
 			url: data.url,
 			thumbnail: data.thumbnail,
 			text: sanitizeHtml(data.selftext_html),
+			gallery,
 			redditVideo,
 			videoHeight,
 			videoPreview,

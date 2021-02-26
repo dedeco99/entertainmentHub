@@ -23,6 +23,7 @@ const useStyles = makeStyles(styles);
 function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, customStyles }) {
 	const classes = useStyles({ inList });
 	const [expandedView, setExpandedView] = useState(false);
+	const [galleryIndex, setGalleryIndex] = useState(0);
 
 	function handleCloseExpandedView() {
 		setExpandedView(false);
@@ -62,6 +63,16 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 				<CardMedia component="img" src={post.url} className={classes.media} onClick={handleOpenExpandedView} />
 			);
 			expandedContent = <img src={post.url} alt={post.url} />;
+		} else if (post.gallery) {
+			content = (
+				<CardMedia
+					component="img"
+					src={post.gallery[galleryIndex]}
+					className={classes.media}
+					onClick={handleOpenExpandedView}
+				/>
+			);
+			expandedContent = <img src={post.gallery[0]} alt={post.gallery[0]} />;
 		} else if (post.domain === "gfycat.com") {
 			content = (
 				<CardMedia
