@@ -40,7 +40,7 @@ function formatResponse(json) {
 
 		let redditVideo = null;
 		if (data.media && data.media.reddit_video) {
-			redditVideo = data.media.reddit_video.fallback_url;
+			redditVideo = data.media.reddit_video.dash_url;
 		}
 
 		let videoHeight = null;

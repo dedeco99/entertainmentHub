@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
+import ReactPlayer from "react-player";
 
 import {
 	makeStyles,
@@ -117,7 +118,8 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 			);
 			expandedContent = content;
 		} else if (post.domain === "v.redd.it") {
-			content = <CardMedia component="video" src={post.redditVideo} className={classes.media} controls />;
+			//content = <CardMedia component="video" src={post.redditVideo} className={classes.media} controls />;
+			content = <ReactPlayer controls url={post.redditVideo} />;
 			expandedContent = content;
 		} else if (post.domain === "youtube.com" || post.domain === "youtu.be") {
 			const videoId = post.url.includes("?v=")
