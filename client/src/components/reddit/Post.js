@@ -119,7 +119,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 			expandedContent = content;
 		} else if (post.domain === "v.redd.it") {
 			//content = <CardMedia component="video" src={post.redditVideo} className={classes.media} controls />;
-			content = <ReactPlayer controls url={post.redditVideo} />;
+			content = <ReactPlayer controls url={`https://cors-anywhere.herokuapp.com/${post.redditVideo}`} width='100%' height='100%' className={classes.media} />;
 			expandedContent = content;
 		} else if (post.domain === "youtube.com" || post.domain === "youtu.be") {
 			const videoId = post.url.includes("?v=")
