@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import {
@@ -14,6 +14,8 @@ import {
 	Paper,
 } from "@material-ui/core";
 
+import { getComments } from "../../api/reddit";
+
 import { formatDate, htmlEscape } from "../../utils/utils";
 
 import { reddit as styles } from "../../styles/Widgets";
@@ -23,6 +25,14 @@ const useStyles = makeStyles(styles);
 function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, customStyles }) {
 	const classes = useStyles({ inList });
 	const [expandedView, setExpandedView] = useState(false);
+
+	useEffect(() => {
+		async function fetchData() {
+			await getComments(post.subreddit, post.id);
+		}
+
+		fetchData();
+	}, []); // eslint-disable-line
 
 	function handleCloseExpandedView() {
 		setExpandedView(false);

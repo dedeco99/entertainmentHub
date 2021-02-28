@@ -174,6 +174,61 @@ async function getPosts(event) {
 	return response(200, "GET_REDDIT_POSTS", posts);
 }
 
+async function getComments(event) {
+	const { params, user } = event;
+	const { subreddit, post } = params;
+
+	const accessToken = await getAccessToken(user);
+
+	if (accessToken.status === 401) return errors.redditRefreshToken;
+
+	const url = `https://oauth.reddit.com/r/${subreddit}/comments/${post}?depth=2&limit=50&sort=confidence`;
+
+	const headers = {
+		"User-Agent": "Entertainment-Hub by dedeco99",
+		Authorization: `bearer ${accessToken}`,
+	};
+
+	const res = await api({ method: "get", url, headers });
+
+	if (res.status === 403) return errors.redditForbidden;
+	if (res.status === 404) return errors.redditNotFound;
+
+	const json = res.data;
+
+	const comments = [];
+
+	for (const comment of json[1].data.children) {
+		const data = comment.data;
+
+		const formattedComment = {
+			id: data.id,
+			author: data.author,
+			score: data.score,
+			gilded: data.gilded,
+			text: data.body,
+			edited: data.edited,
+			created: data.created_utc,
+		};
+
+		if (data.replies) {
+			formattedComment.replies = data.replies.data.children.map(r => ({
+				id: r.data.id,
+				author: r.data.author,
+				score: r.data.score,
+				gilded: r.data.gilded,
+				text: r.data.body,
+				edited: r.data.edited,
+				created: r.data.created_utc,
+			}));
+		}
+
+		comments.push(formattedComment);
+	}
+
+	return response(200, "GET_REDDIT_COMMENTS", comments);
+}
+
 async function getSearch(event) {
 	const { params, query, user } = event;
 	const { subreddit, search } = params;
@@ -206,5 +261,6 @@ module.exports = {
 	isSubreddit,
 	getSubreddits,
 	getPosts,
+	getComments,
 	getSearch,
 };
