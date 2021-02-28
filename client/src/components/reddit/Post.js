@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import ReactPlayer from "react-player";
 
@@ -25,6 +25,10 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 	const classes = useStyles({ inList });
 	const [expandedView, setExpandedView] = useState(false);
 	const [galleryIndex, setGalleryIndex] = useState(0);
+
+	useEffect(() => {
+		setGalleryIndex(0);
+	}, [post]);
 
 	function handleCloseExpandedView() {
 		setExpandedView(false);
@@ -66,14 +70,24 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 			expandedContent = <img src={post.url} alt={post.url} />;
 		} else if (post.gallery) {
 			content = (
-				<CardMedia
-					component="img"
-					src={post.gallery[galleryIndex]}
-					className={classes.media}
-					onClick={handleOpenExpandedView}
-				/>
+				<div>
+					<CardMedia
+						component="img"
+						src={post.gallery[galleryIndex]}
+						className={classes.media}
+						onClick={handleOpenExpandedView}
+					/>
+					{galleryIndex > 0 && 
+					(<Box left="10px" style={{transform: "translateY(-50%)"}} className={classes.galleryBtn} onClick={() => setGalleryIndex(galleryIndex - 1)}>
+						<i className="icon-arrow-left icon-2x" />
+					</Box>)}
+					{galleryIndex < post.gallery.length-1 && 
+					(<Box right="10px" className={classes.galleryBtn} onClick={() => setGalleryIndex(galleryIndex + 1)}>
+						<i className="icon-arrow-right icon-2x" />
+					</Box>)}
+				</div>
 			);
-			expandedContent = <img src={post.gallery[0]} alt={post.gallery[0]} />;
+			expandedContent = content;
 		} else if (post.domain === "gfycat.com") {
 			content = (
 				<CardMedia
