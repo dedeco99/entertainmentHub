@@ -54,6 +54,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 		);
 	}
 
+	// eslint-disable-next-line complexity
 	function formatContent() {
 		post.url = post.url.slice(-1) === "/" ? post.url.slice(0, -1) : post.url; // Remove last backslash
 		post.url = post.url.replace("&amp;t", ""); // Broken youtube link
@@ -77,14 +78,21 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 						className={classes.media}
 						onClick={handleOpenExpandedView}
 					/>
-					{galleryIndex > 0 && 
-					(<Box left="10px" style={{transform: "translateY(-50%)"}} className={classes.galleryBtn} onClick={() => setGalleryIndex(galleryIndex - 1)}>
-						<i className="icon-arrow-left icon-2x" />
-					</Box>)}
-					{galleryIndex < post.gallery.length-1 && 
-					(<Box right="10px" className={classes.galleryBtn} onClick={() => setGalleryIndex(galleryIndex + 1)}>
-						<i className="icon-arrow-right icon-2x" />
-					</Box>)}
+					{galleryIndex > 0 && (
+						<Box
+							left="10px"
+							style={{ transform: "translateY(-50%)" }}
+							className={classes.galleryBtn}
+							onClick={() => setGalleryIndex(galleryIndex - 1)}
+						>
+							<i className="icon-arrow-left icon-2x" />
+						</Box>
+					)}
+					{galleryIndex < post.gallery.length - 1 && (
+						<Box right="10px" className={classes.galleryBtn} onClick={() => setGalleryIndex(galleryIndex + 1)}>
+							<i className="icon-arrow-right icon-2x" />
+						</Box>
+					)}
 				</div>
 			);
 			expandedContent = content;
@@ -133,7 +141,15 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 			expandedContent = content;
 		} else if (post.domain === "v.redd.it") {
 			//content = <CardMedia component="video" src={post.redditVideo} className={classes.media} controls />;
-			content = <ReactPlayer controls url={`https://cors-anywhere.herokuapp.com/${post.redditVideo}`} width='100%' height='100%' className={classes.media} />;
+			content = (
+				<ReactPlayer
+					controls
+					url={`https://red-mode-fbb6.dedeco99.workers.dev/${post.redditVideo}`}
+					width="100%"
+					height="100%"
+					className={classes.media}
+				/>
+			);
 			expandedContent = content;
 		} else if (post.domain === "youtube.com" || post.domain === "youtu.be") {
 			const videoId = post.url.includes("?v=")
