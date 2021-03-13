@@ -40,17 +40,23 @@ function formatResponse(json) {
 
 		let redditVideo = null;
 		if (data.media && data.media.reddit_video) {
-			redditVideo = data.media.reddit_video.fallback_url;
+			redditVideo = data.media.reddit_video.dash_url;
 		}
 
 		let videoHeight = null;
 		let videoPreview = null;
+		let gallery = null;
 		if (data.media && data.media.oembed) {
 			videoHeight = data.media.oembed.height;
 		} else if (data.preview && data.preview.images && data.preview.images[0].resolutions) {
 			const resolutions = data.preview.images[0].resolutions;
 			if (resolutions[resolutions.length - 1]) {
 				videoPreview = resolutions[resolutions.length - 1].url;
+			}
+		} else if (data.url.includes("https://www.reddit.com/gallery")) {
+			gallery = [];
+			for (const image in data.media_metadata) {
+				gallery.push(data.media_metadata[image].s.u.replace(/amp;/g, ""));
 			}
 		}
 
@@ -63,13 +69,14 @@ function formatResponse(json) {
 			score: data.score,
 			comments: data.num_comments,
 			crossposts: data.num_crossposts,
-			flairs: data.link_flair_richtext.map(flair => flair.t).filter(flair => flair),
+			flairs: data.link_flair_richtext.map(flair => flair.t).filter(flair => flair && flair !== " "),
 			author: data.author,
 			stickied: data.stickied,
 			domain: data.domain,
 			url: data.url,
 			thumbnail: data.thumbnail,
 			text: sanitizeHtml(data.selftext_html),
+			gallery,
 			redditVideo,
 			videoHeight,
 			videoPreview,
