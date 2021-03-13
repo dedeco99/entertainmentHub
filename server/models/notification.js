@@ -21,6 +21,9 @@ const NotificationSchema = new Schema(
 			videoTitle: { type: String },
 			videoId: { type: String },
 			channelId: { type: String },
+
+			// Reminder
+			reminder: { type: String },
 		},
 	},
 	{ timestamps: { createdAt: "_created", updatedAt: "_modified" } },

@@ -1,3 +1,6 @@
+const dayjs = require("dayjs");
+const cron = require("node-cron");
+
 const { response } = require("../utils/request");
 const { toObjectId } = require("../utils/utils");
 
@@ -55,6 +58,7 @@ async function deleteNotifications(event) {
 
 async function addNotifications(notifications) {
 	for (const notification of notifications) {
+		console.log("notification", notification);
 		const { active, dateToSend, notificationId, user, type, info } = notification;
 
 		const notificationExists = await Notification.findOne({ user, type, notificationId }).lean();
@@ -113,12 +117,12 @@ async function scheduleNotifications(notifications) {
 async function cronjob() {
 	const scheduledNotifications = await ScheduledNotification.find({
 		sent: false,
-		dateToSend: { $lte: Date.now() },
+		dateToSend: { $lte: dayjs().endOf("year") },
 	}).lean();
 
 	const notifications = [];
 	for (const scheduledNotification of scheduledNotifications) {
-		const { dateToSend, notificationId, type, info } = scheduledNotification;
+		const { dateToSend, notificationId, user, type, info } = scheduledNotification;
 
 		switch (type) {
 			case "tv":
@@ -134,21 +138,31 @@ async function cronjob() {
 				}).lean();
 
 				for (const series of userSeries) {
-					notifications.push(
-						new Notification({
-							dateToSend,
-							notificationId: `${series.user}${notificationId}`,
-							user: series.user,
-							type,
-							info: {
-								...info,
-								displayName: series.displayName,
-								thumbnail: episode.image,
-								episodeTitle: episode.title,
-							},
-						}),
-					);
+					notifications.push({
+						scheduledNotification: scheduledNotification._id,
+						dateToSend,
+						notificationId: `${series.user}${notificationId}`,
+						user: series.user,
+						type,
+						info: {
+							...info,
+							displayName: series.displayName,
+							thumbnail: episode.image,
+							episodeTitle: episode.title,
+						},
+					});
 				}
+
+				break;
+			case "reminder":
+				notifications.push({
+					scheduledNotification: scheduledNotification._id,
+					dateToSend,
+					notificationId,
+					user,
+					type,
+					info,
+				});
 
 				break;
 			default:
@@ -156,9 +170,22 @@ async function cronjob() {
 		}
 	}
 
-	await addNotifications(notifications);
+	for (const notification of notifications) {
+		const date = dayjs(notification.dateToSend);
 
-	await ScheduledNotification.updateMany({ sent: false, dateToSend: { $lte: Date.now() } }, { sent: true }).lean();
+		console.log(notification.dateToSend);
+
+		// TODO: if date is lower than current date send notification
+
+		const cronExpression = `${date.minute()} ${date.hour()} ${date.date()} ${date.month() + 1} *`;
+		console.log("expression", cronExpression);
+
+		cron.schedule(cronExpression, async () => {
+			console.log("sent");
+			await addNotifications([notification]);
+			await ScheduledNotification.updateOne({ _id: notification.scheduledNotification }, { sent: true }).lean();
+		});
+	}
 }
 
 module.exports = {
