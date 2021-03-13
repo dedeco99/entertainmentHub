@@ -12,9 +12,9 @@
 	"dependencies": {
 		"@material-ui/core": "^4.11.0",
 		"@material-ui/lab": "^4.0.0-alpha.56",
-		"axios": "^0.20.0",
+		"axios": "^0.21.1",
 		"dayjs": "^1.8.36",
-		"framer-motion": "^2.6.6",
+		"framer-motion": "^3.10.3",
 		"react": "^16.13.1",
 		"react-custom-scrollbars": "^4.2.1",
 		"react-dom": "^16.13.1",
@@ -27,7 +27,7 @@
 		"react-scripts": "^3.4.3",
 		"react-toastify": "^6.0.8",
 		"rxjs": "^6.6.2",
-		"socket.io-client": "^2.3.0"
+		"socket.io-client": "^4.0.0"
 	},
 	"devDependencies": {
 		"eslint": "^6.8.0",
