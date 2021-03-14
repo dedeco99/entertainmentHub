@@ -376,6 +376,20 @@ function Notifications({ height }) {
 						</Box>
 					</>
 				);
+			case "reminder":
+				return (
+					<>
+						<Box display="flex" justifyContent="center" flexShrink="0" width="100px" mr={2}>
+							<Avatar className={classes.avatar}>{renderNotificationType(notification.type)}</Avatar>
+						</Box>
+						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
+							<Typography variant="body1" title={title} noWrap>
+								{title}
+							</Typography>
+							<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
+						</Box>
+					</>
+				);
 			default:
 				return null;
 		}
