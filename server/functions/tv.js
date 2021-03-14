@@ -1,7 +1,7 @@
 const { response, api } = require("../utils/request");
 const { toObjectId, formatDate, diff } = require("../utils/utils");
 
-const { scheduleNotifications } = require("./notifications");
+const { addScheduledNotifications } = require("./scheduledNotifications");
 
 const Subscription = require("../models/subscription");
 const Episode = require("../models/episode");
@@ -118,7 +118,7 @@ async function fetchEpisodes(series) {
 
 	if (episodesToAdd.length) await Episode.insertMany(episodesToAdd);
 	if (episodesToUpdate.length) await Promise.all(episodesToUpdate);
-	if (notificationsToAdd.length) await scheduleNotifications(notificationsToAdd);
+	if (notificationsToAdd.length) await addScheduledNotifications(notificationsToAdd);
 
 	console.log(`${series.displayName} finished`);
 

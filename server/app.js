@@ -36,6 +36,7 @@ global.cache = {
 		lastUpdate: Date.now(),
 	},
 };
+global.cronjobs = [];
 
 if (!process.env.ENV) require("./utils/secrets");
 
@@ -201,7 +202,7 @@ if (process.env.ENV === "prod") {
 		tv.cronjob();
 	});
 
-	notifications.cronjob();
+	scheduledNotifications.cronjob();
 
 	console.log("Cronjobs are running");
 }
