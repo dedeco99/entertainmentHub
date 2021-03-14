@@ -162,7 +162,9 @@ async function deleteScheduledNotification(event) {
 	if (!scheduledNotification) return errors.notFound;
 
 	const index = global.cronjobs.findIndex(c => c.scheduledNotification === id);
-	global.cronjobs.splice(index, 1);
+	const cronjobs = global.cronjobs.splice(index, 1);
+
+	cronjobs[0].task.destroy();
 
 	return response(200, "DELETE_SCHEDULED_NOTIFICATION", scheduledNotification);
 }
