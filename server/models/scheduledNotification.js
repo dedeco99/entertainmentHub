@@ -5,7 +5,8 @@ const ScheduledNotificationSchema = new Schema(
 		active: { type: Boolean, default: true },
 		sent: { type: Boolean, default: false },
 		dateToSend: { type: Date, required: true },
-		notificationId: { type: String, unique: true, required: true },
+		notificationId: { type: String, unique: true },
+		user: { type: Schema.ObjectId, ref: "User" },
 		type: { type: String, required: true },
 		info: {
 			// TV

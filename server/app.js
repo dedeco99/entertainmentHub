@@ -13,6 +13,7 @@ const apps = require("./functions/apps");
 const users = require("./functions/users");
 const widgets = require("./functions/widgets");
 const notifications = require("./functions/notifications");
+const scheduledNotifications = require("./functions/scheduledNotifications");
 const weather = require("./functions/weather");
 const crypto = require("./functions/crypto");
 const price = require("./functions/price");
@@ -84,6 +85,14 @@ app.get("/api/notifications", token, (req, res) => middleware(req, res, notifica
 app.patch("/api/notifications", token, (req, res) => middleware(req, res, notifications.patchNotifications));
 
 app.delete("/api/notifications", token, (req, res) => middleware(req, res, notifications.deleteNotifications));
+
+app.get("/api/scheduled-notifications", token, (req, res) =>
+	middleware(req, res, scheduledNotifications.getScheduledNotifications),
+);
+
+app.delete("/api/scheduled-notifications/:id", token, (req, res) =>
+	middleware(req, res, scheduledNotifications.deleteScheduledNotification),
+);
 
 app.get("/api/weather/:lat/:lon", (req, res) => middleware(req, res, weather.getWeather));
 
