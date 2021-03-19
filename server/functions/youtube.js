@@ -228,6 +228,7 @@ async function addToWatchLater(event) {
 		externalId: { $in: videos.map(v => v.channelId) },
 	}).lean();
 
+	let isError = false;
 	const notificationsToHide = [];
 	for (const video of videos) {
 		const subscription = subscriptions.find(s => s.externalId === video.channelId);
@@ -244,14 +245,18 @@ async function addToWatchLater(event) {
 			},
 		};
 
-		await api({ method: "post", url, data, headers });
+		const res = await api({ method: "post", url, data, headers });
 
 		/*
 		if (res.status === 409) return errors.duplicated;
 		if (res.status === 403) return errors.youtubeForbidden;
 		*/
 
-		if (video._id) notificationsToHide.push(video._id);
+		if (res.status === 200) {
+			notificationsToHide.push(video._id);
+		} else {
+			isError = true;
+		}
 	}
 
 	let updatedNotifications = [];
@@ -261,7 +266,7 @@ async function addToWatchLater(event) {
 		updatedNotifications = await Notification.find({ _id: { $in: notificationsToHide } }).lean();
 	}
 
-	return response(200, "WATCH_LATER", updatedNotifications);
+	return response(isError ? 400 : 200, isError ? "WATCH_LATER_ERROR" : "WATCH_LATER", updatedNotifications);
 }
 
 async function cronjob() {
