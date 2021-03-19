@@ -56,7 +56,11 @@ function formatResponse(json) {
 		} else if (data.url.includes("https://www.reddit.com/gallery")) {
 			gallery = [];
 			for (const image in data.media_metadata) {
-				gallery.push(data.media_metadata[image].s.u.replace(/amp;/g, ""));
+				if (data.media_metadata[image].s.u) {
+					gallery.push(data.media_metadata[image].s.u.replace(/amp;/g, ""));
+				} else if (data.media_metadata[image].s.gif) {
+					gallery.push(data.media_metadata[image].s.gif.replace(/amp;/g, ""));
+				}
 			}
 		}
 
