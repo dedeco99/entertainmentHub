@@ -28,7 +28,7 @@ const useStyles = makeStyles(styles);
 function VideoPlayer() {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(VideoPlayerContext);
-	const { currentVideo, videos, x, y, width, height, minimized, selectedTab } = state;
+	const { currentVideo, videos, x, y, width, height, minimized, selectedTab, showQueue } = state;
 	const [restrictions, setRestrictions] = useState({
 		minWidth: 600,
 		minHeight: 300,
@@ -125,6 +125,10 @@ function VideoPlayer() {
 		dispatch({ type: "CHANGE_ORDER", videoSource: selectedTab, oldPosition: oldItem.y, newPosition: newItem.y });
 	}
 
+	function handleShowQueue() {
+		dispatch({ type: "SET_SHOW_QUEUE", showQueue: !showQueue });
+	}
+
 	useEffect(() => {
 		if (!currentVideo && totalVideos === 1) {
 			handleMaximize();
@@ -156,7 +160,7 @@ function VideoPlayer() {
 	function renderQueueOrChat() {
 		switch (selectedTab) {
 			case "youtube":
-				return (
+				return showQueue ? (
 					<Box display="flex" flexDirection="column" height="100%" width="250px" className={classes.background}>
 						<Typography textAlign="center" component={Box} p={1}>
 							{`${videos[selectedTab].length} video${videos[selectedTab].length > 1 ? "s" : ""} in queue`}
@@ -222,9 +226,9 @@ function VideoPlayer() {
 							</GridLayout>
 						</Box>
 					</Box>
-				);
+				) : null;
 			case "twitch":
-				return (
+				return showQueue ? (
 					<Box display="flex" flexDirection="column">
 						<Box flexGrow={1}>
 							<iframe
@@ -242,7 +246,7 @@ function VideoPlayer() {
 							</IconButton>
 						</Box>
 					</Box>
-				);
+				) : null;
 			default:
 				return null;
 		}
@@ -287,7 +291,10 @@ function VideoPlayer() {
 							</List>
 						</Box>
 						<Box p={1}>
-							<IconButton size="small" aria-label="delete" onClick={handleMinimize}>
+							<IconButton size="small" onClick={handleShowQueue} style={{ marginRight: "10px" }}>
+								<i className={showQueue ? "icon-arrow-right" : "icon-arrow-left"} />
+							</IconButton>
+							<IconButton size="small" onClick={handleMinimize}>
 								<span>{"─"}</span>
 							</IconButton>
 						</Box>

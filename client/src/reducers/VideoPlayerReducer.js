@@ -1,5 +1,6 @@
+// eslint-disable-next-line complexity
 export const videoPlayerReducer = (state, action) => {
-	let { videos, x, y, height, width, minimized, selectedTab, currentVideo } = state;
+	let { videos, x, y, height, width, minimized, selectedTab, showQueue, currentVideo } = state;
 
 	switch (action.type) {
 		case "ADD_VIDEO":
@@ -62,6 +63,10 @@ export const videoPlayerReducer = (state, action) => {
 			currentVideo = videos[selectedTab][0];
 
 			return { ...state, selectedTab, currentVideo };
+		case "SET_SHOW_QUEUE":
+			showQueue = action.showQueue;
+
+			return { ...state, showQueue };
 		case "SET_CURRENT_VIDEO":
 			currentVideo = action.currentVideo;
 
