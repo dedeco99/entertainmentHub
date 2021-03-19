@@ -38,6 +38,10 @@ function formatResponse(json) {
 	for (let i = 0; i < json.data.children.length; i++) {
 		const data = json.data.children[i].data;
 
+		if (data.crosspost_parent_list) {
+			data.media = data.crosspost_parent_list[0].media;
+		}
+
 		let redditVideo = null;
 		if (data.media && data.media.reddit_video) {
 			redditVideo = data.media.reddit_video.dash_url;
