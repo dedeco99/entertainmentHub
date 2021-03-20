@@ -13,6 +13,9 @@ const WidgetSchema = new Schema(
 		width: { type: Number, default: null },
 		height: { type: Number, default: null },
 		info: {
+			// Notifications
+			wrapTitle: { type: Boolean },
+
 			// Reddit
 			subreddit: { type: String },
 			search: { type: String },

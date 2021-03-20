@@ -128,7 +128,7 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 		if (widget) {
 			setType(widget.type);
 			if (widget.group) setGroup(widget.group);
-			setInfo(widget.info);
+			if (widget.info) setInfo(widget.info);
 
 			if (widget.type === "crypto") {
 				const formattedCoins = widget.info.coins.split(",").map(coin => ({ symbol: coin }));
@@ -225,6 +225,21 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 
 	function renderFields() {
 		switch (type) {
+			case "notifications":
+				return (
+					<FormControlLabel
+						control={
+							<Checkbox
+								color="primary"
+								id="info.wrapTitle"
+								checked={info.wrapTitle === true || info.wrapTitle === "true"}
+								value={info.wrapTitle !== true && info.wrapTitle !== "true"}
+								onChange={handleChange}
+							/>
+						}
+						label="Wrap Notification Title"
+					/>
+				);
 			case "reddit":
 				return (
 					<div>
