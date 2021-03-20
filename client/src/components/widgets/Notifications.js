@@ -144,7 +144,7 @@ function Notifications({ height }) {
 			},
 		]);
 
-		if (response.status === 200 || response.status === 409) {
+		if (response.status === 200 || response.status === 400) {
 			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
 			setSelectedNotifications({});
 		}
@@ -238,7 +238,7 @@ function Notifications({ height }) {
 			})),
 		);
 
-		if (response.status === 200 || response.status === 409) {
+		if (response.status === 200 || response.status === 400) {
 			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
 			setSelectedNotifications({});
 		}

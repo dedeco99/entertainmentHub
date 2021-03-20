@@ -408,6 +408,10 @@ const translations = {
 		en: "Product not found",
 		pt: "Produto não econtrado",
 	},
+	WATCH_LATER_ERROR: {
+		en: "Some videos were not saved to watch later",
+		pt: "Alguns vídeos não foram guardados para ver mais tarde",
+	},
 };
 
 function translate(code, ...params) {
