@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { NavLink } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
@@ -52,7 +52,18 @@ const variants = {
 	},
 };
 
-function Widget({ id, type, content, borderColor, editText, editIcon, widgetDimensions, onEdit, onDelete }) {
+function Widget({
+	id,
+	type,
+	refreshRateMinutes,
+	content,
+	borderColor,
+	editText,
+	editIcon,
+	widgetDimensions,
+	onEdit,
+	onDelete,
+}) {
 	const { state } = useContext(WidgetContext);
 	const { editMode } = state;
 	const { user } = useContext(UserContext);
@@ -64,6 +75,16 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 	function handleRefresh() {
 		setRefreshToken(new Date());
 	}
+
+	useEffect(() => {
+		let isMounted = true;
+
+		if (isMounted && refreshRateMinutes) {
+			setInterval(handleRefresh, refreshRateMinutes * 60 * 1000);
+		}
+
+		return () => (isMounted = false);
+	}, []); // eslint-disable-line
 
 	function handleEdit() {
 		onEdit(id);
@@ -158,6 +179,7 @@ function Widget({ id, type, content, borderColor, editText, editIcon, widgetDime
 Widget.propTypes = {
 	id: PropTypes.string.isRequired,
 	type: PropTypes.string.isRequired,
+	refreshRateMinutes: PropTypes.number,
 	content: PropTypes.node.isRequired,
 	borderColor: PropTypes.string,
 	editText: PropTypes.string.isRequired,

@@ -38,6 +38,7 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 	const { user } = useContext(UserContext);
 	const [type, setType] = useState("notifications");
 	const [group, setGroup] = useState({ name: "Ungrouped", pos: widgetGroups.length });
+	const [refreshRateMinutes, setRefreshRateMinutes] = useState(null);
 	const [info, setInfo] = useState({});
 	const [cities, setCities] = useState([]);
 	const [coins, setCoins] = useState([]);
@@ -98,7 +99,7 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 	useEffect(() => {
 		const subscription = submitSubject.pipe(distinctUntilChanged((a, b) => a === b)).subscribe(async () => {
 			if (widget) {
-				const response = await editWidget({ ...widget, group, info });
+				const response = await editWidget({ ...widget, group, refreshRateMinutes, info });
 
 				if (response.status === 200) {
 					dispatch({ type: "EDIT_WIDGET", widget: response.data });
@@ -111,6 +112,7 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 					group,
 					width: widgetRestrictions[type].minW,
 					height: widgetRestrictions[type].minH,
+					refreshRateMinutes,
 					info,
 				});
 
@@ -128,6 +130,7 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 		if (widget) {
 			setType(widget.type);
 			if (widget.group) setGroup(widget.group);
+			if (widget.refreshRateMinutes) setRefreshRateMinutes(widget.refreshRateMinutes);
 			setInfo(widget.info);
 
 			if (widget.type === "crypto") {
@@ -141,6 +144,7 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 
 			setType("notifications");
 			setGroup({ name: "Ungrouped", pos: hasUngrouped ? hasUngrouped.pos : widgetGroups.length });
+			setRefreshRateMinutes(null);
 			setInfo({});
 			setSelectedCity(null);
 			setSelectedCoins([]);
@@ -181,6 +185,10 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 		if (value) setGroup(value);
 	}
 
+	function handleChangeRefreshRateMinutes(e) {
+		setRefreshRateMinutes(e.target.value);
+	}
+
 	function handleAddGroup(e, name) {
 		addGroupSubject.next(name);
 	}
@@ -188,7 +196,11 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 	function handleSubmit(e) {
 		e.preventDefault();
 
+		if (refreshRateMinutes !== null && refreshRateMinutes < 5) return false;
+
 		submitSubject.next(info);
+
+		return true;
 	}
 
 	function renderGroupOptionLabel(option) {
@@ -386,6 +398,18 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 					getOptionLabel={renderGroupOptionLabel}
 					renderInput={renderGroupInput}
 					fullWidth
+				/>
+				<Input
+					label="Refresh Rate (Minutes)"
+					id="refreshRateMinutes"
+					value={refreshRateMinutes}
+					onChange={handleChangeRefreshRateMinutes}
+					type="number"
+					variant="outlined"
+					fullWidth
+					error={refreshRateMinutes !== null && refreshRateMinutes < 5}
+					helperText="Refresh Rate has to be >= 5 minutes"
+					style={{ marginTop: "5px" }}
 				/>
 			</>
 		);
