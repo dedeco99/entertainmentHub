@@ -39,7 +39,7 @@ const widgetRestrictions = {
 
 const widgetsInfo = {
 	notifications: widget => ({
-		content: <Notifications height="100%" />,
+		content: <Notifications height="100%" wrapTitle={widget.info ? widget.info.wrapTitle : false} />,
 		editText: "Notifications",
 		editIcon: "icon-notifications",
 		dimensions: { w: widget.width || 1, h: widget.height || 4 },

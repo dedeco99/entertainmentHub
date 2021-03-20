@@ -39,7 +39,7 @@ import generalStyles from "../../styles/General";
 
 const useStyles = makeStyles({ ...widgetStyles, ...videoPlayerStyles, ...generalStyles });
 
-function Notifications({ height }) {
+function Notifications({ height, wrapTitle }) {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(NotificationContext);
 	const { notifications, total } = state;
@@ -326,7 +326,7 @@ function Notifications({ height }) {
 							</Box>
 						)}
 						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
-							<Typography variant="body1" title={subtitle} noWrap>
+							<Typography variant="body1" title={subtitle} noWrap={!wrapTitle}>
 								<Link
 									href={`https://www.youtube.com/watch?v=${notification.info.videoId}`}
 									target="_blank"
@@ -575,6 +575,7 @@ function Notifications({ height }) {
 
 Notifications.propTypes = {
 	height: PropTypes.string,
+	wrapTitle: PropTypes.bool,
 };
 
 export default Notifications;
