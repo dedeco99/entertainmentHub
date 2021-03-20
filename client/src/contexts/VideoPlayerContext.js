@@ -18,6 +18,7 @@ const VideoPlayerContextProvider = ({ children }) => {
 		height: 300,
 		minimized: false,
 		selectedTab: null,
+		showQueue: true,
 		currentVideo: null,
 	};
 

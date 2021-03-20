@@ -337,6 +337,7 @@ function Widgets() {
 						<Widget
 							id={widget._id}
 							type={widget.type}
+							refreshRateMinutes={widget.refreshRateMinutes}
 							content={widgetInfo.content}
 							borderColor={widgetInfo.borderColor}
 							editText={widgetInfo.editText}

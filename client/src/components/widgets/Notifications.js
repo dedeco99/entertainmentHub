@@ -144,7 +144,7 @@ function Notifications({ height, wrapTitle }) {
 			},
 		]);
 
-		if (response.status === 200 || response.status === 409) {
+		if (response.status === 200 || response.status === 400) {
 			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
 			setSelectedNotifications({});
 		}
@@ -238,7 +238,7 @@ function Notifications({ height, wrapTitle }) {
 			})),
 		);
 
-		if (response.status === 200 || response.status === 409) {
+		if (response.status === 200 || response.status === 400) {
 			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
 			setSelectedNotifications({});
 		}
@@ -361,8 +361,16 @@ function Notifications({ height, wrapTitle }) {
 								</Box>
 							</Box>
 						) : (
-							<Box display="flex" justifyContent="center" flexShrink="0" width="100px" mr={2}>
-								<Avatar className={classes.avatar}>{renderNotificationType(notification.type)}</Avatar>
+							<Box width="100px" mr={2} align="center" style={{ backgroundColor: "#444", height: "55px" }}>
+								<Avatar className={classes.avatar} style={{ top: "5px" }}>
+									{renderNotificationType(notification.type)}
+								</Avatar>
+								<Box
+									className={classes.bottomRightOverlay}
+									style={{ bottom: "10px", left: "70px", right: "initial" }}
+								>
+									<Typography variant="caption">{overlay}</Typography>
+								</Box>
 							</Box>
 						)}
 						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
