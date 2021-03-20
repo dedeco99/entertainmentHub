@@ -1,5 +1,4 @@
 const { response } = require("../utils/request");
-const errors = require("../utils/errors");
 const { toObjectId } = require("../utils/utils");
 
 const Notification = require("../models/notification");
@@ -56,12 +55,13 @@ async function deleteNotifications(event) {
 
 async function addNotifications(notifications) {
 	for (const notification of notifications) {
-		const { dateToSend, notificationId, user, type, info } = notification;
+		const { active, dateToSend, notificationId, user, type, info } = notification;
 
 		const notificationExists = await Notification.findOne({ user, type, notificationId }).lean();
 
 		if (!notificationExists) {
 			const newNotification = new Notification({
+				active,
 				dateToSend,
 				notificationId,
 				user,
@@ -71,10 +71,21 @@ async function addNotifications(notifications) {
 
 			await newNotification.save();
 
-			if (global.sockets[notification.user]) {
-				for (const socket of global.sockets[notification.user]) {
-					socket.emit("notification", newNotification);
+			if (active) {
+				if (global.sockets[user]) {
+					for (const socket of global.sockets[user]) {
+						socket.emit("notification", newNotification);
+					}
 				}
+			}
+
+			if (info.autoAddToWatchLater) {
+				const { addToWatchLater } = require("./youtube"); //eslint-disable-line
+
+				addToWatchLater({
+					user: { _id: user, settings: { youtube: { watchLaterPlaylist: info.watchLaterPlaylist } } },
+					body: { videos: [{ videoId: info.videoId, channelId: info.channelId }] },
+				});
 			}
 		}
 	}
@@ -111,7 +122,11 @@ async function cronjob() {
 
 		switch (type) {
 			case "tv":
-				const userSeries = await Subscription.find({ platform: "tv", externalId: info.seriesId }).lean();
+				const userSeries = await Subscription.find({
+					platform: "tv",
+					externalId: info.seriesId,
+					"notifications.active": true,
+				}).lean();
 				const episode = await Episode.findOne({
 					seriesId: info.seriesId,
 					season: info.season,

@@ -10,6 +10,7 @@ const VideoPlayerContextProvider = ({ children }) => {
 		videos: {
 			youtube: [],
 			twitch: [],
+			youtubePlaylists: [],
 		},
 		x: null,
 		y: null,
@@ -26,10 +27,11 @@ const VideoPlayerContextProvider = ({ children }) => {
 
 		if (localData) {
 			const parsedData = JSON.parse(localData);
-			if (!parsedData.videos.youtube) {
+			if (!parsedData.videos.youtube || !parsedData.videos.youtubePlaylists) {
 				parsedData.videos = {
-					youtube: parsedData.videos,
+					youtube: [],
 					twitch: [],
+					youtubePlaylists: [],
 				};
 			}
 			return parsedData;

@@ -179,6 +179,10 @@ const translations = {
 		en: "You have no notifications",
 		pt: "Não há mais notificações",
 	},
+	noWidgets: {
+		en: "You have no widgets",
+		pt: "Não há widgets",
+	},
 	all: {
 		en: "All",
 		pt: "Tudo",
@@ -403,6 +407,10 @@ const translations = {
 	PRODUCT_NOT_FOUND: {
 		en: "Product not found",
 		pt: "Produto não econtrado",
+	},
+	WATCH_LATER_ERROR: {
+		en: "Some videos were not saved to watch later",
+		pt: "Alguns vídeos não foram guardados para ver mais tarde",
 	},
 };
 

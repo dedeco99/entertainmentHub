@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import { useHistory } from "react-router-dom";
 
 import { Button } from "@material-ui/core";
@@ -11,7 +12,7 @@ import { register } from "../../api/auth";
 
 import { translate } from "../../utils/translations";
 
-function Register() {
+function Register({ onClose }) {
 	const history = useHistory();
 	const { user } = useContext(UserContext);
 	const [email, setEmail] = useState("");
@@ -36,7 +37,7 @@ function Register() {
 		const response = await register({ email, password });
 
 		if (response.status === 201) {
-			history.push("/login");
+			onClose();
 		}
 	}
 
@@ -73,5 +74,9 @@ function Register() {
 		</form>
 	);
 }
+
+Register.propTypes = {
+	onClose: PropTypes.func.isRequired,
+};
 
 export default Register;

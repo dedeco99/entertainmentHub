@@ -123,11 +123,15 @@ app.get("/api/youtube/videos/:channels", token, (req, res) => middleware(req, re
 
 app.get("/api/youtube/playlists", token, (req, res) => middleware(req, res, youtube.getPlaylists));
 
+app.get("/api/youtube/playlist/:id", token, (req, res) => middleware(req, res, youtube.getPlaylistVideos));
+
 app.post("/api/youtube/watchlater", token, (req, res) => middleware(req, res, youtube.addToWatchLater));
 
 app.get("/api/twitch/streams", token, (req, res) => middleware(req, res, twitch.getStreams));
 
-app.get("/api/twitch/follows/:type?", token, (req, res) => middleware(req, res, twitch.getFollows));
+app.get("/api/twitch/follows/mine", token, (req, res) => middleware(req, res, twitch.getFollows));
+
+app.get("/api/twitch/follows/search", token, (req, res) => middleware(req, res, twitch.getSearch));
 
 /*
 app.get("/api/twitch/games/", token, (req, res) => middleware(req, res, twitch.getGames));

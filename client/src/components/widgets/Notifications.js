@@ -60,6 +60,9 @@ function Notifications({ height }) {
 	const [open, setOpen] = useState(false);
 	const [selection, setSelection] = useState(false);
 	const [selectedNotifications, setSelectedNotifications] = useState({});
+	const [loadingBatchWatchLater, setLoadingBatchWatchLater] = useState(false);
+	const [loadingBatchDelete, setLoadingBatchDelete] = useState(false);
+	const [loadingBatchRestore, setLoadingBatchRestore] = useState(false);
 	let isMounted = true;
 
 	async function handleGetNotifications() {
@@ -133,9 +136,15 @@ function Notifications({ height }) {
 	async function handleWatchLaterOption() {
 		setActionLoading(true);
 
-		const response = await addToWatchLater([selectedNotification.info.videoId]);
+		const response = await addToWatchLater([
+			{
+				_id: selectedNotification._id,
+				videoId: selectedNotification.info.videoId,
+				channelId: selectedNotification.info.channelId,
+			},
+		]);
 
-		if (response.status === 200 || response.status === 409) {
+		if (response.status === 200 || response.status === 400) {
 			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
 			setSelectedNotifications({});
 		}
@@ -201,43 +210,61 @@ function Notifications({ height }) {
 		if (_id in newSelected) {
 			delete newSelected[_id];
 		} else {
-			newSelected[_id] = { type, videoId: info.videoId };
+			newSelected[_id] = { type, videoId: info.videoId, channelId: info.channelId };
 		}
 
 		setSelectedNotifications(newSelected);
 	}
 
-	function handleHideBatch() {
-		handleHideNotification(Object.keys(selectedNotifications));
+	async function handleHideBatch() {
+		setLoadingBatchDelete(true);
+		await handleHideNotification(Object.keys(selectedNotifications));
+		setLoadingBatchDelete(false);
 	}
 
-	function handleRestoreBatch() {
-		handleRestoreNotification(Object.keys(selectedNotifications));
+	async function handleRestoreBatch() {
+		setLoadingBatchRestore(true);
+		await handleRestoreNotification(Object.keys(selectedNotifications));
+		setLoadingBatchRestore(false);
 	}
 
 	async function handleWatchLaterBatch() {
+		setLoadingBatchWatchLater(true);
 		const response = await addToWatchLater(
-			Object.entries(selectedNotifications).map(([key, value]) => ({ _id: key, videoId: value.videoId })),
+			Object.entries(selectedNotifications).map(([key, value]) => ({
+				_id: key,
+				videoId: value.videoId,
+				channelId: value.channelId,
+			})),
 		);
 
-		if (response.status === 200 || response.status === 409) {
+		if (response.status === 200 || response.status === 400) {
 			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
 			setSelectedNotifications({});
 		}
+		setLoadingBatchWatchLater(false);
 	}
 
 	function renderBatchButtons() {
 		if (Object.keys(selectedNotifications).length) {
 			return pagination.history ? (
 				<>
-					<Button onClick={handleRestoreBatch}>{translate("restore")}</Button>
-					<Button onClick={handleHideBatch}>{translate("delete")}</Button>
+					{loadingBatchRestore ? (
+						<Loading />
+					) : (
+						<Button onClick={handleRestoreBatch}>{translate("restore")}</Button>
+					)}
+					{loadingBatchDelete ? <Loading /> : <Button onClick={handleHideBatch}>{translate("delete")}</Button>}
 				</>
 			) : (
 				<>
-					<Button onClick={handleHideBatch}>{translate("markAsRead")}</Button>
-					{Object.values(selectedNotifications).every(v => v.type === "youtube") && (
-						<Button onClick={handleWatchLaterBatch}>{translate("watchLater")}</Button>
+					{loadingBatchDelete ? <Loading /> : <Button onClick={handleHideBatch}>{translate("markAsRead")}</Button>}
+					{loadingBatchWatchLater ? (
+						<Loading />
+					) : (
+						Object.values(selectedNotifications).every(v => v.type === "youtube") && (
+							<Button onClick={handleWatchLaterBatch}>{translate("watchLater")}</Button>
+						)
 					)}
 				</>
 			);
@@ -334,8 +361,16 @@ function Notifications({ height }) {
 								</Box>
 							</Box>
 						) : (
-							<Box display="flex" justifyContent="center" flexShrink="0" width="100px" mr={2}>
-								<Avatar className={classes.avatar}>{renderNotificationType(notification.type)}</Avatar>
+							<Box width="100px" mr={2} align="center" style={{ backgroundColor: "#444", height: "55px" }}>
+								<Avatar className={classes.avatar} style={{ top: "5px" }}>
+									{renderNotificationType(notification.type)}
+								</Avatar>
+								<Box
+									className={classes.bottomRightOverlay}
+									style={{ bottom: "10px", left: "70px", right: "initial" }}
+								>
+									<Typography variant="caption">{overlay}</Typography>
+								</Box>
 							</Box>
 						)}
 						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
@@ -442,7 +477,16 @@ function Notifications({ height }) {
 						<Typography variant="subtitle1">{translate("notifications")}</Typography>
 					</Box>
 					<Box display="flex" flexGrow={1}>
-						<Badge className={classes.badge} color="secondary" badgeContent={total} max={999} />
+						{selection ? (
+							<Badge
+								className={classes.badge}
+								color="secondary"
+								badgeContent={Object.keys(selectedNotifications).length}
+								max={999}
+							/>
+						) : (
+							<Badge className={classes.badge} color="secondary" badgeContent={total} max={999} />
+						)}
 					</Box>
 					<Box display="flex" justifyContent="flex-end">
 						{selection ? (

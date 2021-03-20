@@ -21,6 +21,7 @@ import { getWidgets, editWidgets, deleteWidget } from "../../api/widgets";
 
 import generalStyles from "../../styles/General";
 import { widgets as widgetStyles } from "../../styles/Widgets";
+import { translate } from "../../utils/translations";
 
 const useStyles = makeStyles({ ...generalStyles, ...widgetStyles });
 
@@ -104,7 +105,7 @@ function Widgets() {
 	const [rowHeight, setRowHeight] = useState(150);
 	const [layouts, setLayouts] = useState({});
 	const [selectedWidget, setSelectedWidget] = useState(null);
-	const [tabs, setTabs] = useState([]);
+	const [tabs, setTabs] = useState([{ name: "Ungrouped" }]);
 	const [selectedTab, setSelectedTab] = useState(0);
 	const [tabsEditMode, setTabsEditMode] = useState(false);
 
@@ -336,6 +337,7 @@ function Widgets() {
 						<Widget
 							id={widget._id}
 							type={widget.type}
+							refreshRateMinutes={widget.refreshRateMinutes}
 							content={widgetInfo.content}
 							borderColor={widgetInfo.borderColor}
 							editText={widgetInfo.editText}
@@ -349,7 +351,7 @@ function Widgets() {
 			});
 	}
 
-	if (loading || !tabs.length) {
+	if (loading) {
 		return (
 			<Box className={classes.root}>
 				<Loading />
@@ -386,7 +388,9 @@ function Widgets() {
 				>
 					{renderWidgets()}
 				</ResponsiveGridLayout>
-			) : null}
+			) : (
+				<Box className={classes.root}>{translate("noWidgets")}</Box>
+			)}
 			<WidgetDetail
 				open={openWidgetDetail}
 				widget={selectedWidget}

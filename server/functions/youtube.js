@@ -88,7 +88,7 @@ async function getSubscriptions(event) {
 	const json = res.data;
 
 	const channels = json.items.map(channel => ({
-		externalId: channel.snippet.channelId,
+		externalId: channel.snippet.resourceId.channelId,
 		displayName: channel.snippet.title,
 		image: channel.snippet.thumbnails.default.url,
 		after: json.nextPageToken,
@@ -171,6 +171,41 @@ async function getPlaylists(event) {
 	return response(200, "GET_YOUTUBE_SUBSCRIPTIONS", playlists);
 }
 
+async function getPlaylistVideos(event) {
+	const { params, query, user } = event;
+	const { id } = params;
+	const { after } = query;
+
+	const accessToken = await getAccessToken(user);
+
+	if (accessToken.status === 401) return errors.youtubeRefreshToken;
+
+	// prettier-ignore
+	let url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${id}&maxResults=20`;
+	if (after) url += `&pageToken=${after}`;
+
+	const headers = {
+		Authorization: `Bearer ${accessToken}`,
+	};
+
+	const res = await api({ method: "get", url, headers });
+
+	if (res.status === 404) return errors.notFound;
+
+	const json = res.data;
+
+	const videos = json.items.map(video => ({
+		channelName: video.snippet.channelTitle,
+		channelUrl: `https://www.youtube.com/channel/${video.snippet.channelId}`,
+		name: video.snippet.title,
+		thumbnail: video.snippet.thumbnails.default.url,
+		url: `https://www.youtube.com/watch?v=${video.snippet.resourceId.videoId}`,
+		after: json.nextPageToken,
+	}));
+
+	return response(200, "GET_PLAYLIST_VIDEOS", videos);
+}
+
 async function addToWatchLater(event) {
 	const { body, user } = event;
 	const { videos } = body;
@@ -187,11 +222,22 @@ async function addToWatchLater(event) {
 		Authorization: `Bearer ${accessToken}`,
 	};
 
+	const subscriptions = await Subscription.find({
+		user: user._id,
+		platform: "youtube",
+		externalId: { $in: videos.map(v => v.channelId) },
+	}).lean();
+
+	let isError = false;
 	const notificationsToHide = [];
 	for (const video of videos) {
+		const subscription = subscriptions.find(s => s.externalId === video.channelId);
+
 		const data = {
 			snippet: {
-				playlistId: user.settings.youtube.watchLaterPlaylist,
+				playlistId: subscription.notifications.watchLaterPlaylist
+					? subscription.notifications.watchLaterPlaylist
+					: user.settings.youtube.watchLaterPlaylist,
 				resourceId: {
 					videoId: video.videoId,
 					kind: "youtube#video",
@@ -199,31 +245,53 @@ async function addToWatchLater(event) {
 			},
 		};
 
-		await api({ method: "post", url, data, headers });
+		const res = await api({ method: "post", url, data, headers });
 
 		/*
 		if (res.status === 409) return errors.duplicated;
 		if (res.status === 403) return errors.youtubeForbidden;
 		*/
 
-		notificationsToHide.push(video._id);
+		if (res.status === 200) {
+			notificationsToHide.push(video._id);
+		} else {
+			isError = true;
+		}
 	}
 
-	await Notification.updateMany({ _id: { $in: notificationsToHide } }, { active: false });
+	let updatedNotifications = [];
+	if (notificationsToHide.length) {
+		await Notification.updateMany({ _id: { $in: notificationsToHide } }, { active: false });
 
-	const updatedNotifications = await Notification.find({ _id: { $in: notificationsToHide } }).lean();
+		updatedNotifications = await Notification.find({ _id: { $in: notificationsToHide } }).lean();
+	}
 
-	return response(200, "WATCH_LATER", updatedNotifications);
+	return response(isError ? 400 : 200, isError ? "WATCH_LATER_ERROR" : "WATCH_LATER", updatedNotifications);
 }
 
 async function cronjob() {
 	const subscriptions = await Subscription.aggregate([
 		{ $match: { platform: "youtube" } },
 		{
+			$lookup: {
+				from: "users",
+				localField: "user",
+				foreignField: "_id",
+				as: "user",
+			},
+		},
+		{ $unwind: "$user" },
+		{
 			$group: {
 				_id: "$externalId",
-				displayName: { $first: "$displayName" },
-				users: { $push: "$user" },
+				users: {
+					$push: {
+						_id: "$user._id",
+						watchLaterPlaylist: "$user.settings.youtube.watchLaterPlaylist",
+						subscriptionDisplayName: "$displayName",
+						notifications: "$notifications",
+					},
+				},
 			},
 		},
 		{ $sort: { _id: 1 } },
@@ -254,18 +322,21 @@ async function cronjob() {
 		if (subscription) {
 			for (const user of subscription.users) {
 				notifications.push({
+					active: user.notifications.active,
 					dateToSend: video.published,
 					sent: true,
-					notificationId: `${user}${video.yt_videoId}`,
-					user,
+					notificationId: `${user._id}${video.yt_videoId}`,
+					user: user._id,
 					type: "youtube",
 					info: {
-						displayName: video.author.name,
+						displayName: user.subscriptionDisplayName,
 						thumbnail: video.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),
 						duration: videoDurationItem.contentDetails.duration,
 						videoTitle: video.title,
 						videoId: video.yt_videoId,
 						channelId: video.yt_channelId,
+						watchLaterPlaylist: user.watchLaterPlaylist,
+						autoAddToWatchLater: user.notifications.autoAddToWatchLater,
 					},
 				});
 			}
@@ -283,6 +354,7 @@ module.exports = {
 	getSubscriptions,
 	getVideos,
 	getPlaylists,
+	getPlaylistVideos,
 	addToWatchLater,
 	cronjob,
 };

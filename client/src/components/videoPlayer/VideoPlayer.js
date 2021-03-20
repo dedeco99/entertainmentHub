@@ -4,6 +4,7 @@ import { Rnd } from "react-rnd";
 import { fromEvent } from "rxjs";
 import { debounceTime } from "rxjs/operators";
 import GridLayout from "react-grid-layout";
+import { toast } from "react-toastify";
 
 import {
 	makeStyles,
@@ -17,11 +18,18 @@ import {
 	Fab,
 	Badge,
 	Divider,
+	Button,
 } from "@material-ui/core";
+
+import Input from "../.partials/Input";
+
+import { getPlaylistVideos } from "../../api/youtube";
 
 import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 
 import { videoPlayer as styles } from "../../styles/VideoPlayer";
+
+import { translate } from "../../utils/translations";
 
 const useStyles = makeStyles(styles);
 
@@ -35,6 +43,7 @@ function VideoPlayer() {
 		maxWidth: document.documentElement.clientWidth - 20,
 		maxHeight: document.documentElement.clientHeight - 80,
 	});
+	const [playlistId, setPlaylistId] = useState("");
 
 	const tabs = [
 		{
@@ -44,6 +53,11 @@ function VideoPlayer() {
 		{
 			name: "twitch",
 			icon: "icon-twitch-filled icon-2x",
+		},
+		{
+			name: "youtubePlaylists",
+			icon: "icon-playlist icon-2x",
+			showAlways: true,
 		},
 	];
 	const totalVideos = Object.keys(videos)
@@ -74,6 +88,10 @@ function VideoPlayer() {
 
 	function handleDeleteVideo(video) {
 		dispatch({ type: "DELETE_VIDEO", videoSource: selectedTab, video });
+	}
+
+	function handleDeleteVideos() {
+		dispatch({ type: "DELETE_VIDEOS", videoSource: selectedTab });
 	}
 
 	function handleChangePosition(e, d) {
@@ -135,36 +153,53 @@ function VideoPlayer() {
 		}
 	}, [currentVideo, totalVideos]); // eslint-disable-line
 
-	if (!currentVideo || !totalVideos) return null;
-
-	if (minimized) {
-		return (
-			<Box position="fixed" bottom="15px" right="15px" zIndex={1}>
-				<Tooltip title="Video player">
-					<Badge badgeContent={totalVideos} overlap="circle" color="error">
-						<Fab size="medium" onClick={handleMaximize}>
-							<i className="icon-video-library icon-2x" />
-						</Fab>
-					</Badge>
-				</Tooltip>
-			</Box>
-		);
-	}
-
 	function calcQueueWidth() {
 		const ROW_HEIGHT = 55;
 		const HEADER_HEIGHT = 83;
 		return videos[selectedTab].length * ROW_HEIGHT + HEADER_HEIGHT > height ? 233 : 250;
 	}
 
+	function handleYoutubeLink(e) {
+		try {
+			const youtubeLink = new URL(e.target.value);
+			const id = youtubeLink.searchParams.get("list");
+
+			setPlaylistId(id);
+		} catch (err) {
+			toast.error("Invalid url");
+		}
+	}
+
+	async function handleSubmit(e) {
+		e.preventDefault();
+
+		const response = await getPlaylistVideos(playlistId);
+
+		if (response.status === 200) {
+			dispatch({
+				type: "SET_VIDEOS",
+				videoSource: "youtubePlaylists",
+				videos: response.data,
+			});
+		}
+	}
+
 	function renderQueueOrChat() {
 		switch (selectedTab) {
+			case "youtubePlaylists":
 			case "youtube":
 				return showQueue ? (
 					<Box display="flex" flexDirection="column" height="100%" width="250px" className={classes.background}>
-						<Typography textAlign="center" component={Box} p={1}>
-							{`${videos[selectedTab].length} video${videos[selectedTab].length > 1 ? "s" : ""} in queue`}
-						</Typography>
+						<Box>
+							<Box display="flex" flexDirection="row" className={classes.queueList}>
+								<Typography textAlign="center" component={Box} flexGrow={1} pt={1}>
+									{`${videos[selectedTab].length} video${videos[selectedTab].length > 1 ? "s" : ""} in queue`}
+								</Typography>
+								<IconButton edge="end" aria-label="delete" onClick={handleDeleteVideos} style={{ right: "17px" }}>
+									<i className="icon-delete" />
+								</IconButton>
+							</Box>
+						</Box>
 						<Divider />
 						<Box flexGrow={1} className={classes.queueList}>
 							<GridLayout
@@ -252,6 +287,23 @@ function VideoPlayer() {
 		}
 	}
 
+	const tab = tabs.find(t => t.name === selectedTab);
+	if ((tab && !tab.showAlways && !currentVideo) || !totalVideos) return null;
+
+	if (minimized) {
+		return (
+			<Box position="fixed" bottom="15px" right="15px" zIndex={1}>
+				<Tooltip title="Video player">
+					<Badge badgeContent={totalVideos} overlap="circle" color="error">
+						<Fab size="medium" onClick={handleMaximize}>
+							<i className="icon-video-library icon-2x" />
+						</Fab>
+					</Badge>
+				</Tooltip>
+			</Box>
+		);
+	}
+
 	return (
 		<Rnd
 			style={{ position: "fixed", zIndex: 1 }}
@@ -271,7 +323,7 @@ function VideoPlayer() {
 						<Box flex="1" height="100%">
 							<List disablePadding component={Box} height="100%" display="flex" flexDirection="row">
 								{tabs.map(tab => {
-									if (videos[tab.name].length) {
+									if (tab.showAlways || videos[tab.name].length) {
 										return (
 											<ListItem
 												className={classes.horizontalListItem}
@@ -295,22 +347,51 @@ function VideoPlayer() {
 								<i className={showQueue ? "icon-arrow-right" : "icon-arrow-left"} />
 							</IconButton>
 							<IconButton size="small" onClick={handleMinimize}>
-								<span>{"─"}</span>
+								<i className="icon-minimize" />
 							</IconButton>
 						</Box>
 					</Box>
 					<Box display="flex" flexGrow="1" minHeight="0">
-						<Box flexGrow={1}>
-							<ReactPlayer
-								// playing
-								controls
-								url={currentVideo.url}
-								height="100%"
+						{selectedTab === "youtubePlaylists" && !videos[selectedTab].length ? (
+							<Box
+								display="flex"
+								flexDirection="column"
+								alignItems="center"
+								justifyContent="center"
+								textAlign="center"
 								width="100%"
-								onEnded={() => handleDeleteVideo(currentVideo)}
-							/>
-						</Box>
-						{renderQueueOrChat()}
+							>
+								<form onSubmit={handleSubmit}>
+									<Input
+										type="text"
+										label={"Playlist Link"}
+										margin="normal"
+										variant="outlined"
+										onChange={handleYoutubeLink}
+										required
+									/>
+									<br />
+									<br />
+									<Button type="submit" variant="contained" color="primary">
+										{translate("add")}
+									</Button>
+								</form>
+							</Box>
+						) : (
+							<>
+								<Box flexGrow={1}>
+									<ReactPlayer
+										// playing
+										controls
+										url={currentVideo ? currentVideo.url : null}
+										height="100%"
+										width="100%"
+										onEnded={() => handleDeleteVideo(currentVideo)}
+									/>
+								</Box>
+								{renderQueueOrChat()}
+							</>
+						)}
 					</Box>
 				</Box>
 			</Paper>

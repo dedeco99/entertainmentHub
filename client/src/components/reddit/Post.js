@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import ReactPlayer from "react-player";
 
 import {
 	makeStyles,
@@ -23,6 +24,11 @@ const useStyles = makeStyles(styles);
 function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, customStyles }) {
 	const classes = useStyles({ inList });
 	const [expandedView, setExpandedView] = useState(false);
+	const [galleryIndex, setGalleryIndex] = useState(0);
+
+	useEffect(() => {
+		setGalleryIndex(0);
+	}, [post]);
 
 	function handleCloseExpandedView() {
 		setExpandedView(false);
@@ -48,6 +54,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 		);
 	}
 
+	// eslint-disable-next-line complexity
 	function formatContent() {
 		post.url = post.url.slice(-1) === "/" ? post.url.slice(0, -1) : post.url; // Remove last backslash
 		post.url = post.url.replace("&amp;t", ""); // Broken youtube link
@@ -62,6 +69,33 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 				<CardMedia component="img" src={post.url} className={classes.media} onClick={handleOpenExpandedView} />
 			);
 			expandedContent = <img src={post.url} alt={post.url} />;
+		} else if (post.gallery) {
+			content = (
+				<div>
+					<CardMedia
+						component="img"
+						src={post.gallery[galleryIndex]}
+						className={classes.media}
+						onClick={handleOpenExpandedView}
+					/>
+					{galleryIndex > 0 && (
+						<Box
+							left="10px"
+							style={{ transform: "translateY(-50%)" }}
+							className={classes.galleryBtn}
+							onClick={() => setGalleryIndex(galleryIndex - 1)}
+						>
+							<i className="icon-arrow-left icon-2x" />
+						</Box>
+					)}
+					{galleryIndex < post.gallery.length - 1 && (
+						<Box right="10px" className={classes.galleryBtn} onClick={() => setGalleryIndex(galleryIndex + 1)}>
+							<i className="icon-arrow-right icon-2x" />
+						</Box>
+					)}
+				</div>
+			);
+			expandedContent = content;
 		} else if (post.domain === "gfycat.com") {
 			content = (
 				<CardMedia
@@ -106,7 +140,16 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 			);
 			expandedContent = content;
 		} else if (post.domain === "v.redd.it") {
-			content = <CardMedia component="video" src={post.redditVideo} className={classes.media} controls />;
+			//content = <CardMedia component="video" src={post.redditVideo} className={classes.media} controls />;
+			content = (
+				<ReactPlayer
+					controls
+					url={`https://red-mode-fbb6.dedeco99.workers.dev/${post.redditVideo}`}
+					width="100%"
+					height="100%"
+					className={classes.media}
+				/>
+			);
 			expandedContent = content;
 		} else if (post.domain === "youtube.com" || post.domain === "youtu.be") {
 			const videoId = post.url.includes("?v=")
@@ -118,6 +161,17 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 				<CardMedia
 					component="iframe"
 					src={`https://www.youtube.com/embed/${videoId}`}
+					className={classes.media}
+					frameBorder={0}
+					allowFullScreen
+				/>
+			);
+			expandedContent = content;
+		} else if (post.url.includes("streamable")) {
+			content = (
+				<CardMedia
+					component="iframe"
+					src="https://streamable.com/e/c2h6di"
 					className={classes.media}
 					frameBorder={0}
 					allowFullScreen

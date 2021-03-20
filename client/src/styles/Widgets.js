@@ -7,7 +7,6 @@ const widgets = {
 		alignItems: "center",
 		flexDirection: "column",
 		paddingTop: "50%",
-		cursor: "pointer",
 	},
 };
 
@@ -179,6 +178,18 @@ const reddit = {
 		backgroundColor: "#3d3d3d",
 		"&:hover": {
 			backgroundColor: "#212121",
+		},
+	},
+	galleryBtn: {
+		position: "absolute",
+		top: "50%",
+		transform: "translateY(-50%)",
+		lineHeight: 0,
+		borderRadius: "100%",
+		padding: "12px",
+		backgroundColor: "#3d3d3d",
+		"&:hover": {
+			backgroundColor: "#666",
 		},
 	},
 	header: {
