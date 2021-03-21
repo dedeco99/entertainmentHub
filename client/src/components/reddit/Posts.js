@@ -152,7 +152,7 @@ function Posts() {
 								>
 									<Post
 										post={post}
-										multipleSubs={match.params.sub.includes("+")}
+										multipleSubs={match.params.sub ? match.params.sub.includes("+") : false}
 										inList
 										customStyles={{ borderRadius: 3 }}
 									/>

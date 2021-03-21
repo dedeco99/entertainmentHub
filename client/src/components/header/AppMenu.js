@@ -64,7 +64,7 @@ function AppMenu() {
 	}, [user]); // eslint-disable-line
 
 	useEffect(() => {
-		const currentApp = allApps.find(app => app.endpoint === location.pathname);
+		const currentApp = allApps.find(app => location.pathname.includes(app.endpoint));
 		setSelectedMenu(currentApp ? currentApp.platform : null);
 	}, [allApps, location]);
 
