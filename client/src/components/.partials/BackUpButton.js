@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { fromEvent } from "rxjs";
+import { debounceTime } from "rxjs/operators";
 
 import { makeStyles } from "@material-ui/core";
 
@@ -13,20 +15,22 @@ function BackUpButton() {
 	const [open, setOpen] = useState(false);
 
 	useEffect(() => {
-		window.addEventListener("scroll", () => {
-			const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+		fromEvent(window, "scroll")
+			.pipe(debounceTime(250))
+			.subscribe(() => {
+				const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
 
-			const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+				const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
 
-			const scrolled = winScroll / height;
+				const scrolled = winScroll / height;
 
-			if (scrolled > 0.75 && !open) {
-				setOpen(true);
-			} else if (scrolled === 0) {
-				setOpen(false);
-			}
-		});
-	}, []);
+				if ((scrolled > 0.75 || winScroll > 1500) && !open) {
+					setOpen(true);
+				} else if (winScroll === 0) {
+					setOpen(false);
+				}
+			});
+	}, []); // eslint-disable-line
 
 	function handleGoBackUp() {
 		window.scrollTo({ top: 0, left: 0, behavior: "smooth" });
