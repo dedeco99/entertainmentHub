@@ -78,10 +78,18 @@ function Reddit() {
 				handleShowFeedsBlock();
 				break;
 			case "/reddit/:sub":
-				history.push(`/reddit/${match.params.sub}/hot`);
+				if (match.params.sub === "undefined") {
+					history.push("/reddit/");
+				} else {
+					history.push(`/reddit/${match.params.sub}/hot`);
+				}
 				break;
 			case "/reddit/:sub/:category":
-				handleShowPostsBlock();
+				if (match.params.sub === "undefined") {
+					history.push("/reddit/");
+				} else {
+					handleShowPostsBlock();
+				}
 				break;
 			default:
 				break;
