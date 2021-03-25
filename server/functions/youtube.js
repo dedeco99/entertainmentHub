@@ -39,7 +39,7 @@ async function getVideoDuration(items) {
 		const videoIds = paginatedItems.map(i => i.yt_videoId);
 
 		// prettier-ignore
-		const url = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds.join(",")}&key=${process.env.youtubeKey}`;
+		const url = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,liveStreamingDetails&id=${videoIds.join(",")}&key=${process.env.youtubeKey}`;
 
 		requests.push(api({ method: "get", url }));
 	}
@@ -125,18 +125,24 @@ async function getVideos(event) {
 	}
 
 	items = items
-		.map(i => ({
-			published: i.published,
-			displayName: i.author.name,
-			thumbnail: i.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),
-			videoTitle: i.title,
-			videoId: i.yt_videoId,
-			channelId: i.yt_channelId,
-			views: i.media_group.media_community.media_statistics_views,
-			likes: Math.round(calculateLikes(i)),
-			dislikes: Math.round(i.media_group.media_community.media_starRating_count - calculateLikes(i)),
-			duration: videoDurationItems.find(v => v.id === i.yt_videoId).contentDetails.duration,
-		}))
+		.map(i => {
+			const videoDurationItem = videoDurationItems.find(v => v.id === i.yt_videoId);
+			return {
+				published: i.published,
+				displayName: i.author.name,
+				thumbnail: i.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),
+				videoTitle: i.title,
+				videoId: i.yt_videoId,
+				channelId: i.yt_channelId,
+				views: i.media_group.media_community.media_statistics_views,
+				likes: Math.round(calculateLikes(i)),
+				dislikes: Math.round(i.media_group.media_community.media_starRating_count - calculateLikes(i)),
+				duration: videoDurationItem.contentDetails.duration,
+				scheduled: videoDurationItem.liveStreamingDetails
+					? videoDurationItem.liveStreamingDetails.scheduledStartTime
+					: null,
+			};
+		})
 		.sort((a, b) => new Date(b.published) - new Date(a.published));
 
 	return response(200, "GET_YOUTUBE_VIDEOS", items);
@@ -332,6 +338,9 @@ async function cronjob() {
 						displayName: user.subscriptionDisplayName,
 						thumbnail: video.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),
 						duration: videoDurationItem.contentDetails.duration,
+						scheduled: videoDurationItem.liveStreamingDetails
+							? videoDurationItem.liveStreamingDetails.scheduledStartTime
+							: null,
 						videoTitle: video.title,
 						videoId: video.yt_videoId,
 						channelId: video.yt_channelId,

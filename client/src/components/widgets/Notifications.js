@@ -30,7 +30,7 @@ import { UserContext } from "../../contexts/UserContext";
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
 import { addToWatchLater } from "../../api/youtube";
 
-import { formatDate, formatVideoDuration, formatNotification } from "../../utils/utils";
+import { formatDate, diff, formatVideoDuration, formatNotification } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
 import { notifications as widgetStyles } from "../../styles/Widgets";
@@ -346,7 +346,16 @@ function Notifications({ height, wrapTitle }) {
 									{title}
 								</Link>
 							</Typography>
-							<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
+
+							{notification.info.scheduled && diff(notification.info.scheduled, "minutes") <= 0 ? (
+								<Typography variant="caption">
+									{`Scheduled for ${formatDate(notification.info.scheduled, "DD-MM-YYYY HH:mm")}`}
+								</Typography>
+							) : (
+								<Typography variant="caption">
+									{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}
+								</Typography>
+							)}
 						</Box>
 					</>
 				);
