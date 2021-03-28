@@ -71,7 +71,7 @@ function Follows({ open, platform, onClose }) {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(chooseContext(platform));
 	const { follows, subscriptions } = state;
-	const [pagination, setPagination] = useState({ page: 0, hasMore: false, after: null });
+	const [pagination, setPagination] = useState({ page: 0, hasMore: true, after: null });
 	const [filter, setFilter] = useState({ type: "mine", query: "" });
 	const [checkedFollows, setCheckedFollows] = useState([]);
 	const [loading, setLoading] = useState(false);
@@ -107,13 +107,13 @@ function Follows({ open, platform, onClose }) {
 				debounceTime(1000),
 			)
 			.subscribe(() => {
-				setPagination({ page: 0, hasMore: false, after: null });
+				setPagination({ page: 0, hasMore: true, after: null });
 				setCallApi(!callApi);
 			});
 	});
 
 	async function handleGetFollows() {
-		if (!loading) {
+		if (!loading && pagination.hasMore) {
 			setLoading(true);
 
 			const response = await chooseApiCall(platform)(pagination.after, filter.type, filter.query);

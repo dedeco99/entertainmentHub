@@ -88,7 +88,7 @@ async function getSubscriptions(event) {
 	const json = res.data;
 
 	const channels = json.items.map(channel => ({
-		externalId: channel.snippet.resourceId.channelId,
+		externalId: filter ? channel.snippet.channelId : channel.snippet.resourceId.channelId,
 		displayName: channel.snippet.title,
 		image: channel.snippet.thumbnails.default.url,
 		after: json.nextPageToken,
