@@ -346,6 +346,8 @@ async function cronjob() {
 						channelId: video.yt_channelId,
 						watchLaterPlaylist: user.watchLaterPlaylist,
 						autoAddToWatchLater: user.notifications.autoAddToWatchLater,
+						dontShowWithTheseWords: user.notifications.dontShowWithTheseWords,
+						onlyShowWithTheseWords: user.notifications.onlyShowWithTheseWords,
 					},
 				});
 			}
