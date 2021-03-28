@@ -32,6 +32,7 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 		autoAddToWatchLater: false,
 		watchLaterPlaylist: user.settings.youtube && user.settings.youtube.watchLaterPlaylist,
 		dontShowWithTheseWords: [],
+		onlyShowWithTheseWords: [],
 	});
 	const [playlists, setPlaylists] = useState([]);
 
@@ -177,6 +178,22 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 								renderInput={params => (
 									<Input {...params} label="Don't show with these words" variant="outlined" />
 								)}
+								renderTags={renderTags}
+								fullWidth
+							/>
+							<br />
+							<Autocomplete
+								value={notifications.onlyShowWithTheseWords}
+								multiple
+								onChange={(event, newValue) => {
+									setNotifications({
+										...notifications,
+										onlyShowWithTheseWords: newValue,
+									});
+								}}
+								options={[]}
+								freeSolo
+								renderInput={params => <Input {...params} label="Only show with these words" variant="outlined" />}
 								renderTags={renderTags}
 								fullWidth
 							/>
