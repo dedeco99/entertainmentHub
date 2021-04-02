@@ -15,6 +15,7 @@ import Youtube from "./youtube/Youtube";
 import Reddit from "./reddit/Reddit";
 import Twitch from "./twitch/Twitch";
 import TV from "./tv/TV";
+import Reminders from './reminders/Reminders';
 import Settings from "./settings/Settings";
 import Apps from "./settings/Apps";
 import VideoPlayer from "./videoPlayer/VideoPlayer";
@@ -102,6 +103,8 @@ function App() {
 				<PrivateRoute exact path="/tv/popular" component={TV} />
 				<PrivateRoute exact path="/tv/:seriesId" component={TV} />
 				<PrivateRoute exact path="/tv/:seriesId/:season" component={TV} />
+
+				<PrivateRoute exact path="/reminders" component={Reminders} />
 
 				<PrivateRoute exact path="/settings" component={Settings} />
 				<PrivateRoute exact path="/settings/apps" component={Settings} />
