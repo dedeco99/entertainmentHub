@@ -12,7 +12,11 @@ const WidgetSchema = new Schema(
 		y: { type: Number, default: 0 },
 		width: { type: Number, default: null },
 		height: { type: Number, default: null },
+		refreshRateMinutes: { type: Number, default: null },
 		info: {
+			// Notifications
+			wrapTitle: { type: Boolean },
+
 			// Reddit
 			subreddit: { type: String },
 			search: { type: String },

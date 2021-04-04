@@ -12,7 +12,9 @@ import {
 	Checkbox,
 	Divider,
 	Typography,
+	Chip,
 } from "@material-ui/core";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 
 import Input from "./Input";
 
@@ -29,6 +31,8 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 		active: true,
 		autoAddToWatchLater: false,
 		watchLaterPlaylist: user.settings.youtube && user.settings.youtube.watchLaterPlaylist,
+		dontShowWithTheseWords: [],
+		onlyShowWithTheseWords: [],
 	});
 	const [playlists, setPlaylists] = useState([]);
 
@@ -82,6 +86,14 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 		e.preventDefault();
 
 		await editSubscription(subscription._id, { displayName: title, notifications });
+	}
+
+	function renderTags(value, getTagProps) {
+		if (!value) return [];
+
+		return value.map((option, index) => (
+			<Chip key={option} value={option} color="primary" label={option} {...getTagProps({ index })} />
+		));
 	}
 
 	const hasNotifications = ["youtube", "tv"];
@@ -150,6 +162,41 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 									</MenuItem>
 								))}
 							</Input>
+							<br />
+							<br />
+							<Autocomplete
+								value={notifications.dontShowWithTheseWords}
+								multiple
+								onChange={(event, newValue) => {
+									setNotifications({
+										...notifications,
+										dontShowWithTheseWords: newValue,
+									});
+								}}
+								options={[]}
+								freeSolo
+								renderInput={params => (
+									<Input {...params} label="Don't show with these words" variant="outlined" />
+								)}
+								renderTags={renderTags}
+								fullWidth
+							/>
+							<br />
+							<Autocomplete
+								value={notifications.onlyShowWithTheseWords}
+								multiple
+								onChange={(event, newValue) => {
+									setNotifications({
+										...notifications,
+										onlyShowWithTheseWords: newValue,
+									});
+								}}
+								options={[]}
+								freeSolo
+								renderInput={params => <Input {...params} label="Only show with these words" variant="outlined" />}
+								renderTags={renderTags}
+								fullWidth
+							/>
 						</>
 					)}
 				</DialogContent>

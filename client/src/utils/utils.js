@@ -1,10 +1,16 @@
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 
 dayjs.extend(relativeTime);
+dayjs.extend(customParseFormat);
 
 function formatDate(date, format, relative, originalFormat) {
 	return relative ? dayjs(date).fromNow() : dayjs(date, originalFormat).format(format);
+}
+
+function diff(date, unit) {
+	return dayjs().diff(dayjs(date), unit);
 }
 
 function formatNumber(number) {
@@ -28,6 +34,8 @@ function formatVideoDuration(duration) {
 		if (!hasSeconds) values.push("00");
 	} else if (hasMinutes && !hasSeconds) {
 		values.push("00");
+	} else if (hasSeconds && !hasMinutes) {
+		values.unshift("00");
 	}
 
 	return values.join(":");
@@ -69,4 +77,4 @@ function htmlEscape(str) {
 		.replace(/<\/table>/g, "</table></div>");
 }
 
-export { formatDate, formatNumber, formatVideoDuration, formatNotification, htmlEscape };
+export { formatDate, diff, formatNumber, formatVideoDuration, formatNotification, htmlEscape };

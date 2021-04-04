@@ -85,7 +85,7 @@ function Crypto({ coins, widgetDimensions }) {
 	function renderPercentages(variant, percentage) {
 		return (
 			<Typography variant={variant} className={percentage >= 0 ? classes.green : classes.red}>
-				{`${percentage ? percentage.toFixed(2) : 0}%`}
+				{`${percentage ? percentage.toFixed(1) : 0}%`}
 			</Typography>
 		);
 	}

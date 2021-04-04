@@ -30,7 +30,7 @@ import { UserContext } from "../../contexts/UserContext";
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
 import { addToWatchLater } from "../../api/youtube";
 
-import { formatDate, formatVideoDuration, formatNotification } from "../../utils/utils";
+import { formatDate, diff, formatVideoDuration, formatNotification } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
 import { notifications as widgetStyles } from "../../styles/Widgets";
@@ -39,7 +39,7 @@ import generalStyles from "../../styles/General";
 
 const useStyles = makeStyles({ ...widgetStyles, ...videoPlayerStyles, ...generalStyles });
 
-function Notifications({ height }) {
+function Notifications({ height, wrapTitle }) {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(NotificationContext);
 	const { notifications, total } = state;
@@ -60,6 +60,9 @@ function Notifications({ height }) {
 	const [open, setOpen] = useState(false);
 	const [selection, setSelection] = useState(false);
 	const [selectedNotifications, setSelectedNotifications] = useState({});
+	const [loadingBatchWatchLater, setLoadingBatchWatchLater] = useState(false);
+	const [loadingBatchDelete, setLoadingBatchDelete] = useState(false);
+	const [loadingBatchRestore, setLoadingBatchRestore] = useState(false);
 	let isMounted = true;
 
 	async function handleGetNotifications() {
@@ -141,7 +144,7 @@ function Notifications({ height }) {
 			},
 		]);
 
-		if (response.status === 200 || response.status === 409) {
+		if (response.status === 200 || response.status === 400) {
 			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
 			setSelectedNotifications({});
 		}
@@ -213,15 +216,20 @@ function Notifications({ height }) {
 		setSelectedNotifications(newSelected);
 	}
 
-	function handleHideBatch() {
-		handleHideNotification(Object.keys(selectedNotifications));
+	async function handleHideBatch() {
+		setLoadingBatchDelete(true);
+		await handleHideNotification(Object.keys(selectedNotifications));
+		setLoadingBatchDelete(false);
 	}
 
-	function handleRestoreBatch() {
-		handleRestoreNotification(Object.keys(selectedNotifications));
+	async function handleRestoreBatch() {
+		setLoadingBatchRestore(true);
+		await handleRestoreNotification(Object.keys(selectedNotifications));
+		setLoadingBatchRestore(false);
 	}
 
 	async function handleWatchLaterBatch() {
+		setLoadingBatchWatchLater(true);
 		const response = await addToWatchLater(
 			Object.entries(selectedNotifications).map(([key, value]) => ({
 				_id: key,
@@ -230,24 +238,33 @@ function Notifications({ height }) {
 			})),
 		);
 
-		if (response.status === 200 || response.status === 409) {
+		if (response.status === 200 || response.status === 400) {
 			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
 			setSelectedNotifications({});
 		}
+		setLoadingBatchWatchLater(false);
 	}
 
 	function renderBatchButtons() {
 		if (Object.keys(selectedNotifications).length) {
 			return pagination.history ? (
 				<>
-					<Button onClick={handleRestoreBatch}>{translate("restore")}</Button>
-					<Button onClick={handleHideBatch}>{translate("delete")}</Button>
+					{loadingBatchRestore ? (
+						<Loading />
+					) : (
+						<Button onClick={handleRestoreBatch}>{translate("restore")}</Button>
+					)}
+					{loadingBatchDelete ? <Loading /> : <Button onClick={handleHideBatch}>{translate("delete")}</Button>}
 				</>
 			) : (
 				<>
-					<Button onClick={handleHideBatch}>{translate("markAsRead")}</Button>
-					{Object.values(selectedNotifications).every(v => v.type === "youtube") && (
-						<Button onClick={handleWatchLaterBatch}>{translate("watchLater")}</Button>
+					{loadingBatchDelete ? <Loading /> : <Button onClick={handleHideBatch}>{translate("markAsRead")}</Button>}
+					{loadingBatchWatchLater ? (
+						<Loading />
+					) : (
+						Object.values(selectedNotifications).every(v => v.type === "youtube") && (
+							<Button onClick={handleWatchLaterBatch}>{translate("watchLater")}</Button>
+						)
 					)}
 				</>
 			);
@@ -309,7 +326,7 @@ function Notifications({ height }) {
 							</Box>
 						)}
 						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
-							<Typography variant="body1" title={subtitle} noWrap>
+							<Typography variant="body1" title={subtitle} noWrap={!wrapTitle}>
 								<Link
 									href={`https://www.youtube.com/watch?v=${notification.info.videoId}`}
 									target="_blank"
@@ -329,7 +346,16 @@ function Notifications({ height }) {
 									{title}
 								</Link>
 							</Typography>
-							<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
+
+							{notification.info.scheduled && diff(notification.info.scheduled, "minutes") <= 0 ? (
+								<Typography variant="caption">
+									{`Scheduled for ${formatDate(notification.info.scheduled, "DD-MM-YYYY HH:mm")}`}
+								</Typography>
+							) : (
+								<Typography variant="caption">
+									{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}
+								</Typography>
+							)}
 						</Box>
 					</>
 				);
@@ -466,7 +492,16 @@ function Notifications({ height }) {
 						<Typography variant="subtitle1">{translate("notifications")}</Typography>
 					</Box>
 					<Box display="flex" flexGrow={1}>
-						<Badge className={classes.badge} color="secondary" badgeContent={total} max={999} />
+						{selection ? (
+							<Badge
+								className={classes.badge}
+								color="secondary"
+								badgeContent={Object.keys(selectedNotifications).length}
+								max={999}
+							/>
+						) : (
+							<Badge className={classes.badge} color="secondary" badgeContent={total} max={999} />
+						)}
 					</Box>
 					<Box display="flex" justifyContent="flex-end">
 						{selection ? (
@@ -555,6 +590,7 @@ function Notifications({ height }) {
 
 Notifications.propTypes = {
 	height: PropTypes.string,
+	wrapTitle: PropTypes.bool,
 };
 
 export default Notifications;
