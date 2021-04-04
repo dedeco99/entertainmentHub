@@ -60,6 +60,17 @@ async function addNotifications(notifications) {
 		const notificationExists = await Notification.findOne({ user, type, notificationId }).lean();
 
 		if (!notificationExists) {
+			const newNotification = new Notification({
+				active,
+				dateToSend,
+				notificationId,
+				user,
+				type,
+				info,
+			});
+
+			await newNotification.save();
+
 			if (active) {
 				const doesNotHaveWords = info.dontShowWithTheseWords
 					? !info.dontShowWithTheseWords.some(v => info.videoTitle.includes(v))
@@ -69,17 +80,6 @@ async function addNotifications(notifications) {
 					: true;
 
 				if (doesNotHaveWords && hasWords) {
-					const newNotification = new Notification({
-						active,
-						dateToSend,
-						notificationId,
-						user,
-						type,
-						info,
-					});
-
-					await newNotification.save();
-
 					if (global.sockets[user]) {
 						for (const socket of global.sockets[user]) {
 							socket.emit("notification", newNotification);

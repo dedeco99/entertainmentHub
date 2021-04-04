@@ -370,7 +370,13 @@ function Notifications({ height, wrapTitle }) {
 								</Box>
 							</Box>
 						) : (
-							<Box width="100px" mr={2} align="center" style={{ backgroundColor: "#444", height: "55px" }}>
+							<Box
+								flexShrink="0"
+								width="100px"
+								mr={2}
+								align="center"
+								style={{ backgroundColor: "#444", height: "55px" }}
+							>
 								<Avatar className={classes.avatar} style={{ top: "5px" }}>
 									{renderNotificationType(notification.type)}
 								</Avatar>
