@@ -9,10 +9,10 @@ async function getScheduledNotifications() {
 	return res;
 }
 
-async function deleteScheduledNotification(notificationId) {
+async function deleteScheduledNotification(id) {
 	const res = await api({
 		method: "delete",
-		url: `/api/scheduled-notifications/${notificationId}`,
+		url: `/api/scheduled-notifications/${id}`,
 	});
 
 	return res;

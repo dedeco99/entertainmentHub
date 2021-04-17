@@ -15,7 +15,7 @@ import Youtube from "./youtube/Youtube";
 import Reddit from "./reddit/Reddit";
 import Twitch from "./twitch/Twitch";
 import TV from "./tv/TV";
-import Reminders from './reminders/Reminders';
+import Reminders from "./reminders/Reminders";
 import Settings from "./settings/Settings";
 import Apps from "./settings/Apps";
 import VideoPlayer from "./videoPlayer/VideoPlayer";

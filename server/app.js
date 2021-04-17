@@ -202,7 +202,7 @@ if (process.env.ENV === "prod") {
 		tv.cronjob();
 	});
 
-	scheduledNotifications.cronjob();
+	scheduledNotifications.cronjobScheduler();
 
 	console.log("Cronjobs are running");
 }

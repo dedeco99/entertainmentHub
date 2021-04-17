@@ -10,7 +10,10 @@ import {
 	TableHead,
 	TableRow,
 	Paper,
+	IconButton,
 } from "@material-ui/core";
+
+import { formatDate } from "../../utils/utils";
 
 import styles from "../../styles/General";
 
@@ -24,7 +27,6 @@ function Reminders() {
 		async function fetchData() {
 			const response = await getScheduledNotifications();
 			if (response.status === 200) {
-				console.log(response.data);
 				setNotifications(response.data);
 			}
 		}
@@ -32,24 +34,33 @@ function Reminders() {
 		fetchData();
 	}, []);
 
+	async function handleDeleteNotification(id) {
+		const response = await deleteScheduledNotification(id);
+		if (response.status === 200) {
+			setNotifications(notifications.filter(n => n._id !== id));
+		}
+	}
+
 	return (
 		<TableContainer component={Paper}>
 			<Table className={classes.table}>
 				<TableHead>
 					<TableRow>
 						<TableCell>{"Reminder"}</TableCell>
-						<TableCell align="right">{"Date"}</TableCell>
-						<TableCell align="right">{"Time"}</TableCell>
+						<TableCell align="center">{"When"}</TableCell>
+						<TableCell align="right">{"Delete"}</TableCell>
 					</TableRow>
 				</TableHead>
 				<TableBody>
 					{notifications.map(notification => (
-						<TableRow key={notification.name}>
-							<TableCell component="th" scope="row">
-								{notification.name}
+						<TableRow key={notification._id}>
+							<TableCell>{notification.info.reminder}</TableCell>
+							<TableCell align="center">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</TableCell>
+							<TableCell align="right">
+								<IconButton onClick={() => handleDeleteNotification(notification._id)}>
+									<i className="icon-delete" />
+								</IconButton>
 							</TableCell>
-							<TableCell align="right">{notification.date}</TableCell>
-							<TableCell align="right">{notification.time}</TableCell>
 						</TableRow>
 					))}
 				</TableBody>

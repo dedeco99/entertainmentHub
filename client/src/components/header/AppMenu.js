@@ -29,7 +29,7 @@ function AppMenu() {
 		{ platform: "tv", name: "TV Series", icon: "icon-monitor-filled icon-2x", endpoint: "/tv" },
 	];
 	const fixedApps = [
-		{ platform: "reminders", name: "Reminders", icon: "icon-monitor-filled icon-2x", endpoint: "/reminders" },
+		{ platform: "reminders", name: "Reminders", icon: "icon-notifications icon-2x", endpoint: "/reminders" },
 	];
 
 	useEffect(() => {
@@ -93,7 +93,7 @@ function AppMenu() {
 	}
 
 	function renderAddMoreApps() {
-		if (apps.length === allApps.length) return null;
+		if (apps.length === allApps.length + fixedApps.length) return null;
 
 		return (
 			<ListItem button className={classes.appItem} component={Link} to="/settings/apps">
