@@ -79,7 +79,7 @@ async function cronjobScheduler(toSchedule) {
 		}
 
 		const cronExpression = `${date.minute()} ${date.hour()} ${date.date()} ${date.month() + 1} *`;
-		console.log(cronExpression);
+
 		const task = cron.schedule(cronExpression, async () => {
 			await sendNotification(notification);
 		});
@@ -91,7 +91,7 @@ async function cronjobScheduler(toSchedule) {
 async function getScheduledNotifications(event) {
 	const { user } = event;
 
-	const scheduledNotifications = await ScheduledNotification.find({ user: user._id }).lean();
+	const scheduledNotifications = await ScheduledNotification.find({ user: user._id, sent: false }).lean();
 
 	return response(200, "GET_SCHEDULED_NOTIFICATIONS", scheduledNotifications);
 }
@@ -117,6 +117,8 @@ async function addScheduledNotification(event) {
 		type,
 		info,
 	});
+
+	scheduledNotification.notificationId = scheduledNotification._id;
 
 	await scheduledNotification.save();
 
@@ -166,7 +168,7 @@ async function deleteScheduledNotification(event) {
 
 	const cronjobs = global.cronjobs.splice(index, 1);
 
-	cronjobs[0].task.stop();
+	if (cronjobs[0]) cronjobs[0].task.stop();
 
 	return response(200, "DELETE_SCHEDULED_NOTIFICATION", scheduledNotification);
 }

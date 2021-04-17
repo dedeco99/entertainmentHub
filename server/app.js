@@ -91,6 +91,10 @@ app.get("/api/scheduled-notifications", token, (req, res) =>
 	middleware(req, res, scheduledNotifications.getScheduledNotifications),
 );
 
+app.post("/api/scheduled-notifications", token, (req, res) =>
+	middleware(req, res, scheduledNotifications.addScheduledNotification),
+);
+
 app.delete("/api/scheduled-notifications/:id", token, (req, res) =>
 	middleware(req, res, scheduledNotifications.deleteScheduledNotification),
 );

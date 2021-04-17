@@ -53,7 +53,6 @@ async function deleteNotifications(event) {
 
 async function addNotifications(notifications) {
 	for (const notification of notifications) {
-		console.log("notification", notification);
 		const { active, dateToSend, notificationId, user, type, info } = notification;
 
 		const notificationExists = await Notification.findOne({ user, type, notificationId }).lean();

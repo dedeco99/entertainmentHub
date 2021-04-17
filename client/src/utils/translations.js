@@ -282,6 +282,22 @@ const translations = {
 		en: "Notification deleted",
 		pt: "Notificação apagada",
 	},
+	GET_SCHEDULED_NOTIFICATIONS: {
+		en: "Scheduled notifications found",
+		pt: "Scheduled notifications encontrados",
+	},
+	ADD_SCHEDULED_NOTIFICATION: {
+		en: "Scheduled notification created",
+		pt: "Scheduled notification adicionado",
+	},
+	EDIT_SCHEDULED_NOTIFICATION: {
+		en: "Scheduled notification has been updated",
+		pt: "Scheduled notification foi atualizado",
+	},
+	DELETE_SCHEDULED_NOTIFICATION: {
+		en: "Scheduled notification deleted",
+		pt: "Scheduled notification apagado",
+	},
 	GET_PRODUCT: {
 		en: "Product found",
 		pt: "Produto encontrado",

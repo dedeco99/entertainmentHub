@@ -12,6 +12,9 @@ import {
 	Paper,
 	IconButton,
 } from "@material-ui/core";
+import { SpeedDial, SpeedDialAction } from "@material-ui/lab";
+
+import ScheduledNotificationDetail from "../reminders/ScheduledNotificationDetail";
 
 import { formatDate } from "../../utils/utils";
 
@@ -22,6 +25,8 @@ const useStyles = makeStyles(styles);
 function Reminders() {
 	const classes = useStyles();
 	const [notifications, setNotifications] = useState([]);
+	const [openOptions, setOpenOptions] = useState(false);
+	const [openReminderDetail, setOpenReminderDetail] = useState(false);
 
 	useEffect(() => {
 		async function fetchData() {
@@ -34,6 +39,22 @@ function Reminders() {
 		fetchData();
 	}, []);
 
+	function handleOpenOptions() {
+		setOpenOptions(true);
+	}
+
+	function handleCloseOptions() {
+		setOpenOptions(false);
+	}
+
+	function handleOpenReminderDetail() {
+		setOpenReminderDetail(true);
+	}
+
+	function handleReminderDetailClose() {
+		setOpenReminderDetail(false);
+	}
+
 	async function handleDeleteNotification(id) {
 		const response = await deleteScheduledNotification(id);
 		if (response.status === 200) {
@@ -41,31 +62,56 @@ function Reminders() {
 		}
 	}
 
+	const actions = [
+		{ name: "Create Reminder", icon: <i className="icon-add" />, handleClick: handleOpenReminderDetail },
+	];
+
 	return (
-		<TableContainer component={Paper}>
-			<Table className={classes.table}>
-				<TableHead>
-					<TableRow>
-						<TableCell>{"Reminder"}</TableCell>
-						<TableCell align="center">{"When"}</TableCell>
-						<TableCell align="right">{"Delete"}</TableCell>
-					</TableRow>
-				</TableHead>
-				<TableBody>
-					{notifications.map(notification => (
-						<TableRow key={notification._id}>
-							<TableCell>{notification.info.reminder}</TableCell>
-							<TableCell align="center">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</TableCell>
-							<TableCell align="right">
-								<IconButton onClick={() => handleDeleteNotification(notification._id)}>
-									<i className="icon-delete" />
-								</IconButton>
-							</TableCell>
+		<div>
+			<TableContainer component={Paper}>
+				<Table className={classes.table}>
+					<TableHead>
+						<TableRow>
+							<TableCell>{"Reminder"}</TableCell>
+							<TableCell align="center">{"When"}</TableCell>
+							<TableCell align="right">{"Delete"}</TableCell>
 						</TableRow>
-					))}
-				</TableBody>
-			</Table>
-		</TableContainer>
+					</TableHead>
+					<TableBody>
+						{notifications.map(notification => (
+							<TableRow key={notification._id}>
+								<TableCell>{notification.info.reminder}</TableCell>
+								<TableCell align="center">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</TableCell>
+								<TableCell align="right">
+									<IconButton onClick={() => handleDeleteNotification(notification._id)}>
+										<i className="icon-delete" />
+									</IconButton>
+								</TableCell>
+							</TableRow>
+						))}
+					</TableBody>
+				</Table>
+			</TableContainer>
+			<ScheduledNotificationDetail open={openReminderDetail} onClose={handleReminderDetailClose} />
+			<SpeedDial
+				ariaLabel="Options"
+				icon={<i className="icon-add" />}
+				onClose={handleCloseOptions}
+				onOpen={handleOpenOptions}
+				open={openOptions}
+				className={classes.speedDial}
+				FabProps={{ size: "small" }}
+			>
+				{actions.map(action => (
+					<SpeedDialAction
+						key={action.name}
+						icon={action.icon}
+						tooltipTitle={action.name}
+						onClick={action.handleClick}
+					/>
+				))}
+			</SpeedDial>
+		</div>
 	);
 }
 

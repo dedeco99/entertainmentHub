@@ -9,6 +9,27 @@ async function getScheduledNotifications() {
 	return res;
 }
 
+async function addScheduledNotification(scheduledNotification) {
+	const res = await api({
+		method: "post",
+		url: "/api/scheduled-notifications",
+		data: scheduledNotification,
+		message: true,
+	});
+
+	return res;
+}
+
+async function editScheduledNotification(scheduledNotification) {
+	const res = await api({
+		method: "put",
+		url: `/api/scheduled-notifications/${scheduledNotification._id}`,
+		data: scheduledNotification,
+	});
+
+	return res;
+}
+
 async function deleteScheduledNotification(id) {
 	const res = await api({
 		method: "delete",
@@ -18,4 +39,9 @@ async function deleteScheduledNotification(id) {
 	return res;
 }
 
-export { getScheduledNotifications, deleteScheduledNotification };
+export {
+	getScheduledNotifications,
+	addScheduledNotification,
+	editScheduledNotification,
+	deleteScheduledNotification,
+};
