@@ -4,8 +4,8 @@ import { Subject } from "rxjs";
 import { distinctUntilChanged } from "rxjs/operators";
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, MenuItem } from "@material-ui/core";
-import "flatpickr/dist/themes/dark.css";
-import Flatpickr from "react-flatpickr";
+import { MuiPickersUtilsProvider, DateTimePicker } from "@material-ui/pickers";
+import DayjsUtils from "@date-io/dayjs";
 
 import Input from "../.partials/Input";
 
@@ -78,7 +78,6 @@ function ScheduledNotificationDetail({ open, scheduledNotification, onClose }) {
 	function renderFields() {
 		switch (type) {
 			case "reminder":
-				// TODO: Change flatpickr to material ui datetime picker when the component goes into the stable version
 				return (
 					<div>
 						<Input
@@ -92,13 +91,23 @@ function ScheduledNotificationDetail({ open, scheduledNotification, onClose }) {
 							fullWidth
 							required
 						/>
-						<Flatpickr
-							data-enable-time
-							value={dateToSend}
-							onChange={date => {
-								setDateToSend(date);
-							}}
-						/>
+						<MuiPickersUtilsProvider utils={DayjsUtils}>
+							<DateTimePicker
+								label="Date and Time"
+								value={dateToSend}
+								onChange={date => {
+									console.log(date);
+									setDateToSend(date);
+								}}
+								ampm={false}
+								disablePast
+								margin="normal"
+								inputVariant="outlined"
+								fullWidth
+								required
+								style={{ border: "1px solid white", borderRadius: "3px" }}
+							/>
+						</MuiPickersUtilsProvider>
 					</div>
 				);
 			default:
