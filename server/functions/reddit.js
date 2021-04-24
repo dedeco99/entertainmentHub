@@ -38,6 +38,10 @@ function formatResponse(json) {
 	for (let i = 0; i < json.data.children.length; i++) {
 		const data = json.data.children[i].data;
 
+		if (data.crosspost_parent_list) {
+			data.media = data.crosspost_parent_list[0].media;
+		}
+
 		let redditVideo = null;
 		if (data.media && data.media.reddit_video) {
 			redditVideo = data.media.reddit_video.dash_url;
@@ -56,7 +60,11 @@ function formatResponse(json) {
 		} else if (data.url.includes("https://www.reddit.com/gallery")) {
 			gallery = [];
 			for (const image in data.media_metadata) {
-				gallery.push(data.media_metadata[image].s.u.replace(/amp;/g, ""));
+				if (data.media_metadata[image].s.u) {
+					gallery.push(data.media_metadata[image].s.u.replace(/amp;/g, ""));
+				} else if (data.media_metadata[image].s.gif) {
+					gallery.push(data.media_metadata[image].s.gif.replace(/amp;/g, ""));
+				}
 			}
 		}
 

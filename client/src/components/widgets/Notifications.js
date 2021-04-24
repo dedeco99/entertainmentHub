@@ -30,7 +30,7 @@ import { UserContext } from "../../contexts/UserContext";
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
 import { addToWatchLater } from "../../api/youtube";
 
-import { formatDate, formatVideoDuration, formatNotification } from "../../utils/utils";
+import { formatDate, diff, formatVideoDuration, formatNotification } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
 import { notifications as widgetStyles } from "../../styles/Widgets";
@@ -39,7 +39,7 @@ import generalStyles from "../../styles/General";
 
 const useStyles = makeStyles({ ...widgetStyles, ...videoPlayerStyles, ...generalStyles });
 
-function Notifications({ height }) {
+function Notifications({ height, wrapTitle }) {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(NotificationContext);
 	const { notifications, total } = state;
@@ -144,7 +144,7 @@ function Notifications({ height }) {
 			},
 		]);
 
-		if (response.status === 200 || response.status === 409) {
+		if (response.status === 200 || response.status === 400) {
 			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
 			setSelectedNotifications({});
 		}
@@ -238,7 +238,7 @@ function Notifications({ height }) {
 			})),
 		);
 
-		if (response.status === 200 || response.status === 409) {
+		if (response.status === 200 || response.status === 400) {
 			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
 			setSelectedNotifications({});
 		}
@@ -326,7 +326,7 @@ function Notifications({ height }) {
 							</Box>
 						)}
 						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
-							<Typography variant="body1" title={subtitle} noWrap>
+							<Typography variant="body1" title={subtitle} noWrap={!wrapTitle}>
 								<Link
 									href={`https://www.youtube.com/watch?v=${notification.info.videoId}`}
 									target="_blank"
@@ -346,7 +346,16 @@ function Notifications({ height }) {
 									{title}
 								</Link>
 							</Typography>
-							<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
+
+							{notification.info.scheduled && diff(notification.info.scheduled, "minutes") <= 0 ? (
+								<Typography variant="caption">
+									{`Scheduled for ${formatDate(notification.info.scheduled, "DD-MM-YYYY HH:mm")}`}
+								</Typography>
+							) : (
+								<Typography variant="caption">
+									{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}
+								</Typography>
+							)}
 						</Box>
 					</>
 				);
@@ -361,8 +370,22 @@ function Notifications({ height }) {
 								</Box>
 							</Box>
 						) : (
-							<Box display="flex" justifyContent="center" flexShrink="0" width="100px" mr={2}>
-								<Avatar className={classes.avatar}>{renderNotificationType(notification.type)}</Avatar>
+							<Box
+								flexShrink="0"
+								width="100px"
+								mr={2}
+								align="center"
+								style={{ backgroundColor: "#444", height: "55px" }}
+							>
+								<Avatar className={classes.avatar} style={{ top: "5px" }}>
+									{renderNotificationType(notification.type)}
+								</Avatar>
+								<Box
+									className={classes.bottomRightOverlay}
+									style={{ bottom: "10px", left: "70px", right: "initial" }}
+								>
+									<Typography variant="caption">{overlay}</Typography>
+								</Box>
 							</Box>
 						)}
 						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
@@ -581,6 +604,7 @@ function Notifications({ height }) {
 
 Notifications.propTypes = {
 	height: PropTypes.string,
+	wrapTitle: PropTypes.bool,
 };
 
 export default Notifications;

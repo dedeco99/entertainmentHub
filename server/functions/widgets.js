@@ -17,7 +17,7 @@ async function getWidgets(event) {
 // eslint-disable-next-line complexity
 async function addWidget(event) {
 	const { body, user } = event;
-	const { type, group, width, height, info } = body;
+	const { type, group, width, height, refreshRateMinutes, info } = body;
 
 	if (!type) return errors.requiredFieldsMissing;
 
@@ -57,6 +57,7 @@ async function addWidget(event) {
 		group,
 		width,
 		height,
+		refreshRateMinutes,
 		info,
 	});
 
@@ -68,7 +69,7 @@ async function addWidget(event) {
 async function editWidget(event) {
 	const { params, body } = event;
 	const { id } = params;
-	const { group, info, x, y, width, height } = body;
+	const { group, info, x, y, width, height, refreshRateMinutes } = body;
 
 	const widgetExists = await Widget.findOne({ _id: id }).lean();
 
@@ -76,7 +77,7 @@ async function editWidget(event) {
 
 	const widget = await Widget.findOneAndUpdate(
 		{ _id: id },
-		{ group, info, x, y, width, height },
+		{ group, info, x, y, width, height, refreshRateMinutes },
 		{ new: true },
 	).lean();
 
