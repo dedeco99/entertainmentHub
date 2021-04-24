@@ -42,7 +42,16 @@ function formatVideoDuration(duration) {
 }
 
 function formatNotification(notification) {
-	const { displayName, thumbnail, duration, videoTitle, episodeTitle, season, number } = notification.info;
+	const {
+		displayName,
+		thumbnail,
+		duration,
+		videoTitle,
+		episodeTitle,
+		season,
+		number,
+		reminder,
+	} = notification.info;
 
 	switch (notification.type) {
 		case "youtube":
@@ -61,6 +70,10 @@ function formatNotification(notification) {
 				overlay: `${seasonLabel}${episodeLabel}`,
 				title: displayName,
 				subtitle: `${seasonLabel}${episodeLabel} - ${episodeTitle}`,
+			};
+		case "reminder":
+			return {
+				title: reminder,
 			};
 		default:
 			return null;
