@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useContext, useState } from "react";
 import { getScheduledNotifications, deleteScheduledNotification } from "../../api/scheduledNotifications";
 
 import {
@@ -16,6 +16,8 @@ import { SpeedDial, SpeedDialAction } from "@material-ui/lab";
 
 import ScheduledNotificationDetail from "../reminders/ScheduledNotificationDetail";
 
+import { NotificationContext } from "../../contexts/NotificationContext";
+
 import { formatDate } from "../../utils/utils";
 
 import styles from "../../styles/General";
@@ -24,7 +26,8 @@ const useStyles = makeStyles(styles);
 
 function Reminders() {
 	const classes = useStyles();
-	const [notifications, setNotifications] = useState([]);
+	const { state, dispatch } = useContext(NotificationContext);
+	const { scheduledNotifications } = state;
 	const [openOptions, setOpenOptions] = useState(false);
 	const [openReminderDetail, setOpenReminderDetail] = useState(false);
 
@@ -32,7 +35,7 @@ function Reminders() {
 		async function fetchData() {
 			const response = await getScheduledNotifications();
 			if (response.status === 200) {
-				setNotifications(response.data);
+				dispatch({ type: "SET_SCHEDULED_NOTIFICATIONS", scheduledNotifications: response.data });
 			}
 		}
 
@@ -58,7 +61,7 @@ function Reminders() {
 	async function handleDeleteNotification(id) {
 		const response = await deleteScheduledNotification(id);
 		if (response.status === 200) {
-			setNotifications(notifications.filter(n => n._id !== id));
+			dispatch({ type: "DELETE_SCHEDULED_NOTIFICATION", scheduledNotification: response.data });
 		}
 	}
 
@@ -78,7 +81,7 @@ function Reminders() {
 						</TableRow>
 					</TableHead>
 					<TableBody>
-						{notifications.map(notification => (
+						{scheduledNotifications.map(notification => (
 							<TableRow key={notification._id}>
 								<TableCell>{notification.info.reminder}</TableCell>
 								<TableCell align="center">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</TableCell>

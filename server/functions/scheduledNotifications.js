@@ -40,6 +40,7 @@ async function cronjobScheduler(toSchedule) {
 
 				for (const series of userSeries) {
 					notifications.push({
+						active: true,
 						scheduledNotification: scheduledNotification._id,
 						dateToSend,
 						notificationId: `${series.user}${notificationId}`,
@@ -57,6 +58,7 @@ async function cronjobScheduler(toSchedule) {
 				break;
 			case "reminder":
 				notifications.push({
+					active: true,
 					scheduledNotification: scheduledNotification._id,
 					dateToSend,
 					notificationId: scheduledNotification._id,

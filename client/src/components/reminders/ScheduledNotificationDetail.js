@@ -9,15 +9,14 @@ import DayjsUtils from "@date-io/dayjs";
 
 import Input from "../.partials/Input";
 
-import { WidgetContext } from "../../contexts/WidgetContext";
+import { NotificationContext } from "../../contexts/NotificationContext";
 
 import { addScheduledNotification, editScheduledNotification } from "../../api/scheduledNotifications";
 
 import { translate } from "../../utils/translations";
 
 function ScheduledNotificationDetail({ open, scheduledNotification, onClose }) {
-	const { dispatch } = useContext(WidgetContext);
-	// TODO: Change to NotificationContext and also dispatch a delete when the notification gets through the socket
+	const { dispatch } = useContext(NotificationContext);
 	const [type, setType] = useState("notifications");
 	const [dateToSend, setDateToSend] = useState(null);
 	const [info, setInfo] = useState({});
@@ -95,10 +94,7 @@ function ScheduledNotificationDetail({ open, scheduledNotification, onClose }) {
 							<DateTimePicker
 								label="Date and Time"
 								value={dateToSend}
-								onChange={date => {
-									console.log(date);
-									setDateToSend(date);
-								}}
+								onChange={setDateToSend}
 								ampm={false}
 								disablePast
 								margin="normal"
