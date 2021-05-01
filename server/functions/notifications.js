@@ -67,15 +67,15 @@ async function addNotifications(notifications) {
 				info,
 			});
 
-			await newNotification.save();
-
 			if (active) {
-				const doesNotHaveWords = info.dontShowWithTheseWords
-					? !info.dontShowWithTheseWords.some(v => info.videoTitle.includes(v))
-					: true;
-				const hasWords = info.onlyShowWithTheseWords
-					? info.onlyShowWithTheseWords.some(v => info.videoTitle.includes(v))
-					: true;
+				const doesNotHaveWords =
+					info.dontShowWithTheseWords && info.dontShowWithTheseWords.length
+						? !info.dontShowWithTheseWords.some(v => info.videoTitle.includes(v))
+						: true;
+				const hasWords =
+					info.onlyShowWithTheseWords && info.onlyShowWithTheseWords.length
+						? info.onlyShowWithTheseWords.some(v => info.videoTitle.includes(v))
+						: true;
 
 				if (doesNotHaveWords && hasWords) {
 					if (global.sockets[user]) {
@@ -83,8 +83,12 @@ async function addNotifications(notifications) {
 							socket.emit("notification", newNotification);
 						}
 					}
+				} else {
+					newNotification.active = false;
 				}
 			}
+
+			await newNotification.save();
 
 			if (info.autoAddToWatchLater) {
 				const { addToWatchLater } = require("./youtube"); //eslint-disable-line
