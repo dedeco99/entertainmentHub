@@ -214,9 +214,9 @@ async function getPlaylistVideos(event) {
 
 async function addToWatchLater(event) {
 	const { body, user } = event;
-	const { videos } = body;
+	const { videos, playlist } = body;
 
-	if (!user.settings.youtube.watchLaterPlaylist) return errors.requiredFieldsMissing;
+	if (!user.settings.youtube.watchLaterPlaylist && !playlist) return errors.requiredFieldsMissing;
 
 	const accessToken = await getAccessToken(user);
 
@@ -241,9 +241,8 @@ async function addToWatchLater(event) {
 
 		const data = {
 			snippet: {
-				playlistId: subscription.notifications.watchLaterPlaylist
-					? subscription.notifications.watchLaterPlaylist
-					: user.settings.youtube.watchLaterPlaylist,
+				playlistId:
+					playlist || subscription.notifications.watchLaterPlaylist || user.settings.youtube.watchLaterPlaylist,
 				resourceId: {
 					videoId: video.videoId,
 					kind: "youtube#video",

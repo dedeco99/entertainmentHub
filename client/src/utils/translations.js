@@ -87,6 +87,10 @@ const translations = {
 		en: "Watch Later",
 		pt: "Ver mais Tarde",
 	},
+	addToPlaylist: {
+		en: "Add to Playlist",
+		pt: "Adicionar à Lista de Reprodução",
+	},
 	markAsRead: {
 		en: "Mark as Read",
 		pt: "Marcar como Lido",
