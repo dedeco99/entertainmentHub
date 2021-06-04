@@ -31,6 +31,16 @@ async function editSubscription(id, subscription) {
 	return res;
 }
 
+async function patchSubscription(id, watched) {
+	const res = await api({
+		method: "patch",
+		url: `/api/subscriptions/${id}`,
+		data: { watched },
+	});
+
+	return res;
+}
+
 async function deleteSubscription(id) {
 	const res = await api({
 		method: "delete",
@@ -41,4 +51,4 @@ async function deleteSubscription(id) {
 	return res;
 }
 
-export { getSubscriptions, addSubscriptions, editSubscription, deleteSubscription };
+export { getSubscriptions, addSubscriptions, editSubscription, patchSubscription, deleteSubscription };
