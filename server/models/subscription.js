@@ -16,6 +16,7 @@ const SubscriptionSchema = new Schema(
 			dontShowWithTheseWords: [{ type: String }],
 			onlyShowWithTheseWords: [{ type: String }],
 		},
+		watched: [{ type: String }],
 	},
 	{ timestamps: { createdAt: "_created", updatedAt: "_modified" } },
 );

@@ -31,7 +31,15 @@ function Episode({ episode }) {
 				<div className={episode.finale ? `${classes.overlay} ${classes.finale}` : ""}>
 					{episode.finale && "Finale"}
 				</div>
-				<div className={`${classes.overlay} ${classes.season}`}>{seasonLabel + episodeLabel}</div>
+				<div className={`${classes.overlay} ${classes.season}`}>
+					{seasonLabel + episodeLabel}
+					{episode.watched ? (
+						<i
+							className="icon-check-circled"
+							style={{ color: "green", top: "1px", marginLeft: "3px", position: "relative" }}
+						/>
+					) : null}
+				</div>
 				<div className={`${classes.overlay} ${classes.date}`}>{formatDate(episode.date, "DD-MM-YYYY")}</div>
 			</CardActionArea>
 		</Card>

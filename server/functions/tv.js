@@ -149,6 +149,7 @@ async function cronjob() {
 	return true;
 }
 
+// eslint-disable-next-line max-lines-per-function
 async function getEpisodes(event) {
 	const { params, query, user } = event;
 	const { id } = params;
@@ -167,6 +168,72 @@ async function getEpisodes(event) {
 		sortQuery.date = 1;
 	}
 
+	const calculateFieldsQueries = [
+		{
+			$lookup: {
+				from: "subscriptions",
+				let: { seriesId: "$seriesId" },
+				pipeline: [
+					{
+						$match: {
+							$expr: {
+								$and: [
+									{ platform: "tv" },
+									{ $eq: ["$externalId", "$$seriesId"] },
+									{ $eq: ["$user", toObjectId(user._id)] },
+								],
+							},
+						},
+					},
+				],
+				as: "series",
+			},
+		},
+		{ $unwind: "$series" },
+		{
+			$lookup: {
+				from: "episodes",
+				let: { seriesId: "$seriesId", season: "$season" },
+				pipeline: [
+					{
+						$match: {
+							$expr: {
+								$and: [{ $eq: ["$seriesId", "$$seriesId"] }, { $eq: ["$season", "$$season"] }],
+							},
+						},
+					},
+					{
+						$sort: { number: -1 },
+					},
+					{
+						$limit: 1,
+					},
+				],
+				as: "finale",
+			},
+		},
+		{ $unwind: "$finale" },
+		{
+			$addFields: {
+				finale: {
+					$cond: [{ $eq: ["$finale.number", "$number"] }, true, false],
+				},
+				watched: {
+					$cond: [
+						{
+							$in: [
+								{ $concat: ["S", { $toString: "$season" }, "E", { $toString: "$number" }] },
+								"$series.watched",
+							],
+						},
+						true,
+						false,
+					],
+				},
+			},
+		},
+	];
+
 	let episodes = [];
 	if (id === "all") {
 		episodes = await Episode.aggregate([
@@ -174,62 +241,13 @@ async function getEpisodes(event) {
 			{ $sort: sortQuery },
 			{ $skip: page ? page * 50 : 0 },
 			{ $limit: 50 },
-			{
-				$lookup: {
-					from: "subscriptions",
-					let: { seriesId: "$seriesId" },
-					pipeline: [
-						{
-							$match: {
-								$expr: {
-									$and: [
-										{ platform: "tv" },
-										{ $eq: ["$externalId", "$$seriesId"] },
-										{ $eq: ["$user", toObjectId(user._id)] },
-									],
-								},
-							},
-						},
-					],
-					as: "series",
-				},
-			},
-			{ $unwind: "$series" },
-			{
-				$lookup: {
-					from: "episodes",
-					let: { seriesId: "$seriesId", season: "$season" },
-					pipeline: [
-						{
-							$match: {
-								$expr: {
-									$and: [{ $eq: ["$seriesId", "$$seriesId"] }, { $eq: ["$season", "$$season"] }],
-								},
-							},
-						},
-						{
-							$sort: { number: -1 },
-						},
-						{
-							$limit: 1,
-						},
-					],
-					as: "finale",
-				},
-			},
-			{ $unwind: "$finale" },
-			{
-				$addFields: {
-					finale: {
-						$cond: [{ $eq: ["$finale.number", "$number"] }, true, false],
-					},
-				},
-			},
+			...calculateFieldsQueries,
 		]);
 	} else {
 		episodes = await Episode.aggregate([
 			{ $match: { seriesId: id } },
 			{ $sort: { number: -1 } },
+			...calculateFieldsQueries,
 			{
 				$group: {
 					_id: "$season",
