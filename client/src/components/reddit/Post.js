@@ -110,7 +110,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 				<img
 					src={post.url}
 					alt={post.url}
-					style={{ width: "1000px", height: "1000px", maxWidth: "100%", maxHeight: "100%", margin: "auto" }}
+					style={{ width: "1000px", height: "inherit", maxWidth: "100%", maxHeight: "inherit", margin: "auto" }}
 				/>
 			);
 		} else if (post.domain === "gfycat.com") {
@@ -355,7 +355,12 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 										<Box
 											className={classes.expandedBtn}
 											onClick={onShowPreviousPost}
-											style={{ backgroundColor: "rgb(66 66 66 / 0%)", marginTop: "400px", height: "50%" }}
+											style={{
+												backgroundColor: "rgb(66 66 66 / 0%)",
+												position: "absolute",
+												height: "100%",
+												transform: "translateY(40%)",
+											}}
 										>
 											<Box>
 												<IconButton
@@ -383,6 +388,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 											marginTop: "10px",
 											backgroundColor: "#3C3C3C",
 											padding: "8px",
+											marginRight: "10px",
 										}}
 									>
 										<i className={sideMenuView ? "icon-arrow-right icon-1x" : "icon-arrow-left icon-1x"} />
@@ -392,7 +398,13 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 										<Box
 											className={classes.expandedBtn}
 											onClick={onShowNextPost}
-											style={{ backgroundColor: "rgb(66 66 66 / 0%)", marginTop: "400px", height: "50%" }}
+											style={{
+												backgroundColor: "rgb(66 66 66 / 0%)",
+												position: "absolute",
+												marginLeft: "-20px",
+												height: "100%",
+												transform: "translateY(40%)",
+											}}
 										>
 											<Box>
 												<IconButton
@@ -516,7 +528,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 
 												<Box fontWeight={500} fontFamily="Monospace" pt={1}>
 													<Typography variant="caption" style={{ fontSize: "13px" }}>
-														{comment.score === 0 ? "0" : `${formatNumber(comment.score)}`}
+														{comment.score}
 													</Typography>
 													<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px" }}>
 														{` score`}
@@ -551,7 +563,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 
 															<Box fontWeight={500} fontFamily="Monospace" pt={1}>
 																<Typography variant="caption" style={{ fontSize: "13px" }}>
-																	{reply.score === 0 ? "0" : `${formatNumber(reply.score)}`}
+																	{comment.score}
 																</Typography>
 																<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px" }}>
 																	{` score`}
