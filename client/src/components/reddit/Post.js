@@ -12,11 +12,17 @@ import {
 	Link,
 	Divider,
 	Paper,
+	Grid,
+	Card,
+	CardContent,
+	IconButton,
+	Icon,
+	Avatar,
 } from "@material-ui/core";
 
 import { getComments } from "../../api/reddit";
 
-import { formatDate, htmlEscape } from "../../utils/utils";
+import { formatDate, formatNumber, htmlEscape } from "../../utils/utils";
 
 import { reddit as styles } from "../../styles/Widgets";
 
@@ -25,14 +31,65 @@ const useStyles = makeStyles(styles);
 function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, customStyles }) {
 	const classes = useStyles({ inList });
 	const [expandedView, setExpandedView] = useState(false);
+	const [sideMenuView, setSideMenuView] = useState(true);
+	const [comments, setComments] = useState([]);
+
+	async function handleGetComments() {
+		console.log(post);
+		//if (!loading) {
+		//setLoading(true);
+
+		//if (pagination.page === 0) setOpen(false);
+
+		//const response = await getPosts(match.params.sub, match.params.category, pagination.after);
+		const response = await getComments(post.subreddit, post.id);
+
+		if (response.status === 200) {
+			//const newPosts = pagination.page === 0 ? response.data : posts.concat(response.data);
+			//const newComments = response.data;
+			setComments(response.data);
+			console.log(response.data);
+			/*setPagination({
+					page: pagination.page + 1,
+					hasMore: !(response.data.length < 25),
+					after: response.data.length ? response.data[0].after : null,
+				});
+				setLoading(false);
+				setOpen(true);*/
+			//console.log(comments);
+		}
+		//}
+	}
 
 	useEffect(() => {
+		console.log("Post ID => ", post.id);
+
 		async function fetchData() {
-			await getComments(post.subreddit, post.id);
+			return await handleGetComments();
 		}
 
 		fetchData();
-	}, []); // eslint-disable-line
+	}, [post.id]);
+
+	/*useEffect(() => {
+		console.log(post.id);
+		async function fetchData() {
+			return await getComments(post.subreddit, post.id);
+		}
+
+		console.log(fetchData());
+	}, [post.id]);*/
+
+	useEffect(() => {
+		function updateSideMenuView() {
+			if (window.innerWidth <= 900) handleCloseSideMenuView();
+			else handleOpenSideMenuView();
+		}
+
+		window.addEventListener("resize", updateSideMenuView);
+		updateSideMenuView();
+		return () => window.removeEventListener("resize", updateSideMenuView);
+	}, []);
 
 	function handleCloseExpandedView() {
 		setExpandedView(false);
@@ -42,9 +99,17 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 		setExpandedView(true);
 	}
 
+	function handleOpenSideMenuView() {
+		setSideMenuView(true);
+	}
+
+	function handleCloseSideMenuView() {
+		setSideMenuView(false);
+	}
+
 	function formatTextPost() {
 		return (
-			<Box p={2} maxHeight={400}>
+			<Box p={2} maxWidth={1450} style={{ backgroundColor: "#212121" }}>
 				{post.text === "null" ? (
 					<Typography>
 						<Link href={post.url} target="_blank" rel="noreferrer" color="inherit">
@@ -71,7 +136,13 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 			content = (
 				<CardMedia component="img" src={post.url} className={classes.media} onClick={handleOpenExpandedView} />
 			);
-			expandedContent = <img src={post.url} alt={post.url} />;
+			expandedContent = (
+				<img
+					src={post.url}
+					alt={post.url}
+					style={{ width: "1000px", height: "1000px", maxWidth: "100%", maxHeight: "100%", margin: "auto" }}
+				/>
+			);
 		} else if (post.domain === "gfycat.com") {
 			content = (
 				<CardMedia
@@ -116,7 +187,17 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 			);
 			expandedContent = content;
 		} else if (post.domain === "v.redd.it") {
-			content = <CardMedia component="video" src={post.redditVideo} className={classes.media} controls />;
+			if (expandedView)
+				content = (
+					<CardMedia
+						component="video"
+						src={post.redditVideo}
+						className={classes.media}
+						controls
+						style={{ top: "5%", left: "10%", width: "80%", height: "80%" }}
+					/>
+				);
+			else content = <CardMedia component="video" src={post.redditVideo} className={classes.media} controls />;
 			expandedContent = content;
 		} else if (post.domain === "youtube.com" || post.domain === "youtu.be") {
 			const videoId = post.url.includes("?v=")
@@ -278,27 +359,244 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 				)}
 			</Box>
 			<Modal className={classes.modal} open={expandedView} onClose={handleCloseExpandedView} closeAfterTransition>
-				<Fade in={expandedView}>
-					<Paper component={Box} display="flex" className={classes.expandedView}>
-						{onShowPreviousPost && (
-							<Box className={classes.expandedBtn} onClick={onShowPreviousPost}>
-								<Box display="flex" alignItems="center" height="100%">
-									<i className="icon-arrow-left icon-2x" />
+				<Grid container style={{ outline: "none", height: "100%" }}>
+					<Grid item xs={sideMenuView ? 9 : 12}>
+						<Fade
+							in={expandedView}
+							style={{ outline: "none", height: "100%", width: "100%", backgroundColor: "#4242426b" }}
+						>
+							<Paper component={Box} display="flex" className={classes.expandedView}>
+								<Box>
+									<IconButton
+										color="primary"
+										onClick={handleCloseExpandedView}
+										variant="contained"
+										style={{
+											marginTop: "10px",
+											marginLeft: "10px",
+											backgroundColor: "#3C3C3C",
+											padding: "8px",
+										}}
+									>
+										<i className="icon-arrow-left icon-1x" />
+									</IconButton>
+
+									{onShowPreviousPost && (
+										<Box
+											className={classes.expandedBtn}
+											onClick={onShowPreviousPost}
+											style={{ backgroundColor: "rgb(66 66 66 / 0%)", marginTop: "400px", height: "50%" }}
+										>
+											<Box>
+												<IconButton
+													onClick={onShowPreviousPost}
+													color="primary"
+													style={{ backgroundColor: "#3C3C3C", padding: "8px", cursor: "pointer" }}
+												>
+													<i className="icon-arrow-left icon-1x" />
+												</IconButton>
+											</Box>
+										</Box>
+									)}
 								</Box>
-							</Box>
-						)}
-						<Box position="relative" height="100%" flexGrow={1} style={{ overflow: "auto" }}>
-							{expandedContent}
-						</Box>
-						{onShowNextPost && (
-							<Box className={classes.expandedBtn} onClick={onShowNextPost}>
-								<Box display="flex" alignItems="center" height="100%">
-									<i className="icon-arrow-right icon-2x" />
+
+								<Box position="relative" height="100%" flexGrow={1} style={{ overflow: "auto" }}>
+									{expandedContent}
 								</Box>
-							</Box>
-						)}
-					</Paper>
-				</Fade>
+
+								<Box>
+									<IconButton
+										color="primary"
+										onClick={sideMenuView ? handleCloseSideMenuView : handleOpenSideMenuView}
+										variant="contained"
+										style={{
+											marginTop: "10px",
+											backgroundColor: "#3C3C3C",
+											padding: "8px",
+										}}
+									>
+										<i className={sideMenuView ? "icon-arrow-right icon-1x" : "icon-arrow-left icon-1x"} />
+									</IconButton>
+
+									{onShowNextPost && (
+										<Box
+											className={classes.expandedBtn}
+											onClick={onShowNextPost}
+											style={{ backgroundColor: "rgb(66 66 66 / 0%)", marginTop: "400px", height: "50%" }}
+										>
+											<Box>
+												<IconButton
+													onClick={onShowPreviousPost}
+													color="primary"
+													style={{ backgroundColor: "#3C3C3C", padding: "8px", cursor: "pointer" }}
+												>
+													<i className="icon-arrow-right icon-1x" />
+												</IconButton>
+											</Box>
+										</Box>
+									)}
+								</Box>
+							</Paper>
+						</Fade>
+					</Grid>
+
+					{sideMenuView && (
+						<Grid
+							xs={3}
+							style={{ outline: "none", height: "100%", backgroundColor: "#212121", overflowY: "scroll" }}
+						>
+							<Card
+								variant="outlined"
+								style={{
+									borderRadius: "1px",
+									border: "1px solid rgba(255, 255, 255, 0.12)",
+									borderLeft: "0px",
+									borderRight: "0px",
+									borderTop: "0px",
+									backgroundColor: "#212121",
+								}}
+							>
+								<CardContent>
+									<Box fontWeight={500} fontFamily="Monospace">
+										<Box fontWeight={500} fontFamily="Monospace" pt={1}>
+											<Typography variant="caption" style={{ fontSize: "13px" }}>
+												{"r/"}
+											</Typography>
+											<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px" }}>
+												{post.subreddit}
+											</Typography>
+										</Box>
+									</Box>
+									<Box fontWeight={500} fontFamily="Monospace">
+										<Typography variant="caption" style={{ fontSize: "13px" }}>
+											{"Posted by u/"}
+										</Typography>
+										<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px" }}>
+											{post.author}
+										</Typography>
+										<Typography variant="caption" style={{ fontSize: "13px" }}>
+											{` • ${formatDate(post.created * 1000, null, true)}`}
+										</Typography>
+									</Box>
+									<Box fontWeight={500} fontFamily="Monospace" py={1}>
+										<Typography gutterBottom variant="h6" component="h6">
+											{post.title}
+										</Typography>
+									</Box>
+									<Box fontWeight={500} fontFamily="Monospace" pt={1}>
+										<Typography variant="caption" style={{ fontSize: "13px" }}>
+											{`${formatNumber(post.score)}`}
+										</Typography>
+										<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px" }}>
+											{` score`}
+										</Typography>
+										<Typography variant="caption" style={{ fontSize: "13px" }}>
+											{` • ${formatNumber(post.comments)}`}
+										</Typography>
+										<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px" }}>
+											{` comments`}
+										</Typography>
+									</Box>
+								</CardContent>
+							</Card>
+							<Card
+								variant="outlined"
+								style={{
+									borderRadius: "1px",
+									border: "1px solid rgba(255, 255, 255, 0.12)",
+									borderLeft: "0px",
+									borderRight: "0px",
+									borderTop: "0px",
+									borderBottom: "0px",
+									backgroundColor: "#212121",
+								}}
+							>
+								{comments.map(comment => (
+									<CardContent
+										key={comment.id}
+										style={{
+											borderRadius: "1px",
+											border: "1px solid rgba(255, 255, 255, 0.12)",
+											borderLeft: "0px",
+											borderRight: "0px",
+											borderTop: "0px",
+											backgroundColor: "#212121",
+										}}
+									>
+										<Box fontWeight={500} fontFamily="Monospace" pt={1}>
+											<Typography variant="caption" style={{ fontSize: "13px" }}>
+												{comment.author}
+											</Typography>
+
+											<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
+												{` • ${formatDate(comment.created * 1000, null, true)}`}
+											</Typography>
+										</Box>
+
+										<Box
+											style={{
+												display: "inline-flex",
+											}}
+										>
+											<Divider orientation="vertical" flexItem />
+											<Box fontWeight={500} fontFamily="Monospace" pt={1} style={{ marginLeft: "10px" }}>
+												<Typography variant="caption" style={{ fontSize: "12px" }}>
+													{comment.text}
+												</Typography>
+
+												<Box fontWeight={500} fontFamily="Monospace" pt={1}>
+													<Typography variant="caption" style={{ fontSize: "13px" }}>
+														{comment.score === 0 ? "0" : `${formatNumber(comment.score)}`}
+													</Typography>
+													<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px" }}>
+														{` score`}
+													</Typography>
+												</Box>
+											</Box>
+										</Box>
+
+										{comment.replies &&
+											comment.replies.map(reply => (
+												<CardContent key={reply.id}>
+													<Box fontWeight={500} fontFamily="Monospace" pt={1}>
+														<Typography variant="caption" style={{ fontSize: "13px" }}>
+															{reply.author}
+														</Typography>
+
+														<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
+															{` • ${formatDate(reply.created * 1000, null, true)}`}
+														</Typography>
+													</Box>
+
+													<Box
+														style={{
+															display: "inline-flex",
+														}}
+													>
+														<Divider orientation="vertical" flexItem />
+														<Box fontWeight={500} fontFamily="Monospace" pt={1} style={{ marginLeft: "10px" }}>
+															<Typography variant="caption" style={{ fontSize: "12px" }}>
+																{reply.text}
+															</Typography>
+
+															<Box fontWeight={500} fontFamily="Monospace" pt={1}>
+																<Typography variant="caption" style={{ fontSize: "13px" }}>
+																	{reply.score === 0 ? "0" : `${formatNumber(reply.score)}`}
+																</Typography>
+																<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px" }}>
+																	{` score`}
+																</Typography>
+															</Box>
+														</Box>
+													</Box>
+												</CardContent>
+											))}
+									</CardContent>
+								))}
+							</Card>
+						</Grid>
+					)}
+				</Grid>
 			</Modal>
 		</Box>
 	);
