@@ -35,50 +35,19 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 	const [comments, setComments] = useState([]);
 
 	async function handleGetComments() {
-		console.log(post);
-		//if (!loading) {
-		//setLoading(true);
-
-		//if (pagination.page === 0) setOpen(false);
-
-		//const response = await getPosts(match.params.sub, match.params.category, pagination.after);
 		const response = await getComments(post.subreddit, post.id);
 
 		if (response.status === 200) {
-			//const newPosts = pagination.page === 0 ? response.data : posts.concat(response.data);
-			//const newComments = response.data;
 			setComments(response.data);
-			console.log(response.data);
-			/*setPagination({
-					page: pagination.page + 1,
-					hasMore: !(response.data.length < 25),
-					after: response.data.length ? response.data[0].after : null,
-				});
-				setLoading(false);
-				setOpen(true);*/
-			//console.log(comments);
-		}
-		//}
 	}
 
 	useEffect(() => {
-		console.log("Post ID => ", post.id);
-
 		async function fetchData() {
 			return await handleGetComments();
 		}
 
 		fetchData();
 	}, [post.id]);
-
-	/*useEffect(() => {
-		console.log(post.id);
-		async function fetchData() {
-			return await getComments(post.subreddit, post.id);
-		}
-
-		console.log(fetchData());
-	}, [post.id]);*/
 
 	useEffect(() => {
 		function updateSideMenuView() {
