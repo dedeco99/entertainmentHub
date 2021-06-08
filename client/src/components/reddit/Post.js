@@ -39,6 +39,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 
 		if (response.status === 200) {
 			setComments(response.data);
+		}
 	}
 
 	useEffect(() => {
