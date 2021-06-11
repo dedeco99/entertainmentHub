@@ -16,8 +16,6 @@ import {
 	Card,
 	CardContent,
 	IconButton,
-	Icon,
-	Avatar,
 } from "@material-ui/core";
 
 import { getComments } from "../../api/reddit";
@@ -110,7 +108,16 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 				<img
 					src={post.url}
 					alt={post.url}
-					style={{ width: "1000px", height: "inherit", maxWidth: "100%", maxHeight: "inherit", margin: "auto" }}
+					style={{
+						width: "100%",
+						height: "100%",
+						maxWidth: "100%",
+						maxHeight: "100%",
+						margin: "auto",
+						display: "block",
+						position: "absolute",
+						objectFit: "contain",
+					}}
 				/>
 			);
 		} else if (post.domain === "gfycat.com") {
@@ -357,9 +364,9 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 											onClick={onShowPreviousPost}
 											style={{
 												backgroundColor: "rgb(66 66 66 / 0%)",
-												position: "absolute",
+												position: "relative",
 												height: "100%",
-												transform: "translateY(40%)",
+												transform: "translateY(45%)",
 											}}
 										>
 											<Box>
@@ -388,7 +395,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 											marginTop: "10px",
 											backgroundColor: "#3C3C3C",
 											padding: "8px",
-											marginRight: "10px",
+											marginLeft: "20px",
 										}}
 									>
 										<i className={sideMenuView ? "icon-arrow-right icon-1x" : "icon-arrow-left icon-1x"} />
@@ -400,10 +407,9 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 											onClick={onShowNextPost}
 											style={{
 												backgroundColor: "rgb(66 66 66 / 0%)",
-												position: "absolute",
-												marginLeft: "-20px",
+												position: "relative",
 												height: "100%",
-												transform: "translateY(40%)",
+												transform: "translateY(45%)",
 											}}
 										>
 											<Box>
