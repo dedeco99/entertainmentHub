@@ -229,7 +229,7 @@ async function getEpisodes(event) {
 						{
 							$in: [
 								{ $concat: ["S", { $toString: "$season" }, "E", { $toString: "$number" }] },
-								"$series.watched",
+								"$series.watched.key",
 							],
 						},
 						true,

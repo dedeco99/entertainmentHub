@@ -110,9 +110,9 @@ async function patchSubscription(event) {
 
 	let subscription = await Subscription.findOne({ _id: id }).lean();
 	try {
-		const updateQuery = subscription.watched.includes(watched)
-			? { $pull: { watched } }
-			: { $addToSet: { watched } };
+		const updateQuery = subscription.watched.find(w => w.key === watched)
+			? { $pull: { watched: { key: watched } } }
+			: { $addToSet: { watched: { key: watched, date: Date.now() } } };
 
 		subscription = await Subscription.findOneAndUpdate({ _id: id }, updateQuery, { new: true }).lean();
 	} catch (err) {
