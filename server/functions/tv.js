@@ -160,12 +160,18 @@ async function getEpisodes(event) {
 	const seriesIds = userSeries.map(s => s.externalId);
 
 	const episodeQuery = { seriesId: { $in: seriesIds } };
+	const afterQuery = { watched: { $ne: null } };
 	const sortQuery = { date: -1, seriesId: -1, number: -1 };
 	if (filter === "passed") {
 		episodeQuery.date = { $lte: new Date() };
 	} else if (filter === "future") {
 		episodeQuery.date = { $gt: new Date() };
 		sortQuery.date = 1;
+	} else if (filter === "watched") {
+		afterQuery.watched = true;
+	} else if (filter === "toWatch") {
+		episodeQuery.date = { $lte: new Date() };
+		afterQuery.watched = false;
 	}
 
 	const calculateFieldsQueries = [
@@ -242,6 +248,7 @@ async function getEpisodes(event) {
 			{ $skip: page ? page * 50 : 0 },
 			{ $limit: 50 },
 			...calculateFieldsQueries,
+			{ $match: afterQuery },
 		]);
 	} else {
 		episodes = await Episode.aggregate([

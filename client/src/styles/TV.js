@@ -13,7 +13,7 @@ const episodes = {
 		width: "100%",
 	},
 	episodeBtn: {
-		marginTop: 10,
+		height: "40px",
 		marginBottom: 10,
 	},
 	noEpisodes: {
