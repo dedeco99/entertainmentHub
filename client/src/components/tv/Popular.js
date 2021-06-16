@@ -20,7 +20,7 @@ function Popular() {
 		if (!loading) {
 			setLoading(true);
 
-			const response = await getPopular(page);
+			const response = await getPopular(page, "tmdb", "tv");
 
 			if (response.status === 200 && isMounted) {
 				const newPopular = page === 0 ? response.data : follows.concat(response.data);

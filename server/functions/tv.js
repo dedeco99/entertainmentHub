@@ -1,3 +1,5 @@
+const cheerio = require("cheerio");
+
 const { response, api } = require("../utils/request");
 const { toObjectId, formatDate, diff } = require("../utils/utils");
 
@@ -268,22 +270,85 @@ async function getSearch(event) {
 
 async function getPopular(event) {
 	const { query } = event;
-	const { page } = query;
+	const { page, source, type } = query;
 
-	if (!page && page !== "0") return response(400, "Missing page in query");
+	let series = [];
+	if (source === "imdb") {
+		const url = `https://www.imdb.com/chart/${type === "movies" ? "moviemeter" : "tvmeter"}`;
 
-	const url = `https://api.themoviedb.org/3/tv/popular?${`page=${Number(page) + 1}`}&api_key=${
-		process.env.tmdbKey
-	}`;
+		const res = await api({ method: "get", url });
+		const $ = cheerio.load(res.data);
 
-	const res = await api({ method: "get", url });
-	const json = res.data;
+		function getTrend(trend) {
+			const isUp = trend.find(".global-sprite.titlemeter.up").length;
 
-	const series = json.results.map(s => ({
-		externalId: s.id,
-		displayName: s.name,
-		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}`,
-	}));
+			const formattedTrend = `${isUp ? "+" : "-"}${trend
+				.text()
+				.replace(/\n/g, "")
+				.replace("(", "")
+				.replace(")", "")}`;
+
+			return isNaN(formattedTrend) ? 0 : formattedTrend;
+		}
+
+		const posters = $(".posterColumn")
+			.toArray()
+			.map(elem =>
+				$(elem)
+					.find("img")
+					.attr("src")
+					.replace("45", "225")
+					.replace("45", "225")
+					.replace("67", "335")
+					.replace("67", "335"),
+			);
+
+		const infos = $(".titleColumn")
+			.toArray()
+			.map(elem => ({
+				id: $(elem).find("a").attr("href").split("/")[2],
+				name: $(elem).find("a").text(),
+				year: Number(
+					$(elem)
+						.find(".secondaryInfo")
+						.text()
+						.match(/\((.*)\)/)[1],
+				),
+				rank: Number($(elem).find(".velocity").text().split("\n")[0]),
+				trend: getTrend($(elem).find(".velocity").find(".secondaryInfo")),
+			}));
+
+		const ratings = $(".ratingColumn.imdbRating")
+			.toArray()
+			.map(elem => Number($(elem).find("strong").text()));
+
+		for (let i = 0; i < infos.length; i++) {
+			series.push({
+				externalId: infos[i].id,
+				displayName: infos[i].name,
+				image: posters[i],
+				year: infos[i].year,
+				rank: infos[i].rank,
+				trend: infos[i].trend,
+				rating: ratings[i],
+			});
+		}
+	} else {
+		if (!page && page !== "0") return response(400, "Missing page in query");
+
+		const url = `https://api.themoviedb.org/3/tv/popular?${`page=${Number(page) + 1}`}&api_key=${
+			process.env.tmdbKey
+		}`;
+
+		const res = await api({ method: "get", url });
+		const json = res.data;
+
+		series = json.results.map(s => ({
+			externalId: s.id,
+			displayName: s.name,
+			image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}`,
+		}));
+	}
 
 	return response(200, "GET_SERIES", series);
 }
