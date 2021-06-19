@@ -18,6 +18,8 @@ import {
 	IconButton,
 } from "@material-ui/core";
 
+import Loading from "../.partials/Loading";
+
 import { getComments } from "../../api/reddit";
 
 import { formatDate, formatNumber, htmlEscape } from "../../utils/utils";
@@ -31,13 +33,18 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 	const [expandedView, setExpandedView] = useState(false);
 	const [sideMenuView, setSideMenuView] = useState(true);
 	const [comments, setComments] = useState([]);
+	const [loading, setLoading] = useState(false);
 
 	async function handleGetComments() {
+		setLoading(true);
+
 		const response = await getComments(post.subreddit, post.id);
 
-		if (response.status === 200) {
+		if (response.status === 200 && response.data) {
 			setComments(response.data);
 		}
+
+		setLoading(false);
 	}
 
 	useEffect(() => {
@@ -320,6 +327,107 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 		);
 	}
 
+	function renderComments() {
+		return (
+			<>
+				{loading ? (
+					<Box style={{ marginTop: "50px" }}>
+						<Loading />
+					</Box>
+				) : (
+					comments.map(comment => (
+						<CardContent
+							key={comment.id}
+							style={{
+								borderRadius: "1px",
+								border: "1px solid rgba(255, 255, 255, 0.12)",
+								borderLeft: "0px",
+								borderRight: "0px",
+								borderTop: "0px",
+								backgroundColor: "#212121",
+							}}
+						>
+							<Box fontWeight={500} fontFamily="Monospace" pt={1}>
+								<Typography variant="caption" style={{ fontSize: "13px" }}>
+									{comment.author}
+								</Typography>
+
+								<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
+									{` • ${formatDate(comment.created * 1000, null, true)}`}
+								</Typography>
+							</Box>
+
+							<Box
+								style={{
+									display: "inline-flex",
+								}}
+							>
+								<Divider orientation="vertical" flexItem />
+								<Box fontWeight={500} fontFamily="Monospace" pt={1} style={{ marginLeft: "10px" }}>
+									<Typography variant="caption" style={{ fontSize: "12px" }}>
+										{comment.text}
+									</Typography>
+
+									<Box fontWeight={500} fontFamily="Monospace" pt={1}>
+										<Typography variant="caption" style={{ fontSize: "13px" }}>
+											{comment.score}
+										</Typography>
+										<Typography
+											variant="caption"
+											style={{ color: "#EC6E4C", fontSize: "13px", marginLeft: "6px" }}
+										>
+											<i className="icon-arrow-up icon-1x" />
+										</Typography>
+									</Box>
+								</Box>
+							</Box>
+
+							{comment.replies &&
+								comment.replies.map(reply => (
+									<CardContent key={reply.id}>
+										<Box fontWeight={500} fontFamily="Monospace" pt={1}>
+											<Typography variant="caption" style={{ fontSize: "13px" }}>
+												{reply.author}
+											</Typography>
+
+											<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
+												{` • ${formatDate(reply.created * 1000, null, true)}`}
+											</Typography>
+										</Box>
+
+										<Box
+											style={{
+												display: "inline-flex",
+											}}
+										>
+											<Divider orientation="vertical" flexItem />
+											<Box fontWeight={500} fontFamily="Monospace" pt={1} style={{ marginLeft: "10px" }}>
+												<Typography variant="caption" style={{ fontSize: "12px" }}>
+													{reply.text}
+												</Typography>
+
+												<Box fontWeight={500} fontFamily="Monospace" pt={1}>
+													<Typography variant="caption" style={{ fontSize: "13px" }}>
+														{comment.score}
+													</Typography>
+													<Typography
+														variant="caption"
+														style={{ color: "#EC6E4C", fontSize: "13px", marginLeft: "6px" }}
+													>
+														<i className="icon-arrow-up icon-1x" />
+													</Typography>
+												</Box>
+											</Box>
+										</Box>
+									</CardContent>
+								))}
+						</CardContent>
+					))
+				)}
+			</>
+		);
+	}
+
 	const { isMedia, content, expandedContent } = formatContent();
 	const widgetInfo = isMedia ? renderInfoMedia() : renderInfo();
 
@@ -353,9 +461,10 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 											marginLeft: "10px",
 											backgroundColor: "#3C3C3C",
 											padding: "8px",
+											fontSize: "1.2rem",
 										}}
 									>
-										<i className="icon-arrow-left icon-1x" />
+										<i className="icon-cross icon-1x" />
 									</IconButton>
 
 									{onShowPreviousPost && (
@@ -475,14 +584,20 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 										<Typography variant="caption" style={{ fontSize: "13px" }}>
 											{`${formatNumber(post.score)}`}
 										</Typography>
-										<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px" }}>
-											{` score`}
+										<Typography
+											variant="caption"
+											style={{ color: "#EC6E4C", fontSize: "13px", marginLeft: "6px" }}
+										>
+											<i className="icon-arrow-up icon-1x" />
 										</Typography>
 										<Typography variant="caption" style={{ fontSize: "13px" }}>
 											{` • ${formatNumber(post.comments)}`}
 										</Typography>
-										<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px" }}>
-											{` comments`}
+										<Typography
+											variant="caption"
+											style={{ color: "#EC6E4C", fontSize: "13px", marginLeft: "6px" }}
+										>
+											<i className="icon-bubbles2 icon-1x" />
 										</Typography>
 									</Box>
 								</CardContent>
@@ -499,88 +614,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 									backgroundColor: "#212121",
 								}}
 							>
-								{comments.map(comment => (
-									<CardContent
-										key={comment.id}
-										style={{
-											borderRadius: "1px",
-											border: "1px solid rgba(255, 255, 255, 0.12)",
-											borderLeft: "0px",
-											borderRight: "0px",
-											borderTop: "0px",
-											backgroundColor: "#212121",
-										}}
-									>
-										<Box fontWeight={500} fontFamily="Monospace" pt={1}>
-											<Typography variant="caption" style={{ fontSize: "13px" }}>
-												{comment.author}
-											</Typography>
-
-											<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
-												{` • ${formatDate(comment.created * 1000, null, true)}`}
-											</Typography>
-										</Box>
-
-										<Box
-											style={{
-												display: "inline-flex",
-											}}
-										>
-											<Divider orientation="vertical" flexItem />
-											<Box fontWeight={500} fontFamily="Monospace" pt={1} style={{ marginLeft: "10px" }}>
-												<Typography variant="caption" style={{ fontSize: "12px" }}>
-													{comment.text}
-												</Typography>
-
-												<Box fontWeight={500} fontFamily="Monospace" pt={1}>
-													<Typography variant="caption" style={{ fontSize: "13px" }}>
-														{comment.score}
-													</Typography>
-													<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px" }}>
-														{` score`}
-													</Typography>
-												</Box>
-											</Box>
-										</Box>
-
-										{comment.replies &&
-											comment.replies.map(reply => (
-												<CardContent key={reply.id}>
-													<Box fontWeight={500} fontFamily="Monospace" pt={1}>
-														<Typography variant="caption" style={{ fontSize: "13px" }}>
-															{reply.author}
-														</Typography>
-
-														<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
-															{` • ${formatDate(reply.created * 1000, null, true)}`}
-														</Typography>
-													</Box>
-
-													<Box
-														style={{
-															display: "inline-flex",
-														}}
-													>
-														<Divider orientation="vertical" flexItem />
-														<Box fontWeight={500} fontFamily="Monospace" pt={1} style={{ marginLeft: "10px" }}>
-															<Typography variant="caption" style={{ fontSize: "12px" }}>
-																{reply.text}
-															</Typography>
-
-															<Box fontWeight={500} fontFamily="Monospace" pt={1}>
-																<Typography variant="caption" style={{ fontSize: "13px" }}>
-																	{comment.score}
-																</Typography>
-																<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px" }}>
-																	{` score`}
-																</Typography>
-															</Box>
-														</Box>
-													</Box>
-												</CardContent>
-											))}
-									</CardContent>
-								))}
+								{renderComments()}
 							</Card>
 						</Grid>
 					)}
