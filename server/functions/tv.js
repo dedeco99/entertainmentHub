@@ -276,7 +276,7 @@ async function getPopular(event) {
 	if (source === "imdb") {
 		const url = `https://www.imdb.com/chart/${type === "movies" ? "moviemeter" : "tvmeter"}`;
 
-		const res = await api({ method: "get", url });
+		const res = await api({ method: "get", url, headers: { "accept-language": "en-US" } });
 		const $ = cheerio.load(res.data);
 
 		function getTrend(trend) {
