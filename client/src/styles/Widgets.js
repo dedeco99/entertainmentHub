@@ -180,6 +180,18 @@ const reddit = {
 			backgroundColor: "#212121",
 		},
 	},
+	galleryBtn: {
+		position: "absolute",
+		top: "50%",
+		transform: "translateY(-50%)",
+		lineHeight: 0,
+		borderRadius: "100%",
+		padding: "12px",
+		backgroundColor: "#3d3d3d",
+		"&:hover": {
+			backgroundColor: "#666",
+		},
+	},
 	header: {
 		borderLeft: "1px solid #212121",
 		borderRight: "1px solid #212121",

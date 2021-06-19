@@ -13,6 +13,7 @@ const apps = require("./functions/apps");
 const users = require("./functions/users");
 const widgets = require("./functions/widgets");
 const notifications = require("./functions/notifications");
+const scheduledNotifications = require("./functions/scheduledNotifications");
 const weather = require("./functions/weather");
 const crypto = require("./functions/crypto");
 const price = require("./functions/price");
@@ -35,6 +36,7 @@ global.cache = {
 		lastUpdate: Date.now(),
 	},
 };
+global.cronjobs = [];
 
 if (!process.env.ENV) require("./utils/secrets");
 
@@ -85,6 +87,18 @@ app.patch("/api/notifications", token, (req, res) => middleware(req, res, notifi
 
 app.delete("/api/notifications", token, (req, res) => middleware(req, res, notifications.deleteNotifications));
 
+app.get("/api/scheduled-notifications", token, (req, res) =>
+	middleware(req, res, scheduledNotifications.getScheduledNotifications),
+);
+
+app.post("/api/scheduled-notifications", token, (req, res) =>
+	middleware(req, res, scheduledNotifications.addScheduledNotification),
+);
+
+app.delete("/api/scheduled-notifications/:id", token, (req, res) =>
+	middleware(req, res, scheduledNotifications.deleteScheduledNotification),
+);
+
 app.get("/api/weather/:lat/:lon", (req, res) => middleware(req, res, weather.getWeather));
 
 app.get("/api/weather/cities", token, (req, res) => middleware(req, res, weather.getCities));
@@ -131,7 +145,9 @@ app.post("/api/youtube/watchlater", token, (req, res) => middleware(req, res, yo
 
 app.get("/api/twitch/streams", token, (req, res) => middleware(req, res, twitch.getStreams));
 
-app.get("/api/twitch/follows/:type?", token, (req, res) => middleware(req, res, twitch.getFollows));
+app.get("/api/twitch/follows/mine", token, (req, res) => middleware(req, res, twitch.getFollows));
+
+app.get("/api/twitch/follows/search", token, (req, res) => middleware(req, res, twitch.getSearch));
 
 /*
 app.get("/api/twitch/games/", token, (req, res) => middleware(req, res, twitch.getGames));
@@ -185,13 +201,14 @@ io.sockets.on("connection", socket => {
 
 if (process.env.ENV === "prod") {
 	cron.schedule("0,30 * * * *", () => {
-		notifications.cronjob();
 		youtube.cronjob();
 	});
 
 	cron.schedule("0 0,8,16 * * *", () => {
 		tv.cronjob();
 	});
+
+	scheduledNotifications.cronjobScheduler();
 
 	console.log("Cronjobs are running");
 }

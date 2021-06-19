@@ -1,5 +1,7 @@
+/* eslint-disable max-lines */
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import ReactPlayer from "react-player";
 
 import {
 	makeStyles,
@@ -34,6 +36,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 	const [sideMenuView, setSideMenuView] = useState(true);
 	const [comments, setComments] = useState([]);
 	const [loading, setLoading] = useState(false);
+	const [galleryIndex, setGalleryIndex] = useState(0);
 
 	async function handleGetComments() {
 		setLoading(true);
@@ -48,23 +51,12 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 	}
 
 	useEffect(() => {
-		async function fetchData() {
-			return await handleGetComments();
-		}
-
-		fetchData();
+		handleGetComments();
 	}, [post.id]);
 
 	useEffect(() => {
-		function updateSideMenuView() {
-			if (window.innerWidth <= 900) handleCloseSideMenuView();
-			else handleOpenSideMenuView();
-		}
-
-		window.addEventListener("resize", updateSideMenuView);
-		updateSideMenuView();
-		return () => window.removeEventListener("resize", updateSideMenuView);
-	}, []);
+		setGalleryIndex(0);
+	}, [post]);
 
 	function handleCloseExpandedView() {
 		setExpandedView(false);
@@ -82,6 +74,17 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 		setSideMenuView(false);
 	}
 
+	useEffect(() => {
+		function updateSideMenuView() {
+			if (window.innerWidth <= 900) handleCloseSideMenuView();
+			else handleOpenSideMenuView();
+		}
+
+		window.addEventListener("resize", updateSideMenuView);
+		updateSideMenuView();
+		return () => window.removeEventListener("resize", updateSideMenuView);
+	}, []);
+
 	function formatTextPost() {
 		return (
 			<Box p={2} maxWidth={1450} style={{ backgroundColor: "#212121" }}>
@@ -98,6 +101,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 		);
 	}
 
+	// eslint-disable-next-line complexity
 	function formatContent() {
 		post.url = post.url.slice(-1) === "/" ? post.url.slice(0, -1) : post.url; // Remove last backslash
 		post.url = post.url.replace("&amp;t", ""); // Broken youtube link
@@ -127,6 +131,34 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 					}}
 				/>
 			);
+			expandedContent = <img src={post.url} alt={post.url} />;
+		} else if (post.gallery) {
+			content = (
+				<div>
+					<CardMedia
+						component="img"
+						src={post.gallery[galleryIndex]}
+						className={classes.media}
+						onClick={handleOpenExpandedView}
+					/>
+					{galleryIndex > 0 && (
+						<Box
+							left="10px"
+							style={{ transform: "translateY(-50%)" }}
+							className={classes.galleryBtn}
+							onClick={() => setGalleryIndex(galleryIndex - 1)}
+						>
+							<i className="icon-arrow-left icon-2x" />
+						</Box>
+					)}
+					{galleryIndex < post.gallery.length - 1 && (
+						<Box right="10px" className={classes.galleryBtn} onClick={() => setGalleryIndex(galleryIndex + 1)}>
+							<i className="icon-arrow-right icon-2x" />
+						</Box>
+					)}
+				</div>
+			);
+			expandedContent = content;
 		} else if (post.domain === "gfycat.com") {
 			content = (
 				<CardMedia
@@ -171,17 +203,15 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 			);
 			expandedContent = content;
 		} else if (post.domain === "v.redd.it") {
-			if (expandedView)
-				content = (
-					<CardMedia
-						component="video"
-						src={post.redditVideo}
-						className={classes.media}
-						controls
-						style={{ top: "5%", left: "10%", width: "80%", height: "80%" }}
-					/>
-				);
-			else content = <CardMedia component="video" src={post.redditVideo} className={classes.media} controls />;
+			content = (
+				<ReactPlayer
+					controls
+					url={`https://red-mode-fbb6.dedeco99.workers.dev/${post.redditVideo}`}
+					width="100%"
+					height="100%"
+					className={classes.media}
+				/>
+			);
 			expandedContent = content;
 		} else if (post.domain === "youtube.com" || post.domain === "youtu.be") {
 			const videoId = post.url.includes("?v=")
@@ -193,6 +223,17 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 				<CardMedia
 					component="iframe"
 					src={`https://www.youtube.com/embed/${videoId}`}
+					className={classes.media}
+					frameBorder={0}
+					allowFullScreen
+				/>
+			);
+			expandedContent = content;
+		} else if (post.url.includes("streamable")) {
+			content = (
+				<CardMedia
+					component="iframe"
+					src="https://streamable.com/e/c2h6di"
 					className={classes.media}
 					frameBorder={0}
 					allowFullScreen
@@ -328,103 +369,96 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 	}
 
 	function renderComments() {
-		return (
-			<>
-				{loading ? (
-					<Box style={{ marginTop: "50px" }}>
-						<Loading />
+		return loading ? (
+			<Box style={{ marginTop: "50px" }}>
+				<Loading />
+			</Box>
+		) : (
+			comments.map(comment => (
+				<CardContent
+					key={comment.id}
+					style={{
+						borderRadius: "1px",
+						border: "1px solid rgba(255, 255, 255, 0.12)",
+						borderLeft: "0px",
+						borderRight: "0px",
+						borderTop: "0px",
+						backgroundColor: "#212121",
+					}}
+				>
+					<Box fontWeight={500} fontFamily="Monospace" pt={1}>
+						<Typography variant="caption" style={{ fontSize: "13px" }}>
+							{comment.author}
+						</Typography>
+
+						<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
+							{` • ${formatDate(comment.created * 1000, null, true)}`}
+						</Typography>
 					</Box>
-				) : (
-					comments.map(comment => (
-						<CardContent
-							key={comment.id}
-							style={{
-								borderRadius: "1px",
-								border: "1px solid rgba(255, 255, 255, 0.12)",
-								borderLeft: "0px",
-								borderRight: "0px",
-								borderTop: "0px",
-								backgroundColor: "#212121",
-							}}
-						>
+
+					<Box
+						style={{
+							display: "inline-flex",
+						}}
+					>
+						<Divider orientation="vertical" flexItem />
+						<Box fontWeight={500} fontFamily="Monospace" pt={1} style={{ marginLeft: "10px" }}>
+							<Typography variant="caption" style={{ fontSize: "12px" }}>
+								{comment.text}
+							</Typography>
+
 							<Box fontWeight={500} fontFamily="Monospace" pt={1}>
 								<Typography variant="caption" style={{ fontSize: "13px" }}>
-									{comment.author}
+									{comment.score}
 								</Typography>
-
-								<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
-									{` • ${formatDate(comment.created * 1000, null, true)}`}
+								<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px", marginLeft: "6px" }}>
+									<i className="icon-arrow-up icon-1x" />
 								</Typography>
 							</Box>
+						</Box>
+					</Box>
 
-							<Box
-								style={{
-									display: "inline-flex",
-								}}
-							>
-								<Divider orientation="vertical" flexItem />
-								<Box fontWeight={500} fontFamily="Monospace" pt={1} style={{ marginLeft: "10px" }}>
-									<Typography variant="caption" style={{ fontSize: "12px" }}>
-										{comment.text}
+					{comment.replies &&
+						comment.replies.map(reply => (
+							<CardContent key={reply.id}>
+								<Box fontWeight={500} fontFamily="Monospace" pt={1}>
+									<Typography variant="caption" style={{ fontSize: "13px" }}>
+										{reply.author}
 									</Typography>
 
-									<Box fontWeight={500} fontFamily="Monospace" pt={1}>
-										<Typography variant="caption" style={{ fontSize: "13px" }}>
-											{comment.score}
-										</Typography>
-										<Typography
-											variant="caption"
-											style={{ color: "#EC6E4C", fontSize: "13px", marginLeft: "6px" }}
-										>
-											<i className="icon-arrow-up icon-1x" />
-										</Typography>
-									</Box>
+									<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
+										{` • ${formatDate(reply.created * 1000, null, true)}`}
+									</Typography>
 								</Box>
-							</Box>
 
-							{comment.replies &&
-								comment.replies.map(reply => (
-									<CardContent key={reply.id}>
+								<Box
+									style={{
+										display: "inline-flex",
+									}}
+								>
+									<Divider orientation="vertical" flexItem />
+									<Box fontWeight={500} fontFamily="Monospace" pt={1} style={{ marginLeft: "10px" }}>
+										<Typography variant="caption" style={{ fontSize: "12px" }}>
+											{reply.text}
+										</Typography>
+
 										<Box fontWeight={500} fontFamily="Monospace" pt={1}>
 											<Typography variant="caption" style={{ fontSize: "13px" }}>
-												{reply.author}
+												{comment.score}
 											</Typography>
-
-											<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
-												{` • ${formatDate(reply.created * 1000, null, true)}`}
+											<Typography
+												variant="caption"
+												style={{ color: "#EC6E4C", fontSize: "13px", marginLeft: "6px" }}
+											>
+												<i className="icon-arrow-up icon-1x" />
 											</Typography>
 										</Box>
-
-										<Box
-											style={{
-												display: "inline-flex",
-											}}
-										>
-											<Divider orientation="vertical" flexItem />
-											<Box fontWeight={500} fontFamily="Monospace" pt={1} style={{ marginLeft: "10px" }}>
-												<Typography variant="caption" style={{ fontSize: "12px" }}>
-													{reply.text}
-												</Typography>
-
-												<Box fontWeight={500} fontFamily="Monospace" pt={1}>
-													<Typography variant="caption" style={{ fontSize: "13px" }}>
-														{comment.score}
-													</Typography>
-													<Typography
-														variant="caption"
-														style={{ color: "#EC6E4C", fontSize: "13px", marginLeft: "6px" }}
-													>
-														<i className="icon-arrow-up icon-1x" />
-													</Typography>
-												</Box>
-											</Box>
-										</Box>
-									</CardContent>
-								))}
-						</CardContent>
-					))
-				)}
-			</>
+									</Box>
+								</Box>
+							</CardContent>
+						))}
+				</CardContent>
+			))
 		);
 	}
 

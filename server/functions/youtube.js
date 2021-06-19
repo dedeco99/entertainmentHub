@@ -39,7 +39,7 @@ async function getVideoDuration(items) {
 		const videoIds = paginatedItems.map(i => i.yt_videoId);
 
 		// prettier-ignore
-		const url = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails&id=${videoIds.join(",")}&key=${process.env.youtubeKey}`;
+		const url = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,liveStreamingDetails&id=${videoIds.join(",")}&key=${process.env.youtubeKey}`;
 
 		requests.push(api({ method: "get", url }));
 	}
@@ -88,7 +88,7 @@ async function getSubscriptions(event) {
 	const json = res.data;
 
 	const channels = json.items.map(channel => ({
-		externalId: channel.snippet.resourceId.channelId,
+		externalId: filter ? channel.snippet.channelId : channel.snippet.resourceId.channelId,
 		displayName: channel.snippet.title,
 		image: channel.snippet.thumbnails.default.url,
 		after: json.nextPageToken,
@@ -125,18 +125,24 @@ async function getVideos(event) {
 	}
 
 	items = items
-		.map(i => ({
-			published: i.published,
-			displayName: i.author.name,
-			thumbnail: i.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),
-			videoTitle: i.title,
-			videoId: i.yt_videoId,
-			channelId: i.yt_channelId,
-			views: i.media_group.media_community.media_statistics_views,
-			likes: Math.round(calculateLikes(i)),
-			dislikes: Math.round(i.media_group.media_community.media_starRating_count - calculateLikes(i)),
-			duration: videoDurationItems.find(v => v.id === i.yt_videoId).contentDetails.duration,
-		}))
+		.map(i => {
+			const videoDurationItem = videoDurationItems.find(v => v.id === i.yt_videoId);
+			return {
+				published: i.published,
+				displayName: i.author.name,
+				thumbnail: i.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),
+				videoTitle: i.title,
+				videoId: i.yt_videoId,
+				channelId: i.yt_channelId,
+				views: i.media_group.media_community.media_statistics_views,
+				likes: Math.round(calculateLikes(i)),
+				dislikes: Math.round(i.media_group.media_community.media_starRating_count - calculateLikes(i)),
+				duration: videoDurationItem.contentDetails.duration,
+				scheduled: videoDurationItem.liveStreamingDetails
+					? videoDurationItem.liveStreamingDetails.scheduledStartTime
+					: null,
+			};
+		})
 		.sort((a, b) => new Date(b.published) - new Date(a.published));
 
 	return response(200, "GET_YOUTUBE_VIDEOS", items);
@@ -208,9 +214,9 @@ async function getPlaylistVideos(event) {
 
 async function addToWatchLater(event) {
 	const { body, user } = event;
-	const { videos } = body;
+	const { videos, playlist } = body;
 
-	if (!user.settings.youtube.watchLaterPlaylist) return errors.requiredFieldsMissing;
+	if (!user.settings.youtube.watchLaterPlaylist && !playlist) return errors.requiredFieldsMissing;
 
 	const accessToken = await getAccessToken(user);
 
@@ -228,15 +234,15 @@ async function addToWatchLater(event) {
 		externalId: { $in: videos.map(v => v.channelId) },
 	}).lean();
 
+	let isError = false;
 	const notificationsToHide = [];
 	for (const video of videos) {
 		const subscription = subscriptions.find(s => s.externalId === video.channelId);
 
 		const data = {
 			snippet: {
-				playlistId: subscription.notifications.watchLaterPlaylist
-					? subscription.notifications.watchLaterPlaylist
-					: user.settings.youtube.watchLaterPlaylist,
+				playlistId:
+					playlist || subscription.notifications.watchLaterPlaylist || user.settings.youtube.watchLaterPlaylist,
 				resourceId: {
 					videoId: video.videoId,
 					kind: "youtube#video",
@@ -244,14 +250,18 @@ async function addToWatchLater(event) {
 			},
 		};
 
-		await api({ method: "post", url, data, headers });
+		const res = await api({ method: "post", url, data, headers });
 
 		/*
 		if (res.status === 409) return errors.duplicated;
 		if (res.status === 403) return errors.youtubeForbidden;
 		*/
 
-		if (video._id) notificationsToHide.push(video._id);
+		if (res.status === 200) {
+			notificationsToHide.push(video._id);
+		} else {
+			isError = true;
+		}
 	}
 
 	let updatedNotifications = [];
@@ -261,7 +271,7 @@ async function addToWatchLater(event) {
 		updatedNotifications = await Notification.find({ _id: { $in: notificationsToHide } }).lean();
 	}
 
-	return response(200, "WATCH_LATER", updatedNotifications);
+	return response(isError ? 400 : 200, isError ? "WATCH_LATER_ERROR" : "WATCH_LATER", updatedNotifications);
 }
 
 async function cronjob() {
@@ -316,30 +326,29 @@ async function cronjob() {
 
 		if (subscription) {
 			for (const user of subscription.users) {
-				if (user.notifications.active) {
-					notifications.push({
-						dateToSend: video.published,
-						sent: true,
-						notificationId: `${user._id}${video.yt_videoId}`,
-						user,
-						type: "youtube",
-						info: {
-							displayName: user.subscriptionDisplayName,
-							thumbnail: video.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),
-							duration: videoDurationItem.contentDetails.duration,
-							videoTitle: video.title,
-							videoId: video.yt_videoId,
-							channelId: video.yt_channelId,
-						},
-					});
-				}
-
-				if (user.notifications.autoAddToWatchLater) {
-					addToWatchLater({
-						user: { _id: user._id, settings: { youtube: { watchLaterPlaylist: user.watchLaterPlaylist } } },
-						body: { videos: [{ videoId: video.yt_videoId, channelId: video.yt_channelId }] },
-					});
-				}
+				notifications.push({
+					active: user.notifications.active,
+					dateToSend: video.published,
+					sent: true,
+					notificationId: `${user._id}${video.yt_videoId}`,
+					user: user._id,
+					type: "youtube",
+					info: {
+						displayName: user.subscriptionDisplayName,
+						thumbnail: video.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),
+						duration: videoDurationItem.contentDetails.duration,
+						scheduled: videoDurationItem.liveStreamingDetails
+							? videoDurationItem.liveStreamingDetails.scheduledStartTime
+							: null,
+						videoTitle: video.title,
+						videoId: video.yt_videoId,
+						channelId: video.yt_channelId,
+						watchLaterPlaylist: user.watchLaterPlaylist,
+						autoAddToWatchLater: user.notifications.autoAddToWatchLater,
+						dontShowWithTheseWords: user.notifications.dontShowWithTheseWords,
+						onlyShowWithTheseWords: user.notifications.onlyShowWithTheseWords,
+					},
+				});
 			}
 		}
 

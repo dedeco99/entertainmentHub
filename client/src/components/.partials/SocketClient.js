@@ -19,6 +19,10 @@ function SocketClient() {
 
 		socket.on("notification", notification => {
 			dispatch({ type: "ADD_NOTIFICATION", notification });
+			
+			if (notification.type === "reminder") {
+				dispatch({ type: "DELETE_SCHEDULED_NOTIFICATION", scheduledNotification: notification });
+			}
 
 			if (Notification.permission === "granted") {
 				const { thumbnail, title, subtitle } = formatNotification(notification);

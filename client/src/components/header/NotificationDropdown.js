@@ -36,7 +36,7 @@ function NotificationDropdown() {
 				</Badge>
 				<Grow in={open} style={{ transformOrigin: "right top" }}>
 					<Paper variant="outlined" className={classes.paper}>
-						<Notifications height={"50vh"} />
+						<Notifications height={"50vh"} wrapTitle />
 					</Paper>
 				</Grow>
 			</div>

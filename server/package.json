@@ -16,24 +16,25 @@
 		"client-install": "cd ../client && npm install",
 		"client-build": "cd ../client && npm run build",
 		"client-lint": "cd ../client && eslint '**/*.js' --ignore-pattern node_modules/ --ignore-pattern public/",
-		"dev": "concurrently \"npm run server\" \"npm run client\""
+		"dev": "concurrently \"npm run server\" \"npm run client\"",
+		"deploy": "sh deploy.sh"
 	},
 	"dependencies": {
 		"all-the-cities": "^3.1.0",
-		"axios": "^0.20.0",
+		"axios": "^0.21.1",
 		"bcryptjs": "^2.4.3",
 		"cheerio": "^1.0.0-rc.3",
 		"dayjs": "^1.8.36",
 		"express": "^4.17.1",
 		"mongoose": "^5.10.3",
 		"morgan": "^1.10.0",
-		"node-cron": "^2.0.3",
+		"node-cron": "^3.0.0",
 		"rss-converter": "^1.1.6",
-		"sanitize-html": "^1.27.4",
-		"socket.io": "^2.3.0"
+		"sanitize-html": "^2.3.2",
+		"socket.io": "^4.0.0"
 	},
 	"devDependencies": {
-		"concurrently": "^5.3.0",
+		"concurrently": "^6.0.0",
 		"eslint": "^7.8.1",
 		"jest": "^26.4.2",
 		"nodemon": "^2.0.4"

@@ -39,7 +39,7 @@ const widgetRestrictions = {
 
 const widgetsInfo = {
 	notifications: widget => ({
-		content: <Notifications height="100%" />,
+		content: <Notifications height="100%" wrapTitle={widget.info ? widget.info.wrapTitle : false} />,
 		editText: "Notifications",
 		editIcon: "icon-notifications",
 		dimensions: { w: widget.width || 1, h: widget.height || 4 },
@@ -105,7 +105,7 @@ function Widgets() {
 	const [rowHeight, setRowHeight] = useState(150);
 	const [layouts, setLayouts] = useState({});
 	const [selectedWidget, setSelectedWidget] = useState(null);
-	const [tabs, setTabs] = useState([]);
+	const [tabs, setTabs] = useState([{ name: "Ungrouped" }]);
 	const [selectedTab, setSelectedTab] = useState(0);
 	const [tabsEditMode, setTabsEditMode] = useState(false);
 
@@ -337,6 +337,7 @@ function Widgets() {
 						<Widget
 							id={widget._id}
 							type={widget.type}
+							refreshRateMinutes={widget.refreshRateMinutes}
 							content={widgetInfo.content}
 							borderColor={widgetInfo.borderColor}
 							editText={widgetInfo.editText}

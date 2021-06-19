@@ -1,4 +1,4 @@
-import React, { createContext, useReducer, useEffect } from "react";
+import React, { createContext, useReducer } from "react";
 import PropTypes from "prop-types";
 
 import { notificationReducer } from "../reducers/NotificationReducer";
@@ -9,22 +9,12 @@ const NotificationContextProvider = ({ children }) => {
 	const initState = {
 		notifications: [],
 		total: 0,
+		scheduledNotifications: [],
 	};
 
-	const [notifications, dispatch] = useReducer(notificationReducer, initState, () => {
-		const localData = localStorage.getItem("notifications");
-		return localData ? JSON.parse(localData) : initState;
-	});
+	const [state, dispatch] = useReducer(notificationReducer, initState);
 
-	useEffect(() => {
-		localStorage.setItem("notifications", JSON.stringify(notifications));
-	}, [notifications]);
-
-	return (
-		<NotificationContext.Provider value={{ state: notifications, dispatch }}>
-			{children}
-		</NotificationContext.Provider>
-	);
+	return <NotificationContext.Provider value={{ state, dispatch }}>{children}</NotificationContext.Provider>;
 };
 
 NotificationContextProvider.propTypes = {
