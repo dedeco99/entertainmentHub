@@ -1,6 +1,22 @@
 import React, { useState, useEffect } from "react";
 
-import { makeStyles, Zoom, Tabs, Tab, List, ListItem, Paper, Typography, Box } from "@material-ui/core";
+import {
+	makeStyles,
+	Zoom,
+	Tabs,
+	Tab,
+	List,
+	ListItem,
+	Paper,
+	Typography,
+	Box,
+	Grid,
+	LinearProgress,
+	Card,
+	CardActionArea,
+	Chip,
+} from "@material-ui/core";
+import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 
 import Loading from "../.partials/Loading";
 import CustomScrollbar from "../.partials/CustomScrollbar";
@@ -17,6 +33,8 @@ function TV() {
 	const [tabIndex, setTabIndex] = useState(0);
 	const [allEpisodes, setAllEpisodes] = useState([]);
 	const [popular, setPopular] = useState([]);
+	const [popularFilter, setPopularFilter] = useState("tv");
+	const [popularLoading, setPopularLoading] = useState(true);
 	const [future, setFuture] = useState([]);
 	const [open, setOpen] = useState(false);
 
@@ -24,16 +42,11 @@ function TV() {
 		let isMounted = true;
 
 		async function fetchData() {
-			const response = await Promise.all([
-				getSeasons("all", 0, "passed"),
-				getPopular(0, "imdb", "tv"),
-				getSeasons("all", 0, "future"),
-			]);
+			const response = await Promise.all([getSeasons("all", 0, "passed"), getSeasons("all", 0, "future")]);
 
 			if (isMounted) {
 				setAllEpisodes(response[0].data);
-				setPopular(response[1].data);
-				setFuture(response[2].data);
+				setFuture(response[1].data);
 				setOpen(true);
 			}
 		}
@@ -47,19 +60,112 @@ function TV() {
 		setTabIndex(newValue);
 	}
 
+	function handlePopularFilter(e, value) {
+		if (value && value !== popularFilter) {
+			setPopular([]);
+			setPopularLoading(true);
+			setPopularFilter(value);
+		}
+	}
+
+	useEffect(() => {
+		async function fetchPopularData() {
+			const { data } = await getPopular(0, "imdb", popularFilter);
+			setPopular(data);
+			setPopularLoading(false);
+		}
+
+		fetchPopularData();
+	}, [popularFilter]);
+
+	/*
+	function getTrendIcon(trend) {
+		if (Number(trend) > 0) return "icon-caret-up";
+		else if (Number(trend) < 0) return "icon-caret-down";
+		else return "icon-sunrise";
+	}
+	
+		<Box position="absolute" top="0" left="0" width="100%" p={1}>
+			<Chip color="primary" size="small" label={`${serie.rank}º`} />
+			<Chip
+				color="primary"
+				size="small"
+				icon={<i className={getTrendIcon(serie.trend)} />}
+				label={Number.isInteger(serie.trend) ? serie.trend : serie.trend.substring(1)}
+				className={classes.trendingChip}
+				classes={{ labelSmall: classes.trendingChipLabel }}
+			/>
+		</Box>
+	*/
+
+	// TODO: Change icons
 	function renderPopularList() {
 		const popularList = popular.map(serie => (
-			<ListItem key={serie.externalId} button divider>
-				<img src={serie.image} height="100x" alt="Series" />
-				<Typography variant="body1" className={classes.popularText}>
-					{serie.displayName}
-				</Typography>
-			</ListItem>
+			<Grid item key={serie.externalId} style={{ padding: "8px" }}>
+				<Box display="flex" flexDirection="column" width="130px" height="100%">
+					<Card component={Box} mb={1}>
+						<CardActionArea
+							onClick={() => {
+								// TODO: Change this onclick to our own series page
+								const newWindow = window.open(
+									`https://www.imdb.com/title/${serie.externalId}`,
+									"_blank",
+									"noopener,noreferrer",
+								);
+								if (newWindow) newWindow.opener = null;
+							}}
+						>
+							<Box>
+								<img style={{ display: "block", width: "100%" }} src={serie.image} alt="Serie poster" />
+								<LinearProgress
+									variant="determinate"
+									value={1} // TODO: Watched %
+									className={classes.watchedProgressBar}
+								/>
+							</Box>
+						</CardActionArea>
+					</Card>
+					<Typography variant="body2" style={{ display: "flex", flexGrow: 1 }}>
+						{serie.displayName}
+					</Typography>
+					<Box display="flex" alignItems="center">
+						<Typography variant="caption" style={{ display: "flex", flexGrow: 1, color: "#aeaeae" }}>
+							{serie.year}
+						</Typography>
+						<Box display="flex" color="#f37555" pr={1}>
+							<i className="icon-sunrise" />
+						</Box>
+						<Box display="flex" color="#f37555" pr={1}>
+							<i className="icon-sunrise" />
+						</Box>
+						<Box display="flex" alignItems="center" color="#fbc005">
+							<i className="icon-sunrise" style={{ paddingRight: "5px" }} />
+							<Typography variant="caption"> {serie.rating} </Typography>
+						</Box>
+					</Box>
+				</Box>
+			</Grid>
 		));
 
 		return (
 			<CustomScrollbar>
-				<List>{popularList}</List>
+				<Box display="flex" alignItems="center" justifyContent="center" py={2}>
+					<ToggleButtonGroup value={popularFilter} onChange={handlePopularFilter} color="primary" exclusive>
+						<ToggleButton value="tv" color="primary" variant="outlined">
+							{"TV"}
+						</ToggleButton>
+						<ToggleButton value="movies" color="primary" variant="outlined">
+							{"Movies"}
+						</ToggleButton>
+					</ToggleButtonGroup>
+				</Box>
+				{popularLoading ? (
+					<Loading />
+				) : (
+					<Grid container justify="center">
+						{popularList}
+					</Grid>
+				)}
 			</CustomScrollbar>
 		);
 	}

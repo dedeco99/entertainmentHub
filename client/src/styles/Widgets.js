@@ -296,6 +296,16 @@ const tv = {
 	popularText: {
 		paddingLeft: 10,
 	},
+	trendingChip: {
+		float: "right",
+		cursor: "pointer",
+	},
+	trendingChipLabel: {
+		paddingLeft: 0,
+	},
+	watchedProgressBar: {
+		boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.7)",
+	},
 };
 
 const crypto = {
