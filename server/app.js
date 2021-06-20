@@ -35,6 +35,14 @@ global.cache = {
 		data: {},
 		lastUpdate: Date.now(),
 	},
+	tv: {
+		popular: [],
+		lastUpdate: Date.now(),
+	},
+	movies: {
+		popular: [],
+		lastUpdate: Date.now(),
+	},
 };
 global.cronjobs = [];
 

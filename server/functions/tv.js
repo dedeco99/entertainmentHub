@@ -268,85 +268,94 @@ async function getSearch(event) {
 	return response(200, "GET_SERIES", series);
 }
 
+function getTrend(trend) {
+	const isUp = trend.find(".global-sprite.titlemeter.up").length;
+
+	const formattedTrend = `${isUp ? "+" : "-"}${trend.text().replace(/\n/g, "").replace("(", "").replace(")", "")}`;
+
+	return isNaN(formattedTrend) ? 0 : formattedTrend;
+}
+
+// eslint-disable-next-line max-lines-per-function
 async function getPopular(event) {
 	const { query } = event;
 	const { page, source, type } = query;
 
 	let series = [];
 	if (source === "imdb") {
-		const url = `https://www.imdb.com/chart/${type === "movies" ? "moviemeter" : "tvmeter"}`;
+		let useCache = true;
 
-		const res = await api({ method: "get", url, headers: { "accept-language": "en-US" } });
-		const $ = cheerio.load(res.data);
-
-		function getTrend(trend) {
-			const isUp = trend.find(".global-sprite.titlemeter.up").length;
-
-			const formattedTrend = `${isUp ? "+" : "-"}${trend
-				.text()
-				.replace(/\n/g, "")
-				.replace("(", "")
-				.replace(")", "")}`;
-
-			return isNaN(formattedTrend) ? 0 : formattedTrend;
+		if (!global.cache[type].popular.length || diff(global.cache[type].lastUpdate, "hours") > 24) {
+			useCache = false;
 		}
 
-		const posters = $(".posterColumn")
-			.toArray()
-			.map(elem =>
-				$(elem)
-					.find("img")
-					.attr("src")
-					.replace("45", "225")
-					.replace("45", "225")
-					.replace("67", "335")
-					.replace("67", "335"),
+		if (!useCache) {
+			const url = `https://www.imdb.com/chart/${type === "movies" ? "moviemeter" : "tvmeter"}`;
+
+			const res = await api({ method: "get", url, headers: { "accept-language": "en-US" } });
+			const $ = cheerio.load(res.data);
+
+			const posters = $(".posterColumn")
+				.toArray()
+				.map(elem =>
+					$(elem)
+						.find("img")
+						.attr("src")
+						.replace("45", "225")
+						.replace("45", "225")
+						.replace("67", "335")
+						.replace("67", "335"),
+				);
+
+			const infos = $(".titleColumn")
+				.toArray()
+				.map(elem => ({
+					id: $(elem).find("a").attr("href").split("/")[2],
+					name: $(elem).find("a").text(),
+					year: Number(
+						$(elem)
+							.find(".secondaryInfo")
+							.text()
+							.match(/\((.*)\)/)[1],
+					),
+					rank: Number($(elem).find(".velocity").text().split("\n")[0]),
+					trend: getTrend($(elem).find(".velocity").find(".secondaryInfo")),
+				}));
+
+			const ratings = $(".ratingColumn.imdbRating")
+				.toArray()
+				.map(elem => Number($(elem).find("strong").text()));
+
+			const promises = infos.map(i =>
+				api({
+					method: "get",
+					url: `https://api.themoviedb.org/3/find/${i.id}?external_source=imdb_id&api_key=${process.env.tmdbKey}`,
+				}),
 			);
 
-		const infos = $(".titleColumn")
-			.toArray()
-			.map(elem => ({
-				id: $(elem).find("a").attr("href").split("/")[2],
-				name: $(elem).find("a").text(),
-				year: Number(
-					$(elem)
-						.find(".secondaryInfo")
-						.text()
-						.match(/\((.*)\)/)[1],
-				),
-				rank: Number($(elem).find(".velocity").text().split("\n")[0]),
-				trend: getTrend($(elem).find(".velocity").find(".secondaryInfo")),
-			}));
+			const tmdbSeries = await Promise.all(promises);
 
-		const ratings = $(".ratingColumn.imdbRating")
-			.toArray()
-			.map(elem => Number($(elem).find("strong").text()));
+			for (let i = 0; i < infos.length; i++) {
+				series.push({
+					externalId: tmdbSeries[i].data.tv_results.length
+						? tmdbSeries[i].data.tv_results[0].id
+						: tmdbSeries[i].data.movie_results.length
+						? tmdbSeries[i].data.movie_results[0].id
+						: null,
+					imdbId: infos[i].id,
+					displayName: infos[i].name,
+					image: posters[i],
+					year: infos[i].year,
+					rank: infos[i].rank,
+					trend: infos[i].trend,
+					rating: ratings[i],
+				});
+			}
 
-		const promises = infos.map(i =>
-			api({
-				method: "get",
-				url: `https://api.themoviedb.org/3/find/${i.id}?external_source=imdb_id&api_key=${process.env.tmdbKey}`,
-			}),
-		);
-
-		const tmdbSeries = await Promise.all(promises);
-
-		for (let i = 0; i < infos.length; i++) {
-			series.push({
-				externalId: tmdbSeries[i].data.tv_results.length
-					? tmdbSeries[i].data.tv_results[0].id
-					: tmdbSeries[i].data.movie_results.length
-					? tmdbSeries[i].data.movie_results[0].id
-					: null,
-				imdbId: infos[i].id,
-				displayName: infos[i].name,
-				image: posters[i],
-				year: infos[i].year,
-				rank: infos[i].rank,
-				trend: infos[i].trend,
-				rating: ratings[i],
-			});
+			global.cache[type].popular = series;
 		}
+
+		series = global.cache[type].popular;
 	} else {
 		if (!page && page !== "0") return response(400, "Missing page in query");
 
