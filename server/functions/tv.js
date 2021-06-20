@@ -322,9 +322,23 @@ async function getPopular(event) {
 			.toArray()
 			.map(elem => Number($(elem).find("strong").text()));
 
+		const promises = infos.map(i =>
+			api({
+				method: "get",
+				url: `https://api.themoviedb.org/3/find/${i.id}?external_source=imdb_id&api_key=${process.env.tmdbKey}`,
+			}),
+		);
+
+		const tmdbSeries = await Promise.all(promises);
+
 		for (let i = 0; i < infos.length; i++) {
 			series.push({
-				externalId: infos[i].id,
+				externalId: tmdbSeries[i].data.tv_results.length
+					? tmdbSeries[i].data.tv_results[0].id
+					: tmdbSeries[i].data.movie_results.length
+					? tmdbSeries[i].data.movie_results[0].id
+					: null,
+				imdbId: infos[i].id,
 				displayName: infos[i].name,
 				image: posters[i],
 				year: infos[i].year,

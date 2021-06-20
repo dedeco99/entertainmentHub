@@ -385,7 +385,10 @@ function Widgets() {
 					layouts={layouts}
 					onLayoutChange={handleLayoutChange}
 					containerPadding={[0, 10]}
-					style={{ top: tabs.length <= 1 ? "-10px" : "0px" }}
+					style={{
+						top: tabs.length <= 1 ? "-10px" : "0px",
+						marginRight: document.body.scrollHeight > document.body.clientHeight ? 15 : 0,
+					}}
 				>
 					{renderWidgets()}
 				</ResponsiveGridLayout>
