@@ -129,6 +129,8 @@ app.post("/api/subscriptions/:platform", token, (req, res) => middleware(req, re
 
 app.put("/api/subscriptions/:id", token, (req, res) => middleware(req, res, subs.editSubscription));
 
+app.patch("/api/subscriptions/:id", token, (req, res) => middleware(req, res, subs.patchSubscription));
+
 app.delete("/api/subscriptions/:id", token, (req, res) => middleware(req, res, subs.deleteSubscription));
 
 app.get("/api/feeds/:platform", token, (req, res) => middleware(req, res, feeds.getFeeds));

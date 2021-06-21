@@ -136,12 +136,20 @@ const translations = {
 		pt: "Não há episódios",
 	},
 	releasedEpisodes: {
-		en: "Released Episodes",
-		pt: "Episódios Lançados",
+		en: "Released",
+		pt: "Lançados",
 	},
 	upcomingEpisodes: {
-		en: "Upcoming Episodes",
-		pt: "Próximos Episodios",
+		en: "Upcoming",
+		pt: "Próximos",
+	},
+	watchedEpisodes: {
+		en: "Watched",
+		pt: "Vistos",
+	},
+	toWatchEpisodes: {
+		en: "To Watch",
+		pt: "Por Ver",
 	},
 	customScrollbar: {
 		en: "Custom scrollbar",
