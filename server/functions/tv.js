@@ -251,38 +251,40 @@ async function getEpisodes(event) {
 
 	let episodes = [];
 	if (id === "all") {
-		episodes = await Episode.aggregate([
-			{ $match: episodeQuery },
-			{ $sort: sortQuery },
-			...watchedQuery,
-			...finaleQuery,
-			{ $match: afterQuery },
-			{ $skip: page ? page * 50 : 0 },
-			{ $limit: 50 },
-		]);
-	} else if (id === "queue") {
-		episodes = await Episode.aggregate([
-			{ $match: { ...episodeQuery, season: { $ne: 0 } } },
-			...watchedQuery,
-			{ $match: { watched: false } },
-			{ $sort: { season: 1, number: 1 } },
-			{ $group: { _id: "$seriesId", episodes: { $first: "$$ROOT" } } },
-			{ $replaceRoot: { newRoot: { $mergeObjects: ["$episodes", "$$ROOT"] } } },
-			{ $sort: { "series.watched.date": -1 } },
-			{
-				$project: {
-					_id: "$episodes._id",
-					title: 1,
-					image: 1,
-					season: 1,
-					number: 1,
-					date: 1,
-					series: 1,
-					lastWatched: { $last: "$series.watched" },
+		if (filter === "queue") {
+			episodes = await Episode.aggregate([
+				{ $match: { ...episodeQuery, season: { $ne: 0 } } },
+				...watchedQuery,
+				{ $match: { watched: false } },
+				{ $sort: { season: 1, number: 1 } },
+				{ $group: { _id: "$seriesId", episodes: { $first: "$$ROOT" } } },
+				{ $replaceRoot: { newRoot: { $mergeObjects: ["$episodes", "$$ROOT"] } } },
+				{ $sort: { "series.watched.date": -1 } },
+				{
+					$project: {
+						_id: "$episodes._id",
+						title: 1,
+						image: 1,
+						season: 1,
+						number: 1,
+						date: 1,
+						series: 1,
+						lastWatched: { $last: "$series.watched" },
+					},
 				},
-			},
-			{ $project: { "series.watched": 0 } },
-		]);
+				{ $project: { "series.watched": 0 } },
+			]);
+		} else {
+			episodes = await Episode.aggregate([
+				{ $match: episodeQuery },
+				{ $sort: sortQuery },
+				...watchedQuery,
+				...finaleQuery,
+				{ $match: afterQuery },
+				{ $skip: page ? page * 50 : 0 },
+				{ $limit: 50 },
+			]);
+		}
 	} else {
 		episodes = await Episode.aggregate([
 			{ $match: { seriesId: id } },

@@ -37,7 +37,7 @@ function Episodes() {
 			setLoading(true);
 			if (page === 0) setOpen(false);
 
-			const response = await getSeasons(filter, page, filter);
+			const response = await getSeasons("all", page, filter);
 
 			if (response.status === 200 && isMounted) {
 				const newEpisodes = page === 0 ? response.data : episodes.concat(response.data);

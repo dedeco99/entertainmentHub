@@ -44,7 +44,7 @@ function TV() {
 
 		async function fetchData() {
 			const response = await Promise.all([
-				getSeasons("queue", 0, "passed"),
+				getSeasons("all", 0, "queue"),
 				getSeasons("all", 0, "passed"),
 				getSeasons("all", 0, "future"),
 			]);
