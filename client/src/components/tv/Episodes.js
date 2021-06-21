@@ -170,7 +170,7 @@ function Episodes() {
 						{translate("toWatchEpisodes")}
 					</ToggleButton>
 					<ToggleButton value="queue" className={classes.episodeBtn} color="primary" variant="outlined">
-						{translate("inQueue")}
+						{translate("inQueueEpisodes")}
 					</ToggleButton>
 				</ToggleButtonGroup>
 				<InfiniteScroll loadMore={handleGetAll} hasMore={hasMore} loader={<Loading key={0} />}>
