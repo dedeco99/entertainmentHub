@@ -103,6 +103,27 @@ async function editSubscription(event) {
 	return response(200, "EDIT_SUBSCRIPTIONS", subscription);
 }
 
+async function patchSubscription(event) {
+	const { params, body } = event;
+	const { id } = params;
+	const { watched } = body;
+
+	let subscription = await Subscription.findOne({ _id: id }).lean();
+	try {
+		const updateQuery = subscription.watched.find(w => w.key === watched)
+			? { $pull: { watched: { key: watched } } }
+			: { $addToSet: { watched: { key: watched, date: Date.now() } } };
+
+		subscription = await Subscription.findOneAndUpdate({ _id: id }, updateQuery, { new: true }).lean();
+	} catch (err) {
+		return errors.notFound;
+	}
+
+	if (!subscription) return errors.notFound;
+
+	return response(200, "PATCH_SUBSCRIPTIONS", subscription);
+}
+
 async function deleteSubscription(event) {
 	const { params } = event;
 	const { id } = params;
@@ -123,5 +144,6 @@ module.exports = {
 	getSubscriptions,
 	addSubscriptions,
 	editSubscription,
+	patchSubscription,
 	deleteSubscription,
 };

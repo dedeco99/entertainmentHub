@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroller";
 import { useHistory, useRouteMatch } from "react-router-dom";
 
-import { makeStyles, Grid, Button } from "@material-ui/core";
+import { makeStyles, Grid } from "@material-ui/core";
+import ToggleButton from "@material-ui/lab/ToggleButton";
+import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
 
 import Categories from "../.partials/Categories";
 import Loading from "../.partials/Loading";
@@ -85,21 +87,12 @@ function Episodes() {
 		}
 	}
 
-	function handleGetPassedEpisodes() {
-		if (filter !== "passed") {
+	function handleFilterEpisodes(e, value) {
+		if (value && value !== filter) {
 			setSeasons([]);
 			setEpisodes([]);
 			setPage(0);
-			setFilter("passed");
-		}
-	}
-
-	function handleGetFutureEpisodes() {
-		if (filter !== "future") {
-			setSeasons([]);
-			setEpisodes([]);
-			setPage(0);
-			setFilter("future");
+			setFilter(value);
 		}
 	}
 
@@ -133,7 +126,7 @@ function Episodes() {
 				} else {
 					history.replace(`/tv/${match.params.seriesId}/${seasons[seasons.length - 1]._id}`);
 				}
-			} else if (filter !== "all") {
+			} else {
 				await handleGetAll();
 			}
 		}
@@ -161,37 +154,30 @@ function Episodes() {
 
 	function renderAllEpisodes() {
 		return (
-			<Grid container spacing={2}>
-				<Grid item xs={6} md={4} lg={3} xl={2}>
-					<Button
-						onClick={handleGetPassedEpisodes}
-						className={classes.episodesBtn}
-						color="primary"
-						variant="outlined"
-						fullWidth
-					>
+			<div align="center">
+				<ToggleButtonGroup value={filter} onChange={handleFilterEpisodes} color="primary" exclusive>
+					<ToggleButton value="all" className={classes.episodeBtn} color="primary" variant="outlined">
+						{translate("all")}
+					</ToggleButton>
+					<ToggleButton value="passed" className={classes.episodeBtn} color="primary" variant="outlined">
 						{translate("releasedEpisodes")}
-					</Button>
-				</Grid>
-				<Grid item xs={6} md={4} lg={3} xl={2}>
-					<Button
-						onClick={handleGetFutureEpisodes}
-						className={classes.episodesBtn}
-						color="primary"
-						variant="outlined"
-						fullWidth
-					>
+					</ToggleButton>
+					<ToggleButton value="future" className={classes.episodeBtn} color="primary" variant="outlined">
 						{translate("upcomingEpisodes")}
-					</Button>
-				</Grid>
-				<Grid item xs={12}>
-					<InfiniteScroll loadMore={handleGetAll} hasMore={hasMore} loader={<Loading key={0} />}>
-						<Grid container spacing={2}>
-							{renderEpisodes()}
-						</Grid>
-					</InfiniteScroll>
-				</Grid>
-			</Grid>
+					</ToggleButton>
+					<ToggleButton value="watched" className={classes.episodeBtn} color="primary" variant="outlined">
+						{translate("watchedEpisodes")}
+					</ToggleButton>
+					<ToggleButton value="toWatch" className={classes.episodeBtn} color="primary" variant="outlined">
+						{translate("toWatchEpisodes")}
+					</ToggleButton>
+				</ToggleButtonGroup>
+				<InfiniteScroll loadMore={handleGetAll} hasMore={hasMore} loader={<Loading key={0} />}>
+					<Grid container spacing={2}>
+						{renderEpisodes()}
+					</Grid>
+				</InfiniteScroll>
+			</div>
 		);
 	}
 
