@@ -31,6 +31,7 @@ const useStyles = makeStyles(styles);
 function TV() {
 	const classes = useStyles();
 	const [tabIndex, setTabIndex] = useState(0);
+	const [inQueueEpisodes, setInQueueEpisodes] = useState([]);
 	const [allEpisodes, setAllEpisodes] = useState([]);
 	const [popular, setPopular] = useState([]);
 	const [popularFilter, setPopularFilter] = useState("tv");
@@ -42,11 +43,16 @@ function TV() {
 		let isMounted = true;
 
 		async function fetchData() {
-			const response = await Promise.all([getSeasons("all", 0, "passed"), getSeasons("all", 0, "future")]);
+			const response = await Promise.all([
+				getSeasons("queue", 0, "passed"),
+				getSeasons("all", 0, "passed"),
+				getSeasons("all", 0, "future"),
+			]);
 
 			if (isMounted) {
-				setAllEpisodes(response[0].data);
-				setFuture(response[1].data);
+				setInQueueEpisodes(response[0].data);
+				setAllEpisodes(response[1].data);
+				setFuture(response[2].data);
 				setOpen(true);
 			}
 		}
@@ -223,19 +229,23 @@ function TV() {
 						variant="fullWidth"
 						classes={{ indicator: classes.indicator }}
 					>
-						<Tab label="All" className={classes.tab} {...a11yTabProps(0)} />
-						<Tab label="Popular" className={classes.tab} {...a11yTabProps(1)} />
-						<Tab label="Future" className={classes.tab} {...a11yTabProps(2)} />
+						<Tab label="In Queue" className={classes.tab} {...a11yTabProps(0)} />
+						<Tab label="All" className={classes.tab} {...a11yTabProps(1)} />
+						<Tab label="Popular" className={classes.tab} {...a11yTabProps(2)} />
+						<Tab label="Future" className={classes.tab} {...a11yTabProps(3)} />
 					</Tabs>
 				</Paper>
 				<div role="tabpanel" hidden={tabIndex !== 0} className={classes.tabPanel} {...a11yTabPanelProps(0)}>
-					{tabIndex === 0 && renderEpisodeList(allEpisodes)}
+					{tabIndex === 0 && renderEpisodeList(inQueueEpisodes)}
 				</div>
 				<div role="tabpanel" hidden={tabIndex !== 1} className={classes.tabPanel} {...a11yTabPanelProps(1)}>
-					{tabIndex === 1 && renderPopularList()}
+					{tabIndex === 1 && renderEpisodeList(allEpisodes)}
 				</div>
 				<div role="tabpanel" hidden={tabIndex !== 2} className={classes.tabPanel} {...a11yTabPanelProps(2)}>
-					{tabIndex === 2 && renderEpisodeList(future)}
+					{tabIndex === 2 && renderPopularList()}
+				</div>
+				<div role="tabpanel" hidden={tabIndex !== 3} className={classes.tabPanel} {...a11yTabPanelProps(3)}>
+					{tabIndex === 3 && renderEpisodeList(future)}
 				</div>
 			</div>
 		</Zoom>

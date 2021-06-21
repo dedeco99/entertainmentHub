@@ -37,7 +37,7 @@ function Episodes() {
 			setLoading(true);
 			if (page === 0) setOpen(false);
 
-			const response = await getSeasons("all", page, filter);
+			const response = await getSeasons(filter, page, filter);
 
 			if (response.status === 200 && isMounted) {
 				const newEpisodes = page === 0 ? response.data : episodes.concat(response.data);
@@ -114,8 +114,6 @@ function Episodes() {
 		}
 
 		fetchData();
-
-		return () => (isMounted = false); // eslint-disable-line
 	}, [match.url]); // eslint-disable-line
 
 	useEffect(() => {
@@ -170,6 +168,9 @@ function Episodes() {
 					</ToggleButton>
 					<ToggleButton value="toWatch" className={classes.episodeBtn} color="primary" variant="outlined">
 						{translate("toWatchEpisodes")}
+					</ToggleButton>
+					<ToggleButton value="queue" className={classes.episodeBtn} color="primary" variant="outlined">
+						{translate("inQueue")}
 					</ToggleButton>
 				</ToggleButtonGroup>
 				<InfiniteScroll loadMore={handleGetAll} hasMore={hasMore} loader={<Loading key={0} />}>

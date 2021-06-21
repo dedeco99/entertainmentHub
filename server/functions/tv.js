@@ -176,28 +176,7 @@ async function getEpisodes(event) {
 		afterQuery.watched = false;
 	}
 
-	const calculateFieldsQueries = [
-		{
-			$lookup: {
-				from: "subscriptions",
-				let: { seriesId: "$seriesId" },
-				pipeline: [
-					{
-						$match: {
-							$expr: {
-								$and: [
-									{ platform: "tv" },
-									{ $eq: ["$externalId", "$$seriesId"] },
-									{ $eq: ["$user", toObjectId(user._id)] },
-								],
-							},
-						},
-					},
-				],
-				as: "series",
-			},
-		},
-		{ $unwind: "$series" },
+	const finaleQuery = [
 		{
 			$lookup: {
 				from: "episodes",
@@ -226,6 +205,34 @@ async function getEpisodes(event) {
 				finale: {
 					$cond: [{ $eq: ["$finale.number", "$number"] }, true, false],
 				},
+			},
+		},
+	];
+
+	const watchedQuery = [
+		{
+			$lookup: {
+				from: "subscriptions",
+				let: { seriesId: "$seriesId" },
+				pipeline: [
+					{
+						$match: {
+							$expr: {
+								$and: [
+									{ platform: "tv" },
+									{ $eq: ["$externalId", "$$seriesId"] },
+									{ $eq: ["$user", toObjectId(user._id)] },
+								],
+							},
+						},
+					},
+				],
+				as: "series",
+			},
+		},
+		{ $unwind: "$series" },
+		{
+			$addFields: {
 				watched: {
 					$cond: [
 						{
@@ -247,22 +254,42 @@ async function getEpisodes(event) {
 		episodes = await Episode.aggregate([
 			{ $match: episodeQuery },
 			{ $sort: sortQuery },
+			...watchedQuery,
+			...finaleQuery,
+			{ $match: afterQuery },
 			{ $skip: page ? page * 50 : 0 },
 			{ $limit: 50 },
-			...calculateFieldsQueries,
-			{ $match: afterQuery },
+		]);
+	} else if (id === "queue") {
+		episodes = await Episode.aggregate([
+			{ $match: { ...episodeQuery, season: { $ne: 0 } } },
+			...watchedQuery,
+			{ $match: { watched: false } },
+			{ $sort: { season: 1, number: 1 } },
+			{ $group: { _id: "$seriesId", episodes: { $first: "$$ROOT" } } },
+			{ $replaceRoot: { newRoot: { $mergeObjects: ["$episodes", "$$ROOT"] } } },
+			{ $sort: { "series.watched.date": -1 } },
+			{
+				$project: {
+					_id: "$episodes._id",
+					title: 1,
+					image: 1,
+					season: 1,
+					number: 1,
+					date: 1,
+					series: 1,
+					lastWatched: { $last: "$series.watched" },
+				},
+			},
+			{ $project: { "series.watched": 0 } },
 		]);
 	} else {
 		episodes = await Episode.aggregate([
 			{ $match: { seriesId: id } },
 			{ $sort: { number: -1 } },
-			...calculateFieldsQueries,
-			{
-				$group: {
-					_id: "$season",
-					episodes: { $push: "$$ROOT" },
-				},
-			},
+			...watchedQuery,
+			...finaleQuery,
+			{ $group: { _id: "$season", episodes: { $push: "$$ROOT" } } },
 			{ $sort: { _id: 1 } },
 		]);
 	}

@@ -151,6 +151,10 @@ const translations = {
 		en: "To Watch",
 		pt: "Por Ver",
 	},
+	inQueueEpisodes: {
+		en: "In Queue",
+		pt: "Na Fila",
+	},
 	customScrollbar: {
 		en: "Custom scrollbar",
 		pt: "Scrollbar custom",
