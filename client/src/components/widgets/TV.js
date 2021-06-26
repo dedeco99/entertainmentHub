@@ -5,9 +5,9 @@ import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 
 import Loading from "../.partials/Loading";
 import CustomScrollbar from "../.partials/CustomScrollbar";
-import Banners from "../tv/Banners";
+import Popular from "../tv/Popular";
 
-import { getSeasons, getPopular } from "../../api/tv";
+import { getSeasons } from "../../api/tv";
 import { formatDate } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
@@ -20,9 +20,7 @@ function TV() {
 	const [tabIndex, setTabIndex] = useState(0);
 	const [inQueueEpisodes, setInQueueEpisodes] = useState([]);
 	const [allEpisodes, setAllEpisodes] = useState([]);
-	const [popular, setPopular] = useState([]);
 	const [popularFilter, setPopularFilter] = useState("tv");
-	const [popularLoading, setPopularLoading] = useState(true);
 	const [future, setFuture] = useState([]);
 	const [open, setOpen] = useState(false);
 
@@ -54,22 +52,8 @@ function TV() {
 	}
 
 	function handlePopularFilter(e, value) {
-		if (value && value !== popularFilter) {
-			setPopular([]);
-			setPopularLoading(true);
-			setPopularFilter(value);
-		}
+		if (value && value !== popularFilter) setPopularFilter(value);
 	}
-
-	useEffect(() => {
-		async function fetchPopularData() {
-			const { data } = await getPopular(0, "imdb", popularFilter);
-			setPopular(data);
-			setPopularLoading(false);
-		}
-
-		fetchPopularData();
-	}, [popularFilter]);
 
 	function renderPopularList() {
 		return (
@@ -84,17 +68,7 @@ function TV() {
 						</ToggleButton>
 					</ToggleButtonGroup>
 				</Box>
-				{popularLoading ? (
-					<Loading />
-				) : (
-					<Banners
-						series={popular}
-						getMore={() => {}}
-						hasMore={false}
-						hasActions={popularFilter === "tv"}
-						bannerWidth={140}
-					/>
-				)}
+				<Popular type={popularFilter} bannerWidth={140} />
 			</CustomScrollbar>
 		);
 	}

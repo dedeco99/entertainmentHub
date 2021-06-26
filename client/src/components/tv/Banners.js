@@ -14,6 +14,8 @@ import {
 	Tooltip,
 } from "@material-ui/core";
 
+import Loading from "../.partials/Loading";
+
 import { TVContext } from "../../contexts/TVContext";
 
 import { addSubscriptions, deleteSubscription } from "../../api/subscriptions";
@@ -174,7 +176,7 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth }) {
 	}
 
 	return (
-		<InfiniteScroll pageStart={0} loadMore={getMore} hasMore={hasMore}>
+		<InfiniteScroll pageStart={0} loadMore={getMore} hasMore={hasMore} loader={<Loading key={0} />}>
 			{renderSeriesBlock()}
 		</InfiniteScroll>
 	);

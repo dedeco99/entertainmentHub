@@ -63,7 +63,7 @@ function Search() {
 					fullWidth
 				/>
 			</form>
-			<Banners series={follows} getMore={handleGetSearch} hasMore={hasMore} hasActions={true} bannerWidth={180} />
+			<Banners series={follows} getMore={handleGetSearch} hasMore={hasMore} hasActions bannerWidth={180} />
 		</div>
 	);
 }

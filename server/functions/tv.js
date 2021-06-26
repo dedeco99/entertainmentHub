@@ -335,6 +335,8 @@ async function getPopular(event) {
 	const { query } = event;
 	const { page, source, type } = query;
 
+	if (!page && page !== "0") return response(400, "Missing page in query");
+
 	let series = [];
 	if (source === "imdb") {
 		let useCache = true;
@@ -403,10 +405,9 @@ async function getPopular(event) {
 			global.cache[type].popular = series;
 		}
 
-		series = global.cache[type].popular;
+		// eslint-disable-next-line no-mixed-operators
+		series = global.cache[type].popular.slice(Number(page) * 20, Number(page) * 20 + 20);
 	} else {
-		if (!page && page !== "0") return response(400, "Missing page in query");
-
 		const url = `https://api.themoviedb.org/3/tv/popular?${`page=${Number(page) + 1}`}&api_key=${
 			process.env.tmdbKey
 		}`;

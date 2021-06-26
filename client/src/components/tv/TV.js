@@ -105,7 +105,7 @@ function TV() {
 		if (blocks.openSearch) {
 			return <Search />;
 		} else if (blocks.openPopular) {
-			return <Popular />;
+			return <Popular type="tv" bannerWidth={180} />;
 		} else if (blocks.openEpisodes) {
 			return <Episodes />;
 		}
