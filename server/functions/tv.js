@@ -349,18 +349,6 @@ async function getPopular(event) {
 			const res = await api({ method: "get", url, headers: { "accept-language": "en-US" } });
 			const $ = cheerio.load(res.data);
 
-			const posters = $(".posterColumn")
-				.toArray()
-				.map(elem =>
-					$(elem)
-						.find("img")
-						.attr("src")
-						.replace("45", "225")
-						.replace("45", "225")
-						.replace("67", "335")
-						.replace("67", "335"),
-				);
-
 			const infos = $(".titleColumn")
 				.toArray()
 				.map(elem => ({
@@ -373,12 +361,12 @@ async function getPopular(event) {
 							.match(/\((.*)\)/)[1],
 					),
 					rank: Number($(elem).find(".velocity").text().split("\n")[0]),
-					trend: getTrend($(elem).find(".velocity").find(".secondaryInfo")),
+					// trend: getTrend($(elem).find(".velocity").find(".secondaryInfo")),
 				}));
 
 			const ratings = $(".ratingColumn.imdbRating")
 				.toArray()
-				.map(elem => Number($(elem).find("strong").text()));
+				.map(elem => $(elem).find("strong").text());
 
 			const promises = infos.map(i =>
 				api({
@@ -398,7 +386,13 @@ async function getPopular(event) {
 						: null,
 					imdbId: infos[i].id,
 					displayName: infos[i].name,
-					image: posters[i],
+					image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${
+						tmdbSeries[i].data.tv_results.length
+							? tmdbSeries[i].data.tv_results[0].poster_path
+							: tmdbSeries[i].data.movie_results.length
+							? tmdbSeries[i].data.movie_results[0].poster_path
+							: null
+					}`,
 					year: infos[i].year,
 					rank: infos[i].rank,
 					trend: infos[i].trend,
