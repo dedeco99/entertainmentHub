@@ -1,28 +1,15 @@
 import React, { useState, useEffect } from "react";
 
-import {
-	makeStyles,
-	Zoom,
-	Tabs,
-	Tab,
-	List,
-	ListItem,
-	Paper,
-	Typography,
-	Box,
-	Grid,
-	LinearProgress,
-	Card,
-	CardActionArea,
-	Chip,
-} from "@material-ui/core";
+import { makeStyles, Zoom, Tabs, Tab, List, ListItem, Paper, Typography, Box } from "@material-ui/core";
 import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 
 import Loading from "../.partials/Loading";
 import CustomScrollbar from "../.partials/CustomScrollbar";
+import Banners from "../tv/Banners";
 
 import { getSeasons, getPopular } from "../../api/tv";
 import { formatDate } from "../../utils/utils";
+import { translate } from "../../utils/translations";
 
 import { tv as styles } from "../../styles/Widgets";
 
@@ -84,93 +71,29 @@ function TV() {
 		fetchPopularData();
 	}, [popularFilter]);
 
-	/*
-	function getTrendIcon(trend) {
-		if (Number(trend) > 0) return "icon-caret-up";
-		else if (Number(trend) < 0) return "icon-caret-down";
-		else return "icon-sunrise";
-	}
-	
-		<Box position="absolute" top="0" left="0" width="100%" p={1}>
-			<Chip color="primary" size="small" label={`${serie.rank}º`} />
-			<Chip
-				color="primary"
-				size="small"
-				icon={<i className={getTrendIcon(serie.trend)} />}
-				label={Number.isInteger(serie.trend) ? serie.trend : serie.trend.substring(1)}
-				className={classes.trendingChip}
-				classes={{ labelSmall: classes.trendingChipLabel }}
-			/>
-		</Box>
-	*/
-
-	// TODO: Change icons
 	function renderPopularList() {
-		const popularList = popular.map(serie => (
-			<Grid item key={serie.externalId} style={{ padding: "8px" }}>
-				<Box display="flex" flexDirection="column" width="130px" height="100%">
-					<Card component={Box} mb={1}>
-						<CardActionArea
-							onClick={() => {
-								// TODO: Change this onclick to our own series page
-								const newWindow = window.open(
-									`https://www.imdb.com/title/${serie.externalId}`,
-									"_blank",
-									"noopener,noreferrer",
-								);
-								if (newWindow) newWindow.opener = null;
-							}}
-						>
-							<Box>
-								<img style={{ display: "block", width: "100%" }} src={serie.image} alt="Serie poster" />
-								<LinearProgress
-									variant="determinate"
-									value={1} // TODO: Watched %
-									className={classes.watchedProgressBar}
-								/>
-							</Box>
-						</CardActionArea>
-					</Card>
-					<Typography variant="body2" style={{ display: "flex", flexGrow: 1 }}>
-						{serie.displayName}
-					</Typography>
-					<Box display="flex" alignItems="center">
-						<Typography variant="caption" style={{ display: "flex", flexGrow: 1, color: "#aeaeae" }}>
-							{serie.year}
-						</Typography>
-						<Box display="flex" color="#f37555" pr={1}>
-							<i className="icon-sunrise" />
-						</Box>
-						<Box display="flex" color="#f37555" pr={1}>
-							<i className="icon-sunrise" />
-						</Box>
-						<Box display="flex" alignItems="center" color="#fbc005">
-							<i className="icon-sunrise" style={{ paddingRight: "5px" }} />
-							<Typography variant="caption"> {serie.rating} </Typography>
-						</Box>
-					</Box>
-				</Box>
-			</Grid>
-		));
-
 		return (
 			<CustomScrollbar>
 				<Box display="flex" alignItems="center" justifyContent="center" py={2}>
 					<ToggleButtonGroup value={popularFilter} onChange={handlePopularFilter} color="primary" exclusive>
 						<ToggleButton value="tv" color="primary" variant="outlined">
-							{"TV"}
+							{translate("tv")}
 						</ToggleButton>
 						<ToggleButton value="movies" color="primary" variant="outlined">
-							{"Movies"}
+							{translate("movies")}
 						</ToggleButton>
 					</ToggleButtonGroup>
 				</Box>
 				{popularLoading ? (
 					<Loading />
 				) : (
-					<Grid container justify="center">
-						{popularList}
-					</Grid>
+					<Banners
+						series={popular}
+						getMore={() => {}}
+						hasMore={false}
+						hasActions={popularFilter === "tv"}
+						bannerWidth={140}
+					/>
 				)}
 			</CustomScrollbar>
 		);

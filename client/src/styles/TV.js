@@ -67,6 +67,9 @@ const banners = {
 		margin: "0px -25px -15px 0px",
 		cursor: "pointer",
 	},
+	checkboxSize: {
+		padding: "5px",
+	},
 };
 
 export { tv, episodes, episode, banners };

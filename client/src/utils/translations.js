@@ -215,6 +215,30 @@ const translations = {
 		en: "This setting can only be changed in your browser",
 		pt: "Esta definição só pode ser alterada no browser",
 	},
+	tv: {
+		en: "TV",
+		pt: "TV",
+	},
+	movies: {
+		en: "Movies",
+		pt: "Filmes",
+	},
+	removeFavorites: {
+		en: "Remove from favorites",
+		pt: "Remover dos favoritos",
+	},
+	addFavorites: {
+		en: "Add to favorites",
+		pt: "Adicionar aos favoritos",
+	},
+	removeWatched: {
+		en: "Remove from watched",
+		pt: "Remover de vistos",
+	},
+	addWatched: {
+		en: "Mark as watched",
+		pt: "Marcar como visto",
+	},
 	multipleParamExample: (...params) => ({
 		en: `Hello ${params[0]}, my name is ${params[1]}`,
 		pt: `Boas ${params[0]}, o meu nome é ${params[1]}`,

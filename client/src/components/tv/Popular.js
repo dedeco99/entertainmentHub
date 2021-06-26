@@ -20,7 +20,7 @@ function Popular() {
 		if (!loading) {
 			setLoading(true);
 
-			const response = await getPopular(page, "tmdb", "tv");
+			const response = await getPopular(page, "imdb", "tv");
 
 			if (response.status === 200 && isMounted) {
 				const newPopular = page === 0 ? response.data : follows.concat(response.data);
@@ -47,7 +47,15 @@ function Popular() {
 
 	if (!open) return <Loading />;
 
-	return <Banners series={follows} getMore={handleGetPopular} hasMore={hasMore} />;
+	return (
+		<Banners
+			series={follows}
+			getMore={handleGetPopular}
+			hasMore={false} // hasMore={hasMore}
+			hasActions={true}
+			bannerWidth={180}
+		/>
+	);
 }
 
 export default Popular;
