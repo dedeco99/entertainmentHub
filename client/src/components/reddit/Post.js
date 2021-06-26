@@ -131,7 +131,9 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 					}}
 				/>
 			);
-			expandedContent = <img src={post.url} alt={post.url} />;
+			expandedContent = (
+				<img src={post.url} alt={post.url} style={{ display: "block", position: "absolute", margin: "auto" }} />
+			);
 		} else if (post.gallery) {
 			content = (
 				<div>
