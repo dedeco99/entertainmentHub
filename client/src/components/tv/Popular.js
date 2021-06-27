@@ -8,7 +8,7 @@ import { TVContext } from "../../contexts/TVContext";
 
 import { getPopular } from "../../api/tv";
 
-function Popular({ type, bannerWidth }) {
+function Popular({ type, bannerWidth, useWindowScroll }) {
 	const { state, dispatch } = useContext(TVContext);
 	const { follows } = state;
 	const [page, setPage] = useState(0);
@@ -43,16 +43,6 @@ function Popular({ type, bannerWidth }) {
 
 	useEffect(() => {
 		async function fetchData() {
-			await handleGetPopular();
-		}
-
-		fetchData();
-
-		return () => (isMounted = false); // eslint-disable-line
-	}, []); // eslint-disable-line
-
-	useEffect(() => {
-		async function fetchData() {
 			setLastType(type);
 			await handleGetPopular();
 		}
@@ -65,13 +55,21 @@ function Popular({ type, bannerWidth }) {
 	if (!open) return <Loading />;
 
 	return (
-		<Banners series={follows} getMore={handleGetPopular} hasMore={hasMore} hasActions bannerWidth={bannerWidth} />
+		<Banners
+			series={follows}
+			getMore={handleGetPopular}
+			hasMore={hasMore}
+			hasActions
+			bannerWidth={bannerWidth}
+			useWindowScroll={useWindowScroll}
+		/>
 	);
 }
 
 Popular.propTypes = {
 	type: PropTypes.string.isRequired,
 	bannerWidth: PropTypes.number.isRequired,
+	useWindowScroll: PropTypes.bool.isRequired,
 };
 
 export default Popular;

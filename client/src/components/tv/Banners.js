@@ -27,7 +27,7 @@ import { translate } from "../../utils/translations";
 
 const useStyles = makeStyles(styles);
 
-function Banners({ series, getMore, hasMore, hasActions, bannerWidth }) {
+function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowScroll }) {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(TVContext);
 	const { subscriptions } = state;
@@ -176,7 +176,13 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth }) {
 	}
 
 	return (
-		<InfiniteScroll pageStart={0} loadMore={getMore} hasMore={hasMore} loader={<Loading key={0} />}>
+		<InfiniteScroll
+			pageStart={0}
+			loadMore={getMore}
+			hasMore={hasMore}
+			loader={<Loading key={0} />}
+			useWindow={useWindowScroll}
+		>
 			{renderSeriesBlock()}
 		</InfiniteScroll>
 	);
@@ -188,6 +194,7 @@ Banners.propTypes = {
 	hasMore: PropTypes.bool.isRequired,
 	hasActions: PropTypes.bool.isRequired,
 	bannerWidth: PropTypes.number.isRequired,
+	useWindowScroll: PropTypes.bool.isRequired,
 };
 
 export default Banners;

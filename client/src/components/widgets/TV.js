@@ -57,7 +57,7 @@ function TV() {
 
 	function renderPopularList() {
 		return (
-			<CustomScrollbar>
+			<>
 				<Box display="flex" alignItems="center" justifyContent="center" py={2}>
 					<ToggleButtonGroup value={popularFilter} onChange={handlePopularFilter} color="primary" exclusive>
 						<ToggleButton value="tv" color="primary" variant="outlined">
@@ -68,8 +68,8 @@ function TV() {
 						</ToggleButton>
 					</ToggleButtonGroup>
 				</Box>
-				<Popular type={popularFilter} bannerWidth={140} />
-			</CustomScrollbar>
+				<Popular type={popularFilter} bannerWidth={140} useWindowScroll={false} />
+			</>
 		);
 	}
 
