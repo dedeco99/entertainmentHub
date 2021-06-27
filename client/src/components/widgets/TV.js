@@ -58,8 +58,14 @@ function TV() {
 	function renderPopularList() {
 		return (
 			<>
-				<Box display="flex" alignItems="center" justifyContent="center" py={2}>
-					<ToggleButtonGroup value={popularFilter} onChange={handlePopularFilter} color="primary" exclusive>
+				<Box display="flex" alignItems="center" justifyContent="center" pt={1}>
+					<ToggleButtonGroup
+						value={popularFilter}
+						onChange={handlePopularFilter}
+						color="primary"
+						size="small"
+						exclusive
+					>
 						<ToggleButton value="tv" color="primary" variant="outlined">
 							{translate("tv")}
 						</ToggleButton>

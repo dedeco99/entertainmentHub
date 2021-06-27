@@ -106,6 +106,7 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 											variant="determinate"
 											value={1} // TODO: Watched %
 											className={classes.watchedProgressBar}
+											style={{ display: "none" }}
 										/>
 									</Box>
 								</CardActionArea>
@@ -129,6 +130,23 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 										<Tooltip
 											title={
 												subscriptions.map(us => us.externalId).includes(serie.externalId.toString())
+													? translate("removeFavorites")
+													: translate("addFavorites")
+											}
+											placement="top"
+										>
+											<Checkbox
+												color="secondary"
+												checked={subscriptions.map(us => us.externalId).includes(serie.externalId.toString())}
+												icon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
+												checkedIcon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
+												onChange={e => handleFavoriteChange(e, serie)}
+												classes={{ root: classes.checkboxSize }}
+											/>
+										</Tooltip>
+										<Tooltip
+											title={
+												subscriptions.map(us => us.externalId).includes(serie.externalId.toString())
 													? translate("removeWatched")
 													: translate("addWatched")
 											}
@@ -138,33 +156,16 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 												// TODO: Mark as watched
 												color="primary"
 												//checked={subscriptions.map(us => us.externalId).includes(serie.externalId.toString())}
-												icon={<i className="icon-sunrise" style={{ fontSize: "0.875rem" }} />}
-												checkedIcon={<i className="icon-monitor" style={{ fontSize: "0.875rem" }} />}
+												icon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
+												checkedIcon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
 												//onChange={e => handleFavoriteChange(e, serie)}
-												classes={{ root: classes.checkboxSize }}
-											/>
-										</Tooltip>
-										<Tooltip
-											title={
-												subscriptions.map(us => us.externalId).includes(serie.externalId.toString())
-													? translate("removeFavorites")
-													: translate("addFavorites")
-											}
-											placement="top"
-										>
-											<Checkbox
-												color="primary"
-												checked={subscriptions.map(us => us.externalId).includes(serie.externalId.toString())}
-												icon={<i className="icon-sunrise" style={{ fontSize: "0.875rem" }} />}
-												checkedIcon={<i className="icon-monitor" style={{ fontSize: "0.875rem" }} />}
-												onChange={e => handleFavoriteChange(e, serie)}
 												classes={{ root: classes.checkboxSize }}
 											/>
 										</Tooltip>
 									</>
 								)}
 								<Box display="flex" alignItems="center" color="#fbc005" height="100%">
-									<i className="icon-sunrise" style={{ paddingLeft: "5px", paddingRight: "5px" }} />
+									<i className="icon-star" style={{ paddingLeft: "5px", paddingRight: "5px" }} />
 									<Typography variant="caption"> {serie.rating} </Typography>
 								</Box>
 							</Box>
