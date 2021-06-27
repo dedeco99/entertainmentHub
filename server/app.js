@@ -113,6 +113,8 @@ app.get("/api/reddit/subreddits/:type?", token, (req, res) => middleware(req, re
 
 app.get("/api/reddit/:subreddit/:category", token, (req, res) => middleware(req, res, reddit.getPosts));
 
+app.get("/api/reddit/:subreddit/comments/:post", token, (req, res) => middleware(req, res, reddit.getComments));
+
 app.get("/api/reddit/:subreddit/search/:search", token, (req, res) => middleware(req, res, reddit.getSearch));
 
 app.get("/api/subscriptions/:platform", token, (req, res) => middleware(req, res, subs.getSubscriptions));

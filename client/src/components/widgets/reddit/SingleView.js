@@ -37,6 +37,25 @@ function SingleView({ open, post, multipleSubs, onShowPreviousPost, onShowNextPo
 			</Box>
 		</Zoom>
 	);
+
+	/*return (
+		<Zoom in={open}>
+			<Box variant="outlined" className={classes.root}>
+				<Grid container spacing={3}>
+					<Grid item xs={8}>
+						<Post
+							post={post}
+							multipleSubs={multipleSubs}
+							onShowPreviousPost={onShowPreviousPost}
+							onShowNextPost={onShowNextPost}
+						/>
+					</Grid>
+					<Grid item xs={4}></Grid>
+				</Grid>
+			</Box>
+		</Zoom>
+		
+	);*/
 }
 
 SingleView.propTypes = {
