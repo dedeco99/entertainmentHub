@@ -148,18 +148,25 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 						onClick={handleOpenExpandedView}
 					/>
 					{galleryIndex > 0 && (
-						<Box
-							left="10px"
-							style={{ transform: "translateY(-50%)" }}
-							className={classes.galleryBtn}
-							onClick={() => setGalleryIndex(galleryIndex - 1)}
-						>
-							<i className="icon-arrow-left icon-2x" />
+						<Box left="10px" className={classes.galleryBtn}>
+							<IconButton
+								onClick={() => setGalleryIndex(galleryIndex - 1)}
+								color="primary"
+								style={{ top: "18px", backgroundColor: "#3C3C3C", cursor: "pointer" }}
+							>
+								<i className="icon-caret-left icon-1x" />
+							</IconButton>
 						</Box>
 					)}
 					{galleryIndex < post.gallery.length - 1 && (
-						<Box right="10px" className={classes.galleryBtn} onClick={() => setGalleryIndex(galleryIndex + 1)}>
-							<i className="icon-arrow-right icon-2x" />
+						<Box right="10px" className={classes.galleryBtn}>
+							<IconButton
+								onClick={() => setGalleryIndex(galleryIndex + 1)}
+								color="primary"
+								style={{ top: "18px", backgroundColor: "#3C3C3C", cursor: "pointer" }}
+							>
+								<i className="icon-caret-right icon-1x" />
+							</IconButton>
 						</Box>
 					)}
 				</div>
@@ -522,7 +529,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 												<IconButton
 													onClick={onShowPreviousPost}
 													color="primary"
-													style={{ backgroundColor: "#3C3C3C", padding: "8px", cursor: "pointer" }}
+													style={{ backgroundColor: "#3C3C3C", cursor: "pointer" }}
 												>
 													<i className="icon-arrow-left icon-1x" />
 												</IconButton>
@@ -547,7 +554,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 											marginLeft: "20px",
 										}}
 									>
-										<i className={sideMenuView ? "icon-arrow-right icon-1x" : "icon-arrow-left icon-1x"} />
+										<i className={sideMenuView ? "icon-caret-right icon-1x" : "icon-caret-left icon-1x"} />
 									</IconButton>
 
 									{onShowNextPost && (
@@ -565,7 +572,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 												<IconButton
 													onClick={onShowPreviousPost}
 													color="primary"
-													style={{ backgroundColor: "#3C3C3C", padding: "8px", cursor: "pointer" }}
+													style={{ backgroundColor: "#3C3C3C", cursor: "pointer" }}
 												>
 													<i className="icon-arrow-right icon-1x" />
 												</IconButton>
