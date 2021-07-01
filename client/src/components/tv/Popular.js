@@ -1,6 +1,8 @@
 import React, { useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 
+import { makeStyles, List, ListItem, Typography } from "@material-ui/core";
+
 import Banners from "./Banners";
 import Loading from "../.partials/Loading";
 
@@ -8,7 +10,12 @@ import { TVContext } from "../../contexts/TVContext";
 
 import { getPopular } from "../../api/tv";
 
-function Popular({ type, bannerWidth, useWindowScroll }) {
+import { tv as styles } from "../../styles/Widgets";
+
+const useStyles = makeStyles(styles);
+
+function Popular({ type, bannerWidth, useWindowScroll, listView }) {
+	const classes = useStyles();
 	const { state, dispatch } = useContext(TVContext);
 	const { follows } = state;
 	const [page, setPage] = useState(0);
@@ -54,7 +61,18 @@ function Popular({ type, bannerWidth, useWindowScroll }) {
 
 	if (!open) return <Loading />;
 
-	return (
+	return listView ? (
+		<List>
+			{follows.map(serie => (
+				<ListItem key={serie.externalId} button divider>
+					<img src={serie.image} height="100x" alt="Series" />
+					<Typography variant="body1" className={classes.popularText}>
+						{serie.displayName}
+					</Typography>
+				</ListItem>
+			))}
+		</List>
+	) : (
 		<Banners
 			series={follows}
 			getMore={handleGetPopular}
@@ -70,6 +88,7 @@ Popular.propTypes = {
 	type: PropTypes.string.isRequired,
 	bannerWidth: PropTypes.number.isRequired,
 	useWindowScroll: PropTypes.bool.isRequired,
+	listView: PropTypes.bool,
 };
 
 export default Popular;

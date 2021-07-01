@@ -190,7 +190,12 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 		if (e.target.value.includes("info.country")) {
 			setInfo({ ...info, country: e.target.value.replace("info.country.", "") });
 		} else if (e.target.id && e.target.id.includes("info")) {
-			setInfo({ ...info, [e.target.id.replace("info.", "")]: e.target.value });
+			setInfo({
+				...info,
+				[e.target.id.replace("info.", "")]: ["true", "false"].includes(e.target.value)
+					? e.target.value === "true"
+					: e.target.value,
+			});
 		} else {
 			setType(e.target.value);
 		}
@@ -310,8 +315,8 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 								<Checkbox
 									color="primary"
 									id="info.listView"
-									checked={info.listView === "true"}
-									value={info.listView !== "true"}
+									checked={info.listView}
+									value={!info.listView}
 									onChange={handleChange}
 								/>
 							}
@@ -339,8 +344,8 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 								<Checkbox
 									color="primary"
 									id="info.listView"
-									checked={info.listView === "true"}
-									value={info.listView !== "true"}
+									checked={info.listView}
+									value={!info.listView}
 									onChange={handleChange}
 								/>
 							}

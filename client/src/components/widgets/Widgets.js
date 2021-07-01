@@ -73,7 +73,7 @@ const widgetsInfo = {
 		restrictions: widgetRestrictions.weather,
 	}),
 	tv: widget => ({
-		content: <TV />,
+		content: <TV tabs={widget.info.tabs} listView={widget.info.listView} />,
 		editText: "TV",
 		editIcon: "icon-monitor-filled",
 		dimensions: { w: widget.width || 1, h: widget.height || 4 },

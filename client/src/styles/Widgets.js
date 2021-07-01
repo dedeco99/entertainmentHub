@@ -273,10 +273,10 @@ const tv = {
 	tab: {
 		minWidth: 50,
 	},
-	tabPanel: {
-		height: "calc(100% - 48px)",
+	tabPanel: props => ({
+		height: props.hasTabs ? "calc(100% - 48px)" : "100%",
 		overflow: "auto",
-	},
+	}),
 	episodeList: {
 		flexDirection: "column",
 	},

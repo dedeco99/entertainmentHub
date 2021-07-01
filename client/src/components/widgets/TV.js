@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 
 import { makeStyles, Zoom, Tabs, Tab, List, ListItem, Paper, Typography, Box } from "@material-ui/core";
 import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
@@ -15,8 +16,8 @@ import { tv as styles } from "../../styles/Widgets";
 
 const useStyles = makeStyles(styles);
 
-function TV() {
-	const classes = useStyles();
+function TV({ tabs, listView }) {
+	const classes = useStyles({ hasTabs: tabs.length > 1 });
 	const [tabIndex, setTabIndex] = useState(0);
 	const [inQueueEpisodes, setInQueueEpisodes] = useState([]);
 	const [allEpisodes, setAllEpisodes] = useState([]);
@@ -74,7 +75,7 @@ function TV() {
 						</ToggleButton>
 					</ToggleButtonGroup>
 				</Box>
-				<Popular type={popularFilter} bannerWidth={140} useWindowScroll={false} />
+				<Popular type={popularFilter} bannerWidth={140} useWindowScroll={false} listView={listView} />
 			</>
 		);
 	}
@@ -122,37 +123,49 @@ function TV() {
 
 	if (!open) return <Loading />;
 
+	const tabOptions = [
+		{ key: "inQueue", name: translate("inQueueEpisodes"), content: () => renderEpisodeList(inQueueEpisodes) },
+		{ key: "all", name: translate("all"), content: () => renderEpisodeList(allEpisodes) },
+		{ key: "popular", name: "Popular", content: () => renderPopularList() },
+		{ key: "future", name: translate("upcomingEpisodes"), content: () => renderEpisodeList(future) },
+	];
+
+	const tabsList = [];
+	const tabsContent = [];
+	for (let i = 0; i < tabs.length; i++) {
+		const tabOption = tabOptions.find(t => t.key === tabs[i]);
+		tabsList.push(<Tab key={i} label={tabOption.name} className={classes.tab} {...a11yTabProps(i)} />);
+		tabsContent.push(
+			<div key={i} role="tabpanel" hidden={tabIndex !== i} className={classes.tabPanel} {...a11yTabPanelProps(i)}>
+				{tabIndex === i && tabOption.content()}
+			</div>,
+		);
+	}
+
 	return (
 		<Zoom in={open}>
 			<div className={classes.root}>
 				<Paper square>
-					<Tabs
-						value={tabIndex}
-						onChange={handleChange}
-						variant="fullWidth"
-						classes={{ indicator: classes.indicator }}
-					>
-						<Tab label="In Queue" className={classes.tab} {...a11yTabProps(0)} />
-						<Tab label="All" className={classes.tab} {...a11yTabProps(1)} />
-						<Tab label="Popular" className={classes.tab} {...a11yTabProps(2)} />
-						<Tab label="Future" className={classes.tab} {...a11yTabProps(3)} />
-					</Tabs>
+					{tabsList.length > 1 ? (
+						<Tabs
+							value={tabIndex}
+							onChange={handleChange}
+							variant="fullWidth"
+							classes={{ indicator: classes.indicator }}
+						>
+							{tabsList}
+						</Tabs>
+					) : null}
 				</Paper>
-				<div role="tabpanel" hidden={tabIndex !== 0} className={classes.tabPanel} {...a11yTabPanelProps(0)}>
-					{tabIndex === 0 && renderEpisodeList(inQueueEpisodes)}
-				</div>
-				<div role="tabpanel" hidden={tabIndex !== 1} className={classes.tabPanel} {...a11yTabPanelProps(1)}>
-					{tabIndex === 1 && renderEpisodeList(allEpisodes)}
-				</div>
-				<div role="tabpanel" hidden={tabIndex !== 2} className={classes.tabPanel} {...a11yTabPanelProps(2)}>
-					{tabIndex === 2 && renderPopularList()}
-				</div>
-				<div role="tabpanel" hidden={tabIndex !== 3} className={classes.tabPanel} {...a11yTabPanelProps(3)}>
-					{tabIndex === 3 && renderEpisodeList(future)}
-				</div>
+				{tabsContent}
 			</div>
 		</Zoom>
 	);
 }
+
+TV.propTypes = {
+	tabs: PropTypes.array,
+	listView: PropTypes.bool,
+};
 
 export default TV;
