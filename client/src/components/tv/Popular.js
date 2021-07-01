@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
+import InfiniteScroll from "react-infinite-scroller";
 
 import { makeStyles, List, ListItem, Typography } from "@material-ui/core";
 
@@ -62,16 +63,24 @@ function Popular({ type, bannerWidth, useWindowScroll, listView }) {
 	if (!open) return <Loading />;
 
 	return listView ? (
-		<List>
-			{follows.map(serie => (
-				<ListItem key={serie.externalId} button divider>
-					<img src={serie.image} height="100x" alt="Series" />
-					<Typography variant="body1" className={classes.popularText}>
-						{serie.displayName}
-					</Typography>
-				</ListItem>
-			))}
-		</List>
+		<InfiniteScroll
+			pageStart={0}
+			loadMore={handleGetPopular}
+			hasMore={hasMore}
+			loader={<Loading key={0} />}
+			useWindow={useWindowScroll}
+		>
+			<List>
+				{follows.map(serie => (
+					<ListItem key={serie.externalId} button divider>
+						<img src={serie.image} height="100x" alt="Series" />
+						<Typography variant="body1" className={classes.popularText}>
+							{serie.displayName}
+						</Typography>
+					</ListItem>
+				))}
+			</List>
+		</InfiniteScroll>
 	) : (
 		<Banners
 			series={follows}
