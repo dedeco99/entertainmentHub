@@ -353,18 +353,19 @@ async function getPopular(event) {
 
 			const infos = $(".titleColumn")
 				.toArray()
-				.map(elem => ({
-					id: $(elem).find("a").attr("href").split("/")[2],
-					name: $(elem).find("a").text(),
-					year: Number(
-						$(elem)
-							.find(".secondaryInfo")
-							.text()
-							.match(/\((.*)\)/)[1],
-					),
-					rank: Number($(elem).find(".velocity").text().split("\n")[0]),
-					// trend: getTrend($(elem).find(".velocity").find(".secondaryInfo")),
-				}));
+				.map(elem => {
+					const year = $(elem)
+						.find(".secondaryInfo")
+						.text()
+						.match(/\((.*)\)/);
+					return {
+						id: $(elem).find("a").attr("href").split("/")[2],
+						name: $(elem).find("a").text(),
+						year: Number(year ? year[1] : null),
+						rank: Number($(elem).find(".velocity").text().split("\n")[0]),
+						// trend: getTrend($(elem).find(".velocity").find(".secondaryInfo")),
+					};
+				});
 
 			const ratings = $(".ratingColumn.imdbRating")
 				.toArray()

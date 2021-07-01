@@ -123,7 +123,7 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 										color: "#aeaeae",
 									}}
 								>
-									{serie.year}
+									{serie.year || null}
 								</Typography>
 								{hasActions && (
 									<>
@@ -164,10 +164,12 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 										</Tooltip>
 									</>
 								)}
-								<Box display="flex" alignItems="center" color="#fbc005" height="100%">
-									<i className="icon-star" style={{ paddingLeft: "5px", paddingRight: "5px" }} />
-									<Typography variant="caption"> {serie.rating} </Typography>
-								</Box>
+								{serie.rating ? (
+									<Box display="flex" alignItems="center" color="#fbc005" height="100%">
+										<i className="icon-star" style={{ paddingLeft: "5px", paddingRight: "5px" }} />
+										<Typography variant="caption">{serie.rating}</Typography>
+									</Box>
+								) : null}
 							</Box>
 						</Box>
 					</Grid>
