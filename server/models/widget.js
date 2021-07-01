@@ -33,6 +33,9 @@ const WidgetSchema = new Schema(
 
 			// Price
 			productId: { type: String },
+
+			// TV
+			tabs: [{ type: String }],
 		},
 	},
 	{ timestamps: { createdAt: "_created", updatedAt: "_modified" } },
