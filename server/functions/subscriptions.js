@@ -106,18 +106,25 @@ async function editSubscription(event) {
 async function patchSubscription(event) {
 	const { params, body } = event;
 	const { id } = params;
-	const { watched } = body;
+	const { markAsWatched, watched } = body;
 
 	let subscription = await Subscription.findOne({ _id: id }).lean();
+	const promises = [];
 	try {
-		const updateQuery = subscription.watched.find(w => w.key === watched)
-			? { $pull: { watched: { key: watched } } }
-			: { $addToSet: { watched: { key: watched, date: Date.now() } } };
+		for (const key of watched) {
+			const updateQuery = markAsWatched
+				? { $addToSet: { watched: { key, date: Date.now() } } }
+				: { $pull: { watched: { key } } };
 
-		subscription = await Subscription.findOneAndUpdate({ _id: id }, updateQuery, { new: true }).lean();
+			promises.push(Subscription.findOneAndUpdate({ _id: id }, updateQuery, { new: true }));
+		}
 	} catch (err) {
 		return errors.notFound;
 	}
+
+	const subscriptions = await Promise.all(promises);
+
+	subscription = subscriptions[subscriptions.length - 1];
 
 	if (!subscription) return errors.notFound;
 
