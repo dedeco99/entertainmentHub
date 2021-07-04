@@ -5,7 +5,11 @@ const relativeTime = require("dayjs/plugin/relativeTime");
 dayjs.extend(relativeTime);
 
 function toObjectId(id) {
-	return Types.ObjectId(id);
+	try {
+		return Types.ObjectId(id);
+	} catch (err) {
+		return false;
+	}
 }
 
 function formatDate(date, format, relative, originalFormat) {

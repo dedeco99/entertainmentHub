@@ -9,6 +9,79 @@ const Subscription = require("../models/subscription");
 const Episode = require("../models/episode");
 const ScheduledNotification = require("../models/scheduledNotification");
 
+const finaleQuery = [
+	{
+		$lookup: {
+			from: "episodes",
+			let: { seriesId: "$seriesId", season: "$season" },
+			pipeline: [
+				{
+					$match: {
+						$expr: {
+							$and: [{ $eq: ["$seriesId", "$$seriesId"] }, { $eq: ["$season", "$$season"] }],
+						},
+					},
+				},
+				{
+					$sort: { number: -1 },
+				},
+				{
+					$limit: 1,
+				},
+			],
+			as: "finale",
+		},
+	},
+	{ $unwind: "$finale" },
+	{
+		$addFields: {
+			finale: {
+				$cond: [{ $eq: ["$finale.number", "$number"] }, true, false],
+			},
+		},
+	},
+];
+
+const watchedQuery = user => [
+	{
+		$lookup: {
+			from: "subscriptions",
+			let: { seriesId: "$seriesId" },
+			pipeline: [
+				{
+					$match: {
+						$expr: {
+							$and: [
+								{ platform: "tv" },
+								{ $eq: ["$externalId", "$$seriesId"] },
+								{ $eq: ["$user", toObjectId(user._id)] },
+							],
+						},
+					},
+				},
+			],
+			as: "series",
+		},
+	},
+	{ $unwind: "$series" },
+	{
+		$addFields: {
+			watched: {
+				$cond: [
+					{
+						$in: [
+							{ $concat: ["S", { $toString: "$season" }, "E", { $toString: "$number" }] },
+							"$series.watched.key",
+						],
+					},
+					true,
+					false,
+				],
+			},
+		},
+	},
+];
+
 // eslint-disable-next-line complexity, max-lines-per-function
 async function fetchEpisodes(series) {
 	const episodesToAdd = [];
@@ -176,85 +249,12 @@ async function getEpisodes(event) {
 		afterQuery.watched = false;
 	}
 
-	const finaleQuery = [
-		{
-			$lookup: {
-				from: "episodes",
-				let: { seriesId: "$seriesId", season: "$season" },
-				pipeline: [
-					{
-						$match: {
-							$expr: {
-								$and: [{ $eq: ["$seriesId", "$$seriesId"] }, { $eq: ["$season", "$$season"] }],
-							},
-						},
-					},
-					{
-						$sort: { number: -1 },
-					},
-					{
-						$limit: 1,
-					},
-				],
-				as: "finale",
-			},
-		},
-		{ $unwind: "$finale" },
-		{
-			$addFields: {
-				finale: {
-					$cond: [{ $eq: ["$finale.number", "$number"] }, true, false],
-				},
-			},
-		},
-	];
-
-	const watchedQuery = [
-		{
-			$lookup: {
-				from: "subscriptions",
-				let: { seriesId: "$seriesId" },
-				pipeline: [
-					{
-						$match: {
-							$expr: {
-								$and: [
-									{ platform: "tv" },
-									{ $eq: ["$externalId", "$$seriesId"] },
-									{ $eq: ["$user", toObjectId(user._id)] },
-								],
-							},
-						},
-					},
-				],
-				as: "series",
-			},
-		},
-		{ $unwind: "$series" },
-		{
-			$addFields: {
-				watched: {
-					$cond: [
-						{
-							$in: [
-								{ $concat: ["S", { $toString: "$season" }, "E", { $toString: "$number" }] },
-								"$series.watched.key",
-							],
-						},
-						true,
-						false,
-					],
-				},
-			},
-		},
-	];
-
 	let episodes = [];
 	if (id === "all") {
 		if (filter === "queue") {
 			episodes = await Episode.aggregate([
 				{ $match: { ...episodeQuery, season: { $ne: 0 } } },
-				...watchedQuery,
+				...watchedQuery(user),
 				{ $match: { watched: false } },
 				{ $sort: { season: 1, number: 1 } },
 				{ $group: { _id: "$seriesId", episodes: { $first: "$$ROOT" } } },
@@ -278,7 +278,7 @@ async function getEpisodes(event) {
 			episodes = await Episode.aggregate([
 				{ $match: episodeQuery },
 				{ $sort: sortQuery },
-				...watchedQuery,
+				...watchedQuery(user),
 				...finaleQuery,
 				{ $match: afterQuery },
 				{ $skip: page ? page * 50 : 0 },
@@ -289,7 +289,7 @@ async function getEpisodes(event) {
 		episodes = await Episode.aggregate([
 			{ $match: { seriesId: id } },
 			{ $sort: { number: -1 } },
-			...watchedQuery,
+			...watchedQuery(user),
 			...finaleQuery,
 			{ $group: { _id: "$season", episodes: { $push: "$$ROOT" } } },
 			{ $sort: { _id: 1 } },
@@ -332,7 +332,7 @@ function getTrend(trend) {
 
 // eslint-disable-next-line max-lines-per-function
 async function getPopular(event) {
-	const { query } = event;
+	const { query, user } = event;
 	const { page, source, type } = query;
 
 	if (!page && page !== "0") return response(400, "Missing page in query");
@@ -408,6 +408,24 @@ async function getPopular(event) {
 
 		// eslint-disable-next-line no-mixed-operators
 		series = global.cache[type].popular.slice(Number(page) * 20, Number(page) * 20 + 20);
+
+		const promises = [];
+		for (const singleSeries of series) {
+			promises.push(
+				Episode.aggregate([
+					{ $match: { seriesId: singleSeries.externalId.toString() } },
+					...watchedQuery(user),
+					{ $match: { watched: false } },
+					{ $count: "watched" },
+				]),
+			);
+		}
+
+		const episodes = await Promise.all(promises);
+
+		for (let i = 0; i < series.length; i++) {
+			series[i].watched = !episodes[i].length;
+		}
 	} else {
 		const url = `https://api.themoviedb.org/3/tv/popular?${`page=${Number(page) + 1}`}&api_key=${
 			process.env.tmdbKey

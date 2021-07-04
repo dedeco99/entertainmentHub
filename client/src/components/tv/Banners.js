@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import InfiniteScroll from "react-infinite-scroller";
 
@@ -18,7 +18,12 @@ import Loading from "../.partials/Loading";
 
 import { TVContext } from "../../contexts/TVContext";
 
-import { addSubscriptions, deleteSubscription } from "../../api/subscriptions";
+import {
+	getSubscriptions,
+	addSubscriptions,
+	patchSubscription,
+	deleteSubscription,
+} from "../../api/subscriptions";
 
 import { banners as styles } from "../../styles/TV";
 
@@ -31,9 +36,27 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 	const classes = useStyles();
 	const { state, dispatch } = useContext(TVContext);
 	const { subscriptions } = state;
+	const [rerender, setRerender] = useState(true);
+
+	useEffect(() => {
+		let isMounted = true;
+
+		async function fetchData() {
+			const response = await getSubscriptions("tv");
+
+			if (response.status === 200 && isMounted) {
+				dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
+			}
+		}
+
+		if (!subscriptions.length) fetchData();
+
+		return () => (isMounted = false);
+	}, []); // eslint-disable-line
 
 	async function handleAddSeries(serie) {
 		const seriesToAdd = series.find(s => s.externalId === serie.externalId);
+		seriesToAdd.externalId = seriesToAdd.externalId.toString();
 		const response = await addSubscriptions("tv", [seriesToAdd]);
 
 		if (response.status === 201) {
@@ -73,6 +96,20 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 	function handleFavoriteChange(e, serie) {
 		if (e.target.checked) handleAddSeries(serie);
 		else handleDeleteSeries(serie);
+	}
+
+	function isSubscribed(serie) {
+		return subscriptions.map(us => us.externalId).includes(serie.externalId.toString());
+	}
+
+	async function handleMarkAsWatched(e, serie) {
+		const response = await patchSubscription(serie.externalId, !serie.watched, "all");
+
+		if (response.status === 200) {
+			serie.watched = !serie.watched;
+
+			setRerender(!rerender);
+		}
 	}
 
 	function renderSeriesBlock() {
@@ -128,16 +165,12 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 								{hasActions && (
 									<>
 										<Tooltip
-											title={
-												subscriptions.map(us => us.externalId).includes(serie.externalId.toString())
-													? translate("removeFavorites")
-													: translate("addFavorites")
-											}
+											title={isSubscribed(serie) ? translate("removeFavorites") : translate("addFavorites")}
 											placement="top"
 										>
 											<Checkbox
 												color="secondary"
-												checked={subscriptions.map(us => us.externalId).includes(serie.externalId.toString())}
+												checked={isSubscribed(serie)}
 												icon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
 												checkedIcon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
 												onChange={e => handleFavoriteChange(e, serie)}
@@ -146,19 +179,18 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 										</Tooltip>
 										<Tooltip
 											title={
-												subscriptions.map(us => us.externalId).includes(serie.externalId.toString())
-													? translate("removeWatched")
-													: translate("addWatched")
+												isSubscribed(serie) && serie.watched ? translate("removeWatched") : translate("addWatched")
 											}
 											placement="top"
 										>
 											<Checkbox
 												// TODO: Mark as watched
-												color="primary"
-												//checked={subscriptions.map(us => us.externalId).includes(serie.externalId.toString())}
+												color="secondary"
+												checked={isSubscribed(serie) && serie.watched}
+												disabled={!isSubscribed(serie)}
 												icon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
 												checkedIcon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
-												//onChange={e => handleFavoriteChange(e, serie)}
+												onChange={e => handleMarkAsWatched(e, serie)}
 												classes={{ root: classes.checkboxSize }}
 											/>
 										</Tooltip>

@@ -1,10 +1,12 @@
 const { response } = require("../utils/request");
 const errors = require("../utils/errors");
+const { toObjectId } = require("../utils/utils");
 
 const tv = require("./tv");
 const twitch = require("./twitch");
 
 const Subscription = require("../models/subscription");
+const Episode = require("../models/episode");
 
 async function getSubscriptions(event) {
 	const { params, user } = event;
@@ -66,9 +68,9 @@ async function addSubscriptions(event) {
 					const seriesPopulated = await Subscription.findOne({ platform, externalId }).lean();
 
 					if (!seriesPopulated) {
-						await tv.fetchEpisodes({
+						tv.fetchEpisodes({
 							_id: externalId,
-							displayNames: [displayName],
+							displayName,
 							users: [user._id],
 						});
 					}
@@ -104,27 +106,34 @@ async function editSubscription(event) {
 }
 
 async function patchSubscription(event) {
-	const { params, body } = event;
+	const { params, body, user } = event;
 	const { id } = params;
-	const { markAsWatched, watched } = body;
+	const { markAsWatched } = body;
+	let { watched } = body;
 
-	let subscription = await Subscription.findOne({ _id: id }).lean();
-	const promises = [];
+	let subscription = await Subscription.findOne(
+		toObjectId(id) ? { _id: id } : { user: user._id, externalId: id },
+	).lean();
+
+	if (watched === "all") {
+		const episodes = await Episode.find({ seriesId: id });
+
+		watched = episodes.map(e => `S${e.season}E${e.number}`);
+	}
+
 	try {
-		for (const key of watched) {
-			const updateQuery = markAsWatched
-				? { $addToSet: { watched: { key, date: Date.now() } } }
-				: { $pull: { watched: { key } } };
+		const updateQuery = markAsWatched
+			? { $addToSet: { watched: { $each: watched.map(key => ({ key, date: Date.now() })) } } }
+			: { $pull: { watched: { key: { $in: watched } } } };
 
-			promises.push(Subscription.findOneAndUpdate({ _id: id }, updateQuery, { new: true }));
-		}
+		subscription = await Subscription.findOneAndUpdate(
+			toObjectId(id) ? { _id: id } : { user: user._id, externalId: id },
+			updateQuery,
+			{ new: true },
+		);
 	} catch (err) {
 		return errors.notFound;
 	}
-
-	const subscriptions = await Promise.all(promises);
-
-	subscription = subscriptions[subscriptions.length - 1];
 
 	if (!subscription) return errors.notFound;
 
