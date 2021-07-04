@@ -35,6 +35,14 @@ global.cache = {
 		data: {},
 		lastUpdate: Date.now(),
 	},
+	tv: {
+		popular: [],
+		lastUpdate: Date.now(),
+	},
+	movies: {
+		popular: [],
+		lastUpdate: Date.now(),
+	},
 };
 global.cronjobs = [];
 
@@ -112,6 +120,8 @@ app.get("/api/price/:country/:product", token, (req, res) => middleware(req, res
 app.get("/api/reddit/subreddits/:type?", token, (req, res) => middleware(req, res, reddit.getSubreddits));
 
 app.get("/api/reddit/:subreddit/:category", token, (req, res) => middleware(req, res, reddit.getPosts));
+
+app.get("/api/reddit/:subreddit/comments/:post", token, (req, res) => middleware(req, res, reddit.getComments));
 
 app.get("/api/reddit/:subreddit/search/:search", token, (req, res) => middleware(req, res, reddit.getSearch));
 

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import ReactPlayer from "react-player";
@@ -13,9 +14,17 @@ import {
 	Link,
 	Divider,
 	Paper,
+	Grid,
+	Card,
+	CardContent,
+	IconButton,
 } from "@material-ui/core";
 
-import { formatDate, htmlEscape } from "../../utils/utils";
+import Loading from "../.partials/Loading";
+
+import { getComments } from "../../api/reddit";
+
+import { formatDate, formatNumber, htmlEscape } from "../../utils/utils";
 
 import { reddit as styles } from "../../styles/Widgets";
 
@@ -24,7 +33,26 @@ const useStyles = makeStyles(styles);
 function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, customStyles }) {
 	const classes = useStyles({ inList });
 	const [expandedView, setExpandedView] = useState(false);
+	const [sideMenuView, setSideMenuView] = useState(true);
+	const [comments, setComments] = useState([]);
+	const [loading, setLoading] = useState(false);
 	const [galleryIndex, setGalleryIndex] = useState(0);
+
+	async function handleGetComments() {
+		setLoading(true);
+
+		const response = await getComments(post.subreddit, post.id);
+
+		if (response.status === 200 && response.data) {
+			setComments(response.data);
+		}
+
+		setLoading(false);
+	}
+
+	useEffect(() => {
+		handleGetComments();
+	}, [post.id]);
 
 	useEffect(() => {
 		setGalleryIndex(0);
@@ -38,9 +66,28 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 		setExpandedView(true);
 	}
 
+	function handleOpenSideMenuView() {
+		setSideMenuView(true);
+	}
+
+	function handleCloseSideMenuView() {
+		setSideMenuView(false);
+	}
+
+	useEffect(() => {
+		function updateSideMenuView() {
+			if (window.innerWidth <= 900) handleCloseSideMenuView();
+			else handleOpenSideMenuView();
+		}
+
+		window.addEventListener("resize", updateSideMenuView);
+		updateSideMenuView();
+		return () => window.removeEventListener("resize", updateSideMenuView);
+	}, []);
+
 	function formatTextPost() {
 		return (
-			<Box p={2} maxHeight={400}>
+			<Box p={2} maxWidth={1450} style={{ backgroundColor: "#212121" }}>
 				{post.text === "null" ? (
 					<Typography>
 						<Link href={post.url} target="_blank" rel="noreferrer" color="inherit">
@@ -68,7 +115,29 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 			content = (
 				<CardMedia component="img" src={post.url} className={classes.media} onClick={handleOpenExpandedView} />
 			);
-			expandedContent = <img src={post.url} alt={post.url} />;
+			expandedContent = (
+				<img
+					src={post.url}
+					alt={post.url}
+					style={{
+						width: "100%",
+						height: "100%",
+						maxWidth: "100%",
+						maxHeight: "100%",
+						margin: "auto",
+						display: "block",
+						position: "absolute",
+						objectFit: "contain",
+					}}
+				/>
+			);
+			expandedContent = (
+				<img
+					src={post.url}
+					alt={post.url}
+					style={{ display: "block", position: "absolute", margin: "auto", width: "100%", height: "100%" }}
+				/>
+			);
 		} else if (post.gallery) {
 			content = (
 				<div>
@@ -79,18 +148,25 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 						onClick={handleOpenExpandedView}
 					/>
 					{galleryIndex > 0 && (
-						<Box
-							left="10px"
-							style={{ transform: "translateY(-50%)" }}
-							className={classes.galleryBtn}
-							onClick={() => setGalleryIndex(galleryIndex - 1)}
-						>
-							<i className="icon-arrow-left icon-2x" />
+						<Box left="10px" className={classes.galleryBtn}>
+							<IconButton
+								onClick={() => setGalleryIndex(galleryIndex - 1)}
+								color="primary"
+								style={{ top: "18px", backgroundColor: "#3C3C3C", cursor: "pointer" }}
+							>
+								<i className="icon-caret-left icon-1x" />
+							</IconButton>
 						</Box>
 					)}
 					{galleryIndex < post.gallery.length - 1 && (
-						<Box right="10px" className={classes.galleryBtn} onClick={() => setGalleryIndex(galleryIndex + 1)}>
-							<i className="icon-arrow-right icon-2x" />
+						<Box right="10px" className={classes.galleryBtn}>
+							<IconButton
+								onClick={() => setGalleryIndex(galleryIndex + 1)}
+								color="primary"
+								style={{ top: "18px", backgroundColor: "#3C3C3C", cursor: "pointer" }}
+							>
+								<i className="icon-caret-right icon-1x" />
+							</IconButton>
 						</Box>
 					)}
 				</div>
@@ -140,7 +216,6 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 			);
 			expandedContent = content;
 		} else if (post.domain === "v.redd.it") {
-			//content = <CardMedia component="video" src={post.redditVideo} className={classes.media} controls />;
 			content = (
 				<ReactPlayer
 					controls
@@ -306,6 +381,100 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 		);
 	}
 
+	function renderComments() {
+		return loading ? (
+			<Box style={{ marginTop: "50px" }}>
+				<Loading />
+			</Box>
+		) : (
+			comments.map(comment => (
+				<CardContent
+					key={comment.id}
+					style={{
+						borderRadius: "1px",
+						border: "1px solid rgba(255, 255, 255, 0.12)",
+						borderLeft: "0px",
+						borderRight: "0px",
+						borderTop: "0px",
+						backgroundColor: "#212121",
+					}}
+				>
+					<Box fontWeight={500} fontFamily="Monospace" pt={1}>
+						<Typography variant="caption" style={{ fontSize: "13px" }}>
+							{comment.author}
+						</Typography>
+
+						<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
+							{` • ${formatDate(comment.created * 1000, null, true)}`}
+						</Typography>
+					</Box>
+
+					<Box
+						style={{
+							display: "inline-flex",
+						}}
+					>
+						<Divider orientation="vertical" flexItem />
+						<Box fontWeight={500} fontFamily="Monospace" pt={1} style={{ marginLeft: "10px" }}>
+							<Typography variant="caption" style={{ fontSize: "12px" }}>
+								{comment.text}
+							</Typography>
+
+							<Box fontWeight={500} fontFamily="Monospace" pt={1}>
+								<Typography variant="caption" style={{ fontSize: "13px" }}>
+									{comment.score}
+								</Typography>
+								<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px", marginLeft: "6px" }}>
+									<i className="icon-arrow-up icon-1x" />
+								</Typography>
+							</Box>
+						</Box>
+					</Box>
+
+					{comment.replies &&
+						comment.replies.map(reply => (
+							<CardContent key={reply.id}>
+								<Box fontWeight={500} fontFamily="Monospace" pt={1}>
+									<Typography variant="caption" style={{ fontSize: "13px" }}>
+										{reply.author}
+									</Typography>
+
+									<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
+										{` • ${formatDate(reply.created * 1000, null, true)}`}
+									</Typography>
+								</Box>
+
+								<Box
+									style={{
+										display: "inline-flex",
+									}}
+								>
+									<Divider orientation="vertical" flexItem />
+									<Box fontWeight={500} fontFamily="Monospace" pt={1} style={{ marginLeft: "10px" }}>
+										<Typography variant="caption" style={{ fontSize: "12px" }}>
+											{reply.text}
+										</Typography>
+
+										<Box fontWeight={500} fontFamily="Monospace" pt={1}>
+											<Typography variant="caption" style={{ fontSize: "13px" }}>
+												{comment.score}
+											</Typography>
+											<Typography
+												variant="caption"
+												style={{ color: "#EC6E4C", fontSize: "13px", marginLeft: "6px" }}
+											>
+												<i className="icon-arrow-up icon-1x" />
+											</Typography>
+										</Box>
+									</Box>
+								</Box>
+							</CardContent>
+						))}
+				</CardContent>
+			))
+		);
+	}
+
 	const { isMedia, content, expandedContent } = formatContent();
 	const widgetInfo = isMedia ? renderInfoMedia() : renderInfo();
 
@@ -322,27 +491,181 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 				)}
 			</Box>
 			<Modal className={classes.modal} open={expandedView} onClose={handleCloseExpandedView} closeAfterTransition>
-				<Fade in={expandedView}>
-					<Paper component={Box} display="flex" className={classes.expandedView}>
-						{onShowPreviousPost && (
-							<Box className={classes.expandedBtn} onClick={onShowPreviousPost}>
-								<Box display="flex" alignItems="center" height="100%">
-									<i className="icon-arrow-left icon-2x" />
+				<Grid container style={{ outline: "none", height: "100%" }}>
+					<Grid item xs={sideMenuView ? 9 : 12}>
+						<Fade
+							in={expandedView}
+							style={{ outline: "none", height: "100%", width: "100%", backgroundColor: "#4242426b" }}
+						>
+							<Paper component={Box} display="flex" className={classes.expandedView}>
+								<Box>
+									<IconButton
+										color="primary"
+										onClick={handleCloseExpandedView}
+										variant="contained"
+										style={{
+											marginTop: "10px",
+											marginLeft: "10px",
+											backgroundColor: "#3C3C3C",
+											padding: "8px",
+											fontSize: "1.2rem",
+										}}
+									>
+										<i className="icon-cross icon-1x" />
+									</IconButton>
+
+									{onShowPreviousPost && (
+										<Box
+											className={classes.expandedBtn}
+											onClick={onShowPreviousPost}
+											style={{
+												backgroundColor: "rgb(66 66 66 / 0%)",
+												position: "relative",
+												height: "100%",
+												transform: "translateY(45%)",
+											}}
+										>
+											<Box>
+												<IconButton
+													onClick={onShowPreviousPost}
+													color="primary"
+													style={{ backgroundColor: "#3C3C3C", cursor: "pointer" }}
+												>
+													<i className="icon-arrow-left icon-1x" />
+												</IconButton>
+											</Box>
+										</Box>
+									)}
 								</Box>
-							</Box>
-						)}
-						<Box position="relative" height="100%" flexGrow={1} style={{ overflow: "auto" }}>
-							{expandedContent}
-						</Box>
-						{onShowNextPost && (
-							<Box className={classes.expandedBtn} onClick={onShowNextPost}>
-								<Box display="flex" alignItems="center" height="100%">
-									<i className="icon-arrow-right icon-2x" />
+
+								<Box position="relative" height="100%" flexGrow={1} style={{ overflow: "auto" }}>
+									{expandedContent}
 								</Box>
-							</Box>
-						)}
-					</Paper>
-				</Fade>
+
+								<Box>
+									<IconButton
+										color="primary"
+										onClick={sideMenuView ? handleCloseSideMenuView : handleOpenSideMenuView}
+										variant="contained"
+										style={{
+											marginTop: "10px",
+											backgroundColor: "#3C3C3C",
+											padding: "8px",
+											marginLeft: "20px",
+										}}
+									>
+										<i className={sideMenuView ? "icon-caret-right icon-1x" : "icon-caret-left icon-1x"} />
+									</IconButton>
+
+									{onShowNextPost && (
+										<Box
+											className={classes.expandedBtn}
+											onClick={onShowNextPost}
+											style={{
+												backgroundColor: "rgb(66 66 66 / 0%)",
+												position: "relative",
+												height: "100%",
+												transform: "translateY(45%)",
+											}}
+										>
+											<Box>
+												<IconButton
+													onClick={onShowPreviousPost}
+													color="primary"
+													style={{ backgroundColor: "#3C3C3C", cursor: "pointer" }}
+												>
+													<i className="icon-arrow-right icon-1x" />
+												</IconButton>
+											</Box>
+										</Box>
+									)}
+								</Box>
+							</Paper>
+						</Fade>
+					</Grid>
+
+					{sideMenuView && (
+						<Grid
+							xs={3}
+							style={{ outline: "none", height: "100%", backgroundColor: "#212121", overflowY: "scroll" }}
+						>
+							<Card
+								variant="outlined"
+								style={{
+									borderRadius: "1px",
+									border: "1px solid rgba(255, 255, 255, 0.12)",
+									borderLeft: "0px",
+									borderRight: "0px",
+									borderTop: "0px",
+									backgroundColor: "#212121",
+								}}
+							>
+								<CardContent>
+									<Box fontWeight={500} fontFamily="Monospace">
+										<Box fontWeight={500} fontFamily="Monospace" pt={1}>
+											<Typography variant="caption" style={{ fontSize: "13px" }}>
+												{"r/"}
+											</Typography>
+											<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px" }}>
+												{post.subreddit}
+											</Typography>
+										</Box>
+									</Box>
+									<Box fontWeight={500} fontFamily="Monospace">
+										<Typography variant="caption" style={{ fontSize: "13px" }}>
+											{"Posted by u/"}
+										</Typography>
+										<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px" }}>
+											{post.author}
+										</Typography>
+										<Typography variant="caption" style={{ fontSize: "13px" }}>
+											{` • ${formatDate(post.created * 1000, null, true)}`}
+										</Typography>
+									</Box>
+									<Box fontWeight={500} fontFamily="Monospace" py={1}>
+										<Typography gutterBottom variant="h6" component="h6">
+											{post.title}
+										</Typography>
+									</Box>
+									<Box fontWeight={500} fontFamily="Monospace" pt={1}>
+										<Typography variant="caption" style={{ fontSize: "13px" }}>
+											{`${formatNumber(post.score)}`}
+										</Typography>
+										<Typography
+											variant="caption"
+											style={{ color: "#EC6E4C", fontSize: "13px", marginLeft: "6px" }}
+										>
+											<i className="icon-arrow-up icon-1x" />
+										</Typography>
+										<Typography variant="caption" style={{ fontSize: "13px" }}>
+											{` • ${formatNumber(post.comments)}`}
+										</Typography>
+										<Typography
+											variant="caption"
+											style={{ color: "#EC6E4C", fontSize: "13px", marginLeft: "6px" }}
+										>
+											<i className="icon-bubbles2 icon-1x" />
+										</Typography>
+									</Box>
+								</CardContent>
+							</Card>
+							<Card
+								variant="outlined"
+								style={{
+									borderRadius: "1px",
+									border: "1px solid rgba(255, 255, 255, 0.12)",
+									borderLeft: "0px",
+									borderRight: "0px",
+									borderTop: "0px",
+									borderBottom: "0px",
+									backgroundColor: "#212121",
+								}}
+							>
+								{renderComments()}
+							</Card>
+						</Grid>
+					)}
+				</Grid>
 			</Modal>
 		</Box>
 	);

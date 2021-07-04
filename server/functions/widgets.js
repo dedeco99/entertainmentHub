@@ -33,6 +33,9 @@ async function addWidget(event) {
 			}
 
 			break;
+		case "tv":
+			if (!info.tabs) return errors.requiredFieldsMissing;
+			break;
 		case "weather":
 			if (!info.lat || !info.lon) return errors.requiredFieldsMissing;
 			break;

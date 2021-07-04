@@ -28,7 +28,7 @@ import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 import { UserContext } from "../../contexts/UserContext";
 
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
-import { addToWatchLater } from "../../api/youtube";
+import { getPlaylists, addToWatchLater } from "../../api/youtube";
 
 import { formatDate, diff, formatVideoDuration, formatNotification } from "../../utils/utils";
 import { translate } from "../../utils/translations";
@@ -52,9 +52,11 @@ function Notifications({ height, wrapTitle }) {
 		filter: "filter-all",
 		history: false,
 	});
+	const [playlists, setPlaylists] = useState([]);
 	const [filterAnchorEl, setFilterAnchorEl] = useState(null);
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
+	const [playlistsAnchorEl, setPlaylistsAnchorEl] = useState(null);
 	const [selectedNotification, setSelectedNotification] = useState(null);
 	const [actionLoading, setActionLoading] = useState(false);
 	const [open, setOpen] = useState(false);
@@ -98,6 +100,12 @@ function Notifications({ height, wrapTitle }) {
 	useEffect(() => {
 		async function fetchData() {
 			await handleGetNotifications();
+
+			const response = await getPlaylists();
+
+			if (response.status === 200) {
+				setPlaylists(response.data);
+			}
 		}
 
 		fetchData();
@@ -133,18 +141,46 @@ function Notifications({ height, wrapTitle }) {
 		setActionLoading(false);
 	}
 
+	function handleOpenPlaylistsList() {
+		setPlaylistsAnchorEl(notificationAnchorEl);
+	}
+
+	async function handleAddToPlaylistOption(playlist) {
+		setActionLoading(true);
+
+		const response = await addToWatchLater({
+			playlist,
+			videos: [
+				{
+					_id: selectedNotification._id,
+					videoId: selectedNotification.info.videoId,
+					channelId: selectedNotification.info.channelId,
+				},
+			],
+		});
+
+		if (response.status === 200) {
+			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
+			setSelectedNotifications({});
+		}
+
+		setActionLoading(false);
+	}
+
 	async function handleWatchLaterOption() {
 		setActionLoading(true);
 
-		const response = await addToWatchLater([
-			{
-				_id: selectedNotification._id,
-				videoId: selectedNotification.info.videoId,
-				channelId: selectedNotification.info.channelId,
-			},
-		]);
+		const response = await addToWatchLater({
+			videos: [
+				{
+					_id: selectedNotification._id,
+					videoId: selectedNotification.info.videoId,
+					channelId: selectedNotification.info.channelId,
+				},
+			],
+		});
 
-		if (response.status === 200 || response.status === 400) {
+		if (response.status === 200) {
 			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
 			setSelectedNotifications({});
 		}
@@ -182,6 +218,10 @@ function Notifications({ height, wrapTitle }) {
 
 	function handleCloseOptions() {
 		setNotificationAnchorEl(null);
+	}
+
+	function handleClosePlaylistOptions() {
+		setPlaylistsAnchorEl(null);
 	}
 
 	function handleAddToVideoPlayer(videoSource, notification) {
@@ -230,18 +270,19 @@ function Notifications({ height, wrapTitle }) {
 
 	async function handleWatchLaterBatch() {
 		setLoadingBatchWatchLater(true);
-		const response = await addToWatchLater(
-			Object.entries(selectedNotifications).map(([key, value]) => ({
+		const response = await addToWatchLater({
+			videos: Object.entries(selectedNotifications).map(([key, value]) => ({
 				_id: key,
 				videoId: value.videoId,
 				channelId: value.channelId,
 			})),
-		);
+		});
 
 		if (response.status === 200 || response.status === 400) {
 			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
 			setSelectedNotifications({});
 		}
+
 		setLoadingBatchWatchLater(false);
 	}
 
@@ -474,7 +515,10 @@ function Notifications({ height, wrapTitle }) {
 
 			switch (selectedNotification.type) {
 				case "youtube":
-					const youtubeOptions = [{ name: translate("markAsRead"), onClick: handleHideNotification }];
+					const youtubeOptions = [
+						{ name: translate("markAsRead"), onClick: handleHideNotification },
+						{ name: translate("addToPlaylist"), onClick: handleOpenPlaylistsList },
+					];
 
 					if (user.settings.youtube && user.settings.youtube.watchLaterPlaylist) {
 						youtubeOptions.push({ name: translate("watchLater"), onClick: handleWatchLaterOption });
@@ -594,6 +638,24 @@ function Notifications({ height, wrapTitle }) {
 							}}
 						>
 							{action.name}
+						</MenuItem>
+					))}
+				</Menu>
+				<Menu
+					anchorEl={playlistsAnchorEl}
+					keepMounted
+					open={Boolean(playlistsAnchorEl)}
+					onClose={handleClosePlaylistOptions}
+				>
+					{playlists.map(playlist => (
+						<MenuItem
+							key={playlist.externalId}
+							onClick={() => {
+								handleAddToPlaylistOption(playlist.externalId);
+								handleClosePlaylistOptions();
+							}}
+						>
+							{playlist.displayName}
 						</MenuItem>
 					))}
 				</Menu>

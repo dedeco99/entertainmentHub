@@ -185,12 +185,6 @@ const reddit = {
 		top: "50%",
 		transform: "translateY(-50%)",
 		lineHeight: 0,
-		borderRadius: "100%",
-		padding: "12px",
-		backgroundColor: "#3d3d3d",
-		"&:hover": {
-			backgroundColor: "#666",
-		},
 	},
 	header: {
 		borderLeft: "1px solid #212121",
@@ -279,10 +273,10 @@ const tv = {
 	tab: {
 		minWidth: 50,
 	},
-	tabPanel: {
-		height: "calc(100% - 48px)",
+	tabPanel: props => ({
+		height: props.hasTabs ? "calc(100% - 48px)" : "100%",
 		overflow: "auto",
-	},
+	}),
 	episodeList: {
 		flexDirection: "column",
 	},
@@ -295,6 +289,16 @@ const tv = {
 	},
 	popularText: {
 		paddingLeft: 10,
+	},
+	trendingChip: {
+		float: "right",
+		cursor: "pointer",
+	},
+	trendingChipLabel: {
+		paddingLeft: 0,
+	},
+	watchedProgressBar: {
+		boxShadow: "0 0 10px 0 rgba(0, 0, 0, 0.7)",
 	},
 };
 
