@@ -151,6 +151,10 @@ const translations = {
 		en: "To Watch",
 		pt: "Por Ver",
 	},
+	inQueueEpisodes: {
+		en: "In Queue",
+		pt: "Na Fila",
+	},
 	customScrollbar: {
 		en: "Custom scrollbar",
 		pt: "Scrollbar custom",
@@ -210,6 +214,30 @@ const translations = {
 	browserSettings: {
 		en: "This setting can only be changed in your browser",
 		pt: "Esta definição só pode ser alterada no browser",
+	},
+	tv: {
+		en: "TV",
+		pt: "TV",
+	},
+	movies: {
+		en: "Movies",
+		pt: "Filmes",
+	},
+	removeFavorites: {
+		en: "Remove from favorites",
+		pt: "Remover dos favoritos",
+	},
+	addFavorites: {
+		en: "Add to favorites",
+		pt: "Adicionar aos favoritos",
+	},
+	removeWatched: {
+		en: "Remove from watched",
+		pt: "Remover de vistos",
+	},
+	addWatched: {
+		en: "Mark as watched",
+		pt: "Marcar como visto",
 	},
 	multipleParamExample: (...params) => ({
 		en: `Hello ${params[0]}, my name is ${params[1]}`,

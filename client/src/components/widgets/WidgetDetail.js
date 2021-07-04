@@ -44,6 +44,13 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 	const [coins, setCoins] = useState([]);
 	const [selectedCity, setSelectedCity] = useState(null);
 	const [selectedCoins, setSelectedCoins] = useState([]);
+	const [selectedTabs, setSelectedTabs] = useState([]);
+	const tabs = [
+		{ name: "In Queue", value: "inQueue" },
+		{ name: "All", value: "all" },
+		{ name: "Popular", value: "popular" },
+		{ name: "Future", value: "future" },
+	];
 
 	const addGroupSubject = new Subject();
 	const getCitiesSubject = new Subject();
@@ -136,6 +143,8 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 			if (widget.type === "crypto") {
 				const formattedCoins = widget.info.coins.split(",").map(coin => ({ symbol: coin }));
 				setSelectedCoins(formattedCoins);
+			} else if (widget.type === "tv") {
+				setSelectedTabs(widget.info.tabs.map(tab => tabs.find(t => t.value === tab)));
 			} else if (widget.type === "weather") {
 				setSelectedCity({ name: widget.info.city, country: widget.info.country });
 			}
@@ -148,6 +157,7 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 			setInfo({});
 			setSelectedCity(null);
 			setSelectedCoins([]);
+			setSelectedTabs([]);
 		}
 	}, [widget]); // eslint-disable-line
 
@@ -171,11 +181,21 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 		setInfo({ coins: sCoins.map(coin => coin.symbol).join(",") });
 	}
 
+	function handleSelectTabs(e, sTabs) {
+		setSelectedTabs(sTabs);
+		setInfo({ tabs: sTabs.map(tab => tab.value) });
+	}
+
 	function handleChange(e) {
 		if (e.target.value.includes("info.country")) {
 			setInfo({ ...info, country: e.target.value.replace("info.country.", "") });
 		} else if (e.target.id && e.target.id.includes("info")) {
-			setInfo({ ...info, [e.target.id.replace("info.", "")]: e.target.value });
+			setInfo({
+				...info,
+				[e.target.id.replace("info.", "")]: ["true", "false"].includes(e.target.value)
+					? e.target.value === "true"
+					: e.target.value,
+			});
 		} else {
 			setType(e.target.value);
 		}
@@ -231,10 +251,24 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 		if (!value) return [];
 
 		return value.map((option, index) => (
-			<Chip key={option.symbol} color="primary" label={option.symbol} {...getTagProps({ index })} />
+			<Chip
+				key={option.symbol || option.value}
+				color="primary"
+				label={option.symbol || option.name}
+				{...getTagProps({ index })}
+			/>
 		));
 	}
 
+	function renderTabsOptionLabel(option) {
+		return option.name;
+	}
+
+	function renderTabsInput(params) {
+		return <Input {...params} label="Tabs" variant="outlined" fullWidth margin="normal" />;
+	}
+
+	// eslint-disable-next-line complexity
 	function renderFields() {
 		switch (type) {
 			case "notifications":
@@ -281,8 +315,37 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 								<Checkbox
 									color="primary"
 									id="info.listView"
-									checked={info.listView === "true"}
-									value={info.listView !== "true"}
+									checked={info.listView}
+									value={!info.listView}
+									onChange={handleChange}
+								/>
+							}
+							label="List View"
+						/>
+					</div>
+				);
+			case "tv":
+				return (
+					<div>
+						<Autocomplete
+							value={selectedTabs}
+							multiple
+							limitTags={2}
+							renderTags={renderTags}
+							options={tabs || []}
+							onChange={handleSelectTabs}
+							className={classes.autocomplete}
+							getOptionLabel={renderTabsOptionLabel}
+							renderInput={renderTabsInput}
+							fullWidth
+						/>
+						<FormControlLabel
+							control={
+								<Checkbox
+									color="primary"
+									id="info.listView"
+									checked={info.listView}
+									value={!info.listView}
 									onChange={handleChange}
 								/>
 							}

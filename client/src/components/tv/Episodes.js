@@ -114,8 +114,6 @@ function Episodes() {
 		}
 
 		fetchData();
-
-		return () => (isMounted = false); // eslint-disable-line
 	}, [match.url]); // eslint-disable-line
 
 	useEffect(() => {
@@ -170,6 +168,9 @@ function Episodes() {
 					</ToggleButton>
 					<ToggleButton value="toWatch" className={classes.episodeBtn} color="primary" variant="outlined">
 						{translate("toWatchEpisodes")}
+					</ToggleButton>
+					<ToggleButton value="queue" className={classes.episodeBtn} color="primary" variant="outlined">
+						{translate("inQueueEpisodes")}
 					</ToggleButton>
 				</ToggleButtonGroup>
 				<InfiniteScroll loadMore={handleGetAll} hasMore={hasMore} loader={<Loading key={0} />}>

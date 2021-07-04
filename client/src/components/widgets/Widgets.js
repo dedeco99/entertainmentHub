@@ -73,7 +73,7 @@ const widgetsInfo = {
 		restrictions: widgetRestrictions.weather,
 	}),
 	tv: widget => ({
-		content: <TV />,
+		content: <TV tabs={widget.info.tabs} listView={widget.info.listView} />,
 		editText: "TV",
 		editIcon: "icon-monitor-filled",
 		dimensions: { w: widget.width || 1, h: widget.height || 4 },
@@ -385,6 +385,10 @@ function Widgets() {
 					layouts={layouts}
 					onLayoutChange={handleLayoutChange}
 					containerPadding={[0, 10]}
+					style={{
+						top: tabs.length <= 1 ? "-10px" : "0px",
+						marginRight: document.body.scrollHeight > document.body.clientHeight ? 15 : 0,
+					}}
 				>
 					{renderWidgets()}
 				</ResponsiveGridLayout>

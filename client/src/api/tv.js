@@ -13,10 +13,15 @@ async function getSeasons(series, page, filter) {
 	return res;
 }
 
-async function getPopular(page) {
+async function getPopular(page, source, type) {
+	let query = "";
+	query += page >= 0 ? `?page=${page}` : "";
+	query += source ? `${query ? "&" : "?"}source=${source}` : "";
+	query += type ? `${query ? "&" : "?"}type=${type}` : "";
+
 	const res = await api({
 		method: "get",
-		url: `/api/tv/popular${page >= 0 ? `?page=${page}` : ""}`,
+		url: `/api/tv/popular${query}`,
 	});
 
 	return res;
