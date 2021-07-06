@@ -33,6 +33,8 @@ async function getSubscriptions(event) {
 
 			return subscription;
 		});
+	} else if (platform === "tv") {
+		subscriptions = await tv.getEpisodeNumbers(subscriptions, user);
 	}
 
 	return response(200, "GET_SUBSCRIPTIONS", subscriptions);

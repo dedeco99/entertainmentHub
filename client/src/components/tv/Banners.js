@@ -108,6 +108,7 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 		const response = await patchSubscription(serie.externalId, !isWatched, "all");
 
 		if (response.status === 200) {
+			// This looks like the inverse logic but because we are using the old isWatched it works
 			serie.numWatched = isWatched ? 0 : serie.numTotal;
 			serie.numToWatch = isWatched ? serie.numTotal : 0;
 
