@@ -12,6 +12,7 @@ import {
 	CardActionArea,
 	Checkbox,
 	Tooltip,
+	Chip,
 } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
@@ -103,10 +104,12 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 	}
 
 	async function handleMarkAsWatched(e, serie) {
-		const response = await patchSubscription(serie.externalId, !serie.watched, "all");
+		const isWatched = serie.numTotal === serie.numWatched;
+		const response = await patchSubscription(serie.externalId, !isWatched, "all");
 
 		if (response.status === 200) {
-			serie.watched = !serie.watched;
+			serie.numWatched = isWatched ? 0 : serie.numTotal;
+			serie.numToWatch = isWatched ? serie.numTotal : 0;
 
 			setRerender(!rerender);
 		}
@@ -139,12 +142,24 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 											alt="Serie poster"
 											draggable="false"
 										/>
-										<LinearProgress
-											variant="determinate"
-											value={1} // TODO: Watched %
-											className={classes.watchedProgressBar}
-											style={{ display: "none" }}
-										/>
+										{serie.numToWatch > 0 ? (
+											<Chip
+												color="secondary"
+												size="small"
+												label={serie.numToWatch}
+												style={{ position: "absolute", top: "5px", right: "5px", borderRadius: "2px" }}
+											/>
+										) : null}
+										{serie.numWatched > 0 ? (
+											<Tooltip title={`${serie.numWatched} watched`} placement="top">
+												<LinearProgress
+													color="secondary"
+													variant="determinate"
+													value={(serie.numWatched / serie.numTotal) * 100}
+													className={classes.watchedProgressBar}
+												/>
+											</Tooltip>
+										) : null}
 									</Box>
 								</CardActionArea>
 							</Card>
@@ -179,14 +194,16 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 										</Tooltip>
 										<Tooltip
 											title={
-												isSubscribed(serie) && serie.watched ? translate("removeWatched") : translate("addWatched")
+												isSubscribed(serie) && serie.numTotal === serie.numWatched
+													? translate("removeWatched")
+													: translate("addWatched")
 											}
 											placement="top"
 										>
 											<Checkbox
 												// TODO: Mark as watched
 												color="secondary"
-												checked={isSubscribed(serie) && serie.watched}
+												checked={isSubscribed(serie) && serie.numTotal === serie.numWatched}
 												disabled={!isSubscribed(serie)}
 												icon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
 												checkedIcon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}

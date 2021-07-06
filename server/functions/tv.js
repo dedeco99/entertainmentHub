@@ -224,6 +224,33 @@ async function cronjob() {
 	return true;
 }
 
+async function getEpisodeNumbers(series, user) {
+	const promises = [];
+	for (const singleSeries of series) {
+		promises.push(
+			Episode.aggregate([
+				{ $match: { seriesId: singleSeries.externalId.toString() } },
+				...watchedQuery(user),
+				{
+					$facet: {
+						watched: [{ $match: { watched: true } }, { $count: "total" }],
+						total: [{ $count: "total" }],
+					},
+				},
+			]),
+		);
+	}
+
+	const episodes = await Promise.all(promises);
+	for (let i = 0; i < series.length; i++) {
+		series[i].numWatched = episodes[i][0].watched.length ? episodes[i][0].watched[0].total : 0;
+		series[i].numTotal = episodes[i][0].total.length ? episodes[i][0].total[0].total : 0;
+		series[i].numToWatch = series[i].numTotal - series[i].numWatched;
+	}
+
+	return series;
+}
+
 // eslint-disable-next-line max-lines-per-function
 async function getEpisodes(event) {
 	const { params, query, user } = event;
@@ -406,26 +433,11 @@ async function getPopular(event) {
 			global.cache[type].popular = series;
 		}
 
-		// eslint-disable-next-line no-mixed-operators
-		series = global.cache[type].popular.slice(Number(page) * 20, Number(page) * 20 + 20);
-
-		const promises = [];
-		for (const singleSeries of series) {
-			promises.push(
-				Episode.aggregate([
-					{ $match: { seriesId: singleSeries.externalId.toString() } },
-					...watchedQuery(user),
-					{ $match: { watched: false } },
-					{ $count: "watched" },
-				]),
-			);
-		}
-
-		const episodes = await Promise.all(promises);
-
-		for (let i = 0; i < series.length; i++) {
-			series[i].watched = !episodes[i].length;
-		}
+		series = await getEpisodeNumbers(
+			// eslint-disable-next-line no-mixed-operators
+			global.cache[type].popular.slice(Number(page) * 20, Number(page) * 20 + 20),
+			user,
+		);
 	} else {
 		const url = `https://api.themoviedb.org/3/tv/popular?${`page=${Number(page) + 1}`}&api_key=${
 			process.env.tmdbKey
@@ -447,6 +459,7 @@ async function getPopular(event) {
 module.exports = {
 	fetchEpisodes,
 	cronjob,
+	getEpisodeNumbers,
 	getEpisodes,
 	getSearch,
 	getPopular,
