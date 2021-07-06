@@ -121,6 +121,7 @@ function TV() {
 					platform="tv"
 					selected={match.params.seriesId}
 					idField="externalId"
+					countField="numToWatch"
 					action={handleShowEpisodes}
 				/>
 			</Grid>

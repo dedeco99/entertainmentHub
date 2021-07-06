@@ -74,6 +74,11 @@ function Episodes() {
 		const response = await getSeasons(seriesId);
 
 		if (response.status === 200 && isMounted) {
+			response.data = response.data.map(season => ({
+				...season,
+				toWatch: season.episodes.filter(episode => !episode.watched).length,
+			}));
+
 			setCurrentSeries(seriesId);
 			setSeasons(response.data);
 			setPage(0);
@@ -210,6 +215,7 @@ function Episodes() {
 					options={seasons}
 					idField="_id"
 					nameField="_id"
+					countField="toWatch"
 					action={handleSeasonClick}
 					selected={Number(match.params.season)}
 				/>
