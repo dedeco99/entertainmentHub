@@ -13,7 +13,15 @@ const SubscriptionSchema = new Schema(
 			// youtube
 			autoAddToWatchLater: { type: Boolean, default: false },
 			watchLaterPlaylist: { type: String },
+			dontShowWithTheseWords: [{ type: String }],
+			onlyShowWithTheseWords: [{ type: String }],
 		},
+		watched: [
+			{
+				key: { type: String },
+				date: { type: Date },
+			},
+		],
 	},
 	{ timestamps: { createdAt: "_created", updatedAt: "_modified" } },
 );

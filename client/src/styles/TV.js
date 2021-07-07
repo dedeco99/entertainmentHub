@@ -13,7 +13,7 @@ const episodes = {
 		width: "100%",
 	},
 	episodeBtn: {
-		marginTop: 10,
+		height: "40px",
 		marginBottom: 10,
 	},
 	noEpisodes: {
@@ -66,6 +66,9 @@ const banners = {
 		right: "50%",
 		margin: "0px -25px -15px 0px",
 		cursor: "pointer",
+	},
+	checkboxSize: {
+		padding: "5px",
 	},
 };
 

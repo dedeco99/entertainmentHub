@@ -1,7 +1,9 @@
+const cheerio = require("cheerio");
+
 const { response, api } = require("../utils/request");
 const { toObjectId, formatDate, diff } = require("../utils/utils");
 
-const { scheduleNotifications } = require("./notifications");
+const { addScheduledNotifications } = require("./scheduledNotifications");
 
 const Subscription = require("../models/subscription");
 const Episode = require("../models/episode");
@@ -118,7 +120,7 @@ async function fetchEpisodes(series) {
 
 	if (episodesToAdd.length) await Episode.insertMany(episodesToAdd);
 	if (episodesToUpdate.length) await Promise.all(episodesToUpdate);
-	if (notificationsToAdd.length) await scheduleNotifications(notificationsToAdd);
+	if (notificationsToAdd.length) await addScheduledNotifications(notificationsToAdd);
 
 	console.log(`${series.displayName} finished`);
 
@@ -149,6 +151,7 @@ async function cronjob() {
 	return true;
 }
 
+// eslint-disable-next-line max-lines-per-function
 async function getEpisodes(event) {
 	const { params, query, user } = event;
 	const { id } = params;
@@ -159,83 +162,136 @@ async function getEpisodes(event) {
 	const seriesIds = userSeries.map(s => s.externalId);
 
 	const episodeQuery = { seriesId: { $in: seriesIds } };
+	const afterQuery = { watched: { $ne: null } };
 	const sortQuery = { date: -1, seriesId: -1, number: -1 };
 	if (filter === "passed") {
 		episodeQuery.date = { $lte: new Date() };
 	} else if (filter === "future") {
 		episodeQuery.date = { $gt: new Date() };
 		sortQuery.date = 1;
+	} else if (filter === "watched") {
+		afterQuery.watched = true;
+	} else if (filter === "toWatch") {
+		episodeQuery.date = { $lte: new Date() };
+		afterQuery.watched = false;
 	}
+
+	const finaleQuery = [
+		{
+			$lookup: {
+				from: "episodes",
+				let: { seriesId: "$seriesId", season: "$season" },
+				pipeline: [
+					{
+						$match: {
+							$expr: {
+								$and: [{ $eq: ["$seriesId", "$$seriesId"] }, { $eq: ["$season", "$$season"] }],
+							},
+						},
+					},
+					{
+						$sort: { number: -1 },
+					},
+					{
+						$limit: 1,
+					},
+				],
+				as: "finale",
+			},
+		},
+		{ $unwind: "$finale" },
+		{
+			$addFields: {
+				finale: {
+					$cond: [{ $eq: ["$finale.number", "$number"] }, true, false],
+				},
+			},
+		},
+	];
+
+	const watchedQuery = [
+		{
+			$lookup: {
+				from: "subscriptions",
+				let: { seriesId: "$seriesId" },
+				pipeline: [
+					{
+						$match: {
+							$expr: {
+								$and: [
+									{ platform: "tv" },
+									{ $eq: ["$externalId", "$$seriesId"] },
+									{ $eq: ["$user", toObjectId(user._id)] },
+								],
+							},
+						},
+					},
+				],
+				as: "series",
+			},
+		},
+		{ $unwind: "$series" },
+		{
+			$addFields: {
+				watched: {
+					$cond: [
+						{
+							$in: [
+								{ $concat: ["S", { $toString: "$season" }, "E", { $toString: "$number" }] },
+								"$series.watched.key",
+							],
+						},
+						true,
+						false,
+					],
+				},
+			},
+		},
+	];
 
 	let episodes = [];
 	if (id === "all") {
-		episodes = await Episode.aggregate([
-			{ $match: episodeQuery },
-			{ $sort: sortQuery },
-			{ $skip: page ? page * 50 : 0 },
-			{ $limit: 50 },
-			{
-				$lookup: {
-					from: "subscriptions",
-					let: { seriesId: "$seriesId" },
-					pipeline: [
-						{
-							$match: {
-								$expr: {
-									$and: [
-										{ platform: "tv" },
-										{ $eq: ["$externalId", "$$seriesId"] },
-										{ $eq: ["$user", toObjectId(user._id)] },
-									],
-								},
-							},
-						},
-					],
-					as: "series",
-				},
-			},
-			{ $unwind: "$series" },
-			{
-				$lookup: {
-					from: "episodes",
-					let: { seriesId: "$seriesId", season: "$season" },
-					pipeline: [
-						{
-							$match: {
-								$expr: {
-									$and: [{ $eq: ["$seriesId", "$$seriesId"] }, { $eq: ["$season", "$$season"] }],
-								},
-							},
-						},
-						{
-							$sort: { number: -1 },
-						},
-						{
-							$limit: 1,
-						},
-					],
-					as: "finale",
-				},
-			},
-			{ $unwind: "$finale" },
-			{
-				$addFields: {
-					finale: {
-						$cond: [{ $eq: ["$finale.number", "$number"] }, true, false],
+		if (filter === "queue") {
+			episodes = await Episode.aggregate([
+				{ $match: { ...episodeQuery, season: { $ne: 0 } } },
+				...watchedQuery,
+				{ $match: { watched: false } },
+				{ $sort: { season: 1, number: 1 } },
+				{ $group: { _id: "$seriesId", episodes: { $first: "$$ROOT" } } },
+				{ $replaceRoot: { newRoot: { $mergeObjects: ["$episodes", "$$ROOT"] } } },
+				{ $sort: { "series.watched.date": -1 } },
+				{
+					$project: {
+						_id: "$episodes._id",
+						title: 1,
+						image: 1,
+						season: 1,
+						number: 1,
+						date: 1,
+						series: 1,
+						lastWatched: { $last: "$series.watched" },
 					},
 				},
-			},
-		]);
+				{ $project: { "series.watched": 0 } },
+			]);
+		} else {
+			episodes = await Episode.aggregate([
+				{ $match: episodeQuery },
+				{ $sort: sortQuery },
+				...watchedQuery,
+				...finaleQuery,
+				{ $match: afterQuery },
+				{ $skip: page ? page * 50 : 0 },
+				{ $limit: 50 },
+			]);
+		}
 	} else {
 		episodes = await Episode.aggregate([
 			{ $match: { seriesId: id } },
 			{ $sort: { number: -1 } },
-			{
-				$group: {
-					_id: "$season",
-					episodes: { $push: "$$ROOT" },
-				},
-			},
+			...watchedQuery,
+			...finaleQuery,
+			{ $group: { _id: "$season", episodes: { $push: "$$ROOT" } } },
 			{ $sort: { _id: 1 } },
 		]);
 	}
@@ -266,24 +322,106 @@ async function getSearch(event) {
 	return response(200, "GET_SERIES", series);
 }
 
+function getTrend(trend) {
+	const isUp = trend.find(".global-sprite.titlemeter.up").length;
+
+	const formattedTrend = `${isUp ? "+" : "-"}${trend.text().replace(/\n/g, "").replace("(", "").replace(")", "")}`;
+
+	return isNaN(formattedTrend) ? 0 : formattedTrend;
+}
+
+// eslint-disable-next-line max-lines-per-function
 async function getPopular(event) {
 	const { query } = event;
-	const { page } = query;
+	const { page, source, type } = query;
 
 	if (!page && page !== "0") return response(400, "Missing page in query");
 
-	const url = `https://api.themoviedb.org/3/tv/popular?${`page=${Number(page) + 1}`}&api_key=${
-		process.env.tmdbKey
-	}`;
+	let series = [];
+	if (source === "imdb") {
+		let useCache = true;
 
-	const res = await api({ method: "get", url });
-	const json = res.data;
+		if (!global.cache[type].popular.length || diff(global.cache[type].lastUpdate, "hours") > 24) {
+			useCache = false;
+		}
 
-	const series = json.results.map(s => ({
-		externalId: s.id,
-		displayName: s.name,
-		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}`,
-	}));
+		if (!useCache) {
+			const url = `https://www.imdb.com/chart/${type === "movies" ? "moviemeter" : "tvmeter"}`;
+
+			const res = await api({ method: "get", url, headers: { "accept-language": "en-US" } });
+			const $ = cheerio.load(res.data);
+
+			const infos = $(".titleColumn")
+				.toArray()
+				.map(elem => {
+					const year = $(elem)
+						.find(".secondaryInfo")
+						.text()
+						.match(/\((.*)\)/);
+					return {
+						id: $(elem).find("a").attr("href").split("/")[2],
+						name: $(elem).find("a").text(),
+						year: Number(year ? year[1] : null),
+						rank: Number($(elem).find(".velocity").text().split("\n")[0]),
+						// trend: getTrend($(elem).find(".velocity").find(".secondaryInfo")),
+					};
+				});
+
+			const ratings = $(".ratingColumn.imdbRating")
+				.toArray()
+				.map(elem => $(elem).find("strong").text());
+
+			const promises = infos.map(i =>
+				api({
+					method: "get",
+					url: `https://api.themoviedb.org/3/find/${i.id}?external_source=imdb_id&api_key=${process.env.tmdbKey}`,
+				}),
+			);
+
+			const tmdbSeries = await Promise.all(promises);
+
+			for (let i = 0; i < infos.length; i++) {
+				series.push({
+					externalId: tmdbSeries[i].data.tv_results.length
+						? tmdbSeries[i].data.tv_results[0].id
+						: tmdbSeries[i].data.movie_results.length
+						? tmdbSeries[i].data.movie_results[0].id
+						: null,
+					imdbId: infos[i].id,
+					displayName: infos[i].name,
+					image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${
+						tmdbSeries[i].data.tv_results.length
+							? tmdbSeries[i].data.tv_results[0].poster_path
+							: tmdbSeries[i].data.movie_results.length
+							? tmdbSeries[i].data.movie_results[0].poster_path
+							: null
+					}`,
+					year: infos[i].year,
+					rank: infos[i].rank,
+					trend: infos[i].trend,
+					rating: ratings[i],
+				});
+			}
+
+			global.cache[type].popular = series;
+		}
+
+		// eslint-disable-next-line no-mixed-operators
+		series = global.cache[type].popular.slice(Number(page) * 20, Number(page) * 20 + 20);
+	} else {
+		const url = `https://api.themoviedb.org/3/tv/popular?${`page=${Number(page) + 1}`}&api_key=${
+			process.env.tmdbKey
+		}`;
+
+		const res = await api({ method: "get", url });
+		const json = res.data;
+
+		series = json.results.map(s => ({
+			externalId: s.id,
+			displayName: s.name,
+			image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}`,
+		}));
+	}
 
 	return response(200, "GET_SERIES", series);
 }

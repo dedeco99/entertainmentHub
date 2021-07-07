@@ -28,9 +28,9 @@ import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 import { UserContext } from "../../contexts/UserContext";
 
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
-import { addToWatchLater } from "../../api/youtube";
+import { getPlaylists, addToWatchLater } from "../../api/youtube";
 
-import { formatDate, formatVideoDuration, formatNotification } from "../../utils/utils";
+import { formatDate, diff, formatVideoDuration, formatNotification } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
 import { notifications as widgetStyles } from "../../styles/Widgets";
@@ -39,7 +39,7 @@ import generalStyles from "../../styles/General";
 
 const useStyles = makeStyles({ ...widgetStyles, ...videoPlayerStyles, ...generalStyles });
 
-function Notifications({ height }) {
+function Notifications({ height, wrapTitle }) {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(NotificationContext);
 	const { notifications, total } = state;
@@ -52,9 +52,11 @@ function Notifications({ height }) {
 		filter: "filter-all",
 		history: false,
 	});
+	const [playlists, setPlaylists] = useState([]);
 	const [filterAnchorEl, setFilterAnchorEl] = useState(null);
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
+	const [playlistsAnchorEl, setPlaylistsAnchorEl] = useState(null);
 	const [selectedNotification, setSelectedNotification] = useState(null);
 	const [actionLoading, setActionLoading] = useState(false);
 	const [open, setOpen] = useState(false);
@@ -98,6 +100,12 @@ function Notifications({ height }) {
 	useEffect(() => {
 		async function fetchData() {
 			await handleGetNotifications();
+
+			const response = await getPlaylists();
+
+			if (response.status === 200) {
+				setPlaylists(response.data);
+			}
 		}
 
 		fetchData();
@@ -133,18 +141,46 @@ function Notifications({ height }) {
 		setActionLoading(false);
 	}
 
+	function handleOpenPlaylistsList() {
+		setPlaylistsAnchorEl(notificationAnchorEl);
+	}
+
+	async function handleAddToPlaylistOption(playlist) {
+		setActionLoading(true);
+
+		const response = await addToWatchLater({
+			playlist,
+			videos: [
+				{
+					_id: selectedNotification._id,
+					videoId: selectedNotification.info.videoId,
+					channelId: selectedNotification.info.channelId,
+				},
+			],
+		});
+
+		if (response.status === 200) {
+			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
+			setSelectedNotifications({});
+		}
+
+		setActionLoading(false);
+	}
+
 	async function handleWatchLaterOption() {
 		setActionLoading(true);
 
-		const response = await addToWatchLater([
-			{
-				_id: selectedNotification._id,
-				videoId: selectedNotification.info.videoId,
-				channelId: selectedNotification.info.channelId,
-			},
-		]);
+		const response = await addToWatchLater({
+			videos: [
+				{
+					_id: selectedNotification._id,
+					videoId: selectedNotification.info.videoId,
+					channelId: selectedNotification.info.channelId,
+				},
+			],
+		});
 
-		if (response.status === 200 || response.status === 400) {
+		if (response.status === 200) {
 			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
 			setSelectedNotifications({});
 		}
@@ -182,6 +218,10 @@ function Notifications({ height }) {
 
 	function handleCloseOptions() {
 		setNotificationAnchorEl(null);
+	}
+
+	function handleClosePlaylistOptions() {
+		setPlaylistsAnchorEl(null);
 	}
 
 	function handleAddToVideoPlayer(videoSource, notification) {
@@ -230,18 +270,19 @@ function Notifications({ height }) {
 
 	async function handleWatchLaterBatch() {
 		setLoadingBatchWatchLater(true);
-		const response = await addToWatchLater(
-			Object.entries(selectedNotifications).map(([key, value]) => ({
+		const response = await addToWatchLater({
+			videos: Object.entries(selectedNotifications).map(([key, value]) => ({
 				_id: key,
 				videoId: value.videoId,
 				channelId: value.channelId,
 			})),
-		);
+		});
 
 		if (response.status === 200 || response.status === 400) {
 			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
 			setSelectedNotifications({});
 		}
+
 		setLoadingBatchWatchLater(false);
 	}
 
@@ -326,7 +367,7 @@ function Notifications({ height }) {
 							</Box>
 						)}
 						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
-							<Typography variant="body1" title={subtitle} noWrap>
+							<Typography variant="body1" title={subtitle} noWrap={!wrapTitle}>
 								<Link
 									href={`https://www.youtube.com/watch?v=${notification.info.videoId}`}
 									target="_blank"
@@ -346,7 +387,16 @@ function Notifications({ height }) {
 									{title}
 								</Link>
 							</Typography>
-							<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
+
+							{notification.info.scheduled && diff(notification.info.scheduled, "minutes") <= 0 ? (
+								<Typography variant="caption">
+									{`Scheduled for ${formatDate(notification.info.scheduled, "DD-MM-YYYY HH:mm")}`}
+								</Typography>
+							) : (
+								<Typography variant="caption">
+									{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}
+								</Typography>
+							)}
 						</Box>
 					</>
 				);
@@ -361,7 +411,13 @@ function Notifications({ height }) {
 								</Box>
 							</Box>
 						) : (
-							<Box width="100px" mr={2} align="center" style={{ backgroundColor: "#444", height: "55px" }}>
+							<Box
+								flexShrink="0"
+								width="100px"
+								mr={2}
+								align="center"
+								style={{ backgroundColor: "#444", height: "55px" }}
+							>
 								<Avatar className={classes.avatar} style={{ top: "5px" }}>
 									{renderNotificationType(notification.type)}
 								</Avatar>
@@ -379,6 +435,20 @@ function Notifications({ height }) {
 							</Typography>
 							<Typography variant="body2" title={notification.info.episodeTitle || overlay} noWrap>
 								{notification.info.episodeTitle || overlay}
+							</Typography>
+							<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
+						</Box>
+					</>
+				);
+			case "reminder":
+				return (
+					<>
+						<Box display="flex" justifyContent="center" flexShrink="0" width="100px" mr={2}>
+							<Avatar className={classes.avatar}>{renderNotificationType(notification.type)}</Avatar>
+						</Box>
+						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
+							<Typography variant="body1" title={title} noWrap>
+								{title}
 							</Typography>
 							<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
 						</Box>
@@ -445,7 +515,10 @@ function Notifications({ height }) {
 
 			switch (selectedNotification.type) {
 				case "youtube":
-					const youtubeOptions = [{ name: translate("markAsRead"), onClick: handleHideNotification }];
+					const youtubeOptions = [
+						{ name: translate("markAsRead"), onClick: handleHideNotification },
+						{ name: translate("addToPlaylist"), onClick: handleOpenPlaylistsList },
+					];
 
 					if (user.settings.youtube && user.settings.youtube.watchLaterPlaylist) {
 						youtubeOptions.push({ name: translate("watchLater"), onClick: handleWatchLaterOption });
@@ -568,6 +641,24 @@ function Notifications({ height }) {
 						</MenuItem>
 					))}
 				</Menu>
+				<Menu
+					anchorEl={playlistsAnchorEl}
+					keepMounted
+					open={Boolean(playlistsAnchorEl)}
+					onClose={handleClosePlaylistOptions}
+				>
+					{playlists.map(playlist => (
+						<MenuItem
+							key={playlist.externalId}
+							onClick={() => {
+								handleAddToPlaylistOption(playlist.externalId);
+								handleClosePlaylistOptions();
+							}}
+						>
+							{playlist.displayName}
+						</MenuItem>
+					))}
+				</Menu>
 			</Box>
 		</Zoom>
 	);
@@ -575,6 +666,7 @@ function Notifications({ height }) {
 
 Notifications.propTypes = {
 	height: PropTypes.string,
+	wrapTitle: PropTypes.bool,
 };
 
 export default Notifications;

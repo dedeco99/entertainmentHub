@@ -13,6 +13,7 @@ const apps = require("./functions/apps");
 const users = require("./functions/users");
 const widgets = require("./functions/widgets");
 const notifications = require("./functions/notifications");
+const scheduledNotifications = require("./functions/scheduledNotifications");
 const weather = require("./functions/weather");
 const crypto = require("./functions/crypto");
 const price = require("./functions/price");
@@ -34,7 +35,16 @@ global.cache = {
 		data: {},
 		lastUpdate: Date.now(),
 	},
+	tv: {
+		popular: [],
+		lastUpdate: Date.now(),
+	},
+	movies: {
+		popular: [],
+		lastUpdate: Date.now(),
+	},
 };
+global.cronjobs = [];
 
 if (!process.env.ENV) require("./utils/secrets");
 
@@ -85,6 +95,18 @@ app.patch("/api/notifications", token, (req, res) => middleware(req, res, notifi
 
 app.delete("/api/notifications", token, (req, res) => middleware(req, res, notifications.deleteNotifications));
 
+app.get("/api/scheduled-notifications", token, (req, res) =>
+	middleware(req, res, scheduledNotifications.getScheduledNotifications),
+);
+
+app.post("/api/scheduled-notifications", token, (req, res) =>
+	middleware(req, res, scheduledNotifications.addScheduledNotification),
+);
+
+app.delete("/api/scheduled-notifications/:id", token, (req, res) =>
+	middleware(req, res, scheduledNotifications.deleteScheduledNotification),
+);
+
 app.get("/api/weather/:lat/:lon", (req, res) => middleware(req, res, weather.getWeather));
 
 app.get("/api/weather/cities", token, (req, res) => middleware(req, res, weather.getCities));
@@ -99,6 +121,8 @@ app.get("/api/reddit/subreddits/:type?", token, (req, res) => middleware(req, re
 
 app.get("/api/reddit/:subreddit/:category", token, (req, res) => middleware(req, res, reddit.getPosts));
 
+app.get("/api/reddit/:subreddit/comments/:post", token, (req, res) => middleware(req, res, reddit.getComments));
+
 app.get("/api/reddit/:subreddit/search/:search", token, (req, res) => middleware(req, res, reddit.getSearch));
 
 app.get("/api/subscriptions/:platform", token, (req, res) => middleware(req, res, subs.getSubscriptions));
@@ -106,6 +130,8 @@ app.get("/api/subscriptions/:platform", token, (req, res) => middleware(req, res
 app.post("/api/subscriptions/:platform", token, (req, res) => middleware(req, res, subs.addSubscriptions));
 
 app.put("/api/subscriptions/:id", token, (req, res) => middleware(req, res, subs.editSubscription));
+
+app.patch("/api/subscriptions/:id", token, (req, res) => middleware(req, res, subs.patchSubscription));
 
 app.delete("/api/subscriptions/:id", token, (req, res) => middleware(req, res, subs.deleteSubscription));
 
@@ -185,13 +211,14 @@ io.sockets.on("connection", socket => {
 
 if (process.env.ENV === "prod") {
 	cron.schedule("0,30 * * * *", () => {
-		notifications.cronjob();
 		youtube.cronjob();
 	});
 
 	cron.schedule("0 0,8,16 * * *", () => {
 		tv.cronjob();
 	});
+
+	scheduledNotifications.cronjobScheduler();
 
 	console.log("Cronjobs are running");
 }

@@ -5,7 +5,7 @@ import { makeStyles, Typography, Link, ListItem, Box } from "@material-ui/core";
 
 import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 
-import { formatDate, formatVideoDuration } from "../../utils/utils";
+import { formatDate, diff, formatVideoDuration } from "../../utils/utils";
 
 import { feed as feedStyles } from "../../styles/Youtube";
 import { videoPlayer as videoPlayerStyles } from "../../styles/VideoPlayer";
@@ -71,7 +71,11 @@ function Video({ video }) {
 							</Link>
 						</Typography>
 						<Typography variant="caption">
-							{`${formatDate(video.published, "DD-MM-YYYY HH:mm", true)} • ${video.views} views`}
+							{video.scheduled && diff(video.scheduled, "minutes") <= 0 ? (
+								<b>{`Scheduled for ${formatDate(video.scheduled, "DD-MM-YYYY HH:mm")}`}</b>
+							) : (
+								`${formatDate(video.published, "DD-MM-YYYY HH:mm", true)} • ${video.views} views`
+							)}
 						</Typography>
 						<Box display="flex" flexDirection="row" flex="1 1 auto" minWidth={0}>
 							<Typography variant="caption" style={{ paddingRight: "10px" }}>

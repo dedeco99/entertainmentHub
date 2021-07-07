@@ -16,13 +16,14 @@
 		"client-install": "cd ../client && npm install",
 		"client-build": "cd ../client && npm run build",
 		"client-lint": "cd ../client && eslint '**/*.js' --ignore-pattern node_modules/ --ignore-pattern public/",
-		"dev": "concurrently \"npm run server\" \"npm run client\""
+		"dev": "concurrently \"npm run server\" \"npm run client\"",
+		"deploy": "sh deploy.sh"
 	},
 	"dependencies": {
 		"all-the-cities": "^3.1.0",
 		"axios": "^0.21.1",
 		"bcryptjs": "^2.4.3",
-		"cheerio": "^1.0.0-rc.3",
+		"cheerio": "^1.0.0-rc.10",
 		"dayjs": "^1.8.36",
 		"express": "^4.17.1",
 		"mongoose": "^5.10.3",

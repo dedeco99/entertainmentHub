@@ -72,6 +72,7 @@ function Feed({ feed }) {
 	function handleAddToVideoPlayer(post) {
 		videoPlayer.dispatch({
 			type: "ADD_VIDEO",
+			videoSource: "youtube",
 			video: {
 				name: post.videoTitle,
 				thumbnail: post.thumbnail,

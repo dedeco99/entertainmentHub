@@ -1,9 +1,9 @@
 @font-face {
 	font-family: "Ehub-icons";
-	src: url("fonts/Ehub-icons.eot?jgvo4g");
-	src: url("fonts/Ehub-icons.eot?jgvo4g#iefix") format("embedded-opentype"),
-		url("fonts/Ehub-icons.ttf?jgvo4g") format("truetype"), url("fonts/Ehub-icons.woff?jgvo4g") format("woff"),
-		url("fonts/Ehub-icons.svg?jgvo4g#Ehub-icons") format("svg");
+	src: url("fonts/Ehub-icons.eot?qaz4y5");
+	src: url("fonts/Ehub-icons.eot?qaz4y5#iefix") format("embedded-opentype"),
+		url("fonts/Ehub-icons.ttf?qaz4y5") format("truetype"), url("fonts/Ehub-icons.woff?qaz4y5") format("woff"),
+		url("fonts/Ehub-icons.svg?qaz4y5#Ehub-icons") format("svg");
 	font-weight: normal;
 	font-style: normal;
 	font-display: block;
@@ -44,7 +44,7 @@
 .icon-arrow-right:before {
 	content: "\e902";
 }
-.icon-arrow-up:before {
+.icon-arrow-up1:before {
 	content: "\e903";
 }
 .icon-caret-down:before {
@@ -175,6 +175,28 @@
 }
 .icon-logout:before {
 	content: "\e90e";
+}
+.icon-bubbles2:before {
+	content: "\e96d";
+}
+.icon-arrow-up:before {
+	content: "\ea32";
+}
+.icon-cross:before {
+	content: "\ea0f";
+}
+.icon-eye:before {
+	content: "\e92f";
+}
+.icon-heart:before {
+	content: "\e930";
+}
+.icon-star:before {
+	content: "\e931";
+}
+
+.icon-1x {
+	font-size: 1em;
 }
 .icon-2x {
 	font-size: 2em;

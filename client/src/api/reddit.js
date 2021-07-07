@@ -22,6 +22,15 @@ async function getPosts(subreddit, filter = "hot", after) {
 	return res;
 }
 
+async function getComments(subreddit, post) {
+	const res = await api({
+		method: "get",
+		url: `/api/reddit/${subreddit}/comments/${post}`,
+	});
+
+	return res;
+}
+
 async function getSearch(subreddit, search, after) {
 	const res = await api({
 		method: "get",
@@ -31,4 +40,4 @@ async function getSearch(subreddit, search, after) {
 	return res;
 }
 
-export { getSubreddits, getPosts, getSearch };
+export { getSubreddits, getPosts, getComments, getSearch };

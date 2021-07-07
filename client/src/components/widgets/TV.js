@@ -1,22 +1,27 @@
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 
 import { makeStyles, Zoom, Tabs, Tab, List, ListItem, Paper, Typography, Box } from "@material-ui/core";
+import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 
 import Loading from "../.partials/Loading";
 import CustomScrollbar from "../.partials/CustomScrollbar";
+import Popular from "../tv/Popular";
 
-import { getSeasons, getPopular } from "../../api/tv";
+import { getSeasons } from "../../api/tv";
 import { formatDate } from "../../utils/utils";
+import { translate } from "../../utils/translations";
 
 import { tv as styles } from "../../styles/Widgets";
 
 const useStyles = makeStyles(styles);
 
-function TV() {
-	const classes = useStyles();
+function TV({ tabs, listView }) {
+	const classes = useStyles({ hasTabs: tabs.length > 1 });
 	const [tabIndex, setTabIndex] = useState(0);
+	const [inQueueEpisodes, setInQueueEpisodes] = useState([]);
 	const [allEpisodes, setAllEpisodes] = useState([]);
-	const [popular, setPopular] = useState([]);
+	const [popularFilter, setPopularFilter] = useState("tv");
 	const [future, setFuture] = useState([]);
 	const [open, setOpen] = useState(false);
 
@@ -25,14 +30,14 @@ function TV() {
 
 		async function fetchData() {
 			const response = await Promise.all([
+				getSeasons("all", 0, "queue"),
 				getSeasons("all", 0, "passed"),
-				getPopular(0),
 				getSeasons("all", 0, "future"),
 			]);
 
 			if (isMounted) {
-				setAllEpisodes(response[0].data);
-				setPopular(response[1].data);
+				setInQueueEpisodes(response[0].data);
+				setAllEpisodes(response[1].data);
 				setFuture(response[2].data);
 				setOpen(true);
 			}
@@ -47,20 +52,31 @@ function TV() {
 		setTabIndex(newValue);
 	}
 
-	function renderPopularList() {
-		const popularList = popular.map(serie => (
-			<ListItem key={serie.externalId} button divider>
-				<img src={serie.image} height="100x" alt="Series" />
-				<Typography variant="body1" className={classes.popularText}>
-					{serie.displayName}
-				</Typography>
-			</ListItem>
-		));
+	function handlePopularFilter(e, value) {
+		if (value && value !== popularFilter) setPopularFilter(value);
+	}
 
+	function renderPopularList() {
 		return (
-			<CustomScrollbar>
-				<List>{popularList}</List>
-			</CustomScrollbar>
+			<>
+				<Box display="flex" alignItems="center" justifyContent="center" pt={1}>
+					<ToggleButtonGroup
+						value={popularFilter}
+						onChange={handlePopularFilter}
+						color="primary"
+						size="small"
+						exclusive
+					>
+						<ToggleButton value="tv" color="primary" variant="outlined">
+							{translate("tv")}
+						</ToggleButton>
+						<ToggleButton value="movies" color="primary" variant="outlined">
+							{translate("movies")}
+						</ToggleButton>
+					</ToggleButtonGroup>
+				</Box>
+				<Popular type={popularFilter} bannerWidth={140} useWindowScroll={false} listView={listView} />
+			</>
 		);
 	}
 
@@ -107,33 +123,49 @@ function TV() {
 
 	if (!open) return <Loading />;
 
+	const tabOptions = [
+		{ key: "inQueue", name: translate("inQueueEpisodes"), content: () => renderEpisodeList(inQueueEpisodes) },
+		{ key: "all", name: translate("all"), content: () => renderEpisodeList(allEpisodes) },
+		{ key: "popular", name: "Popular", content: () => renderPopularList() },
+		{ key: "future", name: translate("upcomingEpisodes"), content: () => renderEpisodeList(future) },
+	];
+
+	const tabsList = [];
+	const tabsContent = [];
+	for (let i = 0; i < tabs.length; i++) {
+		const tabOption = tabOptions.find(t => t.key === tabs[i]);
+		tabsList.push(<Tab key={i} label={tabOption.name} className={classes.tab} {...a11yTabProps(i)} />);
+		tabsContent.push(
+			<div key={i} role="tabpanel" hidden={tabIndex !== i} className={classes.tabPanel} {...a11yTabPanelProps(i)}>
+				{tabIndex === i && tabOption.content()}
+			</div>,
+		);
+	}
+
 	return (
 		<Zoom in={open}>
 			<div className={classes.root}>
 				<Paper square>
-					<Tabs
-						value={tabIndex}
-						onChange={handleChange}
-						variant="fullWidth"
-						classes={{ indicator: classes.indicator }}
-					>
-						<Tab label="All" className={classes.tab} {...a11yTabProps(0)} />
-						<Tab label="Popular" className={classes.tab} {...a11yTabProps(1)} />
-						<Tab label="Future" className={classes.tab} {...a11yTabProps(2)} />
-					</Tabs>
+					{tabsList.length > 1 ? (
+						<Tabs
+							value={tabIndex}
+							onChange={handleChange}
+							variant="fullWidth"
+							classes={{ indicator: classes.indicator }}
+						>
+							{tabsList}
+						</Tabs>
+					) : null}
 				</Paper>
-				<div role="tabpanel" hidden={tabIndex !== 0} className={classes.tabPanel} {...a11yTabPanelProps(0)}>
-					{tabIndex === 0 && renderEpisodeList(allEpisodes)}
-				</div>
-				<div role="tabpanel" hidden={tabIndex !== 1} className={classes.tabPanel} {...a11yTabPanelProps(1)}>
-					{tabIndex === 1 && renderPopularList()}
-				</div>
-				<div role="tabpanel" hidden={tabIndex !== 2} className={classes.tabPanel} {...a11yTabPanelProps(2)}>
-					{tabIndex === 2 && renderEpisodeList(future)}
-				</div>
+				{tabsContent}
 			</div>
 		</Zoom>
 	);
 }
+
+TV.propTypes = {
+	tabs: PropTypes.array,
+	listView: PropTypes.bool,
+};
 
 export default TV;

@@ -28,6 +28,9 @@ function AppMenu() {
 		{ platform: "twitch", name: "Twitch", icon: "icon-twitch-filled icon-2x", endpoint: "/twitch" },
 		{ platform: "tv", name: "TV Series", icon: "icon-monitor-filled icon-2x", endpoint: "/tv" },
 	];
+	const fixedApps = [
+		{ platform: "reminders", name: "Reminders", icon: "icon-notifications icon-2x", endpoint: "/reminders" },
+	];
 
 	useEffect(() => {
 		async function fetchData() {
@@ -40,6 +43,7 @@ function AppMenu() {
 
 				if (response.status === 200) {
 					const userApps = allApps.filter(app => response.data.find(appR => appR.platform === app.platform));
+					userApps.push(...fixedApps);
 					setApps(userApps);
 
 					dispatch({ type: "SET_APPS", apps: response.data });
@@ -60,11 +64,12 @@ function AppMenu() {
 		if (!user.apps) return;
 
 		const userApps = allApps.filter(app => user.apps.find(appR => appR.platform === app.platform));
+		userApps.push(...fixedApps);
 		setApps(userApps);
 	}, [user]); // eslint-disable-line
 
 	useEffect(() => {
-		const currentApp = allApps.find(app => app.endpoint === location.pathname);
+		const currentApp = allApps.find(app => location.pathname.includes(app.endpoint));
 		setSelectedMenu(currentApp ? currentApp.platform : null);
 	}, [allApps, location]);
 
@@ -88,7 +93,7 @@ function AppMenu() {
 	}
 
 	function renderAddMoreApps() {
-		if (apps.length === allApps.length) return null;
+		if (apps.length === allApps.length + fixedApps.length) return null;
 
 		return (
 			<ListItem button className={classes.appItem} component={Link} to="/settings/apps">
