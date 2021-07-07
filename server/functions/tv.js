@@ -1,4 +1,5 @@
 const cheerio = require("cheerio");
+const dayjs = require("dayjs");
 
 const { response, api } = require("../utils/request");
 const { toObjectId, formatDate, diff } = require("../utils/utils");
@@ -340,10 +341,22 @@ async function getSearch(event) {
 	const res = await api({ method: "get", url });
 	const json = res.data;
 
-	const series = json.results.map(s => ({
+	const promises = json.results.map(s =>
+		api({
+			method: "get",
+			url: `https://api.themoviedb.org/3/tv/${s.id}/external_ids?api_key=${process.env.tmdbKey}`,
+		}),
+	);
+
+	const tmdbSeries = await Promise.all(promises);
+
+	const series = json.results.map((s, i) => ({
 		externalId: s.id,
 		displayName: s.name,
 		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}`,
+		imdbId: tmdbSeries[i].data.imdb_id,
+		year: dayjs(s.first_air_date).get("year"),
+		rating: s.vote_average,
 	}));
 
 	return response(200, "GET_SERIES", series);
@@ -357,7 +370,6 @@ function getTrend(trend) {
 	return isNaN(formattedTrend) ? 0 : formattedTrend;
 }
 
-// eslint-disable-next-line max-lines-per-function
 async function getPopular(event) {
 	const { query, user } = event;
 	const { page, source, type } = query;

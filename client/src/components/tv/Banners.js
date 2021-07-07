@@ -129,7 +129,9 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 									onClick={() => {
 										// TODO: Change this onclick to our own series page
 										const newWindow = window.open(
-											`https://www.imdb.com/title/${serie.imdbId}`,
+											serie.imdbId
+												? `https://www.imdb.com/title/${serie.imdbId}`
+												: `https://www.themoviedb.org/tv/${serie.externalId}`,
 											"_blank",
 											"noopener,noreferrer",
 										);
