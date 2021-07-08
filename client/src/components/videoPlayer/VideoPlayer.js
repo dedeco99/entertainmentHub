@@ -37,6 +37,8 @@ function VideoPlayer() {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(VideoPlayerContext);
 	const { currentVideo, videos, x, y, width, height, minimized, selectedTab, showQueue } = state;
+	const [disableNext, setdisableNext] = useState(false);
+	const [disablePrevious, setdisablePrevious] = useState(false);
 	const [restrictions, setRestrictions] = useState({
 		minWidth: 600,
 		minHeight: 300,
@@ -86,6 +88,35 @@ function VideoPlayer() {
 		}
 	}, [selectedTab, videos, currentVideo]); // eslint-disable-line
 
+	useEffect(() => {
+		const currentIndexVideo = videos[selectedTab].findIndex(video => video.name === currentVideo.name);
+
+		if (videos[selectedTab].length <= 1) {
+			setdisablePrevious(true);
+			setdisableNext(true);
+		} else {
+			setdisablePrevious(false);
+			setdisableNext(false);
+		}
+
+		if (videos[selectedTab].length > 1) {
+			if (currentIndexVideo === videos[selectedTab].length - 1) {
+				setdisablePrevious(false);
+				setdisableNext(true);
+			} else {
+				setdisableNext(false);
+				setdisablePrevious(false);
+			}
+
+			if (currentIndexVideo === 0) {
+				setdisablePrevious(true);
+				setdisableNext(false);
+			} else {
+				setdisablePrevious(false);
+			}
+		}
+	}, [currentVideo.name, videos]); // eslint-disable-line
+
 	function handleDeleteVideo(video) {
 		dispatch({ type: "DELETE_VIDEO", videoSource: selectedTab, video });
 	}
@@ -102,16 +133,9 @@ function VideoPlayer() {
 		const currentIndexVideo = videos[tab].findIndex(video => video.name === currentVideo.name);
 
 		if (option === "next") {
-			if (currentIndexVideo === videos[tab].length - 1)
-				// eslint-disable-next-line nonblock-statement-body-position
-				dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[tab][0] });
-			else dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[tab][currentIndexVideo + 1] });
+			dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[tab][currentIndexVideo + 1] });
 		} else {
-			// eslint-disable-next-line no-lonely-if
-			if (currentIndexVideo === 0)
-				// eslint-disable-next-line nonblock-statement-body-position
-				dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[tab][videos[tab].length - 1] });
-			else dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[tab][currentIndexVideo - 1] });
+			dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[tab][currentIndexVideo - 1] });
 		}
 	}
 
@@ -282,6 +306,7 @@ function VideoPlayer() {
 								<IconButton
 									edge="end"
 									aria-label="previousVideo"
+									disabled={disablePrevious}
 									onClick={() => handlePreviousNextVideo(selectedTab, "previous")}
 								>
 									<i className="icon-caret-left" />
@@ -290,6 +315,7 @@ function VideoPlayer() {
 							<Tooltip title="Next Video">
 								<IconButton
 									edge="end"
+									disabled={disableNext}
 									aria-label="nextVideo"
 									onClick={() => handlePreviousNextVideo(selectedTab, "next")}
 								>
