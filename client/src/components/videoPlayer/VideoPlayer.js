@@ -79,6 +79,8 @@ function VideoPlayer() {
 	}, []); // eslint-disable-line
 
 	useEffect(() => {
+		console.log(state);
+
 		if (!selectedTab) {
 			const tab = tabs.find(t => videos[t.name].length);
 
@@ -89,7 +91,10 @@ function VideoPlayer() {
 	}, [selectedTab, videos, currentVideo]); // eslint-disable-line
 
 	useEffect(() => {
-		const currentIndexVideo = videos[selectedTab].findIndex(video => video.name === currentVideo.name);
+		let currentIndexVideo = 0;
+
+		if (videos[selectedTab])
+			currentIndexVideo = videos[selectedTab].findIndex(video => video.name === currentVideo.name);
 
 		if (videos[selectedTab].length <= 1) {
 			setdisablePrevious(true);
@@ -105,7 +110,6 @@ function VideoPlayer() {
 				setdisableNext(true);
 			} else {
 				setdisableNext(false);
-				setdisablePrevious(false);
 			}
 
 			if (currentIndexVideo === 0) {
@@ -115,7 +119,7 @@ function VideoPlayer() {
 				setdisablePrevious(false);
 			}
 		}
-	}, [currentVideo.name, videos]); // eslint-disable-line
+	}, [selectedTab, videos[selectedTab], currentVideo]); // eslint-disable-line
 
 	function handleDeleteVideo(video) {
 		dispatch({ type: "DELETE_VIDEO", videoSource: selectedTab, video });
