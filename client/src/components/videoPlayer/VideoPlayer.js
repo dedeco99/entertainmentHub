@@ -37,8 +37,6 @@ function VideoPlayer() {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(VideoPlayerContext);
 	const { currentVideo, videos, x, y, width, height, minimized, selectedTab, showQueue } = state;
-	const [disableNext, setdisableNext] = useState(false);
-	const [disablePrevious, setdisablePrevious] = useState(false);
 	const [restrictions, setRestrictions] = useState({
 		minWidth: 600,
 		minHeight: 300,
@@ -78,48 +76,29 @@ function VideoPlayer() {
 			});
 	}, []); // eslint-disable-line
 
-	useEffect(() => {
-		console.log(state);
+	function hasPreviousVideo() {
+		const currentVideoIndex = videos[selectedTab].findIndex(video => video.url === currentVideo.url);
 
-		if (!selectedTab) {
-			const tab = tabs.find(t => videos[t.name].length);
+		return currentVideoIndex > 0;
+	}
 
-			if (tab) dispatch({ type: "SET_SELECTED_TAB", selectedTab: tab.name });
-		} else if (selectedTab && !currentVideo) {
-			dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[selectedTab][0] });
-		}
-	}, [selectedTab, videos, currentVideo]); // eslint-disable-line
+	function hasNextVideo() {
+		const currentVideoIndex = videos[selectedTab].findIndex(video => video.url === currentVideo.url);
 
-	useEffect(() => {
-		let currentIndexVideo = 0;
+		return currentVideoIndex < videos[selectedTab].length - 1;
+	}
 
-		if (videos[selectedTab])
-			currentIndexVideo = videos[selectedTab].findIndex(video => video.name === currentVideo.name);
+	function handlePreviousVideo() {
+		const currentIndexVideo = videos[selectedTab].findIndex(video => video.name === currentVideo.name);
 
-		if (videos[selectedTab].length <= 1) {
-			setdisablePrevious(true);
-			setdisableNext(true);
-		} else {
-			setdisablePrevious(false);
-			setdisableNext(false);
-		}
+		dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos.youtube[currentIndexVideo - 1] });
+	}
 
-		if (videos[selectedTab].length > 1) {
-			if (currentIndexVideo === videos[selectedTab].length - 1) {
-				setdisablePrevious(false);
-				setdisableNext(true);
-			} else {
-				setdisableNext(false);
-			}
+	function handleNextVideo() {
+		const currentIndexVideo = videos[selectedTab].findIndex(video => video.name === currentVideo.name);
 
-			if (currentIndexVideo === 0) {
-				setdisablePrevious(true);
-				setdisableNext(false);
-			} else {
-				setdisablePrevious(false);
-			}
-		}
-	}, [selectedTab, videos[selectedTab], currentVideo]); // eslint-disable-line
+		dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos.youtube[currentIndexVideo + 1] });
+	}
 
 	function handleDeleteVideo(video) {
 		dispatch({ type: "DELETE_VIDEO", videoSource: selectedTab, video });
@@ -131,16 +110,6 @@ function VideoPlayer() {
 
 	function handleChangePosition(e, d) {
 		dispatch({ type: "SET_POSITION", position: { x: d.x, y: d.y } });
-	}
-
-	function handlePreviousNextVideo(tab, option) {
-		const currentIndexVideo = videos[tab].findIndex(video => video.name === currentVideo.name);
-
-		if (option === "next") {
-			dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[tab][currentIndexVideo + 1] });
-		} else {
-			dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[tab][currentIndexVideo - 1] });
-		}
 	}
 
 	function handleResize(e, direction, ref, delta, position) {
@@ -310,19 +279,14 @@ function VideoPlayer() {
 								<IconButton
 									edge="end"
 									aria-label="previousVideo"
-									disabled={disablePrevious}
-									onClick={() => handlePreviousNextVideo(selectedTab, "previous")}
+									disabled={!hasPreviousVideo()}
+									onClick={handlePreviousVideo}
 								>
 									<i className="icon-caret-left" />
 								</IconButton>
 							</Tooltip>
 							<Tooltip title="Next Video">
-								<IconButton
-									edge="end"
-									disabled={disableNext}
-									aria-label="nextVideo"
-									onClick={() => handlePreviousNextVideo(selectedTab, "next")}
-								>
+								<IconButton edge="end" disabled={!hasNextVideo()} aria-label="nextVideo" onClick={handleNextVideo}>
 									<i className="icon-caret-right" />
 								</IconButton>
 							</Tooltip>
