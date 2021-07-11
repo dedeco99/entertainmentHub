@@ -86,6 +86,30 @@ function VideoPlayer() {
 		}
 	}, [selectedTab, videos, currentVideo]); // eslint-disable-line
 
+	function hasPreviousVideo() {
+		const currentVideoIndex = videos[selectedTab].findIndex(video => video.url === currentVideo.url);
+
+		return currentVideoIndex > 0;
+	}
+
+	function hasNextVideo() {
+		const currentVideoIndex = videos[selectedTab].findIndex(video => video.url === currentVideo.url);
+
+		return currentVideoIndex < videos[selectedTab].length - 1;
+	}
+
+	function handlePreviousVideo() {
+		const currentIndexVideo = videos[selectedTab].findIndex(video => video.name === currentVideo.name);
+
+		dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[selectedTab][currentIndexVideo - 1] });
+	}
+
+	function handleNextVideo() {
+		const currentIndexVideo = videos[selectedTab].findIndex(video => video.name === currentVideo.name);
+
+		dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[selectedTab][currentIndexVideo + 1] });
+	}
+
 	function handleDeleteVideo(video) {
 		dispatch({ type: "DELETE_VIDEO", videoSource: selectedTab, video });
 	}
@@ -249,16 +273,33 @@ function VideoPlayer() {
 													</Typography>
 												</Box>
 											</ListItem>
-											<Box className={classes.listItemAction}>
-												<IconButton edge="end" aria-label="delete" onClick={() => handleDeleteVideo(v)}>
-													<i className="icon-delete" />
-												</IconButton>
-											</Box>
+										</Box>
+										<Box className={classes.listItemAction}>
+											<IconButton edge="end" aria-label="delete" onClick={() => handleDeleteVideo(v)}>
+												<i className="icon-delete" />
+											</IconButton>
 										</Box>
 										<Divider />
 									</div>
 								))}
 							</GridLayout>
+						</Box>
+						<Box textAlign="center" style={{ borderTop: "1px solid #ffffff3b" }}>
+							<Tooltip title="Previous Video">
+								<IconButton
+									edge="end"
+									aria-label="previousVideo"
+									disabled={!hasPreviousVideo()}
+									onClick={handlePreviousVideo}
+								>
+									<i className="icon-caret-left" />
+								</IconButton>
+							</Tooltip>
+							<Tooltip title="Next Video">
+								<IconButton edge="end" disabled={!hasNextVideo()} aria-label="nextVideo" onClick={handleNextVideo}>
+									<i className="icon-caret-right" />
+								</IconButton>
+							</Tooltip>
 						</Box>
 					</Box>
 				) : null;
