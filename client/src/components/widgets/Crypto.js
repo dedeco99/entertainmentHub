@@ -47,7 +47,7 @@ function Crypto({ coins, widgetDimensions }) {
 		fetchData();
 
 		return () => (isMounted = false);
-	}, [coins]); // eslint-disable-line
+	}, [coins]);
 
 	function simplifyNumber(num) {
 		if (num) {

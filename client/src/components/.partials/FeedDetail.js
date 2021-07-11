@@ -62,7 +62,7 @@ function FeedDetail({ open, feed, platform, onClose }) {
 
 	useEffect(() => {
 		setFeedInfo();
-	}, []); // eslint-disable-line
+	}, []);
 
 	function handleCloseModal() {
 		onClose();

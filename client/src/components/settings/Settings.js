@@ -116,7 +116,7 @@ function Settings() {
 		}
 
 		setSettings({ ...user.settings, browserNotifications: Notification.permission });
-	}, [match]); // eslint-disable-line
+	}, [match]);
 
 	useEffect(() => {
 		async function fetchData() {
@@ -136,7 +136,7 @@ function Settings() {
 		}
 
 		fetchData();
-	}, []); // eslint-disable-line
+	}, []);
 
 	async function handleSubmitSettings() {
 		const response = await editUser({ settings });

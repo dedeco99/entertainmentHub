@@ -32,7 +32,7 @@ function Feeds({ platform }) {
 		fetchData();
 
 		return () => (isMounted = false);
-	}, []); // eslint-disable-line
+	}, []);
 
 	async function handleEditFeed(updatedFeeds) {
 		for (const updatedFeed of updatedFeeds) {

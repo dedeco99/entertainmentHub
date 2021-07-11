@@ -115,7 +115,6 @@ async function fetchEpisodes(series) {
 
 		if (json.episodes && json.episodes.length) {
 			for (const episode of json.episodes) {
-				// eslint-disable-next-line no-await-in-loop
 				const episodeExists = await Episode.findOne({
 					seriesId: series._id,
 					season: episode.season_number,
@@ -446,7 +445,6 @@ async function getPopular(event) {
 		}
 
 		series = await getEpisodeNumbers(
-			// eslint-disable-next-line no-mixed-operators
 			global.cache[type].popular.slice(Number(page) * 20, Number(page) * 20 + 20),
 			user,
 		);

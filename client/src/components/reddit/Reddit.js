@@ -94,7 +94,7 @@ function Reddit() {
 			default:
 				break;
 		}
-	}, [match.url]); // eslint-disable-line
+	}, [match.url]);
 
 	function renderButtons() {
 		return (

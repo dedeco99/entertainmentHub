@@ -53,7 +53,7 @@ function Videos() {
 	useEffect(() => {
 		setPagination({ page: 0, hasMore: false, after: null });
 		setCallApi(!callApi);
-	}, [match.url]); // eslint-disable-line
+	}, [match.url]);
 
 	useEffect(() => {
 		async function fetchData() {
@@ -61,7 +61,7 @@ function Videos() {
 		}
 
 		fetchData();
-	}, [callApi]); // eslint-disable-line
+	}, [callApi]);
 
 	function renderVideos() {
 		return videos.map(video => (

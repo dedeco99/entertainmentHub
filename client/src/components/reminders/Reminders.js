@@ -40,7 +40,7 @@ function Reminders() {
 		}
 
 		fetchData();
-	}, []); // eslint-disable-line
+	}, []);
 
 	function handleOpenOptions() {
 		setOpenOptions(true);

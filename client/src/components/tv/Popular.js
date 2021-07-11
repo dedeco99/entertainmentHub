@@ -57,7 +57,7 @@ function Popular({ type, bannerWidth, useWindowScroll, listView }) {
 
 		fetchData();
 
-		return () => (isMounted = false); // eslint-disable-line
+		return () => (isMounted = false);
 	}, [type]);
 
 	if (!open) return <Loading />;

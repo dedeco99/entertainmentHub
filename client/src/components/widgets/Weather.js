@@ -35,7 +35,7 @@ function Weather({ city, country, lat, lon, widgetDimensions }) {
 		fetchData();
 
 		return () => (isMounted = false);
-	}, [city, country, lat, lon]); // eslint-disable-line
+	}, [city, country, lat, lon]);
 
 	function showFeelsLike() {
 		if (Math.round(weather.current.feelsLike) !== Math.round(weather.current.temp)) {

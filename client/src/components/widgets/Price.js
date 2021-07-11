@@ -28,7 +28,7 @@ function Price({ country, productId, widgetDimensions }) {
 		fetchData();
 
 		return () => (isMounted = false);
-	}, [productId]); // eslint-disable-line
+	}, [productId]);
 
 	if (!open) return <Loading />;
 
