@@ -231,13 +231,7 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 	}
 
 	return (
-		<InfiniteScroll
-			pageStart={0}
-			loadMore={getMore}
-			hasMore={hasMore}
-			loader={<Loading key={0} />}
-			useWindow={useWindowScroll}
-		>
+		<InfiniteScroll loadMore={getMore} hasMore={hasMore} loader={<Loading key={0} />} useWindow={useWindowScroll}>
 			{renderSeriesBlock()}
 		</InfiniteScroll>
 	);
