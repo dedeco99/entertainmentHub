@@ -61,7 +61,7 @@ function Posts() {
 		}
 
 		setCallApi(!callApi);
-	}, [match.url]); // eslint-disable-line
+	}, [match.url]);
 
 	useEffect(() => {
 		async function fetchData() {
@@ -69,7 +69,7 @@ function Posts() {
 		}
 
 		fetchData();
-	}, [callApi]); // eslint-disable-line
+	}, [callApi]);
 
 	function applyCategory(category) {
 		history.push(`/reddit/${match.params.sub}/${category}`);

@@ -122,7 +122,7 @@ function Episodes() {
 		}
 
 		fetchData();
-	}, [match.url]); // eslint-disable-line
+	}, [match.url]);
 
 	useEffect(() => {
 		async function fetchData() {
@@ -139,8 +139,8 @@ function Episodes() {
 
 		fetchData();
 
-		return () => (isMounted = false); // eslint-disable-line
-	}, [seasons, filter]); // eslint-disable-line
+		return () => (isMounted = false);
+	}, [seasons, filter]);
 
 	async function markAsWatched() {
 		const response = await patchSubscription(

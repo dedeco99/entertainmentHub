@@ -59,7 +59,7 @@ function Login() {
 
 	useEffect(() => {
 		if (user && user.token) history.push("/");
-	}, []); // eslint-disable-line
+	}, []);
 
 	function handleEmailChange(e) {
 		setEmail(e.target.value);

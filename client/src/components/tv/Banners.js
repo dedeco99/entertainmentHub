@@ -53,7 +53,7 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 		if (!subscriptions.length) fetchData();
 
 		return () => (isMounted = false);
-	}, []); // eslint-disable-line
+	}, []);
 
 	async function handleAddSeries(serie) {
 		const seriesToAdd = series.find(s => s.externalId === serie.externalId);
@@ -75,12 +75,12 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 	}
 
 	/*
-	function getTrendIcon(trend) {
-		if (Number(trend) > 0) return "icon-caret-up";
-		else if (Number(trend) < 0) return "icon-caret-down";
-		else return "icon-sunrise";
-	}
-	
+		function getTrendIcon(trend) {
+			if (Number(trend) > 0) return "icon-caret-up";
+			else if (Number(trend) < 0) return "icon-caret-down";
+			else return "icon-sunrise";
+		}
+
 		<Box position="absolute" top="0" left="0" width="100%" p={1}>
 			<Chip color="primary" size="small" label={`${serie.rank}º`} />
 			<Chip
@@ -92,7 +92,7 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 				classes={{ labelSmall: classes.trendingChipLabel }}
 			/>
 		</Box>
-		*/
+	*/
 
 	function handleFavoriteChange(e, serie) {
 		if (e.target.checked) handleAddSeries(serie);

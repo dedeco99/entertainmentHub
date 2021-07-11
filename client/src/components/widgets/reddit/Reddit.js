@@ -56,8 +56,8 @@ function Reddit({ subreddit, search, listView }) {
 
 		fetchData();
 
-		return () => (isMounted = false); // eslint-disable-line
-	}, []); // eslint-disable-line
+		return () => (isMounted = false);
+	}, []);
 
 	function handleShowPreviousPost() {
 		if (num > 0) setNum(num - 1);

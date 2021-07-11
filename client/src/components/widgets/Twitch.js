@@ -36,7 +36,7 @@ function Twitch() {
 		fetchData();
 
 		return () => (isMounted = false);
-	}, []); // eslint-disable-line
+	}, []);
 
 	function handleAddToVideoPlayer(videoSource, stream) {
 		videoPlayer.dispatch({

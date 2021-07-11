@@ -84,7 +84,7 @@ function Widget({
 		}
 
 		return () => (isMounted = false);
-	}, []); // eslint-disable-line
+	}, []);
 
 	function handleEdit() {
 		onEdit(id);

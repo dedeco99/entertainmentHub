@@ -58,7 +58,7 @@ function ScheduledNotificationDetail({ open, scheduledNotification, onClose }) {
 			setType("reminder");
 			setInfo({});
 		}
-	}, [scheduledNotification]); // eslint-disable-line
+	}, [scheduledNotification]);
 
 	function handleChange(e) {
 		if (e.target.id && e.target.id.includes("info")) {

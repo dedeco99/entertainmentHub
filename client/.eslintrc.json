@@ -71,7 +71,7 @@
 		"no-extra-bind": "error",
 		"no-extra-label": "error",
 		"no-floating-decimal": "error",
-		"no-implicit-coercion": "error",
+		// "no-implicit-coercion": "error",
 		"no-implicit-globals": "error",
 		"no-implied-eval": "error",
 		"no-invalid-this": "error",
@@ -102,7 +102,7 @@
 		"no-useless-return": "error",
 		"no-void": "error",
 		// "no-warning-comments": "error",
-		"prefer-named-capture-group": "error",
+		// "prefer-named-capture-group": "error",
 		"prefer-promise-reject-errors": "error",
 		"prefer-regex-literals": "error",
 		"radix": "error",
@@ -132,7 +132,7 @@
 		"no-restricted-modules": "error",
 		"no-sync": "error",
 		/* style */
-		"array-bracket-newline": "error",
+		// "array-bracket-newline": "error",
 		"array-bracket-spacing": "error",
 		"array-element-newline": ["error", "consistent"],
 		"block-spacing": "error",
@@ -215,7 +215,7 @@
 		"no-continue": "error",
 		// "no-inline-comments": "error",
 		"no-lonely-if": "error",
-		"no-mixed-operators": "error",
+		// "no-mixed-operators": "error",
 		"no-mixed-spaces-and-tabs": "error",
 		"no-multi-assign": "error",
 		"no-multiple-empty-lines": [
@@ -396,8 +396,12 @@
 		// "react/jsx-props-no-spreading": "error",
 		"react/jsx-sort-default-props": "error",
 		// "react/jsx-sort-props": "error",
-		"react/jsx-space-before-closing": "error",
-		"react/jsx-tag-spacing": "error",
+		"react/jsx-tag-spacing": [
+			"error",
+			{
+				"beforeSelfClosing": "always"
+			}
+		],
 		"react/jsx-uses-react": "error", // recommended
 		"react/jsx-uses-vars": "error", // recommended
 		"react/jsx-wrap-multilines": "error"

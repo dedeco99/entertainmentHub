@@ -95,6 +95,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 						</Link>
 					</Typography>
 				) : (
+					// eslint-disable-next-line react/no-danger
 					<div className={classes.textContent} dangerouslySetInnerHTML={{ __html: htmlEscape(post.text) }} />
 				)}
 			</Box>
@@ -425,7 +426,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 									{comment.score}
 								</Typography>
 								<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px", marginLeft: "6px" }}>
-									<i className="icon-arrow-up icon-1x" />
+									<i className="icon-arrow-up-bold icon-1x" />
 								</Typography>
 							</Box>
 						</Box>
@@ -463,7 +464,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 												variant="caption"
 												style={{ color: "#EC6E4C", fontSize: "13px", marginLeft: "6px" }}
 											>
-												<i className="icon-arrow-up icon-1x" />
+												<i className="icon-arrow-up-bold icon-1x" />
 											</Typography>
 										</Box>
 									</Box>
@@ -635,7 +636,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 											variant="caption"
 											style={{ color: "#EC6E4C", fontSize: "13px", marginLeft: "6px" }}
 										>
-											<i className="icon-arrow-up icon-1x" />
+											<i className="icon-arrow-up-bold icon-1x" />
 										</Typography>
 										<Typography variant="caption" style={{ fontSize: "13px" }}>
 											{` • ${formatNumber(post.comments)}`}
