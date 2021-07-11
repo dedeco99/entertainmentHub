@@ -91,13 +91,13 @@ function VideoPlayer() {
 	function handlePreviousVideo() {
 		const currentIndexVideo = videos[selectedTab].findIndex(video => video.name === currentVideo.name);
 
-		dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos.youtube[currentIndexVideo - 1] });
+		dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[selectedTab][currentIndexVideo - 1] });
 	}
 
 	function handleNextVideo() {
 		const currentIndexVideo = videos[selectedTab].findIndex(video => video.name === currentVideo.name);
 
-		dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos.youtube[currentIndexVideo + 1] });
+		dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[selectedTab][currentIndexVideo + 1] });
 	}
 
 	function handleDeleteVideo(video) {
