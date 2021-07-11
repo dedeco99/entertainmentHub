@@ -17,11 +17,13 @@ function Episode({ episode }) {
 	const classes = useStyles();
 	const [rerender, setRerender] = useState(true);
 
-	async function markAsRead() {
-		const response = await patchSubscription(episode.series._id, `S${episode.season}E${episode.number}`);
+	async function markAsWatched() {
+		const response = await patchSubscription(episode.series._id, !episode.watched, [
+			`S${episode.season}E${episode.number}`,
+		]);
 
 		if (response.status === 200) {
-			episode.watched = Boolean(response.data.watched.find(w => w === `S${episode.season}E${episode.number}`));
+			episode.watched = Boolean(response.data.watched.find(w => w.key === `S${episode.season}E${episode.number}`));
 
 			setRerender(!rerender);
 		}
@@ -33,7 +35,7 @@ function Episode({ episode }) {
 
 	return (
 		<Card className={classes.root}>
-			<CardActionArea onClick={markAsRead}>
+			<CardActionArea onClick={markAsWatched}>
 				<CardMedia component="img" height="150" image={image} />
 				<div className={`${classes.overlay} ${classes.title}`} title={episode.title}>
 					{episode.title}

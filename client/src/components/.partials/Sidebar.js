@@ -23,7 +23,7 @@ import styles from "../../styles/General";
 
 const useStyles = makeStyles(styles);
 
-function Sidebar({ options, selected, idField, action, menu, loading, noResultsMessage }) {
+function Sidebar({ options, selected, idField, countField, action, menu, loading, noResultsMessage }) {
 	const classes = useStyles();
 	const [anchorEl, setAnchorEl] = useState(null);
 
@@ -44,7 +44,7 @@ function Sidebar({ options, selected, idField, action, menu, loading, noResultsM
 	if (!options || !options.length) return <div className={classes.center}>{noResultsMessage}</div>;
 
 	return (
-		<List className={classes.listMenu}>
+		<List className={classes.listMenu} style={{ paddingTop: "10px" }}>
 			{options.map(option => {
 				return (
 					<ListItem
@@ -57,7 +57,9 @@ function Sidebar({ options, selected, idField, action, menu, loading, noResultsM
 						id={option[idField]}
 					>
 						<ListItemAvatar>
-							<Avatar alt={option.displayName} src={option.image} />
+							<Badge color="secondary" max={999} badgeContent={option[countField]}>
+								<Avatar alt={option.displayName} src={option.image} />
+							</Badge>
 						</ListItemAvatar>
 						<ListItemText
 							primary={option.displayName}

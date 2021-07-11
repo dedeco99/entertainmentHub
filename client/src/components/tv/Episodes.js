@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroller";
 import { useHistory, useRouteMatch } from "react-router-dom";
 
-import { makeStyles, Grid } from "@material-ui/core";
+import { makeStyles, Grid, Button } from "@material-ui/core";
 import ToggleButton from "@material-ui/lab/ToggleButton";
 import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
 
@@ -11,6 +11,7 @@ import Loading from "../.partials/Loading";
 import Episode from "./Episode";
 
 import { getSeasons } from "../../api/tv";
+import { patchSubscription } from "../../api/subscriptions";
 
 import { translate } from "../../utils/translations";
 
@@ -30,7 +31,9 @@ function Episodes() {
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [currentSeries, setCurrentSeries] = useState(null);
+	const [rerender, setRerender] = useState(true);
 	let isMounted = true;
+	const hasUnwatchedEpisodes = !!episodes.find(e => !e.watched);
 
 	async function handleGetAll() {
 		if (!loading) {
@@ -71,6 +74,11 @@ function Episodes() {
 		const response = await getSeasons(seriesId);
 
 		if (response.status === 200 && isMounted) {
+			response.data = response.data.map(season => ({
+				...season,
+				toWatch: season.episodes.filter(episode => !episode.watched).length,
+			}));
+
 			setCurrentSeries(seriesId);
 			setSeasons(response.data);
 			setPage(0);
@@ -134,6 +142,24 @@ function Episodes() {
 		return () => (isMounted = false); // eslint-disable-line
 	}, [seasons, filter]); // eslint-disable-line
 
+	async function markAsWatched() {
+		const response = await patchSubscription(
+			episodes[0].series._id,
+			hasUnwatchedEpisodes,
+			episodes.map(e => `S${e.season}E${e.number}`),
+		);
+
+		if (response.status === 200) {
+			for (const episode of episodes) {
+				episode.watched = Boolean(
+					response.data.watched.find(w => w.key === `S${episode.season}E${episode.number}`),
+				);
+			}
+
+			setRerender(!rerender);
+		}
+	}
+
 	function renderEpisodes() {
 		if (episodes && episodes.length) {
 			return episodes.map(episode => (
@@ -189,10 +215,13 @@ function Episodes() {
 					options={seasons}
 					idField="_id"
 					nameField="_id"
+					countField="toWatch"
 					action={handleSeasonClick}
 					selected={Number(match.params.season)}
 				/>
-				<br />
+				<Button color="secondary" variant="contained" onClick={markAsWatched} style={{ margin: "10px 0px" }}>
+					{hasUnwatchedEpisodes ? "Mark as Watched" : "Mark as Unwatched"}
+				</Button>
 				<Grid container spacing={2} className={classes.episodeListContainer}>
 					{renderEpisodes()}
 				</Grid>

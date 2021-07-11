@@ -31,11 +31,11 @@ async function editSubscription(id, subscription) {
 	return res;
 }
 
-async function patchSubscription(id, watched) {
+async function patchSubscription(id, markAsWatched, watched) {
 	const res = await api({
 		method: "patch",
 		url: `/api/subscriptions/${id}`,
-		data: { watched },
+		data: { markAsWatched, watched },
 	});
 
 	return res;

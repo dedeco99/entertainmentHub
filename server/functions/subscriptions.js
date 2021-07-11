@@ -1,10 +1,12 @@
 const { response } = require("../utils/request");
 const errors = require("../utils/errors");
+const { toObjectId } = require("../utils/utils");
 
 const tv = require("./tv");
 const twitch = require("./twitch");
 
 const Subscription = require("../models/subscription");
+const Episode = require("../models/episode");
 
 async function getSubscriptions(event) {
 	const { params, user } = event;
@@ -31,6 +33,8 @@ async function getSubscriptions(event) {
 
 			return subscription;
 		});
+	} else if (platform === "tv") {
+		subscriptions = await tv.getEpisodeNumbers(subscriptions, user);
 	}
 
 	return response(200, "GET_SUBSCRIPTIONS", subscriptions);
@@ -66,9 +70,9 @@ async function addSubscriptions(event) {
 					const seriesPopulated = await Subscription.findOne({ platform, externalId }).lean();
 
 					if (!seriesPopulated) {
-						await tv.fetchEpisodes({
+						tv.fetchEpisodes({
 							_id: externalId,
-							displayNames: [displayName],
+							displayName,
 							users: [user._id],
 						});
 					}
@@ -104,17 +108,31 @@ async function editSubscription(event) {
 }
 
 async function patchSubscription(event) {
-	const { params, body } = event;
+	const { params, body, user } = event;
 	const { id } = params;
-	const { watched } = body;
+	const { markAsWatched } = body;
+	let { watched } = body;
 
-	let subscription = await Subscription.findOne({ _id: id }).lean();
+	let subscription = await Subscription.findOne(
+		toObjectId(id) ? { _id: id } : { user: user._id, externalId: id },
+	).lean();
+
+	if (watched === "all") {
+		const episodes = await Episode.find({ seriesId: id });
+
+		watched = episodes.map(e => `S${e.season}E${e.number}`);
+	}
+
 	try {
-		const updateQuery = subscription.watched.find(w => w.key === watched)
-			? { $pull: { watched: { key: watched } } }
-			: { $addToSet: { watched: { key: watched, date: Date.now() } } };
+		const updateQuery = markAsWatched
+			? { $addToSet: { watched: { $each: watched.map(key => ({ key, date: Date.now() })) } } }
+			: { $pull: { watched: { key: { $in: watched } } } };
 
-		subscription = await Subscription.findOneAndUpdate({ _id: id }, updateQuery, { new: true }).lean();
+		subscription = await Subscription.findOneAndUpdate(
+			toObjectId(id) ? { _id: id } : { user: user._id, externalId: id },
+			updateQuery,
+			{ new: true },
+		);
 	} catch (err) {
 		return errors.notFound;
 	}

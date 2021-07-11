@@ -29,7 +29,7 @@ function chooseContext(platform) {
 	}
 }
 
-function Subscriptions({ platform, selected, idField, action }) {
+function Subscriptions({ platform, selected, idField, countField, action }) {
 	const { state, dispatch } = useContext(chooseContext(platform));
 	const { follows, subscriptions } = state;
 	const [selectedSubscription, setSelectedSubscription] = useState(null);
@@ -114,6 +114,7 @@ function Subscriptions({ platform, selected, idField, action }) {
 				options={subscriptions}
 				selected={selected}
 				idField={idField}
+				countField={countField}
 				action={action}
 				menu={menuOptions}
 				loading={loading}
@@ -139,6 +140,7 @@ Subscriptions.propTypes = {
 	platform: PropTypes.string.isRequired,
 	selected: PropTypes.string,
 	idField: PropTypes.string,
+	countField: PropTypes.string,
 	action: PropTypes.func.isRequired,
 };
 
