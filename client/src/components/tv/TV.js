@@ -21,7 +21,7 @@ function TV() {
 	const [blocks, setBlocks] = useState({
 		openSearch: false,
 		openPopular: false,
-		openEpisodes: true,
+		openEpisodes: false,
 	});
 
 	function handleShowSearchBlock() {
