@@ -86,7 +86,7 @@ function Popular({ type, bannerWidth, useWindowScroll, listView }) {
 			series={follows}
 			getMore={handleGetPopular}
 			hasMore={hasMore}
-			hasActions
+			hasActions={type === "tv"}
 			bannerWidth={bannerWidth}
 			useWindowScroll={useWindowScroll}
 		/>
