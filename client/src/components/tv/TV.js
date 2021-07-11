@@ -70,7 +70,7 @@ function TV() {
 			default:
 				break;
 		}
-	}, [match.url]); // eslint-disable-line
+	}, [match.url]);
 
 	function renderButtons() {
 		return (
@@ -105,7 +105,7 @@ function TV() {
 		if (blocks.openSearch) {
 			return <Search />;
 		} else if (blocks.openPopular) {
-			return <Popular type="tv" bannerWidth={180} useWindowScroll={true} />;
+			return <Popular type="tv" bannerWidth={180} useWindowScroll />;
 		} else if (blocks.openEpisodes) {
 			return <Episodes />;
 		}

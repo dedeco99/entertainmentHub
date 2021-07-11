@@ -46,7 +46,7 @@ function TV({ tabs, listView }) {
 		fetchData();
 
 		return () => (isMounted = false);
-	}, []); // eslint-disable-line
+	}, []);
 
 	function handleChange(event, newValue) {
 		setTabIndex(newValue);

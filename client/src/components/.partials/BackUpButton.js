@@ -30,7 +30,7 @@ function BackUpButton() {
 					setOpen(false);
 				}
 			});
-	}, []); // eslint-disable-line
+	}, []);
 
 	function handleGoBackUp() {
 		window.scrollTo({ top: 0, left: 0, behavior: "smooth" });

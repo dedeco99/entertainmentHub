@@ -74,7 +74,7 @@ function VideoPlayer() {
 					maxHeight: document.documentElement.clientHeight - 80,
 				});
 			});
-	}, []); // eslint-disable-line
+	}, []);
 
 	useEffect(() => {
 		if (!selectedTab) {
@@ -84,7 +84,7 @@ function VideoPlayer() {
 		} else if (selectedTab && !currentVideo) {
 			dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[selectedTab][0] });
 		}
-	}, [selectedTab, videos, currentVideo]); // eslint-disable-line
+	}, [selectedTab, videos, currentVideo]);
 
 	function hasPreviousVideo() {
 		const currentVideoIndex = videos[selectedTab].findIndex(video => video.url === currentVideo.url);
@@ -175,7 +175,7 @@ function VideoPlayer() {
 		if (!currentVideo && totalVideos === 1) {
 			handleMaximize();
 		}
-	}, [currentVideo, totalVideos]); // eslint-disable-line
+	}, [currentVideo, totalVideos]);
 
 	function calcQueueWidth() {
 		const ROW_HEIGHT = 55;
@@ -363,18 +363,18 @@ function VideoPlayer() {
 					<Box display="flex" alignItems="center" className={classes.background}>
 						<Box flex="1" height="100%">
 							<List disablePadding component={Box} height="100%" display="flex" flexDirection="row">
-								{tabs.map(tab => {
-									if (tab.showAlways || videos[tab.name].length) {
+								{tabs.map(t => {
+									if (t.showAlways || videos[t.name].length) {
 										return (
 											<ListItem
 												className={classes.horizontalListItem}
-												key={tab.name}
+												key={t.name}
 												button
-												selected={tab.name === selectedTab}
-												onClick={tab.name === selectedTab ? null : () => handleTabChange(tab.name)}
+												selected={t.name === selectedTab}
+												onClick={t.name === selectedTab ? null : () => handleTabChange(t.name)}
 											>
 												<Box display="flex" alignItems="center" justifyContent="center" minWidth="56px">
-													<i className={tab.icon} />
+													<i className={t.icon} />
 												</Box>
 											</ListItem>
 										);

@@ -58,7 +58,7 @@ function AppMenu() {
 		}
 
 		fetchData();
-	}, []); // eslint-disable-line
+	}, []);
 
 	useEffect(() => {
 		if (!user.apps) return;
@@ -66,7 +66,7 @@ function AppMenu() {
 		const userApps = allApps.filter(app => user.apps.find(appR => appR.platform === app.platform));
 		userApps.push(...fixedApps);
 		setApps(userApps);
-	}, [user]); // eslint-disable-line
+	}, [user]);
 
 	useEffect(() => {
 		const currentApp = allApps.find(app => location.pathname.includes(app.endpoint));

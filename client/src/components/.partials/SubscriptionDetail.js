@@ -48,7 +48,7 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 				});
 			}
 		}
-	}, [subscription]); // eslint-disable-line
+	}, [subscription]);
 
 	useEffect(() => {
 		async function fetchData() {
@@ -64,7 +64,7 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 		}
 
 		fetchData();
-	}, []); // eslint-disable-line
+	}, []);
 
 	function handleChangeTitle(e) {
 		setTitle(e.target.value);

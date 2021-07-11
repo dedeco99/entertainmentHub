@@ -110,8 +110,8 @@ function Notifications({ height, wrapTitle }) {
 
 		fetchData();
 
-		return () => (isMounted = false); // eslint-disable-line
-	}, [pagination.filter, pagination.history]); // eslint-disable-line
+		return () => (isMounted = false);
+	}, [pagination.filter, pagination.history]);
 
 	async function handleHideNotification(notificationsToHide = [selectedNotification._id]) {
 		setActionLoading(true);

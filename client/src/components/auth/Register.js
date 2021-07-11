@@ -18,10 +18,11 @@ function Register({ onClose }) {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 
-	// eslint-disable-next-line
 	useEffect(() => {
 		if (user && user.token) return history.push("/");
-	}, []); // eslint-disable-line
+
+		return null;
+	}, []);
 
 	function handleEmailChange(e) {
 		setEmail(e.target.value);

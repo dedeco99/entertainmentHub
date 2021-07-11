@@ -25,7 +25,7 @@ function Apps() {
 		}
 
 		fetchData();
-	}, []); // eslint-disable-line
+	}, []);
 
 	return <center>{"App has been added"}</center>;
 }

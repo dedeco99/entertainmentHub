@@ -127,7 +127,7 @@ function Widgets() {
 		fetchData();
 
 		return () => (isMounted = false);
-	}, []); // eslint-disable-line
+	}, []);
 
 	useEffect(() => {
 		const uniqueTabs = [];
@@ -141,7 +141,7 @@ function Widgets() {
 		if (uniqueTabs.length < tabs.length) setSelectedTab(0);
 
 		setTabs(uniqueTabs);
-	}, [widgets]); // eslint-disable-line
+	}, [widgets]);
 
 	function handleOpenOptions() {
 		setOpenOptions(true);
@@ -230,9 +230,9 @@ function Widgets() {
 		setRowHeight((containerWidth - (margin[0] * (cols - 1))) / cols);
 	}
 
-	function handleLayoutChange(layout, layouts) {
+	function handleLayoutChange(layout, newLayouts) {
 		// TODO Probably save layouts
-		setLayouts(layouts);
+		setLayouts(newLayouts);
 	}
 
 	function handleChangeTab(e, tab) {

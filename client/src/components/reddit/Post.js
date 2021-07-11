@@ -95,6 +95,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 						</Link>
 					</Typography>
 				) : (
+					// eslint-disable-next-line react/no-danger
 					<div className={classes.textContent} dangerouslySetInnerHTML={{ __html: htmlEscape(post.text) }} />
 				)}
 			</Box>

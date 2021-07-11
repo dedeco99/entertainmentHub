@@ -159,7 +159,7 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 			setSelectedCoins([]);
 			setSelectedTabs([]);
 		}
-	}, [widget]); // eslint-disable-line
+	}, [widget]);
 
 	function handleGetCities(e, query) {
 		getCitiesSubject.next(query);

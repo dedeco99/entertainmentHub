@@ -55,7 +55,7 @@ function Subscriptions({ platform, selected, idField, countField, action }) {
 		fetchData();
 
 		return () => (isMounted = false);
-	}, []); // eslint-disable-line
+	}, []);
 
 	async function handleEditSubscription(id, subscription) {
 		const response = await editSubscription(id, subscription);
