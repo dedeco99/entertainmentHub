@@ -76,6 +76,16 @@ function VideoPlayer() {
 			});
 	}, []); // eslint-disable-line
 
+	useEffect(() => {
+		if (!selectedTab) {
+			const tab = tabs.find(t => videos[t.name].length);
+
+			if (tab) dispatch({ type: "SET_SELECTED_TAB", selectedTab: tab.name });
+		} else if (selectedTab && !currentVideo) {
+			dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[selectedTab][0] });
+		}
+	}, [selectedTab, videos, currentVideo]); // eslint-disable-line
+
 	function hasPreviousVideo() {
 		const currentVideoIndex = videos[selectedTab].findIndex(video => video.url === currentVideo.url);
 
