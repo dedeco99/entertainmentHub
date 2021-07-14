@@ -89,13 +89,13 @@ async function addSubscriptions(event) {
 async function editSubscription(event) {
 	const { params, body } = event;
 	const { id } = params;
-	const { displayName, notifications } = body;
+	const { displayName, group, notifications } = body;
 
 	let subscription = null;
 	try {
 		subscription = await Subscription.findOneAndUpdate(
 			{ _id: id },
-			{ displayName, notifications },
+			{ displayName, group, notifications },
 			{ new: true },
 		).lean();
 	} catch (err) {

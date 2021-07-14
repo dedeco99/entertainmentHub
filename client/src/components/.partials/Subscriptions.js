@@ -33,6 +33,7 @@ function Subscriptions({ platform, selected, idField, countField, action }) {
 	const { state, dispatch } = useContext(chooseContext(platform));
 	const { follows, subscriptions } = state;
 	const [selectedSubscription, setSelectedSubscription] = useState(null);
+	const [groups, setGroups] = useState([]);
 	const [openModal, setOpenModal] = useState(false);
 	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -56,6 +57,20 @@ function Subscriptions({ platform, selected, idField, countField, action }) {
 
 		return () => (isMounted = false);
 	}, []);
+
+	useEffect(() => {
+		const uniqueGroups = [];
+
+		for (const subscription of subscriptions) {
+			subscription.group = subscription.group ? subscription.group : { name: "Ungrouped" };
+
+			if (!uniqueGroups.find(group => group.name === subscription.group.name)) {
+				uniqueGroups.push(subscription.group);
+			}
+		}
+
+		setGroups(uniqueGroups);
+	}, [subscriptions]);
 
 	async function handleEditSubscription(id, subscription) {
 		const response = await editSubscription(id, subscription);
@@ -123,6 +138,7 @@ function Subscriptions({ platform, selected, idField, countField, action }) {
 			<SubscriptionDetail
 				open={openModal}
 				subscription={selectedSubscription}
+				subscriptionGroups={groups}
 				editSubscription={handleEditSubscription}
 				onClose={handleCloseModal}
 			/>
