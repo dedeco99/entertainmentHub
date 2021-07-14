@@ -335,7 +335,7 @@ function VideoPlayer() {
 		return (
 			<Box position="fixed" bottom="15px" right="15px" zIndex={1}>
 				<Tooltip title="Video player">
-					<Badge badgeContent={totalVideos} overlap="circle" color="error">
+					<Badge badgeContent={totalVideos} overlap="circular" color="error">
 						<Fab size="medium" onClick={handleMaximize}>
 							<i className="icon-video-library icon-2x" />
 						</Fab>
