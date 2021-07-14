@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import {
 	makeStyles,
 	List,
+	ListSubheader,
 	ListItem,
 	ListItemAvatar,
 	Avatar,
@@ -17,7 +18,7 @@ import {
 
 import Loading from "./Loading";
 
-import { formatNumber } from "../../utils/utils";
+import { formatNumber, groupOptions } from "../../utils/utils";
 
 import styles from "../../styles/General";
 
@@ -43,46 +44,56 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 
 	if (!options || !options.length) return <div className={classes.center}>{noResultsMessage}</div>;
 
+	const groups = groupOptions(options, "group.name");
+
 	return (
-		<List className={classes.listMenu} style={{ paddingTop: "10px" }}>
-			{options.map(option => {
-				return (
-					<ListItem
-						button
-						selected={selected === option[idField]}
-						onClick={() => {
-							option.viewers ? handleClick(option) : handleClick(option[idField]);
-						}}
-						key={option[idField]}
-						id={option[idField]}
-					>
-						<ListItemAvatar>
-							<Badge color="secondary" max={999} badgeContent={option[countField]}>
-								<Avatar alt={option.displayName} src={option.image} />
-							</Badge>
-						</ListItemAvatar>
-						<ListItemText
-							primary={option.displayName}
-							secondary={
-								option.viewers && (
-									<>
-										<Badge variant="dot" color="secondary" style={{ paddingLeft: 5, marginRight: 10 }} />
-										{formatNumber(option.viewers)}
-									</>
-								)
-							}
-							style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", width: 150 }}
-						/>
-						{menu && menu.length ? (
-							<ListItemSecondaryAction id={option[idField]} onClick={handleSetAnchorEl}>
-								<IconButton color="primary" edge="end">
-									<i className="icon-more" />
-								</IconButton>
-							</ListItemSecondaryAction>
-						) : null}
-					</ListItem>
-				);
-			})}
+		<List className={classes.listMenu}>
+			{Object.keys(groups).map(group => (
+				<List
+					subheader={
+						<ListSubheader style={{ backgroundColor: "#333", zIndex: 2, marginBottom: "8px" }}>
+							{group === "null" ? "Ungrouped" : group}
+						</ListSubheader>
+					}
+				>
+					{groups[group].map(option => (
+						<ListItem
+							button
+							selected={selected === option[idField]}
+							onClick={() => {
+								option.viewers ? handleClick(option) : handleClick(option[idField]);
+							}}
+							key={option[idField]}
+							id={option[idField]}
+						>
+							<ListItemAvatar>
+								<Badge color="secondary" max={999} badgeContent={option[countField]}>
+									<Avatar alt={option.displayName} src={option.image} />
+								</Badge>
+							</ListItemAvatar>
+							<ListItemText
+								primary={option.displayName}
+								secondary={
+									option.viewers && (
+										<>
+											<Badge variant="dot" color="secondary" style={{ paddingLeft: 5, marginRight: 10 }} />
+											{formatNumber(option.viewers)}
+										</>
+									)
+								}
+								style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", width: 150 }}
+							/>
+							{menu && menu.length ? (
+								<ListItemSecondaryAction id={option[idField]} onClick={handleSetAnchorEl}>
+									<IconButton color="primary" edge="end">
+										<i className="icon-more" />
+									</IconButton>
+								</ListItemSecondaryAction>
+							) : null}
+						</ListItem>
+					))}
+				</List>
+			))}
 			{menu ? (
 				<Menu
 					anchorEl={anchorEl}

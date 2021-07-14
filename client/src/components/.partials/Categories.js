@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 
 import { makeStyles, List, ListItem, ListItemText, Chip, Badge } from "@material-ui/core";
 
+import { getField } from "../../utils/utils";
+
 import styles from "../../styles/General";
 
 const useStyles = makeStyles(styles);
@@ -10,18 +12,12 @@ const useStyles = makeStyles(styles);
 function Categories({ options, selected, idField, nameField, countField, action }) {
 	const classes = useStyles();
 
-	function getField(path, obj) {
-		return path.split(".").reduce(function (prev, curr) {
-			return prev ? prev[curr] : null;
-		}, obj);
-	}
-
 	function handleClick(id) {
 		action(id);
 	}
 
 	const optionsList = options.map(option => {
-		const count = getField(countField, option);
+		const count = getField(option, countField);
 
 		return (
 			<ListItem
