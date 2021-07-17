@@ -58,6 +58,7 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 	async function handleAddSeries(serie) {
 		const seriesToAdd = series.find(s => s.externalId === serie.externalId);
 		seriesToAdd.externalId = seriesToAdd.externalId.toString();
+		seriesToAdd.group = { name: "Ungrouped" };
 		const response = await addSubscriptions("tv", [seriesToAdd]);
 
 		if (response.status === 201) {
