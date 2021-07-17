@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import {
@@ -14,6 +14,8 @@ import {
 	Menu,
 	MenuItem,
 	Badge,
+	Button,
+	Collapse,
 } from "@material-ui/core";
 
 import Loading from "./Loading";
@@ -27,6 +29,15 @@ const useStyles = makeStyles(styles);
 function Sidebar({ options, selected, idField, countField, action, menu, loading, noResultsMessage }) {
 	const classes = useStyles();
 	const [anchorEl, setAnchorEl] = useState(null);
+	const [groups, setGroups] = useState([]);
+	const [expandedLists, setExpandedLists] = useState([]);
+
+	useEffect(() => {
+		const groups = groupOptions(options, "group.name");
+
+		setGroups(groups);
+		setExpandedLists([...Array(Object.keys(groups).length).keys()]);
+	}, [options]);
 
 	function handleClick(id) {
 		action(id);
@@ -40,58 +51,75 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 		setAnchorEl(null);
 	}
 
+	function handleExpand(list) {
+		if (expandedLists.includes(list)) {
+			const index = expandedLists.indexOf(list);
+			const updatedLists = expandedLists.slice(0, index).concat(expandedLists.slice(index + 1));
+
+			setExpandedLists(updatedLists);
+		} else {
+			setExpandedLists([...expandedLists, list]);
+		}
+	}
+
 	if (loading) return <Loading />;
 
 	if (!options || !options.length) return <div className={classes.center}>{noResultsMessage}</div>;
 
-	const groups = groupOptions(options, "group.name");
-
 	return (
 		<List className={classes.listMenu}>
-			{Object.keys(groups).map(group => (
+			{Object.keys(groups).map((group, index) => (
 				<List
 					subheader={
 						<ListSubheader style={{ backgroundColor: "#333", zIndex: 2, marginBottom: "8px" }}>
 							{group === "null" ? "Ungrouped" : group}
+							<Button></Button>
+							<ListItemSecondaryAction onClick={() => handleExpand(index)}>
+								<IconButton color="primary" edge="end">
+									<i className={expandedLists.includes(index) ? "icon-caret-up" : "icon-caret-down"} />
+								</IconButton>
+							</ListItemSecondaryAction>
 						</ListSubheader>
 					}
 				>
-					{groups[group].map(option => (
-						<ListItem
-							button
-							selected={selected === option[idField]}
-							onClick={() => {
-								option.viewers ? handleClick(option) : handleClick(option[idField]);
-							}}
-							key={option[idField]}
-							id={option[idField]}
-						>
-							<ListItemAvatar>
-								<Badge color="secondary" max={999} badgeContent={option[countField]}>
-									<Avatar alt={option.displayName} src={option.image} />
-								</Badge>
-							</ListItemAvatar>
-							<ListItemText
-								primary={option.displayName}
-								secondary={
-									option.viewers && (
-										<>
-											<Badge variant="dot" color="secondary" style={{ paddingLeft: 5, marginRight: 10 }} />
-											{formatNumber(option.viewers)}
-										</>
-									)
-								}
-								style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", width: 150 }}
-							/>
-							{menu && menu.length ? (
-								<ListItemSecondaryAction id={option[idField]} onClick={handleSetAnchorEl}>
-									<IconButton color="primary" edge="end">
-										<i className="icon-more" />
-									</IconButton>
-								</ListItemSecondaryAction>
-							) : null}
-						</ListItem>
-					))}
+					<Collapse in={expandedLists.includes(index)}>
+						{groups[group].map(option => (
+							<ListItem
+								button
+								selected={selected === option[idField]}
+								onClick={() => {
+									option.viewers ? handleClick(option) : handleClick(option[idField]);
+								}}
+								key={option[idField]}
+								id={option[idField]}
+							>
+								<ListItemAvatar>
+									<Badge color="secondary" max={999} badgeContent={option[countField]}>
+										<Avatar alt={option.displayName} src={option.image} />
+									</Badge>
+								</ListItemAvatar>
+								<ListItemText
+									primary={option.displayName}
+									secondary={
+										option.viewers && (
+											<>
+												<Badge variant="dot" color="secondary" style={{ paddingLeft: 5, marginRight: 10 }} />
+												{formatNumber(option.viewers)}
+											</>
+										)
+									}
+									style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", width: 150 }}
+								/>
+								{menu && menu.length ? (
+									<ListItemSecondaryAction id={option[idField]} onClick={handleSetAnchorEl}>
+										<IconButton color="primary" edge="end">
+											<i className="icon-more" />
+										</IconButton>
+									</ListItemSecondaryAction>
+								) : null}
+							</ListItem>
+						))}
+					</Collapse>
 				</List>
 			))}
 			{menu ? (
