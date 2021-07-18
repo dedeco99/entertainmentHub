@@ -287,6 +287,13 @@ function Settings() {
 							}
 							label={translate("browserNotifications")}
 						/>
+						<FormControlLabel
+							checked={settings.hideThumbnailEpisodes || false}
+							color="primary"
+							control={<Checkbox color="primary" />}
+							label={translate("hideThumbNailEpisodes")}
+							onChange={() => handleCheckboxChange("hideThumbnailEpisodes")}
+						/>
 						{apps.youtube.active && (
 							<>
 								<Divider style={{ marginTop: 20, marginBottom: 20 }} />

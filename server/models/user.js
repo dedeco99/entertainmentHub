@@ -12,6 +12,7 @@ const UserSchema = new Schema(
 			youtube: {
 				watchLaterPlaylist: { type: String },
 			},
+			hideThumbnailEpisodes: { type: Boolean, default: false },
 		},
 	},
 	{ timestamps: { createdAt: "_created", updatedAt: "_modified" } },
