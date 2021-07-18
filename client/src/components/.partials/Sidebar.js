@@ -33,10 +33,11 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 	const [expandedLists, setExpandedLists] = useState([]);
 
 	useEffect(() => {
-		const groups = groupOptions(options, "group.name");
+		const updatedGroups = groupOptions(options, "group.name");
 
-		setGroups(groups);
-		setExpandedLists([...Array(Object.keys(groups).length).keys()]);
+		setGroups(updatedGroups);
+
+		if (updatedGroups.length !== groups.length) setExpandedLists([...Array(Object.keys(groups).length).keys()]);
 	}, [options]);
 
 	function handleClick(id) {
