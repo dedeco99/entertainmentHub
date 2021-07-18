@@ -42,16 +42,8 @@ function formatVideoDuration(duration) {
 }
 
 function formatNotification(notification) {
-	const {
-		displayName,
-		thumbnail,
-		duration,
-		videoTitle,
-		episodeTitle,
-		season,
-		number,
-		reminder,
-	} = notification.info;
+	const { displayName, thumbnail, duration, videoTitle, episodeTitle, season, number, reminder } =
+		notification.info;
 
 	switch (notification.type) {
 		case "youtube":
@@ -90,4 +82,24 @@ function htmlEscape(str) {
 		.replace(/<\/table>/g, "</table></div>");
 }
 
-export { formatDate, diff, formatNumber, formatVideoDuration, formatNotification, htmlEscape };
+function getField(obj, path) {
+	return path.split(".").reduce((prev, curr) => (prev ? prev[curr] : null), obj);
+}
+
+function groupOptions(array, key) {
+	return array.reduce((acc, curr) => {
+		(acc[getField(curr, key)] = acc[getField(curr, key)] || []).push(curr);
+		return acc;
+	}, {});
+}
+
+export {
+	formatDate,
+	diff,
+	formatNumber,
+	formatVideoDuration,
+	formatNotification,
+	htmlEscape,
+	getField,
+	groupOptions,
+};

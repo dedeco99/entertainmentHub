@@ -58,6 +58,7 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 	async function handleAddSeries(serie) {
 		const seriesToAdd = series.find(s => s.externalId === serie.externalId);
 		seriesToAdd.externalId = seriesToAdd.externalId.toString();
+		seriesToAdd.group = { name: "Ungrouped" };
 		const response = await addSubscriptions("tv", [seriesToAdd]);
 
 		if (response.status === 201) {
@@ -104,7 +105,7 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 	}
 
 	async function handleMarkAsWatched(e, serie) {
-		const isWatched = serie.numTotal === serie.numWatched;
+		const isWatched = serie.numWatched > 0 && serie.numTotal === serie.numWatched;
 		const response = await patchSubscription(serie.externalId, !isWatched, "all");
 
 		if (response.status === 200) {
@@ -197,16 +198,17 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 										</Tooltip>
 										<Tooltip
 											title={
-												isSubscribed(serie) && serie.numTotal === serie.numWatched
+												isSubscribed(serie) && serie.numWatched > 0 && serie.numTotal === serie.numWatched
 													? translate("removeWatched")
 													: translate("addWatched")
 											}
 											placement="top"
 										>
 											<Checkbox
-												// TODO: Mark as watched
 												color="secondary"
-												checked={isSubscribed(serie) && serie.numTotal === serie.numWatched}
+												checked={
+													isSubscribed(serie) && serie.numWatched > 0 && serie.numTotal === serie.numWatched
+												}
 												disabled={!isSubscribed(serie)}
 												icon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
 												checkedIcon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}

@@ -1,7 +1,10 @@
 import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import { Subject } from "rxjs";
+import { debounceTime, filter } from "rxjs/operators";
 
 import {
+	makeStyles,
 	Dialog,
 	DialogTitle,
 	DialogContent,
@@ -24,9 +27,15 @@ import { getPlaylists } from "../../api/youtube";
 
 import { translate } from "../../utils/translations";
 
-function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
+import { widgetDetail as styles } from "../../styles/Widgets";
+
+const useStyles = makeStyles(styles);
+
+function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscription, onClose }) {
+	const classes = useStyles();
 	const { user } = useContext(UserContext);
 	const [title, setTitle] = useState("");
+	const [group, setGroup] = useState({ name: "Ungrouped", pos: 0 });
 	const [notifications, setNotifications] = useState({
 		active: true,
 		autoAddToWatchLater: false,
@@ -36,9 +45,26 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 	});
 	const [playlists, setPlaylists] = useState([]);
 
+	const addGroupSubject = new Subject();
+
+	useEffect(() => {
+		const subscription = addGroupSubject
+			.pipe(
+				debounceTime(250),
+				filter(name => name),
+			)
+			.subscribe(name => {
+				subscriptionGroups.push({ name });
+
+				setGroup({ name });
+			});
+		return () => subscription.unsubscribe();
+	});
+
 	useEffect(() => {
 		if (subscription) {
 			setTitle(subscription.displayName);
+			if (subscription.group) setGroup(subscription.group);
 			if (subscription.notifications) {
 				setNotifications({
 					...subscription.notifications,
@@ -70,6 +96,14 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 		setTitle(e.target.value);
 	}
 
+	function handleChangeGroup(e, value) {
+		if (value) setGroup(value);
+	}
+
+	function handleAddGroup(e, name) {
+		addGroupSubject.next(name);
+	}
+
 	function handleChangeWatchLaterPlaylist(e) {
 		setNotifications({ ...notifications, watchLaterPlaylist: e.target.value });
 	}
@@ -85,7 +119,7 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 	async function handleSubmit(e) {
 		e.preventDefault();
 
-		await editSubscription(subscription._id, { displayName: title, notifications });
+		await editSubscription(subscription._id, { displayName: title, group, notifications });
 	}
 
 	function renderTags(value, getTagProps) {
@@ -94,6 +128,14 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 		return value.map((option, index) => (
 			<Chip key={option} value={option} color="primary" label={option} {...getTagProps({ index })} />
 		));
+	}
+
+	function renderGroupOptionLabel(option) {
+		return option.name || option;
+	}
+
+	function renderGroupInput(params) {
+		return <Input {...params} label="Subscriptions Group" variant="outlined" fullWidth margin="normal" />;
 	}
 
 	const hasNotifications = ["youtube", "tv"];
@@ -119,6 +161,18 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 						variant="outlined"
 						fullWidth
 						required
+					/>
+					<Autocomplete
+						freeSolo
+						value={group}
+						renderTags={renderTags}
+						options={subscriptionGroups || []}
+						onChange={handleChangeGroup}
+						onInputChange={handleAddGroup}
+						className={classes.autocomplete}
+						getOptionLabel={renderGroupOptionLabel}
+						renderInput={renderGroupInput}
+						fullWidth
 					/>
 					{subscription && hasNotifications.includes(subscription.platform) && (
 						<>
@@ -216,6 +270,7 @@ function SubscriptionDetail({ open, subscription, editSubscription, onClose }) {
 SubscriptionDetail.propTypes = {
 	open: PropTypes.bool.isRequired,
 	subscription: PropTypes.object,
+	subscriptionGroups: PropTypes.array,
 	editSubscription: PropTypes.func.isRequired,
 	onClose: PropTypes.func.isRequired,
 };

@@ -49,7 +49,7 @@ async function addSubscriptions(event) {
 
 	const subscriptionsToAdd = [];
 	for (const subscription of subscriptions) {
-		const { externalId, displayName, image, notifications } = subscription;
+		const { externalId, displayName, group, image, notifications } = subscription;
 
 		if (externalId && displayName) {
 			const subscriptionExists = await Subscription.findOne({ user: user._id, platform, externalId }).lean();
@@ -61,6 +61,7 @@ async function addSubscriptions(event) {
 						platform,
 						externalId,
 						displayName,
+						group,
 						image,
 						notifications,
 					}),
@@ -89,13 +90,13 @@ async function addSubscriptions(event) {
 async function editSubscription(event) {
 	const { params, body } = event;
 	const { id } = params;
-	const { displayName, notifications } = body;
+	const { displayName, group, notifications } = body;
 
 	let subscription = null;
 	try {
 		subscription = await Subscription.findOneAndUpdate(
 			{ _id: id },
-			{ displayName, notifications },
+			{ displayName, group, notifications },
 			{ new: true },
 		).lean();
 	} catch (err) {

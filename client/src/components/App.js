@@ -3,7 +3,7 @@ import { BrowserRouter, Switch, Route } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-import { makeStyles, ThemeProvider, createMuiTheme, CssBaseline } from "@material-ui/core";
+import { makeStyles, ThemeProvider, createTheme, CssBaseline } from "@material-ui/core";
 
 import BackUpButton from "./.partials/BackUpButton";
 import SocketClient from "./.partials/SocketClient";
@@ -33,7 +33,7 @@ import styles from "../styles/General";
 
 const useStyles = makeStyles(styles);
 
-const theme = createMuiTheme({
+const theme = createTheme({
 	palette: {
 		common: {
 			black: "#000",

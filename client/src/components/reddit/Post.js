@@ -645,7 +645,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 											variant="caption"
 											style={{ color: "#EC6E4C", fontSize: "13px", marginLeft: "6px" }}
 										>
-											<i className="icon-bubbles2 icon-1x" />
+											<i className="icon-bubbles icon-1x" />
 										</Typography>
 									</Box>
 								</CardContent>
