@@ -1,3 +1,5 @@
+const yahooFinance = require("yahoo-finance");
+
 const { response, api } = require("../utils/request");
 const errors = require("../utils/errors");
 const { diff } = require("../utils/utils");
@@ -25,17 +27,18 @@ async function getCoins(event) {
 	}
 
 	const coins = data
-		.filter(coin => (
-			coin.name.toLowerCase().includes(filter.toLowerCase()) ||
-			coin.symbol.toLowerCase().includes(filter.toLowerCase())
-		))
+		.filter(
+			coin =>
+				coin.name.toLowerCase().includes(filter.toLowerCase()) ||
+				coin.symbol.toLowerCase().includes(filter.toLowerCase()),
+		)
 		.slice(0, 50)
 		.map(coin => ({
 			symbol: coin.symbol,
 			name: coin.name,
 			created: coin.first_historical_data,
 		}))
-		.sort((a, b) => a.created <= b.created ? -1 : 1);
+		.sort((a, b) => (a.created <= b.created ? -1 : 1));
 
 	return response(200, "GET_COINS", coins);
 }
@@ -92,12 +95,43 @@ async function getPrices(event) {
 		});
 	}
 
-	coinsInfo.sort((a, b) => a.rank <= b.rank ? -1 : 1);
+	coinsInfo.sort((a, b) => (a.rank <= b.rank ? -1 : 1));
 
 	return response(200, "GET_COIN", coinsInfo);
+}
+
+async function getStockPrices(event) {
+	const { params } = event;
+	const { stocks } = params;
+
+	const res = await yahooFinance.quote({
+		symbols: stocks.split(","),
+		modules: ["price"],
+	});
+
+	console.log(res);
+
+	const stocksInfo = [];
+	for (const stock in res) {
+		stocksInfo.push({
+			id: stock,
+			name: res[stock].price.shortName,
+			symbol: stock,
+			image: `https://companiesmarketcap.com/img/company-logos/80/${stock}.png`,
+			price: res[stock].price.regularMarketPrice,
+			marketCap: res[stock].price.marketCap,
+			volume: res[stock].price.regularMarketVolume,
+			change1h: res[stock].price.preMarketChangePercent,
+			change24h: res[stock].price.postMarketChangePercent,
+			change7d: res[stock].price.regularMarketChangePercent,
+		});
+	}
+
+	return response(200, "GET_STOCK_PRICES", stocksInfo);
 }
 
 module.exports = {
 	getCoins,
 	getPrices,
+	getStockPrices,
 };
