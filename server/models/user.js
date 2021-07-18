@@ -13,6 +13,7 @@ const UserSchema = new Schema(
 				watchLaterPlaylist: { type: String },
 			},
 			hideThumbnailEpisodes: { type: Boolean, default: false },
+			autoPlayVideoPlayer: { type: Boolean, default: false },
 		},
 	},
 	{ timestamps: { createdAt: "_created", updatedAt: "_modified" } },

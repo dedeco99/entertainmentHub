@@ -294,6 +294,13 @@ function Settings() {
 							label={translate("hideThumbNailEpisodes")}
 							onChange={() => handleCheckboxChange("hideThumbnailEpisodes")}
 						/>
+						<FormControlLabel
+							checked={settings.autoPlayVideoPlayer || false}
+							color="primary"
+							control={<Checkbox color="primary" />}
+							label={translate("autoPlayVideoPlayer")}
+							onChange={() => handleCheckboxChange("autoPlayVideoPlayer")}
+						/>
 						{apps.youtube.active && (
 							<>
 								<Divider style={{ marginTop: 20, marginBottom: 20 }} />
