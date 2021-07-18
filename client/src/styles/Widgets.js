@@ -318,9 +318,8 @@ const crypto = {
 		maxWidth: 60,
 	},
 	listImage: {
-		height: 32,
-		width: 32,
-		padding: 5,
+		height: 25,
+		width: 25,
 	},
 	singleRoot: {
 		backgroundColor: "#212121",

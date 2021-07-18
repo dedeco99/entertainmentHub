@@ -18,7 +18,13 @@ async function getCrypto(coin) {
 	return res;
 }
 
-export {
-	getCoins,
-	getCrypto,
-};
+async function getStocks(stocks) {
+	const res = await api({
+		method: "get",
+		url: `/api/stocks/${stocks}`,
+	});
+
+	return res;
+}
+
+export { getCoins, getCrypto, getStocks };

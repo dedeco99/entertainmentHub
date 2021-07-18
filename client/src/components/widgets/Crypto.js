@@ -12,11 +12,12 @@ import {
 	TableBody,
 	TableRow,
 	TableCell,
+	Avatar,
 } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
 
-import { getCrypto } from "../../api/crypto";
+import { getCrypto, getStocks } from "../../api/crypto";
 
 import { crypto as styles } from "../../styles/Widgets";
 
@@ -28,6 +29,7 @@ function Crypto({ coins, widgetDimensions }) {
 	const [crypto, setCrypto] = useState([]);
 	const [showListView, setShowListView] = useState(true);
 	const [selectedCoin, setSelectedCoin] = useState(0);
+	const [rerender, setRerender] = useState(false);
 
 	useEffect(() => {
 		let isMounted = true;
@@ -35,11 +37,13 @@ function Crypto({ coins, widgetDimensions }) {
 		async function fetchData() {
 			setOpen(false);
 
-			const response = await getCrypto(coins);
+			const cryptoResponse = await getCrypto(coins);
+			const stockResponse = await getStocks(["TSLA", "GOOG", "IWDA.AS"]);
+			const response = cryptoResponse.data.concat(stockResponse.data);
 
 			if (isMounted) {
-				setCrypto(response.data);
-				setShowListView(response.data.length > 1);
+				setCrypto(response.sort((a, b) => (a.marketCap - b.marketCap ? -1 : 1)));
+				setShowListView(response.length > 1);
 				setOpen(true);
 			}
 		}
@@ -53,7 +57,10 @@ function Crypto({ coins, widgetDimensions }) {
 		if (num) {
 			let number = num;
 			let prefix = "";
-			if (number >= 1000000000) {
+			if (number >= 1000000000000) {
+				number /= 1000000000000;
+				prefix = "T";
+			} else if (number >= 1000000000) {
 				number /= 1000000000;
 				prefix = "B";
 			} else if (number >= 1000000) {
@@ -203,7 +210,19 @@ function Crypto({ coins, widgetDimensions }) {
 						{crypto.map((c, index) => (
 							<TableRow key={c.rank} onClick={() => handleCheckCoin(index)}>
 								<TableCell className={classes.cell}>
-									<img src={c.image} alt="icon-crypto" className={classes.listImage} />
+									{c.image ? (
+										<img
+											src={c.image}
+											alt="icon-crypto"
+											className={classes.listImage}
+											onError={() => {
+												c.image = null;
+												setRerender(!rerender);
+											}}
+										/>
+									) : (
+										<Avatar className={classes.listImage}>{c.symbol[0]}</Avatar>
+									)}
 								</TableCell>
 								<TableCell className={`${classes.cell} ${classes.nameCell}`}>
 									<Box display="flex" flexDirection="column">
