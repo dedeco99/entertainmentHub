@@ -43,7 +43,11 @@ function Episode({ episode }) {
 					component="img"
 					height="150"
 					image={image}
-					style={user.settings.hideThumbnailEpisodes ? { filter: "blur(30px)" } : { filter: "blur(0px)" }}
+					style={
+						user.settings.tv && user.settings.tv.hideEpisodesThumbnails
+							? { filter: "blur(30px)" }
+							: { filter: "blur(0px)" }
+					}
 				/>
 				<div className={`${classes.overlay} ${classes.title}`} title={episode.title}>
 					{episode.title}

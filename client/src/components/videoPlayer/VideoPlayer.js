@@ -427,7 +427,7 @@ function VideoPlayer() {
 										// playing
 										controls
 										// eslint-disable-next-line react/jsx-boolean-value
-										playing={user.settings.autoPlayVideoPlayer}
+										playing={user.settings.autoplayVideoPlayer}
 										url={currentVideo ? currentVideo.url : null}
 										height="100%"
 										width="100%"

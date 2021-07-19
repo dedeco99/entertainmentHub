@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React, { useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Subject } from "rxjs";

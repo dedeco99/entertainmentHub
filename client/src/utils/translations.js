@@ -239,11 +239,11 @@ const translations = {
 		en: "Mark as watched",
 		pt: "Marcar como visto",
 	},
-	hideThumbNailEpisodes: {
+	hideEpisodesThumbnails: {
 		en: "Hide thumbnail on episodes",
 		pt: "Esconder a thumbnail dos episodios",
 	},
-	autoPlayVideoPlayer: {
+	autoplayVideoPlayer: {
 		en: "Auto play for video player",
 		pt: "Reprodução automática para o reprodutor de vídeo",
 	},

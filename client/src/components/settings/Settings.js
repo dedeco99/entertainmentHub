@@ -160,8 +160,15 @@ function Settings() {
 		setSettings({ ...settings, [property]: !settings[property] });
 	}
 
-	function handleChange(e) {
+	function handleWatchLaterPlaylistChange(e) {
 		setSettings({ ...settings, youtube: { ...settings.youtube, watchLaterPlaylist: e.target.value } });
+	}
+
+	function handleEpisodesThumbnailsChange() {
+		setSettings({
+			...settings,
+			tv: { ...settings.tv, hideEpisodesThumbnails: settings.tv ? !settings.tv.hideEpisodesThumbnails : true },
+		});
 	}
 
 	function handleOpenDeleteConfirmation(key) {
@@ -288,19 +295,21 @@ function Settings() {
 							label={translate("browserNotifications")}
 						/>
 						<FormControlLabel
-							checked={settings.hideThumbnailEpisodes || false}
+							checked={settings.autoplayVideoPlayer || false}
 							color="primary"
 							control={<Checkbox color="primary" />}
-							label={translate("hideThumbNailEpisodes")}
-							onChange={() => handleCheckboxChange("hideThumbnailEpisodes")}
+							label={translate("autoplayVideoPlayer")}
+							onChange={() => handleCheckboxChange("autoplayVideoPlayer")}
 						/>
-						<FormControlLabel
-							checked={settings.autoPlayVideoPlayer || false}
-							color="primary"
-							control={<Checkbox color="primary" />}
-							label={translate("autoPlayVideoPlayer")}
-							onChange={() => handleCheckboxChange("autoPlayVideoPlayer")}
-						/>
+						{apps.tv.active && (
+							<FormControlLabel
+								checked={settings.tv ? settings.tv.hideEpisodesThumbnails : false}
+								color="primary"
+								control={<Checkbox color="primary" />}
+								label={translate("hideEpisodesThumbnails")}
+								onChange={handleEpisodesThumbnailsChange}
+							/>
+						)}
 						{apps.youtube.active && (
 							<>
 								<Divider style={{ marginTop: 20, marginBottom: 20 }} />
@@ -311,7 +320,7 @@ function Settings() {
 									label="Youtube Watch Later Default Playlist"
 									id="watchLaterPlaylist"
 									value={settings.youtube ? settings.youtube.watchLaterPlaylist : ""}
-									onChange={handleChange}
+									onChange={handleWatchLaterPlaylistChange}
 									variant="outlined"
 									select
 									fullWidth
