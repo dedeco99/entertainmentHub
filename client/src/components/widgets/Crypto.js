@@ -101,7 +101,18 @@ function Crypto({ coins, widgetDimensions }) {
 		return (
 			<Box display="flex" flexDirection="column" alignItems="center">
 				<Box display="flex" alignItems="center" mb={1}>
-					<img src={coin.image} alt="icon-crypto" />
+					{coin.image ? (
+						<img
+							src={coin.image}
+							alt="icon-crypto"
+							onError={() => {
+								coin.image = null;
+								setRerender(!rerender);
+							}}
+						/>
+					) : (
+						<Avatar style={{ width: 80, height: 80, fontSize: 40 }}>{coin.symbol[0]}</Avatar>
+					)}
 				</Box>
 				<Box display="flex" alignItems="center">
 					<Typography variant="h6">{renderPrice(coin.price)}</Typography>
@@ -130,7 +141,19 @@ function Crypto({ coins, widgetDimensions }) {
 			>
 				<Box display="flex" alignItems="center" className={classes.singleHeader}>
 					<Box display="flex">
-						<img src={coin.image} alt="icon-crypto" className={classes.singleImage} />
+						{coin.image ? (
+							<img
+								src={coin.image}
+								alt="icon-crypto"
+								className={classes.singleImage}
+								onError={() => {
+									coin.image = null;
+									setRerender(!rerender);
+								}}
+							/>
+						) : (
+							<Avatar style={{ marginRight: 10 }}>{coin.symbol[0]}</Avatar>
+						)}
 					</Box>
 					<Box display="flex" flexGrow={1} flexDirection="column">
 						<Typography variant="h5">{coin.symbol}</Typography>
