@@ -26,6 +26,7 @@ import Input from "../.partials/Input";
 import { getPlaylistVideos } from "../../api/youtube";
 
 import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
+import { UserContext } from "../../contexts/UserContext";
 
 import { videoPlayer as styles } from "../../styles/VideoPlayer";
 
@@ -36,6 +37,7 @@ const useStyles = makeStyles(styles);
 function VideoPlayer() {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(VideoPlayerContext);
+	const { user } = useContext(UserContext);
 	const { currentVideo, videos, x, y, width, height, minimized, selectedTab, showQueue } = state;
 	const [restrictions, setRestrictions] = useState({
 		minWidth: 600,
@@ -424,6 +426,8 @@ function VideoPlayer() {
 									<ReactPlayer
 										// playing
 										controls
+										// eslint-disable-next-line react/jsx-boolean-value
+										playing={user.settings.autoplayVideoPlayer}
 										url={currentVideo ? currentVideo.url : null}
 										height="100%"
 										width="100%"
