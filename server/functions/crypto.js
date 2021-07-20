@@ -1,4 +1,5 @@
 const yahooFinance = require("yahoo-finance");
+const dayjs = require("dayjs");
 
 const { response, api } = require("../utils/request");
 const errors = require("../utils/errors");
@@ -104,26 +105,36 @@ async function getStockPrices(event) {
 	const { params } = event;
 	const { stocks } = params;
 
-	const res = await yahooFinance.quote({
+	const historicalRes = await yahooFinance.historical({
+		symbols: stocks.split(","),
+		from: dayjs().subtract(1, "month").format("YYYY-MM-DD"),
+		to: dayjs().format("YYYY-MM-DD"),
+	});
+
+	const quoteRes = await yahooFinance.quote({
 		symbols: stocks.split(","),
 		modules: ["price"],
 	});
 
-	console.log(res);
-
 	const stocksInfo = [];
-	for (const stock in res) {
+	for (const stock in quoteRes) {
+		const price = quoteRes[stock].price.regularMarketPrice;
 		stocksInfo.push({
 			id: stock,
-			name: res[stock].price.shortName,
+			name: quoteRes[stock].price.shortName,
 			symbol: stock,
 			image: `https://companiesmarketcap.com/img/company-logos/80/${stock}.png`,
-			price: res[stock].price.regularMarketPrice,
-			marketCap: res[stock].price.marketCap,
-			volume: res[stock].price.regularMarketVolume,
-			change1h: res[stock].price.preMarketChangePercent,
-			change24h: res[stock].price.postMarketChangePercent,
-			change7d: res[stock].price.regularMarketChangePercent,
+			price,
+			marketCap: quoteRes[stock].price.marketCap,
+			volume: quoteRes[stock].price.regularMarketVolume,
+			change1h:
+				((price - quoteRes[stock].price.regularMarketOpen) / quoteRes[stock].price.regularMarketOpen) * 100,
+			change24h: quoteRes[stock].price.regularMarketChangePercent * 100,
+			change7d: ((price - historicalRes[stock][6].close) / historicalRes[stock][6].close) * 100,
+			change30d:
+				((price - historicalRes[stock][historicalRes[stock].length - 1].close) /
+					historicalRes[stock][historicalRes[stock].length - 1].close) *
+				100,
 		});
 	}
 

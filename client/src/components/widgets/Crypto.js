@@ -279,6 +279,9 @@ function Crypto({ coins, widgetDimensions }) {
 										<Tooltip title="% 7d" placement="left">
 											{renderPercentages("caption", c.change7d)}
 										</Tooltip>
+										<Tooltip title="% 30d" placement="left">
+											{renderPercentages("caption", c.change30d)}
+										</Tooltip>
 									</Box>
 								</TableCell>
 							</TableRow>
