@@ -14,8 +14,8 @@ import {
 	Menu,
 	MenuItem,
 	Badge,
-	Button,
 	Collapse,
+	Divider,
 } from "@material-ui/core";
 
 import Loading from "./Loading";
@@ -31,13 +31,17 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 	const [anchorEl, setAnchorEl] = useState(null);
 	const [groups, setGroups] = useState([]);
 	const [expandedLists, setExpandedLists] = useState([]);
+	const [firstTime, setFirstTime] = useState(true);
 
 	useEffect(() => {
 		const updatedGroups = groupOptions(options, "group.name");
 
 		setGroups(updatedGroups);
 
-		if (updatedGroups.length !== groups.length) setExpandedLists([...Array(Object.keys(groups).length).keys()]);
+		if (Object.keys(updatedGroups).length && firstTime) {
+			setExpandedLists([...Array(Object.keys(updatedGroups).length).keys()]);
+			setFirstTime(false);
+		}
 	}, [options]);
 
 	function handleClick(id) {
@@ -71,20 +75,23 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 		<List className={classes.listMenu}>
 			{Object.keys(groups).map((group, index) => (
 				<List
+					disablePadding
 					subheader={
-						<ListSubheader style={{ backgroundColor: "#333", zIndex: 2, marginBottom: "8px" }}>
-							{group === "null" ? "Ungrouped" : group}
-							<Button></Button>
-							<ListItemSecondaryAction onClick={() => handleExpand(index)}>
-								<IconButton color="primary" edge="end">
-									<i className={expandedLists.includes(index) ? "icon-caret-up" : "icon-caret-down"} />
-								</IconButton>
-							</ListItemSecondaryAction>
-						</ListSubheader>
+						<>
+							<ListSubheader style={{ backgroundColor: "#333", zIndex: 2 }}>
+								{group === "null" ? "Ungrouped" : group}
+								<ListItemSecondaryAction onClick={() => handleExpand(index)}>
+									<IconButton color="primary" edge="end">
+										<i className={expandedLists.includes(index) ? "icon-caret-up" : "icon-caret-down"} />
+									</IconButton>
+								</ListItemSecondaryAction>
+							</ListSubheader>
+							{index !== Object.keys(groups).length - 1 && <Divider />}
+						</>
 					}
 				>
 					<Collapse in={expandedLists.includes(index)}>
-						{groups[group].map(option => (
+						{groups[group].map((option, index) => (
 							<ListItem
 								button
 								selected={selected === option[idField]}
@@ -93,6 +100,7 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 								}}
 								key={option[idField]}
 								id={option[idField]}
+								style={index === 0 ? { marginTop: "10px" } : null}
 							>
 								<ListItemAvatar>
 									<Badge color="secondary" max={999} badgeContent={option[countField]}>

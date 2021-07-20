@@ -13,11 +13,12 @@ import {
 	ListItemIcon,
 	ListItemText,
 	Divider,
-	Select,
 	MenuItem,
 	Typography,
 	Tooltip,
 } from "@material-ui/core";
+
+import Input from "../.partials/Input";
 
 import { UserContext } from "../../contexts/UserContext";
 
@@ -108,18 +109,19 @@ function UserDropdown() {
 								<ListItemIcon>
 									<i className="icon-translate icon-2x" />
 								</ListItemIcon>
-								<Select
-									variant="outlined"
+								<Input
 									value={user.language || "en"}
 									onChange={handleChangeLanguage}
-									MenuProps={{ disablePortal: true }}
-									style={{
-										height: "35px",
-									}}
+									SelectProps={{ MenuProps: { disablePortal: true } }}
+									variant="outlined"
+									size="small"
+									select
+									fullWidth
+									style={{ height: "35px" }}
 								>
 									<MenuItem value={"pt"}>{translate("portugueseLang")}</MenuItem>
 									<MenuItem value={"en"}>{translate("englishLang")}</MenuItem>
-								</Select>
+								</Input>
 							</ListItem>
 							{options.map(op => (
 								<ListItem key={op.title} button onClick={op.handleClick}>

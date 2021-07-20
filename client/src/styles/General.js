@@ -17,6 +17,8 @@ const general = {
 		padding: 0,
 		maxHeight: "80vh",
 		overflow: "auto",
+		position: "sticky",
+		top: "16px",
 	},
 	horizontal: {
 		display: "flex",
