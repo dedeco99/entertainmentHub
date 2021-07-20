@@ -14,7 +14,6 @@ import {
 	Menu,
 	MenuItem,
 	Badge,
-	Button,
 	Collapse,
 } from "@material-ui/core";
 
@@ -31,13 +30,17 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 	const [anchorEl, setAnchorEl] = useState(null);
 	const [groups, setGroups] = useState([]);
 	const [expandedLists, setExpandedLists] = useState([]);
+	const [firstTime, setFirstTime] = useState(true);
 
 	useEffect(() => {
 		const updatedGroups = groupOptions(options, "group.name");
 
 		setGroups(updatedGroups);
 
-		if (updatedGroups.length !== groups.length) setExpandedLists([...Array(Object.keys(groups).length).keys()]);
+		if (Object.keys(updatedGroups).length && firstTime) {
+			setExpandedLists([...Array(Object.keys(updatedGroups).length).keys()]);
+			setFirstTime(false);
+		}
 	}, [options]);
 
 	function handleClick(id) {
