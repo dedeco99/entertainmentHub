@@ -15,6 +15,7 @@ import {
 	MenuItem,
 	Badge,
 	Collapse,
+	Divider,
 } from "@material-ui/core";
 
 import Loading from "./Loading";
@@ -76,14 +77,17 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 				<List
 					disablePadding
 					subheader={
-						<ListSubheader style={{ backgroundColor: "#333", zIndex: 2 }}>
-							{group === "null" ? "Ungrouped" : group}
-							<ListItemSecondaryAction onClick={() => handleExpand(index)}>
-								<IconButton color="primary" edge="end">
-									<i className={expandedLists.includes(index) ? "icon-caret-up" : "icon-caret-down"} />
-								</IconButton>
-							</ListItemSecondaryAction>
-						</ListSubheader>
+						<>
+							<ListSubheader style={{ backgroundColor: "#333", zIndex: 2 }}>
+								{group === "null" ? "Ungrouped" : group}
+								<ListItemSecondaryAction onClick={() => handleExpand(index)}>
+									<IconButton color="primary" edge="end">
+										<i className={expandedLists.includes(index) ? "icon-caret-up" : "icon-caret-down"} />
+									</IconButton>
+								</ListItemSecondaryAction>
+							</ListSubheader>
+							{index !== Object.keys(groups).length - 1 && <Divider />}
+						</>
 					}
 				>
 					<Collapse in={expandedLists.includes(index)}>
