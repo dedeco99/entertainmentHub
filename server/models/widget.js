@@ -28,8 +28,9 @@ const WidgetSchema = new Schema(
 			lat: { type: Number },
 			lon: { type: Number },
 
-			// Crypto
+			// Finance
 			coins: { type: String },
+			stocks: { type: String },
 
 			// Price
 			productId: { type: String },
