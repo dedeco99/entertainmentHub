@@ -28,7 +28,7 @@ function Finance({ coins, stocks, widgetDimensions }) {
 	const [open, setOpen] = useState(false);
 	const [crypto, setCrypto] = useState([]);
 	const [showListView, setShowListView] = useState(true);
-	const [selectedCoin, setSelectedCoin] = useState(0);
+	const [selectedTicker, setSelectedTicker] = useState(0);
 	const [rerender, setRerender] = useState(false);
 
 	useEffect(() => {
@@ -76,9 +76,9 @@ function Finance({ coins, stocks, widgetDimensions }) {
 		return "--";
 	}
 
-	function handleCheckCoin(position) {
+	function handleCheckTicker(position) {
 		setShowListView(false);
-		setSelectedCoin(position);
+		setSelectedTicker(position);
 	}
 
 	function handleCheckList() {
@@ -97,40 +97,40 @@ function Finance({ coins, stocks, widgetDimensions }) {
 		);
 	}
 
-	function render1x1(coin) {
+	function render1x1(ticker) {
 		return (
 			<Box display="flex" flexDirection="column" alignItems="center">
 				<Box display="flex" alignItems="center" mb={1}>
-					{coin.image ? (
+					{ticker.image ? (
 						<img
-							src={coin.image}
+							src={ticker.image}
 							alt="icon-crypto"
 							onError={() => {
-								coin.image = null;
+								ticker.image = null;
 								setRerender(!rerender);
 							}}
 						/>
 					) : (
-						<Avatar style={{ width: 80, height: 80, fontSize: 40 }}>{coin.symbol[0]}</Avatar>
+						<Avatar style={{ width: 80, height: 80, fontSize: 40 }}>{ticker.symbol[0]}</Avatar>
 					)}
 				</Box>
 				<Box display="flex" alignItems="center">
-					<Typography variant="h6">{renderPrice(coin.price)}</Typography>
+					<Typography variant="h6">{renderPrice(ticker.price)}</Typography>
 				</Box>
 				<Box>
 					<Tooltip title="% 1h" style={{ marginRight: 10 }}>
-						{renderPercentages("caption", coin.change1h)}
+						{renderPercentages("caption", ticker.change1h)}
 					</Tooltip>
 					<Tooltip title="% 24h" style={{ marginRight: 10 }}>
-						{renderPercentages("caption", coin.change24h)}
+						{renderPercentages("caption", ticker.change24h)}
 					</Tooltip>
-					<Tooltip title="% 7d">{renderPercentages("caption", coin.change7d)}</Tooltip>
+					<Tooltip title="% 7d">{renderPercentages("caption", ticker.change7d)}</Tooltip>
 				</Box>
 			</Box>
 		);
 	}
 
-	function renderSingleView(coin) {
+	function renderSingleView(ticker) {
 		return (
 			<Box
 				display="flex"
@@ -141,26 +141,26 @@ function Finance({ coins, stocks, widgetDimensions }) {
 			>
 				<Box display="flex" alignItems="center" className={classes.singleHeader}>
 					<Box display="flex">
-						{coin.image ? (
+						{ticker.image ? (
 							<img
-								src={coin.image}
+								src={ticker.image}
 								alt="icon-crypto"
 								className={classes.singleImage}
 								onError={() => {
-									coin.image = null;
+									ticker.image = null;
 									setRerender(!rerender);
 								}}
 							/>
 						) : (
-							<Avatar style={{ marginRight: 10 }}>{coin.symbol[0]}</Avatar>
+							<Avatar style={{ marginRight: 10 }}>{ticker.symbol[0]}</Avatar>
 						)}
 					</Box>
 					<Box display="flex" flexGrow={1} flexDirection="column">
-						<Typography variant="h5">{coin.symbol}</Typography>
-						<Typography variant="subtitle1">{coin.name}</Typography>
+						<Typography variant="h5">{ticker.symbol}</Typography>
+						<Typography variant="subtitle1">{ticker.name}</Typography>
 					</Box>
 					<Box display="flex">
-						<Typography variant="h6">{renderPrice(coin.price)}</Typography>
+						<Typography variant="h6">{renderPrice(ticker.price)}</Typography>
 					</Box>
 				</Box>
 				<Box
@@ -173,7 +173,7 @@ function Finance({ coins, stocks, widgetDimensions }) {
 					<Box display="flex" flex="1">
 						<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
 							<Typography variant="caption">{"Market Cap"}</Typography>
-							<Typography variant="subtitle1">{`${simplifyNumber(coin.marketCap)}`}</Typography>
+							<Typography variant="subtitle1">{`${simplifyNumber(ticker.marketCap)}`}</Typography>
 						</Box>
 						<Box
 							display="flex"
@@ -183,13 +183,13 @@ function Finance({ coins, stocks, widgetDimensions }) {
 							className={classes.singlePercentage}
 						>
 							<Typography variant="caption">{"% 1h"}</Typography>
-							{renderPercentages("subtitle1", coin.change1h)}
+							{renderPercentages("subtitle1", ticker.change1h)}
 						</Box>
 					</Box>
 					<Box display="flex" flex="1">
 						<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
 							<Typography variant="caption">{"Volume (24h)"}</Typography>
-							<Typography variant="subtitle1">{`${simplifyNumber(coin.volume)}`}</Typography>
+							<Typography variant="subtitle1">{`${simplifyNumber(ticker.volume)}`}</Typography>
 						</Box>
 						<Box
 							display="flex"
@@ -199,14 +199,14 @@ function Finance({ coins, stocks, widgetDimensions }) {
 							className={classes.singlePercentage}
 						>
 							<Typography variant="caption">{"% 24h"}</Typography>
-							{renderPercentages("subtitle1", coin.change24h)}
+							{renderPercentages("subtitle1", ticker.change24h)}
 						</Box>
 					</Box>
 					<Box display="flex" flex="1">
 						<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
 							<Typography variant="caption">{"Circulating Supply"}</Typography>
 							<Typography variant="subtitle1">
-								{`${simplifyNumber(coin.circulatingSupply).substr(1)} ${coin.symbol}`}
+								{`${simplifyNumber(ticker.circulatingSupply).substr(1)} ${ticker.symbol}`}
 							</Typography>
 						</Box>
 						<Box
@@ -217,7 +217,7 @@ function Finance({ coins, stocks, widgetDimensions }) {
 							className={classes.singlePercentage}
 						>
 							<Typography variant="caption">{"% 7d"}</Typography>
-							{renderPercentages("subtitle1", coin.change7d)}
+							{renderPercentages("subtitle1", ticker.change7d)}
 						</Box>
 					</Box>
 				</Box>
@@ -231,7 +231,7 @@ function Finance({ coins, stocks, widgetDimensions }) {
 				<Table>
 					<TableBody>
 						{crypto.map((c, index) => (
-							<TableRow key={c.rank} onClick={() => handleCheckCoin(index)}>
+							<TableRow key={c.rank} onClick={() => handleCheckTicker(index)}>
 								<TableCell className={classes.cell}>
 									{c.image ? (
 										<img
@@ -297,12 +297,12 @@ function Finance({ coins, stocks, widgetDimensions }) {
 			(widgetDimensions.h >= 1 && widgetDimensions.w === 1) ||
 			(widgetDimensions.h === 1 && widgetDimensions.w === 2)
 		) {
-			return render1x1(crypto[selectedCoin]);
+			return render1x1(crypto[selectedTicker]);
 		} else if (showListView) {
 			return renderListView();
 		}
 
-		return renderSingleView(crypto[selectedCoin]);
+		return renderSingleView(crypto[selectedTicker]);
 	}
 
 	if (!open) return <Loading />;
