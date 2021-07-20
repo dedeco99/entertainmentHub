@@ -84,7 +84,7 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 					}
 				>
 					<Collapse in={expandedLists.includes(index)}>
-						{groups[group].map(option => (
+						{groups[group].map((option, index) => (
 							<ListItem
 								button
 								selected={selected === option[idField]}
@@ -93,6 +93,7 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 								}}
 								key={option[idField]}
 								id={option[idField]}
+								style={index === 0 ? { marginTop: "10px" } : null}
 							>
 								<ListItemAvatar>
 									<Badge color="secondary" max={999} badgeContent={option[countField]}>
