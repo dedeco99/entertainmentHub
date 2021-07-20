@@ -204,10 +204,14 @@ function Finance({ coins, stocks, widgetDimensions }) {
 					</Box>
 					<Box display="flex" flex="1">
 						<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
-							<Typography variant="caption">{"Circulating Supply"}</Typography>
-							<Typography variant="subtitle1">
-								{`${simplifyNumber(ticker.circulatingSupply).substr(1)} ${ticker.symbol}`}
-							</Typography>
+							{ticker.circulatingSupply && (
+								<>
+									<Typography variant="caption">{"Circulating Supply"}</Typography>
+									<Typography variant="subtitle1">
+										{`${simplifyNumber(ticker.circulatingSupply).substr(1)} ${ticker.symbol}`}
+									</Typography>
+								</>
+							)}
 						</Box>
 						<Box
 							display="flex"

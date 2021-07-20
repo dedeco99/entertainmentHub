@@ -1,4 +1,4 @@
-const yahooFinance = require("yahoo-finance");
+const yahooFinance = require("yahoo-finance2").default;
 const dayjs = require("dayjs");
 
 const { response, api } = require("../utils/request");
@@ -106,16 +106,7 @@ async function getStockPrices(event) {
 	const { params } = event;
 	const { stocks } = params;
 
-	const historicalRes = await yahooFinance.historical({
-		symbols: stocks.split(","),
-		from: dayjs().subtract(1, "month").format("YYYY-MM-DD"),
-		to: dayjs().format("YYYY-MM-DD"),
-	});
-
-	const quoteRes = await yahooFinance.quote({
-		symbols: stocks.split(","),
-		modules: ["price"],
-	});
+	const quoteRes = await yahooFinance.quote(stocks.split(","));
 
 	let useCache = true;
 	let data = global.cache.exchangeRates.data;
@@ -134,37 +125,35 @@ async function getStockPrices(event) {
 	}
 
 	const stocksInfo = [];
-	for (const stock in quoteRes) {
+	for (const stock of quoteRes) {
+		const historicalRes = await yahooFinance.historical(stock.symbol, {
+			period1: dayjs().subtract(1, "month").format("YYYY-MM-DD"),
+		});
+
 		const price =
-			quoteRes[stock].price.currency === "EUR"
-				? quoteRes[stock].price.regularMarketPrice
-				: quoteRes[stock].price.regularMarketPrice / data.rates[quoteRes[stock].price.currency];
+			stock.currency === "EUR" ? stock.regularMarketPrice : stock.regularMarketPrice / data.rates[stock.currency];
 
 		const openPrice =
-			quoteRes[stock].price.currency === "EUR"
-				? quoteRes[stock].price.regularMarketOpen
-				: quoteRes[stock].price.regularMarketOpen / data.rates[quoteRes[stock].price.currency];
+			stock.currency === "EUR" ? stock.regularMarketOpen : stock.regularMarketOpen / data.rates[stock.currency];
 
 		const weekPrice =
-			quoteRes[stock].price.currency === "EUR"
-				? historicalRes[stock][6].close
-				: historicalRes[stock][6].close / data.rates[quoteRes[stock].price.currency];
+			stock.currency === "EUR"
+				? historicalRes[historicalRes.length - 7].close
+				: historicalRes[historicalRes.length - 7].close / data.rates[stock.currency];
 
 		const monthPrice =
-			quoteRes[stock].price.currency === "EUR"
-				? historicalRes[stock][historicalRes[stock].length - 1].close
-				: historicalRes[stock][historicalRes[stock].length - 1].close / data.rates[quoteRes[stock].price.currency];
+			stock.currency === "EUR" ? historicalRes[0].close : historicalRes[0].close / data.rates[stock.currency];
 
 		stocksInfo.push({
-			id: stock,
-			name: quoteRes[stock].price.shortName,
-			symbol: stock,
-			image: `https://companiesmarketcap.com/img/company-logos/80/${stock}.png`,
+			id: stock.symbol,
+			name: stock.shortName,
+			symbol: stock.symbol,
+			image: `https://companiesmarketcap.com/img/company-logos/80/${stock.symbol}.png`,
 			price,
-			marketCap: quoteRes[stock].price.marketCap,
-			volume: quoteRes[stock].price.regularMarketVolume,
+			marketCap: stock.marketCap,
+			volume: stock.regularMarketVolume,
 			change1h: ((price - openPrice) / openPrice) * 100,
-			change24h: quoteRes[stock].price.regularMarketChangePercent * 100,
+			change24h: stock.regularMarketChangePercent,
 			change7d: ((price - weekPrice) / weekPrice) * 100,
 			change30d: ((price - monthPrice) / monthPrice) * 100,
 		});
