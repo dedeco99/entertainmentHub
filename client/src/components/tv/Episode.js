@@ -1,7 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import PropTypes from "prop-types";
 
 import { makeStyles, Card, CardMedia, CardActionArea } from "@material-ui/core";
+
+import { UserContext } from "../../contexts/UserContext";
 
 import { patchSubscription } from "../../api/subscriptions";
 
@@ -15,6 +17,7 @@ const useStyles = makeStyles(styles);
 
 function Episode({ episode }) {
 	const classes = useStyles();
+	const { user } = useContext(UserContext);
 	const [rerender, setRerender] = useState(true);
 
 	async function markAsWatched() {
@@ -36,7 +39,16 @@ function Episode({ episode }) {
 	return (
 		<Card className={classes.root}>
 			<CardActionArea onClick={markAsWatched}>
-				<CardMedia component="img" height="150" image={image} />
+				<CardMedia
+					component="img"
+					height="150"
+					image={image}
+					style={
+						user.settings.tv && user.settings.tv.hideEpisodesThumbnails
+							? { filter: "blur(30px)" }
+							: { filter: "blur(0px)" }
+					}
+				/>
 				<div className={`${classes.overlay} ${classes.title}`} title={episode.title}>
 					{episode.title}
 				</div>

@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React, { useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Subject } from "rxjs";
@@ -23,7 +24,7 @@ import { WidgetContext } from "../../contexts/WidgetContext";
 import { UserContext } from "../../contexts/UserContext";
 
 import { getCities } from "../../api/weather";
-import { getCoins } from "../../api/crypto";
+import { getCoins, getStocks } from "../../api/finance";
 import { addWidget, editWidget } from "../../api/widgets";
 
 import { translate } from "../../utils/translations";
@@ -42,8 +43,10 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 	const [info, setInfo] = useState({});
 	const [cities, setCities] = useState([]);
 	const [coins, setCoins] = useState([]);
+	const [stocks, setStocks] = useState([]);
 	const [selectedCity, setSelectedCity] = useState(null);
 	const [selectedCoins, setSelectedCoins] = useState([]);
+	const [selectedStocks, setSelectedStocks] = useState([]);
 	const [selectedTabs, setSelectedTabs] = useState([]);
 	const tabs = [
 		{ name: "In Queue", value: "inQueue" },
@@ -55,6 +58,7 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 	const addGroupSubject = new Subject();
 	const getCitiesSubject = new Subject();
 	const getCoinsSubject = new Subject();
+	const getStocksSubject = new Subject();
 	const submitSubject = new Subject();
 
 	useEffect(() => {
@@ -104,6 +108,22 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 	});
 
 	useEffect(() => {
+		const subscription = getStocksSubject
+			.pipe(
+				debounceTime(250),
+				filter(query => query),
+			)
+			.subscribe(async query => {
+				const response = await getStocks(query);
+
+				if (response.status === 200) {
+					setStocks(response.data);
+				}
+			});
+		return () => subscription.unsubscribe();
+	});
+
+	useEffect(() => {
 		const subscription = submitSubject.pipe(distinctUntilChanged((a, b) => a === b)).subscribe(async () => {
 			if (widget) {
 				const response = await editWidget({ ...widget, group, refreshRateMinutes, info });
@@ -140,9 +160,15 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 			if (widget.refreshRateMinutes) setRefreshRateMinutes(widget.refreshRateMinutes);
 			if (widget.info) setInfo(widget.info);
 
-			if (widget.type === "crypto") {
-				const formattedCoins = widget.info.coins.split(",").map(coin => ({ symbol: coin }));
+			if (widget.type === "finance") {
+				const formattedCoins = widget.info.coins
+					? widget.info.coins.split(",").map(coin => ({ symbol: coin }))
+					: [];
 				setSelectedCoins(formattedCoins);
+				const formattedStocks = widget.info.stocks
+					? widget.info.stocks.split(",").map(stock => ({ symbol: stock }))
+					: [];
+				setSelectedStocks(formattedStocks);
 			} else if (widget.type === "tv") {
 				setSelectedTabs(widget.info.tabs.map(tab => tabs.find(t => t.value === tab)));
 			} else if (widget.type === "weather") {
@@ -157,6 +183,7 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 			setInfo({});
 			setSelectedCity(null);
 			setSelectedCoins([]);
+			setSelectedStocks([]);
 			setSelectedTabs([]);
 		}
 	}, [widget]);
@@ -178,7 +205,16 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 
 	function handleSelectCoin(e, sCoins) {
 		setSelectedCoins(sCoins);
-		setInfo({ coins: sCoins.map(coin => coin.symbol).join(",") });
+		setInfo({ ...info, coins: sCoins.map(coin => coin.symbol).join(",") });
+	}
+
+	function handleGetStocks(e, query) {
+		getStocksSubject.next(query);
+	}
+
+	function handleSelectStock(e, sStocks) {
+		setSelectedStocks(sStocks);
+		setInfo({ ...info, stocks: sStocks.map(stock => stock.symbol).join(",") });
 	}
 
 	function handleSelectTabs(e, sTabs) {
@@ -239,12 +275,16 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 		return <Input {...params} label="City" variant="outlined" fullWidth margin="normal" />;
 	}
 
-	function renderCoinsOptionLabel(option) {
+	function renderTickersOptionLabel(option) {
 		return `${option.symbol} - ${option.name || option.symbol}`;
 	}
 
 	function renderCoinsInput(params) {
 		return <Input {...params} label="Coins" variant="outlined" fullWidth margin="normal" />;
+	}
+
+	function renderStocksInput(params) {
+		return <Input {...params} label="Stocks" variant="outlined" fullWidth margin="normal" />;
 	}
 
 	function renderTags(value, getTagProps) {
@@ -366,21 +406,36 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 						fullWidth
 					/>
 				);
-			case "crypto":
+			case "finance":
 				return (
-					<Autocomplete
-						value={selectedCoins}
-						multiple
-						limitTags={2}
-						renderTags={renderTags}
-						options={coins || []}
-						onInputChange={handleGetCoins}
-						onChange={handleSelectCoin}
-						className={classes.autocomplete}
-						getOptionLabel={renderCoinsOptionLabel}
-						renderInput={renderCoinsInput}
-						fullWidth
-					/>
+					<>
+						<Autocomplete
+							value={selectedCoins}
+							multiple
+							limitTags={2}
+							renderTags={renderTags}
+							options={coins || []}
+							onInputChange={handleGetCoins}
+							onChange={handleSelectCoin}
+							className={classes.autocomplete}
+							getOptionLabel={renderTickersOptionLabel}
+							renderInput={renderCoinsInput}
+							fullWidth
+						/>
+						<Autocomplete
+							value={selectedStocks}
+							multiple
+							limitTags={2}
+							renderTags={renderTags}
+							options={stocks || []}
+							onInputChange={handleGetStocks}
+							onChange={handleSelectStock}
+							className={classes.autocomplete}
+							getOptionLabel={renderTickersOptionLabel}
+							renderInput={renderStocksInput}
+							fullWidth
+						/>
+					</>
 				);
 			case "price":
 				const countries = [
@@ -437,12 +492,12 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 			{ value: "reddit", displayName: "Reddit" },
 			{ value: "twitch", displayName: "Twitch" },
 			{ value: "weather", displayName: "Weather" },
-			{ value: "crypto", displayName: "Crypto" },
+			{ value: "finance", displayName: "Finance" },
 			{ value: "tv", displayName: "TV" },
 			{ value: "price", displayName: "Price" },
 		];
 
-		const nonAppWidgets = ["notifications", "weather", "crypto", "price"];
+		const nonAppWidgets = ["notifications", "weather", "finance", "price"];
 		const appTypes = user.apps ? user.apps.map(a => a.platform).concat(nonAppWidgets) : nonAppWidgets;
 		types = types.filter(t => appTypes.includes(t.value));
 

@@ -239,6 +239,14 @@ const translations = {
 		en: "Mark as watched",
 		pt: "Marcar como visto",
 	},
+	hideEpisodesThumbnails: {
+		en: "Hide thumbnail on episodes",
+		pt: "Esconder a thumbnail dos episodios",
+	},
+	autoplayVideoPlayer: {
+		en: "Auto play for video player",
+		pt: "Reprodução automática para o reprodutor de vídeo",
+	},
 	multipleParamExample: (...params) => ({
 		en: `Hello ${params[0]}, my name is ${params[1]}`,
 		pt: `Boas ${params[0]}, o meu nome é ${params[1]}`,

@@ -302,7 +302,7 @@ const tv = {
 	},
 };
 
-const crypto = {
+const finance = {
 	root: {
 		backgroundColor: "#212121",
 		width: "100%",
@@ -318,9 +318,8 @@ const crypto = {
 		maxWidth: 60,
 	},
 	listImage: {
-		height: 32,
-		width: 32,
-		padding: 5,
+		height: 25,
+		width: 25,
 	},
 	singleRoot: {
 		backgroundColor: "#212121",
@@ -367,4 +366,4 @@ const twitch = {
 	},
 };
 
-export { widgets, widget, widgetDetail, notifications, reddit, weather, tv, crypto, twitch };
+export { widgets, widget, widgetDetail, notifications, reddit, weather, tv, finance, twitch };

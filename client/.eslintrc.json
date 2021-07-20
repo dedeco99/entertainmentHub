@@ -171,7 +171,7 @@
 		"key-spacing": "error",
 		"keyword-spacing": "error",
 		// "line-comment-position": "error",
-		"linebreak-style": "error",
+		"linebreak-style": "warn",
 		// "lines-around-comment": "error",
 		"lines-between-class-members": "error",
 		// "max-depth": "warn",

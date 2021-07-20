@@ -15,7 +15,7 @@ const widgets = require("./functions/widgets");
 const notifications = require("./functions/notifications");
 const scheduledNotifications = require("./functions/scheduledNotifications");
 const weather = require("./functions/weather");
-const crypto = require("./functions/crypto");
+const finance = require("./functions/finance");
 const price = require("./functions/price");
 const reddit = require("./functions/reddit");
 const subs = require("./functions/subscriptions");
@@ -29,6 +29,10 @@ global.cache = {
 	crypto: {
 		data: {},
 		coins: [],
+		lastUpdate: Date.now(),
+	},
+	exchangeRates: {
+		data: {},
 		lastUpdate: Date.now(),
 	},
 	price: {
@@ -111,9 +115,13 @@ app.get("/api/weather/:lat/:lon", (req, res) => middleware(req, res, weather.get
 
 app.get("/api/weather/cities", token, (req, res) => middleware(req, res, weather.getCities));
 
-app.get("/api/crypto", token, (req, res) => middleware(req, res, crypto.getCoins));
+app.get("/api/crypto", token, (req, res) => middleware(req, res, finance.getCoins));
 
-app.get("/api/crypto/:coins", token, (req, res) => middleware(req, res, crypto.getPrices));
+app.get("/api/crypto/:coins", token, (req, res) => middleware(req, res, finance.getCryptoPrices));
+
+app.get("/api/stocks", token, (req, res) => middleware(req, res, finance.getStocks));
+
+app.get("/api/stocks/:stocks", token, (req, res) => middleware(req, res, finance.getStockPrices));
 
 app.get("/api/price/:country/:product", token, (req, res) => middleware(req, res, price.getProduct));
 
