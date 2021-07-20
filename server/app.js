@@ -31,6 +31,10 @@ global.cache = {
 		coins: [],
 		lastUpdate: Date.now(),
 	},
+	exchangeRates: {
+		data: {},
+		lastUpdate: Date.now(),
+	},
 	price: {
 		data: {},
 		lastUpdate: Date.now(),

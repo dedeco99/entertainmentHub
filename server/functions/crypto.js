@@ -117,32 +117,43 @@ async function getStockPrices(event) {
 		modules: ["price"],
 	});
 
-	const url = "https://api.exchangerate.host/latest?base=EUR";
+	let useCache = true;
+	let data = global.cache.exchangeRates.data;
 
-	const res = await api({ method: "GET", url });
-	const json = res.data;
+	if (!Object.keys(data).length || diff(global.cache.exchangeRates.lastUpdate, "minutes") > 1) {
+		useCache = false;
+	}
+
+	if (!useCache) {
+		const url = "https://api.exchangerate.host/latest?base=EUR";
+
+		const res = await api({ method: "GET", url });
+
+		data = res.data;
+		global.cache.exchangeRates.data = res.data;
+	}
 
 	const stocksInfo = [];
 	for (const stock in quoteRes) {
 		const price =
 			quoteRes[stock].price.currency === "EUR"
 				? quoteRes[stock].price.regularMarketPrice
-				: quoteRes[stock].price.regularMarketPrice / json.rates[quoteRes[stock].price.currency];
+				: quoteRes[stock].price.regularMarketPrice / data.rates[quoteRes[stock].price.currency];
 
 		const openPrice =
 			quoteRes[stock].price.currency === "EUR"
 				? quoteRes[stock].price.regularMarketOpen
-				: quoteRes[stock].price.regularMarketOpen / json.rates[quoteRes[stock].price.currency];
+				: quoteRes[stock].price.regularMarketOpen / data.rates[quoteRes[stock].price.currency];
 
 		const weekPrice =
 			quoteRes[stock].price.currency === "EUR"
 				? historicalRes[stock][6].close
-				: historicalRes[stock][6].close / json.rates[quoteRes[stock].price.currency];
+				: historicalRes[stock][6].close / data.rates[quoteRes[stock].price.currency];
 
 		const monthPrice =
 			quoteRes[stock].price.currency === "EUR"
 				? historicalRes[stock][historicalRes[stock].length - 1].close
-				: historicalRes[stock][historicalRes[stock].length - 1].close / json.rates[quoteRes[stock].price.currency];
+				: historicalRes[stock][historicalRes[stock].length - 1].close / data.rates[quoteRes[stock].price.currency];
 
 		stocksInfo.push({
 			id: stock,
