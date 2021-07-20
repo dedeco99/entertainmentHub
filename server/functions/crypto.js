@@ -93,6 +93,7 @@ async function getPrices(event) {
 			change1h: coin.quote.EUR.percent_change_1h,
 			change24h: coin.quote.EUR.percent_change_24h,
 			change7d: coin.quote.EUR.percent_change_7d,
+			change30d: coin.quote.EUR.percent_change_30d,
 		});
 	}
 
