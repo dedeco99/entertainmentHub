@@ -102,6 +102,17 @@ async function getCryptoPrices(event) {
 	return response(200, "GET_COIN", coinsInfo);
 }
 
+async function getStocks(event) {
+	const { query } = event;
+	const { filter } = query;
+
+	const res = await yahooFinance.autoc(filter);
+
+	const stocks = res.Result.slice(0, 50).map(stock => ({ symbol: stock.symbol, name: stock.name }));
+
+	return response(200, "GET_STOCKS", stocks);
+}
+
 async function getStockPrices(event) {
 	const { params } = event;
 	const { stocks } = params;
@@ -165,5 +176,6 @@ async function getStockPrices(event) {
 module.exports = {
 	getCoins,
 	getCryptoPrices,
+	getStocks,
 	getStockPrices,
 };

@@ -119,6 +119,8 @@ app.get("/api/crypto", token, (req, res) => middleware(req, res, finance.getCoin
 
 app.get("/api/crypto/:coins", token, (req, res) => middleware(req, res, finance.getCryptoPrices));
 
+app.get("/api/stocks", token, (req, res) => middleware(req, res, finance.getStocks));
+
 app.get("/api/stocks/:stocks", token, (req, res) => middleware(req, res, finance.getStockPrices));
 
 app.get("/api/price/:country/:product", token, (req, res) => middleware(req, res, price.getProduct));

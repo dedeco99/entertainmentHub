@@ -42,7 +42,7 @@ function Finance({ coins, stocks, widgetDimensions }) {
 			const response = cryptoResponse.data.concat(stockResponse.data);
 
 			if (isMounted) {
-				setCrypto(response.sort((a, b) => (a.marketCap - b.marketCap ? -1 : 1)));
+				setCrypto(response.sort((a, b) => (a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1)));
 				setShowListView(response.length > 1);
 				setOpen(true);
 			}
@@ -204,14 +204,10 @@ function Finance({ coins, stocks, widgetDimensions }) {
 					</Box>
 					<Box display="flex" flex="1">
 						<Box display="flex" flexGrow={1} flexDirection="column" justifyContent="center">
-							{ticker.circulatingSupply && (
-								<>
-									<Typography variant="caption">{"Circulating Supply"}</Typography>
-									<Typography variant="subtitle1">
-										{`${simplifyNumber(ticker.circulatingSupply).substr(1)} ${ticker.symbol}`}
-									</Typography>
-								</>
-							)}
+							<Typography variant="caption">{"Circulating Supply"}</Typography>
+							<Typography variant="subtitle1">
+								{`${simplifyNumber(ticker.circulatingSupply).substr(1)} ${ticker.symbol}`}
+							</Typography>
 						</Box>
 						<Box
 							display="flex"
