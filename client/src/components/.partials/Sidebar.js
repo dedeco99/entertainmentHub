@@ -71,10 +71,10 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 		<List className={classes.listMenu}>
 			{Object.keys(groups).map((group, index) => (
 				<List
+					disablePadding
 					subheader={
-						<ListSubheader style={{ backgroundColor: "#333", zIndex: 2, marginBottom: "8px" }}>
+						<ListSubheader style={{ backgroundColor: "#333", zIndex: 2 }}>
 							{group === "null" ? "Ungrouped" : group}
-							<Button></Button>
 							<ListItemSecondaryAction onClick={() => handleExpand(index)}>
 								<IconButton color="primary" edge="end">
 									<i className={expandedLists.includes(index) ? "icon-caret-up" : "icon-caret-down"} />
