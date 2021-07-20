@@ -117,9 +117,33 @@ async function getStockPrices(event) {
 		modules: ["price"],
 	});
 
+	const url = "https://api.exchangerate.host/latest?base=EUR";
+
+	const res = await api({ method: "GET", url });
+	const json = res.data;
+
 	const stocksInfo = [];
 	for (const stock in quoteRes) {
-		const price = quoteRes[stock].price.regularMarketPrice;
+		const price =
+			quoteRes[stock].price.currency === "EUR"
+				? quoteRes[stock].price.regularMarketPrice
+				: quoteRes[stock].price.regularMarketPrice / json.rates[quoteRes[stock].price.currency];
+
+		const openPrice =
+			quoteRes[stock].price.currency === "EUR"
+				? quoteRes[stock].price.regularMarketOpen
+				: quoteRes[stock].price.regularMarketOpen / json.rates[quoteRes[stock].price.currency];
+
+		const weekPrice =
+			quoteRes[stock].price.currency === "EUR"
+				? historicalRes[stock][6].close
+				: historicalRes[stock][6].close / json.rates[quoteRes[stock].price.currency];
+
+		const monthPrice =
+			quoteRes[stock].price.currency === "EUR"
+				? historicalRes[stock][historicalRes[stock].length - 1].close
+				: historicalRes[stock][historicalRes[stock].length - 1].close / json.rates[quoteRes[stock].price.currency];
+
 		stocksInfo.push({
 			id: stock,
 			name: quoteRes[stock].price.shortName,
@@ -128,14 +152,10 @@ async function getStockPrices(event) {
 			price,
 			marketCap: quoteRes[stock].price.marketCap,
 			volume: quoteRes[stock].price.regularMarketVolume,
-			change1h:
-				((price - quoteRes[stock].price.regularMarketOpen) / quoteRes[stock].price.regularMarketOpen) * 100,
+			change1h: ((price - openPrice) / openPrice) * 100,
 			change24h: quoteRes[stock].price.regularMarketChangePercent * 100,
-			change7d: ((price - historicalRes[stock][6].close) / historicalRes[stock][6].close) * 100,
-			change30d:
-				((price - historicalRes[stock][historicalRes[stock].length - 1].close) /
-					historicalRes[stock][historicalRes[stock].length - 1].close) *
-				100,
+			change7d: ((price - weekPrice) / weekPrice) * 100,
+			change30d: ((price - monthPrice) / monthPrice) * 100,
 		});
 	}
 
