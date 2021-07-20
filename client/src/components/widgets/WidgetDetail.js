@@ -23,7 +23,7 @@ import { WidgetContext } from "../../contexts/WidgetContext";
 import { UserContext } from "../../contexts/UserContext";
 
 import { getCities } from "../../api/weather";
-import { getCoins } from "../../api/crypto";
+import { getCoins } from "../../api/finance";
 import { addWidget, editWidget } from "../../api/widgets";
 
 import { translate } from "../../utils/translations";
@@ -140,7 +140,7 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 			if (widget.refreshRateMinutes) setRefreshRateMinutes(widget.refreshRateMinutes);
 			if (widget.info) setInfo(widget.info);
 
-			if (widget.type === "crypto") {
+			if (widget.type === "finance") {
 				const formattedCoins = widget.info.coins.split(",").map(coin => ({ symbol: coin }));
 				setSelectedCoins(formattedCoins);
 			} else if (widget.type === "tv") {
@@ -366,7 +366,7 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 						fullWidth
 					/>
 				);
-			case "crypto":
+			case "finance":
 				return (
 					<Autocomplete
 						value={selectedCoins}
@@ -437,12 +437,12 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 			{ value: "reddit", displayName: "Reddit" },
 			{ value: "twitch", displayName: "Twitch" },
 			{ value: "weather", displayName: "Weather" },
-			{ value: "crypto", displayName: "Crypto" },
+			{ value: "finance", displayName: "Finance" },
 			{ value: "tv", displayName: "TV" },
 			{ value: "price", displayName: "Price" },
 		];
 
-		const nonAppWidgets = ["notifications", "weather", "crypto", "price"];
+		const nonAppWidgets = ["notifications", "weather", "finance", "price"];
 		const appTypes = user.apps ? user.apps.map(a => a.platform).concat(nonAppWidgets) : nonAppWidgets;
 		types = types.filter(t => appTypes.includes(t.value));
 

@@ -11,7 +11,7 @@ import Reddit from "../widgets/reddit/Reddit";
 import Twitch from "../widgets/Twitch";
 import Weather from "../widgets/Weather";
 import TV from "../widgets/TV";
-import Crypto from "../widgets/Crypto";
+import Finance from "../widgets/Finance";
 import Price from "../widgets/Price";
 import WidgetDetail from "../widgets/WidgetDetail";
 
@@ -33,7 +33,7 @@ const widgetRestrictions = {
 	twitch: { minW: 2, minH: 2, maxW: 4, maxH: 6 },
 	weather: { minW: 1, minH: 1, maxW: 4, maxH: 2 },
 	tv: { minW: 2, minH: 2, maxW: 6, maxH: 6 },
-	crypto: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
+	finance: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
 	price: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
 };
 
@@ -79,12 +79,12 @@ const widgetsInfo = {
 		dimensions: { w: widget.width || 1, h: widget.height || 4 },
 		restrictions: widgetRestrictions.tv,
 	}),
-	crypto: widget => ({
-		content: <Crypto coins={widget.info.coins} />,
-		editText: "Crypto",
+	finance: widget => ({
+		content: <Finance coins={widget.info.coins} />,
+		editText: "Finance",
 		editIcon: "icon-crypto",
 		dimensions: { w: widget.width || 1, h: widget.height || 1 },
-		restrictions: widgetRestrictions.crypto,
+		restrictions: widgetRestrictions.finance,
 	}),
 	price: widget => ({
 		content: <Price country={widget.info.country} productId={widget.info.productId} />,

@@ -9,7 +9,7 @@ async function getCoins(filter) {
 	return res;
 }
 
-async function getCrypto(coin) {
+async function getCryptoPrices(coin) {
 	const res = await api({
 		method: "get",
 		url: `/api/crypto/${coin}`,
@@ -18,7 +18,7 @@ async function getCrypto(coin) {
 	return res;
 }
 
-async function getStocks(stocks) {
+async function getStockPrices(stocks) {
 	const res = await api({
 		method: "get",
 		url: `/api/stocks/${stocks}`,
@@ -27,4 +27,4 @@ async function getStocks(stocks) {
 	return res;
 }
 
-export { getCoins, getCrypto, getStocks };
+export { getCoins, getCryptoPrices, getStockPrices };

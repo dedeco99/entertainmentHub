@@ -17,13 +17,13 @@ import {
 
 import Loading from "../.partials/Loading";
 
-import { getCrypto, getStocks } from "../../api/crypto";
+import { getCryptoPrices, getStockPrices } from "../../api/finance";
 
-import { crypto as styles } from "../../styles/Widgets";
+import { finance as styles } from "../../styles/Widgets";
 
 const useStyles = makeStyles(styles);
 
-function Crypto({ coins, widgetDimensions }) {
+function Finance({ coins, widgetDimensions }) {
 	const classes = useStyles();
 	const [open, setOpen] = useState(false);
 	const [crypto, setCrypto] = useState([]);
@@ -37,8 +37,8 @@ function Crypto({ coins, widgetDimensions }) {
 		async function fetchData() {
 			setOpen(false);
 
-			const cryptoResponse = await getCrypto(coins);
-			const stockResponse = await getStocks(["TSLA", "GOOG", "IWDA.AS"]);
+			const cryptoResponse = await getCryptoPrices(coins);
+			const stockResponse = await getStockPrices(["TSLA", "GOOG", "IWDA.AS"]);
 			const response = cryptoResponse.data.concat(stockResponse.data);
 
 			if (isMounted) {
@@ -310,9 +310,9 @@ function Crypto({ coins, widgetDimensions }) {
 	return <Zoom in={open}>{renderType()}</Zoom>;
 }
 
-Crypto.propTypes = {
+Finance.propTypes = {
 	coins: PropTypes.string.isRequired,
 	widgetDimensions: PropTypes.object,
 };
 
-export default Crypto;
+export default Finance;

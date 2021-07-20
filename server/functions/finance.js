@@ -44,7 +44,7 @@ async function getCoins(event) {
 	return response(200, "GET_COINS", coins);
 }
 
-async function getPrices(event) {
+async function getCryptoPrices(event) {
 	const { params } = event;
 	const { coins } = params;
 
@@ -175,6 +175,6 @@ async function getStockPrices(event) {
 
 module.exports = {
 	getCoins,
-	getPrices,
+	getCryptoPrices,
 	getStockPrices,
 };

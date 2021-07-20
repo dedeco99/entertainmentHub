@@ -39,7 +39,7 @@ async function addWidget(event) {
 		case "weather":
 			if (!info.lat || !info.lon) return errors.requiredFieldsMissing;
 			break;
-		case "crypto":
+		case "finance":
 			if (!info.coins) return errors.requiredFieldsMissing;
 			break;
 		case "price":
