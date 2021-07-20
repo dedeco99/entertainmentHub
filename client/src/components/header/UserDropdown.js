@@ -15,6 +15,8 @@ import {
 	Divider,
 	Select,
 	MenuItem,
+	Typography,
+	Tooltip,
 } from "@material-ui/core";
 
 import { UserContext } from "../../contexts/UserContext";
@@ -95,7 +97,11 @@ function UserDropdown() {
 								<ListItemIcon>
 									<i className="icon-user icon-2x" />
 								</ListItemIcon>
-								<ListItemText primary={user.email} />
+								<ListItemText>
+									<Tooltip title={user.email} placement="top-start">
+										<Typography noWrap>{user.email}</Typography>
+									</Tooltip>
+								</ListItemText>
 							</ListItem>
 							<Divider />
 							<ListItem key={"langs"}>
@@ -103,9 +109,13 @@ function UserDropdown() {
 									<i className="icon-translate icon-2x" />
 								</ListItemIcon>
 								<Select
+									variant="outlined"
 									value={user.language || "en"}
 									onChange={handleChangeLanguage}
 									MenuProps={{ disablePortal: true }}
+									style={{
+										height: "35px",
+									}}
 								>
 									<MenuItem value={"pt"}>{translate("portugueseLang")}</MenuItem>
 									<MenuItem value={"en"}>{translate("englishLang")}</MenuItem>
