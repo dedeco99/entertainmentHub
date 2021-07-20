@@ -44,6 +44,7 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 	const [coins, setCoins] = useState([]);
 	const [selectedCity, setSelectedCity] = useState(null);
 	const [selectedCoins, setSelectedCoins] = useState([]);
+	const [selectedStocks, setSelectedStocks] = useState([]);
 	const [selectedTabs, setSelectedTabs] = useState([]);
 	const tabs = [
 		{ name: "In Queue", value: "inQueue" },
@@ -141,8 +142,11 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 			if (widget.info) setInfo(widget.info);
 
 			if (widget.type === "finance") {
-				const formattedCoins = widget.info.coins.split(",").map(coin => ({ symbol: coin }));
+				const formattedCoins = widget.info.coins
+					? widget.info.coins.split(",").map(coin => ({ symbol: coin }))
+					: [];
 				setSelectedCoins(formattedCoins);
+				setSelectedStocks(widget.info.stocks ? widget.info.stocks.split(",") : []);
 			} else if (widget.type === "tv") {
 				setSelectedTabs(widget.info.tabs.map(tab => tabs.find(t => t.value === tab)));
 			} else if (widget.type === "weather") {
@@ -178,7 +182,12 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 
 	function handleSelectCoin(e, sCoins) {
 		setSelectedCoins(sCoins);
-		setInfo({ coins: sCoins.map(coin => coin.symbol).join(",") });
+		setInfo({ ...info, coins: sCoins.map(coin => coin.symbol).join(",") });
+	}
+
+	function handleSelectStock(e, sStocks) {
+		setSelectedStocks(sStocks.map(stock => stock.toUpperCase()));
+		setInfo({ ...info, stocks: sStocks.map(stock => stock.toUpperCase()).join(",") });
 	}
 
 	function handleSelectTabs(e, sTabs) {
@@ -247,14 +256,22 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 		return <Input {...params} label="Coins" variant="outlined" fullWidth margin="normal" />;
 	}
 
+	function renderStocksOptionLabel(option) {
+		return option;
+	}
+
+	function renderStocksInput(params) {
+		return <Input {...params} label="Stocks" variant="outlined" fullWidth margin="normal" />;
+	}
+
 	function renderTags(value, getTagProps) {
 		if (!value) return [];
 
 		return value.map((option, index) => (
 			<Chip
-				key={option.symbol || option.value}
+				key={option.symbol || option.value || option}
 				color="primary"
-				label={option.symbol || option.name}
+				label={option.symbol || option.name || option}
 				{...getTagProps({ index })}
 			/>
 		));
@@ -368,19 +385,34 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 				);
 			case "finance":
 				return (
-					<Autocomplete
-						value={selectedCoins}
-						multiple
-						limitTags={2}
-						renderTags={renderTags}
-						options={coins || []}
-						onInputChange={handleGetCoins}
-						onChange={handleSelectCoin}
-						className={classes.autocomplete}
-						getOptionLabel={renderCoinsOptionLabel}
-						renderInput={renderCoinsInput}
-						fullWidth
-					/>
+					<>
+						<Autocomplete
+							value={selectedCoins}
+							multiple
+							limitTags={2}
+							renderTags={renderTags}
+							options={coins || []}
+							onInputChange={handleGetCoins}
+							onChange={handleSelectCoin}
+							className={classes.autocomplete}
+							getOptionLabel={renderCoinsOptionLabel}
+							renderInput={renderCoinsInput}
+							fullWidth
+						/>
+						<Autocomplete
+							value={selectedStocks}
+							multiple
+							freeSolo
+							limitTags={2}
+							renderTags={renderTags}
+							options={[]}
+							onChange={handleSelectStock}
+							className={classes.autocomplete}
+							getOptionLabel={renderStocksOptionLabel}
+							renderInput={renderStocksInput}
+							fullWidth
+						/>
+					</>
 				);
 			case "price":
 				const countries = [

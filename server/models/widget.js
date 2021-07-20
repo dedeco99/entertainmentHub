@@ -30,6 +30,7 @@ const WidgetSchema = new Schema(
 
 			// Finance
 			coins: { type: String },
+			stocks: { type: String },
 
 			// Price
 			productId: { type: String },

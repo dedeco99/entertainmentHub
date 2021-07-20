@@ -80,7 +80,7 @@ const widgetsInfo = {
 		restrictions: widgetRestrictions.tv,
 	}),
 	finance: widget => ({
-		content: <Finance coins={widget.info.coins} />,
+		content: <Finance coins={widget.info.coins} stocks={widget.info.stocks} />,
 		editText: "Finance",
 		editIcon: "icon-crypto",
 		dimensions: { w: widget.width || 1, h: widget.height || 1 },

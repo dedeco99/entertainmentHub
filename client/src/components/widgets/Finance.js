@@ -23,7 +23,7 @@ import { finance as styles } from "../../styles/Widgets";
 
 const useStyles = makeStyles(styles);
 
-function Finance({ coins, widgetDimensions }) {
+function Finance({ coins, stocks, widgetDimensions }) {
 	const classes = useStyles();
 	const [open, setOpen] = useState(false);
 	const [crypto, setCrypto] = useState([]);
@@ -37,8 +37,8 @@ function Finance({ coins, widgetDimensions }) {
 		async function fetchData() {
 			setOpen(false);
 
-			const cryptoResponse = await getCryptoPrices(coins);
-			const stockResponse = await getStockPrices(["TSLA", "GOOG", "IWDA.AS"]);
+			const cryptoResponse = coins ? await getCryptoPrices(coins) : { data: [] };
+			const stockResponse = stocks ? await getStockPrices(stocks) : { data: [] };
 			const response = cryptoResponse.data.concat(stockResponse.data);
 
 			if (isMounted) {
@@ -51,7 +51,7 @@ function Finance({ coins, widgetDimensions }) {
 		fetchData();
 
 		return () => (isMounted = false);
-	}, [coins]);
+	}, [coins, stocks]);
 
 	function simplifyNumber(num) {
 		if (num) {
@@ -312,6 +312,7 @@ function Finance({ coins, widgetDimensions }) {
 
 Finance.propTypes = {
 	coins: PropTypes.string.isRequired,
+	stocks: PropTypes.string.isRequired,
 	widgetDimensions: PropTypes.object,
 };
 
