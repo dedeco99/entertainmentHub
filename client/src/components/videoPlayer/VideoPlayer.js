@@ -19,11 +19,12 @@ import {
 	Badge,
 	Divider,
 	Button,
+	MenuItem,
 } from "@material-ui/core";
 
 import Input from "../.partials/Input";
 
-import { getPlaylistVideos } from "../../api/youtube";
+import { getPlaylists, getPlaylistVideos } from "../../api/youtube";
 
 import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 import { UserContext } from "../../contexts/UserContext";
@@ -38,6 +39,8 @@ function VideoPlayer() {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(VideoPlayerContext);
 	const { user } = useContext(UserContext);
+	const [playlists, setPlaylists] = useState([]);
+	const [selectedOption, setSelectedOption] = useState("");
 	const { currentVideo, videos, x, y, width, height, minimized, selectedTab, showQueue } = state;
 	const [restrictions, setRestrictions] = useState({
 		minWidth: 600,
@@ -88,6 +91,18 @@ function VideoPlayer() {
 		}
 	}, [selectedTab, videos, currentVideo]);
 
+	useEffect(() => {
+		async function fetchUserPlaylists() {
+			const response = await getPlaylists();
+
+			if (response.status === 200) {
+				setPlaylists(response.data);
+			}
+		}
+
+		fetchUserPlaylists();
+	}, []);
+
 	function hasPreviousVideo() {
 		const currentVideoIndex = videos[selectedTab].findIndex(video => video.url === currentVideo.url);
 
@@ -137,6 +152,10 @@ function VideoPlayer() {
 
 	function handleTabChange(tab) {
 		dispatch({ type: "SET_SELECTED_TAB", selectedTab: tab });
+	}
+
+	function handleOptionSelected(e) {
+		setSelectedOption(e.target.value);
 	}
 
 	function calculateX() {
@@ -198,8 +217,9 @@ function VideoPlayer() {
 
 	async function handleSubmit(e) {
 		e.preventDefault();
-
+		console.log(playlistId);
 		const response = await getPlaylistVideos(playlistId);
+		console.log(response);
 
 		if (response.status === 200) {
 			dispatch({
@@ -208,6 +228,8 @@ function VideoPlayer() {
 				videos: response.data,
 			});
 		}
+
+		setSelectedOption("");
 	}
 
 	function renderQueueOrChat() {
@@ -404,15 +426,73 @@ function VideoPlayer() {
 								textAlign="center"
 								width="100%"
 							>
-								<form onSubmit={handleSubmit}>
-									<Input
-										type="text"
-										label={"Playlist Link"}
-										margin="normal"
-										variant="outlined"
-										onChange={handleYoutubeLink}
-										required
-									/>
+								<Typography variant="h6" style={{ marginBottom: 10 }}>
+									{"Add a Youtube Playlist"}
+								</Typography>
+
+								<Input
+									label="Select an option"
+									id="optionPlaylists"
+									onChange={handleOptionSelected}
+									variant="outlined"
+									select
+									style={{ width: "20%", textAlign: "left" }}
+								>
+									<MenuItem
+										key="link"
+										selected={selectedOption === "YoutubeLink"}
+										style={{ textAlign: "left" }}
+										value="YoutubeLink"
+									>
+										{"Youtube Link"}
+									</MenuItem>
+									<MenuItem
+										key="playlist"
+										selected={!selectedOption === "YoutubePlaylists"}
+										style={{ textAlign: "left" }}
+										value="YoutubePlaylists"
+									>
+										{"Your Youtube Playlists"}
+									</MenuItem>
+								</Input>
+
+								<form onSubmit={handleSubmit} style={{ width: "100%" }}>
+									{selectedOption !== "" && selectedOption === "YoutubeLink" ? (
+										<Input
+											type="text"
+											label={"Playlist Link"}
+											margin="normal"
+											variant="outlined"
+											onChange={handleYoutubeLink}
+											required
+											style={{ width: "30%", textAlign: "left" }}
+										/>
+									) : (
+										""
+									)}
+
+									{selectedOption !== "" && selectedOption === "YoutubePlaylists" ? (
+										<Input
+											label="Youtube Playlists"
+											id="youtubePlaylists"
+											onChange={handleYoutubeLink}
+											variant="outlined"
+											select
+											style={{ width: "30%", textAlign: "left", marginTop: "10px" }}
+										>
+											{playlists.map(p => (
+												<MenuItem
+													key={p.externalId}
+													value={`https://www.youtube.com/playlist?list=${p.externalId}`}
+												>
+													{p.displayName}
+												</MenuItem>
+											))}
+										</Input>
+									) : (
+										""
+									)}
+
 									<br />
 									<br />
 									<Button type="submit" variant="contained" color="primary">
