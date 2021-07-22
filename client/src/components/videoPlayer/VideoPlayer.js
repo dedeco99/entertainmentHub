@@ -19,11 +19,12 @@ import {
 	Badge,
 	Divider,
 	Button,
+	MenuItem,
 } from "@material-ui/core";
 
 import Input from "../.partials/Input";
 
-import { getPlaylistVideos } from "../../api/youtube";
+import { getPlaylists, getPlaylistVideos } from "../../api/youtube";
 
 import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 import { UserContext } from "../../contexts/UserContext";
@@ -38,6 +39,9 @@ function VideoPlayer() {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(VideoPlayerContext);
 	const { user } = useContext(UserContext);
+	const [playlists, setPlaylists] = useState([]);
+	const [youtubePlaylistLink, setYoutubePlaylistLink] = useState("");
+	const [youtubePlaylist, setYoutubePlaylist] = useState("");
 	const { currentVideo, videos, x, y, width, height, minimized, selectedTab, showQueue } = state;
 	const [restrictions, setRestrictions] = useState({
 		minWidth: 600,
@@ -87,6 +91,18 @@ function VideoPlayer() {
 			dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[selectedTab][0] });
 		}
 	}, [selectedTab, videos, currentVideo]);
+
+	useEffect(() => {
+		async function fetchUserPlaylists() {
+			const response = await getPlaylists();
+
+			if (response.status === 200) {
+				setPlaylists(response.data);
+			}
+		}
+
+		fetchUserPlaylists();
+	}, []);
 
 	function hasPreviousVideo() {
 		const currentVideoIndex = videos[selectedTab].findIndex(video => video.url === currentVideo.url);
@@ -196,6 +212,18 @@ function VideoPlayer() {
 		}
 	}
 
+	function handleYoutubePlaylistLink(e) {
+		setYoutubePlaylistLink(e.target.value);
+		setYoutubePlaylist("");
+		handleYoutubeLink(e);
+	}
+
+	function handleYoutubePlaylist(e) {
+		setYoutubePlaylistLink("");
+		setYoutubePlaylist(e.target.value);
+		handleYoutubeLink(e);
+	}
+
 	async function handleSubmit(e) {
 		e.preventDefault();
 
@@ -207,6 +235,9 @@ function VideoPlayer() {
 				videoSource: "youtubePlaylists",
 				videos: response.data,
 			});
+
+			setYoutubePlaylist("");
+			setYoutubePlaylistLink("");
 		}
 	}
 
@@ -396,24 +427,39 @@ function VideoPlayer() {
 					</Box>
 					<Box display="flex" flexGrow="1" minHeight="0">
 						{selectedTab === "youtubePlaylists" && !videos[selectedTab].length ? (
-							<Box
-								display="flex"
-								flexDirection="column"
-								alignItems="center"
-								justifyContent="center"
-								textAlign="center"
-								width="100%"
-							>
-								<form onSubmit={handleSubmit}>
-									<Input
-										type="text"
-										label={"Playlist Link"}
-										margin="normal"
-										variant="outlined"
-										onChange={handleYoutubeLink}
-										required
-									/>
-									<br />
+							<Box display="flex" alignItems="center" justifyContent="center" textAlign="center" width="100%">
+								<form onSubmit={handleSubmit} style={{ width: "100%" }}>
+									<Box style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+										<Input
+											type="text"
+											label={"Playlist Link"}
+											margin="normal"
+											variant="outlined"
+											onChange={handleYoutubePlaylistLink}
+											value={youtubePlaylistLink}
+											style={{ width: "30%", textAlign: "left" }}
+										/>
+										<Typography style={{ paddingRight: "10px", paddingLeft: "10px", marginTop: "10px" }}>
+											{"or"}
+										</Typography>
+										<Input
+											label="Youtube Playlists"
+											variant="outlined"
+											onChange={handleYoutubePlaylist}
+											value={youtubePlaylist}
+											select
+											style={{ width: "30%", textAlign: "left", marginTop: "10px" }}
+										>
+											{playlists.map(p => (
+												<MenuItem
+													key={p.externalId}
+													value={`https://www.youtube.com/playlist?list=${p.externalId}`}
+												>
+													{p.displayName}
+												</MenuItem>
+											))}
+										</Input>
+									</Box>
 									<br />
 									<Button type="submit" variant="contained" color="primary">
 										{translate("add")}
