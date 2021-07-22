@@ -427,17 +427,7 @@ function VideoPlayer() {
 					</Box>
 					<Box display="flex" flexGrow="1" minHeight="0">
 						{selectedTab === "youtubePlaylists" && !videos[selectedTab].length ? (
-							<Box
-								display="flex"
-								flexDirection="column"
-								alignItems="center"
-								justifyContent="center"
-								textAlign="center"
-								width="100%"
-							>
-								<Typography variant="h6" style={{ marginBottom: 10 }}>
-									{translate("addYoutubePlaylist")}
-								</Typography>
+							<Box display="flex" alignItems="center" justifyContent="center" textAlign="center" width="100%">
 								<form onSubmit={handleSubmit} style={{ width: "100%" }}>
 									<Box style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
 										<Input
@@ -470,7 +460,6 @@ function VideoPlayer() {
 											))}
 										</Input>
 									</Box>
-									<br />
 									<br />
 									<Button type="submit" variant="contained" color="primary">
 										{translate("add")}
