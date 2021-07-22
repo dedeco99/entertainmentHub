@@ -40,8 +40,8 @@ function VideoPlayer() {
 	const { state, dispatch } = useContext(VideoPlayerContext);
 	const { user } = useContext(UserContext);
 	const [playlists, setPlaylists] = useState([]);
-	const [youtubeInputLinkValue, setYoutubeInputLinkValue] = useState("");
-	const [youtubeSelectLinkValue, setYoutubeSelectLinkValue] = useState("");
+	const [youtubePlaylistLink, setYoutubePlaylistLink] = useState("");
+	const [youtubePlaylist, setYoutubePlaylist] = useState("");
 	const { currentVideo, videos, x, y, width, height, minimized, selectedTab, showQueue } = state;
 	const [restrictions, setRestrictions] = useState({
 		minWidth: 600,
@@ -212,23 +212,22 @@ function VideoPlayer() {
 		}
 	}
 
-	function handleInputLinkYoutube(e) {
-		setYoutubeInputLinkValue(e.target.value);
-		setYoutubeSelectLinkValue("");
+	function handleYoutubePlaylistLink(e) {
+		setYoutubePlaylistLink(e.target.value);
+		setYoutubePlaylist("");
 		handleYoutubeLink(e);
 	}
 
-	function handleSelectLinkYoutube(e) {
-		setYoutubeInputLinkValue("");
-		setYoutubeSelectLinkValue(e.target.value);
+	function handleYoutubePlaylist(e) {
+		setYoutubePlaylistLink("");
+		setYoutubePlaylist(e.target.value);
 		handleYoutubeLink(e);
 	}
 
 	async function handleSubmit(e) {
 		e.preventDefault();
-		console.log(playlistId);
+
 		const response = await getPlaylistVideos(playlistId);
-		console.log(response);
 
 		if (response.status === 200) {
 			dispatch({
@@ -237,8 +236,8 @@ function VideoPlayer() {
 				videos: response.data,
 			});
 
-			setYoutubeInputLinkValue("");
-			setYoutubeSelectLinkValue("");
+			setYoutubePlaylist("");
+			setYoutubePlaylistLink("");
 		}
 	}
 
@@ -439,7 +438,6 @@ function VideoPlayer() {
 								<Typography variant="h6" style={{ marginBottom: 10 }}>
 									{translate("addYoutubePlaylist")}
 								</Typography>
-
 								<form onSubmit={handleSubmit} style={{ width: "100%" }}>
 									<Box style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
 										<Input
@@ -447,19 +445,18 @@ function VideoPlayer() {
 											label={"Playlist Link"}
 											margin="normal"
 											variant="outlined"
-											onChange={handleInputLinkYoutube}
-											value={youtubeInputLinkValue}
+											onChange={handleYoutubePlaylistLink}
+											value={youtubePlaylistLink}
 											style={{ width: "30%", textAlign: "left" }}
 										/>
-
-										<Typography style={{ paddingRight: "10px", paddingLeft: "10px" }}> {"or"}</Typography>
-
+										<Typography style={{ paddingRight: "10px", paddingLeft: "10px", marginTop: "10px" }}>
+											{"or"}
+										</Typography>
 										<Input
 											label="Youtube Playlists"
-											id="youtubePlaylists"
-											onChange={handleSelectLinkYoutube}
 											variant="outlined"
-											value={youtubeSelectLinkValue}
+											onChange={handleYoutubePlaylist}
+											value={youtubePlaylist}
 											select
 											style={{ width: "30%", textAlign: "left", marginTop: "10px" }}
 										>
@@ -473,7 +470,6 @@ function VideoPlayer() {
 											))}
 										</Input>
 									</Box>
-
 									<br />
 									<br />
 									<Button type="submit" variant="contained" color="primary">

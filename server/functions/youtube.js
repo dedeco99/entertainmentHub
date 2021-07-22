@@ -204,7 +204,7 @@ async function getPlaylistVideos(event) {
 		channelName: video.snippet.channelTitle,
 		channelUrl: `https://www.youtube.com/channel/${video.snippet.channelId}`,
 		name: video.snippet.title,
-		thumbnail: video.snippet.thumbnails.default.url,
+		thumbnail: video.snippet.thumbnails.default ? video.snippet.thumbnails.default.url : null,
 		url: `https://www.youtube.com/watch?v=${video.snippet.resourceId.videoId}`,
 		after: json.nextPageToken,
 	}));
