@@ -45,14 +45,14 @@ async function getCoins(event) {
 }
 
 async function getCryptoPrices(event) {
-	const { params } = event;
+	const { params, user } = event;
 	const { coins } = params;
 
 	let useCache = true;
 	let data = global.cache.crypto.data;
 
 	for (const symbol of coins.split(",")) {
-		const coin = data[symbol];
+		const coin = data[user.settings.currency] ? data[user.settings.currency][symbol] : null;
 
 		if (!coin || diff(coin.lastUpdate, "minutes") > 10) useCache = false;
 	}
@@ -60,7 +60,7 @@ async function getCryptoPrices(event) {
 	if (!useCache) {
 		const headers = { "X-CMC_PRO_API_KEY": process.env.coinmarketcapKey };
 
-		const url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${coins}&convert=EUR`;
+		const url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${coins}&convert=${user.settings.currency}`;
 
 		const res = await api({ method: "get", url, headers });
 		const json = res.data;
@@ -75,7 +75,8 @@ async function getCryptoPrices(event) {
 		const coin = data[symbol];
 
 		coin.lastUpdate = Date.now();
-		global.cache.crypto.data[symbol] = coin;
+		global.cache.crypto.data[user.settings.currency] = {};
+		global.cache.crypto.data[user.settings.currency][symbol] = coin;
 
 		coinsInfo.push({
 			id: coin.id,
@@ -87,13 +88,13 @@ async function getCryptoPrices(event) {
 			circulatingSupply: coin.circulating_supply,
 			totalSupply: coin.total_supply,
 			maxSupply: coin.max_supply,
-			price: coin.quote.EUR.price,
-			marketCap: coin.quote.EUR.market_cap,
-			volume: coin.quote.EUR.volume_24h,
-			change1h: coin.quote.EUR.percent_change_1h,
-			change24h: coin.quote.EUR.percent_change_24h,
-			change7d: coin.quote.EUR.percent_change_7d,
-			change30d: coin.quote.EUR.percent_change_30d,
+			price: coin.quote[user.settings.currency].price,
+			marketCap: coin.quote[user.settings.currency].market_cap,
+			volume: coin.quote[user.settings.currency].volume_24h,
+			change1h: coin.quote[user.settings.currency].percent_change_1h,
+			change24h: coin.quote[user.settings.currency].percent_change_24h,
+			change7d: coin.quote[user.settings.currency].percent_change_7d,
+			change30d: coin.quote[user.settings.currency].percent_change_30d,
 		});
 	}
 
@@ -114,7 +115,7 @@ async function getStocks(event) {
 }
 
 async function getStockPrices(event) {
-	const { params } = event;
+	const { params, user } = event;
 	const { stocks } = params;
 
 	const quoteRes = await yahooFinance.quote(stocks.split(","));
@@ -127,7 +128,7 @@ async function getStockPrices(event) {
 	}
 
 	if (!useCache) {
-		const url = "https://api.exchangerate.host/latest?base=EUR";
+		const url = `https://api.exchangerate.host/latest?base=${user.settings.currency}`;
 
 		const res = await api({ method: "GET", url });
 
@@ -142,18 +143,24 @@ async function getStockPrices(event) {
 		});
 
 		const price =
-			stock.currency === "EUR" ? stock.regularMarketPrice : stock.regularMarketPrice / data.rates[stock.currency];
+			stock.currency === user.settings.currency
+				? stock.regularMarketPrice
+				: stock.regularMarketPrice / data.rates[stock.currency];
 
 		const openPrice =
-			stock.currency === "EUR" ? stock.regularMarketOpen : stock.regularMarketOpen / data.rates[stock.currency];
+			stock.currency === user.settings.currency
+				? stock.regularMarketOpen
+				: stock.regularMarketOpen / data.rates[stock.currency];
 
 		const weekPrice =
-			stock.currency === "EUR"
+			stock.currency === user.settings.currency
 				? historicalRes[historicalRes.length - 7].close
 				: historicalRes[historicalRes.length - 7].close / data.rates[stock.currency];
 
 		const monthPrice =
-			stock.currency === "EUR" ? historicalRes[0].close : historicalRes[0].close / data.rates[stock.currency];
+			stock.currency === user.settings.currency
+				? historicalRes[0].close
+				: historicalRes[0].close / data.rates[stock.currency];
 
 		stocksInfo.push({
 			id: stock.symbol,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import {
@@ -17,7 +17,11 @@ import {
 
 import Loading from "../.partials/Loading";
 
+import { UserContext } from "../../contexts/UserContext";
+
 import { getCryptoPrices, getStockPrices } from "../../api/finance";
+
+import { getCurrencySymbol } from "../../utils/utils";
 
 import { finance as styles } from "../../styles/Widgets";
 
@@ -25,6 +29,7 @@ const useStyles = makeStyles(styles);
 
 function Finance({ coins, stocks, widgetDimensions }) {
 	const classes = useStyles();
+	const { user } = useContext(UserContext);
 	const [open, setOpen] = useState(false);
 	const [crypto, setCrypto] = useState([]);
 	const [showListView, setShowListView] = useState(true);
@@ -86,7 +91,9 @@ function Finance({ coins, stocks, widgetDimensions }) {
 	}
 
 	function renderPrice(price) {
-		return `€${Math.floor(price) === 0 ? price.toFixed(3) : price.toFixed(2)}`;
+		return `${getCurrencySymbol(user.settings.currency)}${
+			Math.floor(price) === 0 ? price.toFixed(3) : price.toFixed(2)
+		}`;
 	}
 
 	function renderPercentages(variant, percentage) {
@@ -265,10 +272,14 @@ function Finance({ coins, stocks, widgetDimensions }) {
 								<TableCell className={classes.cell}>
 									<Box display="flex" flexDirection="column" alignItems="flex-end">
 										<Tooltip title="Market Cap" placement="left">
-											<Typography variant="caption">{`€${simplifyNumber(c.marketCap)}`}</Typography>
+											<Typography variant="caption">
+												{`${getCurrencySymbol(user.settings.currency)}${simplifyNumber(c.marketCap)}`}
+											</Typography>
 										</Tooltip>
 										<Tooltip title="Volume" placement="left">
-											<Typography variant="caption">{`€${simplifyNumber(c.volume)}`}</Typography>
+											<Typography variant="caption">
+												{`${getCurrencySymbol(user.settings.currency)}${simplifyNumber(c.volume)}`}
+											</Typography>
 										</Tooltip>
 									</Box>
 								</TableCell>
