@@ -247,6 +247,10 @@ const translations = {
 		en: "Auto play for video player",
 		pt: "Reprodução automática para o reprodutor de vídeo",
 	},
+	addYoutubePlaylist: {
+		en: "Add Youtube Playlist",
+		pt: "Adicionar uma Playlist do Youtube",
+	},
 	multipleParamExample: (...params) => ({
 		en: `Hello ${params[0]}, my name is ${params[1]}`,
 		pt: `Boas ${params[0]}, o meu nome é ${params[1]}`,

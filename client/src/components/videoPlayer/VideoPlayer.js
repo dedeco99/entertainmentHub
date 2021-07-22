@@ -40,7 +40,8 @@ function VideoPlayer() {
 	const { state, dispatch } = useContext(VideoPlayerContext);
 	const { user } = useContext(UserContext);
 	const [playlists, setPlaylists] = useState([]);
-	const [selectedOption, setSelectedOption] = useState("");
+	const [youtubeInputLinkValue, setYoutubeInputLinkValue] = useState("");
+	const [youtubeSelectLinkValue, setYoutubeSelectLinkValue] = useState("");
 	const { currentVideo, videos, x, y, width, height, minimized, selectedTab, showQueue } = state;
 	const [restrictions, setRestrictions] = useState({
 		minWidth: 600,
@@ -154,10 +155,6 @@ function VideoPlayer() {
 		dispatch({ type: "SET_SELECTED_TAB", selectedTab: tab });
 	}
 
-	function handleOptionSelected(e) {
-		setSelectedOption(e.target.value);
-	}
-
 	function calculateX() {
 		const minX = 10;
 		const maxX = document.documentElement.clientWidth - width - 10;
@@ -215,6 +212,18 @@ function VideoPlayer() {
 		}
 	}
 
+	function handleInputLinkYoutube(e) {
+		setYoutubeInputLinkValue(e.target.value);
+		setYoutubeSelectLinkValue("");
+		handleYoutubeLink(e);
+	}
+
+	function handleSelectLinkYoutube(e) {
+		setYoutubeInputLinkValue("");
+		setYoutubeSelectLinkValue(e.target.value);
+		handleYoutubeLink(e);
+	}
+
 	async function handleSubmit(e) {
 		e.preventDefault();
 		console.log(playlistId);
@@ -227,9 +236,10 @@ function VideoPlayer() {
 				videoSource: "youtubePlaylists",
 				videos: response.data,
 			});
-		}
 
-		setSelectedOption("");
+			setYoutubeInputLinkValue("");
+			setYoutubeSelectLinkValue("");
+		}
 	}
 
 	function renderQueueOrChat() {
@@ -427,56 +437,29 @@ function VideoPlayer() {
 								width="100%"
 							>
 								<Typography variant="h6" style={{ marginBottom: 10 }}>
-									{"Add a Youtube Playlist"}
+									{translate("addYoutubePlaylist")}
 								</Typography>
 
-								<Input
-									label="Select an option"
-									id="optionPlaylists"
-									onChange={handleOptionSelected}
-									variant="outlined"
-									select
-									style={{ width: "20%", textAlign: "left" }}
-								>
-									<MenuItem
-										key="link"
-										selected={selectedOption === "YoutubeLink"}
-										style={{ textAlign: "left" }}
-										value="YoutubeLink"
-									>
-										{"Youtube Link"}
-									</MenuItem>
-									<MenuItem
-										key="playlist"
-										selected={!selectedOption === "YoutubePlaylists"}
-										style={{ textAlign: "left" }}
-										value="YoutubePlaylists"
-									>
-										{"Your Youtube Playlists"}
-									</MenuItem>
-								</Input>
-
 								<form onSubmit={handleSubmit} style={{ width: "100%" }}>
-									{selectedOption !== "" && selectedOption === "YoutubeLink" ? (
+									<Box style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
 										<Input
 											type="text"
 											label={"Playlist Link"}
 											margin="normal"
 											variant="outlined"
-											onChange={handleYoutubeLink}
-											required
+											onChange={handleInputLinkYoutube}
+											value={youtubeInputLinkValue}
 											style={{ width: "30%", textAlign: "left" }}
 										/>
-									) : (
-										""
-									)}
 
-									{selectedOption !== "" && selectedOption === "YoutubePlaylists" ? (
+										<Typography style={{ paddingRight: "10px", paddingLeft: "10px" }}> {"or"}</Typography>
+
 										<Input
 											label="Youtube Playlists"
 											id="youtubePlaylists"
-											onChange={handleYoutubeLink}
+											onChange={handleSelectLinkYoutube}
 											variant="outlined"
+											value={youtubeSelectLinkValue}
 											select
 											style={{ width: "30%", textAlign: "left", marginTop: "10px" }}
 										>
@@ -489,9 +472,7 @@ function VideoPlayer() {
 												</MenuItem>
 											))}
 										</Input>
-									) : (
-										""
-									)}
+									</Box>
 
 									<br />
 									<br />
