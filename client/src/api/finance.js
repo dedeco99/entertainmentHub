@@ -18,6 +18,15 @@ async function getCryptoPrices(coin) {
 	return res;
 }
 
+async function getExchangeRates(base) {
+	const res = await api({
+		method: "get",
+		url: `/api/rates?base=${base}`,
+	});
+
+	return res;
+}
+
 async function getStocks(filter) {
 	const res = await api({
 		method: "get",
@@ -36,4 +45,4 @@ async function getStockPrices(stocks) {
 	return res;
 }
 
-export { getCoins, getCryptoPrices, getStocks, getStockPrices };
+export { getCoins, getCryptoPrices, getExchangeRates, getStocks, getStockPrices };

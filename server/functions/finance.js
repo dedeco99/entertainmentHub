@@ -103,6 +103,31 @@ async function getCryptoPrices(event) {
 	return response(200, "GET_COIN", coinsInfo);
 }
 
+async function getExchangeRates(event) {
+	const { query, user } = event;
+	const { base } = query;
+
+	console.log("base", base);
+
+	let useCache = true;
+	let exchangeRates = global.cache.exchangeRates.data;
+
+	if (!Object.keys(exchangeRates).length || diff(global.cache.exchangeRates.lastUpdate, "minutes") > 1) {
+		useCache = false;
+	}
+
+	if (!useCache) {
+		const url = `https://api.exchangerate.host/latest?base=${base || user.settings.currency}`;
+
+		const res = await api({ method: "GET", url });
+
+		exchangeRates = res.data.rates;
+		global.cache.exchangeRates.data = res.data.rates;
+	}
+
+	return response(200, "GET_EXCHANGE_RATES", exchangeRates);
+}
+
 async function getStocks(event) {
 	const { query } = event;
 	const { filter } = query;
@@ -120,21 +145,7 @@ async function getStockPrices(event) {
 
 	const quoteRes = await yahooFinance.quote(stocks.split(","));
 
-	let useCache = true;
-	let data = global.cache.exchangeRates.data;
-
-	if (!Object.keys(data).length || diff(global.cache.exchangeRates.lastUpdate, "minutes") > 1) {
-		useCache = false;
-	}
-
-	if (!useCache) {
-		const url = `https://api.exchangerate.host/latest?base=${user.settings.currency}`;
-
-		const res = await api({ method: "GET", url });
-
-		data = res.data;
-		global.cache.exchangeRates.data = res.data;
-	}
+	const exchangeRates = (await getExchangeRates(event)).body.data;
 
 	const stocksInfo = [];
 	for (const stock of quoteRes) {
@@ -145,22 +156,22 @@ async function getStockPrices(event) {
 		const price =
 			stock.currency === user.settings.currency
 				? stock.regularMarketPrice
-				: stock.regularMarketPrice / data.rates[stock.currency];
+				: stock.regularMarketPrice / exchangeRates[stock.currency];
 
 		const openPrice =
 			stock.currency === user.settings.currency
 				? stock.regularMarketOpen
-				: stock.regularMarketOpen / data.rates[stock.currency];
+				: stock.regularMarketOpen / exchangeRates[stock.currency];
 
 		const weekPrice =
 			stock.currency === user.settings.currency
 				? historicalRes[historicalRes.length - 7].close
-				: historicalRes[historicalRes.length - 7].close / data.rates[stock.currency];
+				: historicalRes[historicalRes.length - 7].close / exchangeRates[stock.currency];
 
 		const monthPrice =
 			stock.currency === user.settings.currency
 				? historicalRes[0].close
-				: historicalRes[0].close / data.rates[stock.currency];
+				: historicalRes[0].close / exchangeRates[stock.currency];
 
 		stocksInfo.push({
 			id: stock.symbol,
@@ -183,6 +194,7 @@ async function getStockPrices(event) {
 module.exports = {
 	getCoins,
 	getCryptoPrices,
+	getExchangeRates,
 	getStocks,
 	getStockPrices,
 };
