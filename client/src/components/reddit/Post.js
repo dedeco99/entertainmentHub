@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import ReactPlayer from "react-player";
 
+import PrismaZoom from "react-prismazoom";
+
 import {
 	makeStyles,
 	CardMedia,
@@ -117,37 +119,51 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 				<CardMedia component="img" src={post.url} className={classes.media} onClick={handleOpenExpandedView} />
 			);
 			expandedContent = (
-				<img
-					src={post.url}
-					alt={post.url}
-					style={{
-						width: "100%",
-						height: "100%",
-						maxWidth: "100%",
-						maxHeight: "100%",
-						margin: "auto",
-						display: "block",
-						position: "absolute",
-						objectFit: "contain",
-					}}
-				/>
+				<PrismaZoom className={classes.zoomImage}>
+					<img
+						src={post.url}
+						alt={post.url}
+						style={{
+							width: "100%",
+							height: "100%",
+							maxWidth: "100%",
+							maxHeight: "100%",
+							margin: "auto",
+							display: "block",
+							position: "absolute",
+							objectFit: "contain",
+							cursor: "zoom-in",
+						}}
+					/>
+				</PrismaZoom>
 			);
 			expandedContent = (
-				<img
-					src={post.url}
-					alt={post.url}
-					style={{ display: "block", position: "absolute", margin: "auto", width: "100%", height: "100%" }}
-				/>
+				<PrismaZoom className={classes.zoomImage}>
+					<img
+						src={post.url}
+						alt={post.url}
+						style={{
+							display: "block",
+							position: "absolute",
+							margin: "auto",
+							width: "100%",
+							height: "100%",
+							cursor: "zoom-in",
+						}}
+					/>
+				</PrismaZoom>
 			);
 		} else if (post.gallery) {
 			content = (
-				<div>
-					<CardMedia
-						component="img"
-						src={post.gallery[galleryIndex]}
-						className={classes.media}
-						onClick={handleOpenExpandedView}
-					/>
+				<div className={classes.zoomImage}>
+					<PrismaZoom className={classes.zoomImage} style={{ position: "absolute" }}>
+						<CardMedia
+							component="img"
+							src={post.gallery[galleryIndex]}
+							className={classes.media}
+							onClick={handleOpenExpandedView}
+						/>
+					</PrismaZoom>
 					{galleryIndex > 0 && (
 						<Box left="10px" className={classes.galleryBtn}>
 							<IconButton
@@ -539,7 +555,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 									)}
 								</Box>
 
-								<Box position="relative" height="100%" flexGrow={1} style={{ overflow: "auto" }}>
+								<Box position="relative" height="100%" flexGrow={1} style={{ overflow: "hidden" }}>
 									{expandedContent}
 								</Box>
 

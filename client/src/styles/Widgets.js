@@ -85,6 +85,10 @@ const reddit = {
 		overflowX: "hidden",
 		position: "relative",
 	},
+	zoomImage: {
+		width: "100%",
+		height: "100%",
+	},
 	media: props => ({
 		position: props.inList ? "relative" : "absolute",
 		top: "0",
