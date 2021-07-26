@@ -247,7 +247,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 			content = (
 				<CardMedia
 					component="iframe"
-					src="https://streamable.com/e/c2h6di"
+					src={`https://streamable.com/e/${post.url.substr(post.url.lastIndexOf("/") + 1)}`}
 					className={classes.media}
 					frameBorder={0}
 					allowFullScreen
@@ -317,9 +317,19 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 						</Typography>
 					)}
 					<Box display="flex" flexWrap="wrap" className={classes.flairs}>
-						{post.flairs.map(flair => (
-							<Chip key={flair} size="small" label={flair} />
-						))}
+						{post.flairs.map((flair, i) =>
+							flair.includes("https") ? (
+								<img
+									src={flair}
+									style={{
+										height: "25px",
+										marginRight: !post.flairs[i + 1] || !post.flairs[i + 1].includes("https") ? "5px" : "0px",
+									}}
+								/>
+							) : (
+								<Chip key={flair} size="small" label={flair} />
+							),
+						)}
 					</Box>
 					<Box display="flex" style={{ paddingLeft: 25 }}>
 						<Box display="flex" flexGrow={1} justifyContent="center">

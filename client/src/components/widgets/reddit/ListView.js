@@ -21,9 +21,19 @@ function ListView({ open, subreddit, posts, multipleSubs, getPosts, hasMorePosts
 		<ListItem key={post.id} button divider onClick={() => onShowSingleView(index)}>
 			<Box display="flex" flex="1 1 auto" minWidth={0} flexDirection="column">
 				<Box display="flex" flexWrap="wrap" className={classes.flairs}>
-					{post.flairs.map(flair => (
-						<Chip key={flair} size="small" label={flair} />
-					))}
+					{post.flairs.map((flair, i) =>
+						flair.includes("https") ? (
+							<img
+								src={flair}
+								style={{
+									height: "25px",
+									marginRight: !post.flairs[i + 1] || !post.flairs[i + 1].includes("https") ? "5px" : "0px",
+								}}
+							/>
+						) : (
+							<Chip key={flair} size="small" label={flair} />
+						),
+					)}
 				</Box>
 				<Box display="flex">
 					<Box display="flex" flexDirection="column" flexGrow={1}>
@@ -73,6 +83,7 @@ function ListView({ open, subreddit, posts, multipleSubs, getPosts, hasMorePosts
 						hasMore={hasMorePosts}
 						useWindow={false}
 						loader={<Loading key={0} />}
+						style={{ width: "100%" }}
 					>
 						<List>{postsList}</List>
 					</InfiniteScroll>
