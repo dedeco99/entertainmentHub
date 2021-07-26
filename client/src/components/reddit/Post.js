@@ -247,7 +247,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 			content = (
 				<CardMedia
 					component="iframe"
-					src="https://streamable.com/e/c2h6di"
+					src={`https://streamable.com/e/${post.url.substr(post.url.lastIndexOf("/") + 1)}`}
 					className={classes.media}
 					frameBorder={0}
 					allowFullScreen
