@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroller";
 import { useHistory, useRouteMatch } from "react-router-dom";
 
@@ -9,6 +9,8 @@ import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
 import Categories from "../.partials/Categories";
 import Loading from "../.partials/Loading";
 import Episode from "./Episode";
+
+import { TVContext } from "../../contexts/TVContext";
 
 import { getSeasons } from "../../api/tv";
 import { patchSubscription } from "../../api/subscriptions";
@@ -23,6 +25,7 @@ function Episodes() {
 	const history = useHistory();
 	const match = useRouteMatch();
 	const classes = useStyles();
+	const { dispatch } = useContext(TVContext);
 	const [seasons, setSeasons] = useState([]);
 	const [episodes, setEpisodes] = useState([]);
 	const [page, setPage] = useState(0);
@@ -150,11 +153,22 @@ function Episodes() {
 		);
 
 		if (response.status === 200) {
+			let increment = 0;
 			for (const episode of episodes) {
-				episode.watched = Boolean(
+				const newWatched = Boolean(
 					response.data.watched.find(w => w.key === `S${episode.season}E${episode.number}`),
 				);
+
+				if (newWatched && !episode.watched) {
+					increment--;
+				} else if (!newWatched && episode.watched) {
+					increment++;
+				}
+
+				episode.watched = newWatched;
 			}
+
+			dispatch({ type: "EDIT_EPISODES_TO_WATCH", subscription: response.data, increment });
 
 			setRerender(!rerender);
 		}

@@ -4,6 +4,7 @@ import PropTypes from "prop-types";
 import { makeStyles, Card, CardMedia, CardActionArea } from "@material-ui/core";
 
 import { UserContext } from "../../contexts/UserContext";
+import { TVContext } from "../../contexts/TVContext";
 
 import { patchSubscription } from "../../api/subscriptions";
 
@@ -18,6 +19,7 @@ const useStyles = makeStyles(styles);
 function Episode({ episode }) {
 	const classes = useStyles();
 	const { user } = useContext(UserContext);
+	const { dispatch } = useContext(TVContext);
 	const [rerender, setRerender] = useState(true);
 
 	async function markAsWatched() {
@@ -27,6 +29,12 @@ function Episode({ episode }) {
 
 		if (response.status === 200) {
 			episode.watched = Boolean(response.data.watched.find(w => w.key === `S${episode.season}E${episode.number}`));
+
+			dispatch({
+				type: "EDIT_EPISODES_TO_WATCH",
+				subscription: response.data,
+				increment: episode.watched ? -1 : 1,
+			});
 
 			setRerender(!rerender);
 		}

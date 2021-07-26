@@ -113,6 +113,8 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 			serie.numWatched = isWatched ? 0 : serie.numTotal;
 			serie.numToWatch = isWatched ? serie.numTotal : 0;
 
+			dispatch({ type: "EDIT_SUBSCRIPTION", subscription: { ...response.data, numToWatch: serie.numToWatch } });
+
 			setRerender(!rerender);
 		}
 	}

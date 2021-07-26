@@ -40,7 +40,7 @@ async function addWidget(event) {
 			if (!info.lat || !info.lon) return errors.requiredFieldsMissing;
 			break;
 		case "finance":
-			if (!info.coins || !info.stocks) return errors.requiredFieldsMissing;
+			if (!info.coins && !info.stocks) return errors.requiredFieldsMissing;
 			break;
 		case "price":
 			if (!info.country || !info.productId) return errors.requiredFieldsMissing;
