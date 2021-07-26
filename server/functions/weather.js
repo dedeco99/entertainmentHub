@@ -20,8 +20,8 @@ async function getWeather(event) {
 
 	const weather = {
 		current: {
-			sunrise: formatDate(json.current.sunrise * 1000, "HH:mm"),
-			sunset: formatDate(json.current.sunset * 1000, "HH:mm"),
+			sunrise: formatDate((json.current.sunrise + json.timezone_offset) * 1000, "HH:mm"),
+			sunset: formatDate((json.current.sunset + json.timezone_offset) * 1000, "HH:mm"),
 			temp: json.current.temp,
 			feelsLike: json.current.feels_like,
 			minTemp,
@@ -41,7 +41,7 @@ async function getWeather(event) {
 			},
 		},
 		hourly: json.hourly.map(hourly => ({
-			hour: formatDate(hourly.dt * 1000, "HH:mm"),
+			hour: formatDate((hourly.dt + json.timezone_offset) * 1000, "HH:mm"),
 			temp: hourly.temp,
 			feelsLike: hourly.feels_like,
 			pressure: hourly.pressure,
@@ -59,9 +59,9 @@ async function getWeather(event) {
 			},
 		})),
 		daily: json.daily.map(daily => ({
-			date: formatDate(daily.dt * 1000, "DD-MM-YYYY"),
-			sunrise: formatDate(daily.sunrise * 1000, "HH:mm"),
-			sunset: formatDate(daily.sunset * 1000, "HH:mm"),
+			date: formatDate((daily.dt + json.timezone_offset) * 1000, "DD-MM-YYYY"),
+			sunrise: formatDate((daily.sunrise + json.timezone_offset) * 1000, "HH:mm"),
+			sunset: formatDate((daily.sunset + json.timezone_offset) * 1000, "HH:mm"),
 			temp: daily.temp.day,
 			feelsLike: daily.feels_like.day,
 			minTemp: daily.temp.min,
@@ -99,7 +99,7 @@ function getCities(event) {
 			lat: city.loc.coordinates[1],
 			lon: city.loc.coordinates[0],
 		}))
-		.sort((a, b) => a.name <= b.name ? -1 : 1);
+		.sort((a, b) => (a.name <= b.name ? -1 : 1));
 
 	return response(200, "GET_CITIES", cities);
 }
