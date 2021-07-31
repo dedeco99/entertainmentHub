@@ -57,8 +57,10 @@ async function getEmails(event) {
 			formattedMessage.subject = message.payload.headers.find(h => h.name === "Subject").value;
 			formattedMessage.from = message.payload.headers.find(h => h.name === "From").value;
 			formattedMessage.to = message.payload.headers.find(h => h.name === "To").value;
-			if (message.payload.parts[1].body.data) {
+			if (message.payload.parts[1] && message.payload.parts[1].body.data) {
 				formattedMessage.data = Buffer.from(message.payload.parts[1].body.data, "base64").toString();
+			} else if (message.payload.parts[0] && message.payload.parts[0].body.data) {
+				formattedMessage.data = Buffer.from(message.payload.parts[0].body.data, "base64").toString();
 			} else {
 				formattedMessage.data = Buffer.from(message.payload.parts[0].parts[1].body.data, "base64").toString();
 			}
