@@ -495,9 +495,10 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 			{ value: "finance", displayName: "Finance" },
 			{ value: "tv", displayName: "TV" },
 			{ value: "price", displayName: "Price" },
+			{ value: "email", displayName: "Email" },
 		];
 
-		const nonAppWidgets = ["notifications", "weather", "finance", "price"];
+		const nonAppWidgets = ["notifications", "weather", "finance", "price", "email"];
 		const appTypes = user.apps ? user.apps.map(a => a.platform).concat(nonAppWidgets) : nonAppWidgets;
 		types = types.filter(t => appTypes.includes(t.value));
 

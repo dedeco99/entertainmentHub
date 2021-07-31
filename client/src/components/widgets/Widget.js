@@ -110,7 +110,7 @@ function Widget({
 		setOpenDeleteConfirmation(false);
 	}
 
-	const nonAppWidgets = ["notifications", "weather", "finance", "price"];
+	const nonAppWidgets = ["notifications", "weather", "finance", "price", "email"];
 	// prettier-ignore
 	const hasApp = user.apps && user.apps.length
 		? user.apps.find(app => app.platform === type || nonAppWidgets.includes(type))
