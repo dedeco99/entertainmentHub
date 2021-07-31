@@ -23,6 +23,7 @@ const feeds = require("./functions/feeds");
 const youtube = require("./functions/youtube");
 const twitch = require("./functions/twitch");
 const tv = require("./functions/tv");
+const gmail = require("./functions/gmail");
 
 global.sockets = [];
 global.cache = {
@@ -180,6 +181,8 @@ app.get("/api/tv/search/:search", token, (req, res) => middleware(req, res, tv.g
 app.get("/api/tv/popular", token, (req, res) => middleware(req, res, tv.getPopular));
 
 app.get("/api/tv/:id", token, (req, res) => middleware(req, res, tv.getEpisodes));
+
+app.get("/api/gmail", token, (req, res) => middleware(req, res, gmail.getEmails));
 
 app.get("*/", (req, res) => {
 	res.sendFile(path.join(`${__dirname}/build/index.html`));
