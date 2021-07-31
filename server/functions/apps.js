@@ -50,6 +50,14 @@ async function addApp(event) {
 			json = res.data;
 			break;
 		}
+		case "gmail": {
+			const url = `https://www.googleapis.com/oauth2/v4/token?client_id=${process.env.youtubeClientId}&client_secret=${process.env.youtubeSecret}&code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/gmail`;
+
+			const res = await api({ method: "post", url });
+			json = res.data;
+			console.log(json);
+			break;
+		}
 		default: {
 			break;
 		}
