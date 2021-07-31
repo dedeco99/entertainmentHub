@@ -96,6 +96,7 @@ function Reddit({ subreddit, search, listView }) {
 			<SingleView
 				open={open}
 				post={posts[num]}
+				num={num}
 				multipleSubs={subreddit.includes("+") || subreddit === "all"}
 				onShowNextPost={handleShowNextPost}
 				onShowPreviousPost={handleShowPreviousPost}

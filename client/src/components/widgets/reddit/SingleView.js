@@ -9,7 +9,7 @@ import { reddit as styles } from "../../../styles/Widgets";
 
 const useStyles = makeStyles(styles);
 
-function SingleView({ open, post, multipleSubs, onShowPreviousPost, onShowNextPost, onShowListView }) {
+function SingleView({ open, post, num, multipleSubs, onShowPreviousPost, onShowNextPost, onShowListView }) {
 	const classes = useStyles();
 
 	return (
@@ -18,6 +18,7 @@ function SingleView({ open, post, multipleSubs, onShowPreviousPost, onShowNextPo
 				<Box display="flex" flexDirection="column" className={classes.wrapper}>
 					<Post
 						post={post}
+						num={num}
 						multipleSubs={multipleSubs}
 						onShowPreviousPost={onShowPreviousPost}
 						onShowNextPost={onShowNextPost}
@@ -42,6 +43,7 @@ function SingleView({ open, post, multipleSubs, onShowPreviousPost, onShowNextPo
 SingleView.propTypes = {
 	open: PropTypes.bool.isRequired,
 	post: PropTypes.object.isRequired,
+	num: PropTypes.number.isRequired,
 	multipleSubs: PropTypes.bool.isRequired,
 	onShowPreviousPost: PropTypes.func.isRequired,
 	onShowNextPost: PropTypes.func.isRequired,

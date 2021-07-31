@@ -32,7 +32,7 @@ import { reddit as styles } from "../../styles/Widgets";
 
 const useStyles = makeStyles(styles);
 
-function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, customStyles }) {
+function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inList, customStyles }) {
 	const classes = useStyles({ inList });
 	const [expandedView, setExpandedView] = useState(false);
 	const [sideMenuView, setSideMenuView] = useState(true);
@@ -53,8 +53,8 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 	}
 
 	useEffect(() => {
-		handleGetComments();
-	}, [post.id]);
+		if (expandedView) handleGetComments();
+	}, [post.id, expandedView]);
 
 	useEffect(() => {
 		setGalleryIndex(0);
@@ -87,18 +87,30 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 		return () => window.removeEventListener("resize", updateSideMenuView);
 	}, []);
 
-	function formatTextPost() {
+	function formatTextPost(expanded) {
+		const text =
+			post.text === "null" ? (
+				<Typography>
+					<Link href={post.url} target="_blank" rel="noreferrer" color="inherit">
+						{post.url}
+					</Link>
+				</Typography>
+			) : (
+				// eslint-disable-next-line react/no-danger
+				<Box
+					className={classes.textContent}
+					dangerouslySetInnerHTML={{ __html: htmlEscape(`${post.text}${post.text}`) }}
+				/>
+			);
+
 		return (
-			<Box p={2} maxWidth={1450} style={{ backgroundColor: "#212121" }}>
-				{post.text === "null" ? (
-					<Typography>
-						<Link href={post.url} target="_blank" rel="noreferrer" color="inherit">
-							{post.url}
-						</Link>
-					</Typography>
+			<Box display="flex" alignItems="center" height="100%">
+				{expanded ? (
+					<Box p={2} maxWidth={1450} style={{ backgroundColor: "#212121", overflow: "auto" }} maxHeight="1000px">
+						{text}
+					</Box>
 				) : (
-					// eslint-disable-next-line react/no-danger
-					<div className={classes.textContent} dangerouslySetInnerHTML={{ __html: htmlEscape(post.text) }} />
+					text
 				)}
 			</Box>
 		);
@@ -272,8 +284,8 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 			expandedContent = content;
 		} else {
 			isMedia = false;
-			content = formatTextPost(post);
-			expandedContent = content;
+			content = formatTextPost();
+			expandedContent = formatTextPost(true);
 		}
 
 		return { isMedia, content, expandedContent };
@@ -474,7 +486,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 
 										<Box fontWeight={500} fontFamily="Monospace" pt={1}>
 											<Typography variant="caption" style={{ fontSize: "13px" }}>
-												{comment.score}
+												{reply.score}
 											</Typography>
 											<Typography
 												variant="caption"
@@ -531,7 +543,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 										<i className="icon-cross icon-1x" />
 									</IconButton>
 
-									{onShowPreviousPost && (
+									{onShowPreviousPost && num && (
 										<Box
 											className={classes.expandedBtn}
 											onClick={onShowPreviousPost}
@@ -543,11 +555,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 											}}
 										>
 											<Box>
-												<IconButton
-													onClick={onShowPreviousPost}
-													color="primary"
-													style={{ backgroundColor: "#3C3C3C", cursor: "pointer" }}
-												>
+												<IconButton color="primary" style={{ backgroundColor: "#3C3C3C", cursor: "pointer" }}>
 													<i className="icon-arrow-left icon-1x" />
 												</IconButton>
 											</Box>
@@ -586,11 +594,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 											}}
 										>
 											<Box>
-												<IconButton
-													onClick={onShowPreviousPost}
-													color="primary"
-													style={{ backgroundColor: "#3C3C3C", cursor: "pointer" }}
-												>
+												<IconButton color="primary" style={{ backgroundColor: "#3C3C3C", cursor: "pointer" }}>
 													<i className="icon-arrow-right icon-1x" />
 												</IconButton>
 											</Box>
@@ -690,6 +694,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 
 Post.propTypes = {
 	post: PropTypes.object.isRequired,
+	num: PropTypes.number,
 	multipleSubs: PropTypes.bool.isRequired,
 	onShowPreviousPost: PropTypes.func,
 	onShowNextPost: PropTypes.func,
