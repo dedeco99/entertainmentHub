@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroller";
 import parse from "html-react-parser";
+import { enable as enableDarkReader, disable as disableDarkReader } from "darkreader";
 
 import { makeStyles, Zoom, Box, Typography, ListItem } from "@material-ui/core";
 
@@ -35,11 +36,22 @@ function Emails() {
 		}
 
 		fetchData();
+
+		return () => disableDarkReader();
 	}, []);
 
 	function handleSelectEmail(email) {
 		setSelectedEmail(email);
 		setShowListView(false);
+
+		enableDarkReader();
+	}
+
+	function handleUnselectEmail() {
+		setSelectedEmail(null);
+		setShowListView(true);
+
+		disableDarkReader();
 	}
 
 	if (!open) return <Loading />;
@@ -90,7 +102,7 @@ function Emails() {
 
 	return (
 		<Zoom in={open}>
-			<Box onClick={() => setShowListView(true)} style={{ width: "100%", overflow: "auto" }}>
+			<Box onClick={() => handleUnselectEmail()} style={{ width: "100%", overflow: "auto", padding: "10px" }}>
 				{parse(selectedEmail.messages[selectedEmail.messages.length - 1].data)}
 			</Box>
 		</Zoom>

@@ -15,6 +15,7 @@
 		"@material-ui/lab": "^4.0.0-alpha.60",
 		"@material-ui/pickers": "^3.3.10",
 		"axios": "^0.21.1",
+		"darkreader": "^4.9.34",
 		"dayjs": "^1.10.6",
 		"framer-motion": "^4.1.17",
 		"html-react-parser": "^1.2.7",
