@@ -213,7 +213,7 @@ async function getComments(event) {
 
 	const comments = [];
 
-	for (const comment of json[1].data.children) {
+	for (const comment of json[1].data.children.filter(r => r.kind === "t1")) {
 		const data = comment.data;
 
 		const formattedComment = {
@@ -227,15 +227,17 @@ async function getComments(event) {
 		};
 
 		if (data.replies) {
-			formattedComment.replies = data.replies.data.children.map(r => ({
-				id: r.data.id,
-				author: r.data.author,
-				score: r.data.score,
-				gilded: r.data.gilded,
-				text: r.data.body,
-				edited: r.data.edited,
-				created: r.data.created_utc,
-			}));
+			formattedComment.replies = data.replies.data.children
+				.filter(r => r.kind === "t1")
+				.map(r => ({
+					id: r.data.id,
+					author: r.data.author,
+					score: r.data.score,
+					gilded: r.data.gilded,
+					text: r.data.body,
+					edited: r.data.edited,
+					created: r.data.created_utc,
+				}));
 		}
 
 		comments.push(formattedComment);
