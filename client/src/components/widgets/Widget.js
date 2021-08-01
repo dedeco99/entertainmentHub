@@ -110,11 +110,15 @@ function Widget({
 		setOpenDeleteConfirmation(false);
 	}
 
-	const nonAppWidgets = ["notifications", "weather", "finance", "price", "email"];
-	// prettier-ignore
-	const hasApp = user.apps && user.apps.length
-		? user.apps.find(app => app.platform === type || nonAppWidgets.includes(type))
-		: nonAppWidgets.includes(type);
+	const nonAppWidgets = ["notifications", "weather", "finance", "price"];
+	const groupedAppWidgets = { email: ["gmail"] };
+	const appFound = user.apps.find(
+		app =>
+			app.platform === type ||
+			nonAppWidgets.includes(type) ||
+			(groupedAppWidgets[type] && groupedAppWidgets[type].includes(app.platform)),
+	);
+	const hasApp = user.apps && user.apps.length ? appFound : nonAppWidgets.includes(type);
 
 	return (
 		<Zoom in>

@@ -498,8 +498,19 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 			{ value: "email", displayName: "Email" },
 		];
 
-		const nonAppWidgets = ["notifications", "weather", "finance", "price", "email"];
-		const appTypes = user.apps ? user.apps.map(a => a.platform).concat(nonAppWidgets) : nonAppWidgets;
+		const nonAppWidgets = ["notifications", "weather", "finance", "price"];
+		const groupedAppWidgets = { email: ["gmail"] };
+		const groupedApps = [];
+
+		for (const groupedType in groupedAppWidgets) {
+			if (user.apps.find(app => groupedAppWidgets[groupedType].includes(app.platform))) {
+				groupedApps.push(groupedType);
+			}
+		}
+
+		const appTypes = user.apps
+			? user.apps.map(a => a.platform).concat([...nonAppWidgets, ...groupedApps])
+			: nonAppWidgets;
 		types = types.filter(t => appTypes.includes(t.value));
 
 		return (
