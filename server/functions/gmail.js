@@ -45,13 +45,19 @@ async function getEmails(event) {
 		if (!threadIds.includes(message.threadId)) threadIds.push(message.threadId);
 	}
 
-	const threads = [];
+	const threadPromises = [];
 	for (const thread of threadIds) {
 		url = `https://gmail.googleapis.com/gmail/v1/users/me/threads/${thread}`;
 
-		res = await api({ method: "get", url, headers });
+		threadPromises.push(api({ method: "get", url, headers }));
+	}
+
+	res = await Promise.all(threadPromises);
+
+	const threads = [];
+	for (const thread of res) {
 		const messages = [];
-		for (const message of res.data.messages) {
+		for (const message of thread.data.messages) {
 			const formattedMessage = {};
 
 			formattedMessage.subject = message.payload.headers.find(h => h.name === "Subject").value;
