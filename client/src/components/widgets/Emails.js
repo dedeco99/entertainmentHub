@@ -3,22 +3,17 @@ import InfiniteScroll from "react-infinite-scroller";
 import parse from "html-react-parser";
 import { enable as enableDarkReader, disable as disableDarkReader } from "darkreader";
 
-import { makeStyles, Zoom, Box, Typography, ListItem } from "@material-ui/core";
+import { Zoom, Box, Typography, ListItem } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
 import AnimatedList from "../.partials/AnimatedList";
-
-import { widget as widgetStyles } from "../../styles/Widgets";
+import SingleView from "../.partials/SingleView";
 
 import { getEmails } from "../../api/gmail";
 
 import { formatDate } from "../../utils/utils";
 
-const useStyles = makeStyles({ ...widgetStyles });
-
 function Emails() {
-	// eslint-disable-next-line no-unused-vars
-	const classes = useStyles();
 	const [emails, setEmails] = useState([]);
 	const [showListView, setShowListView] = useState(true);
 	const [selectedEmail, setSelectedEmail] = useState(null);
@@ -39,6 +34,18 @@ function Emails() {
 
 		return () => disableDarkReader();
 	}, []);
+
+	function handleShowPreviousEmail() {
+		const num = emails.findIndex(e => e.id === selectedEmail.id);
+
+		if (num > 0) setSelectedEmail(emails[num - 1]);
+	}
+
+	function handleShowNextEmail() {
+		const num = emails.findIndex(e => e.id === selectedEmail.id);
+
+		if (num >= 0 && num < emails.length - 1) setSelectedEmail(emails[num + 1]);
+	}
 
 	function handleSelectEmail(email) {
 		setSelectedEmail(email);
@@ -64,16 +71,17 @@ function Emails() {
 					flexWrap="wrap"
 					alignItems={emails.length ? "initial" : "center"}
 					justifyContent="center"
+					width="100%"
 					height="100%"
-					style={{ overflow: "auto" }}
+					overflow="auto"
 				>
 					<InfiniteScroll
-						style={{ minWidth: "100%" }}
 						initialLoad={false}
 						loadMore={null}
 						hasMore={false}
 						useWindow={false}
 						loader={<Loading key={0} />}
+						style={{ width: "100%" }}
 					>
 						<AnimatedList>
 							{emails.map(email =>
@@ -100,9 +108,17 @@ function Emails() {
 
 	return (
 		<Zoom in={open}>
-			<Box onClick={() => handleUnselectEmail()} style={{ width: "100%", overflow: "auto", padding: "10px" }}>
-				{parse(selectedEmail.messages[selectedEmail.messages.length - 1].data)}
-			</Box>
+			<SingleView
+				open={open}
+				content={
+					<Box style={{ width: "100%", overflow: "auto", padding: "10px" }}>
+						{parse(selectedEmail.messages[selectedEmail.messages.length - 1].data)}
+					</Box>
+				}
+				onShowPrevious={handleShowPreviousEmail}
+				onShowNext={handleShowNextEmail}
+				onShowListView={handleUnselectEmail}
+			/>
 		</Zoom>
 	);
 }
