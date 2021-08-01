@@ -432,12 +432,10 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 						<Typography variant="caption" style={{ fontSize: "13px" }}>
 							{comment.author}
 						</Typography>
-
 						<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
 							{` • ${formatDate(comment.created * 1000, null, true)}`}
 						</Typography>
 					</Box>
-
 					<Box
 						style={{
 							display: "inline-flex",
@@ -448,7 +446,6 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 							<Typography variant="caption" style={{ fontSize: "12px" }}>
 								{comment.text}
 							</Typography>
-
 							<Box fontWeight={500} fontFamily="Monospace" pt={1}>
 								<Typography variant="caption" style={{ fontSize: "13px" }}>
 									{comment.score}
@@ -459,7 +456,6 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 							</Box>
 						</Box>
 					</Box>
-
 					{comment.replies &&
 						comment.replies.map(reply => (
 							<CardContent key={reply.id}>
@@ -467,12 +463,10 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 									<Typography variant="caption" style={{ fontSize: "13px" }}>
 										{reply.author}
 									</Typography>
-
 									<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
 										{` • ${formatDate(reply.created * 1000, null, true)}`}
 									</Typography>
 								</Box>
-
 								<Box
 									style={{
 										display: "inline-flex",
@@ -483,7 +477,6 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 										<Typography variant="caption" style={{ fontSize: "12px" }}>
 											{reply.text}
 										</Typography>
-
 										<Box fontWeight={500} fontFamily="Monospace" pt={1}>
 											<Typography variant="caption" style={{ fontSize: "13px" }}>
 												{reply.score}
@@ -542,7 +535,6 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 									>
 										<i className="icon-cross icon-1x" />
 									</IconButton>
-
 									{onShowPreviousPost && num && (
 										<Box
 											className={classes.expandedBtn}
@@ -562,11 +554,9 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 										</Box>
 									)}
 								</Box>
-
 								<Box position="relative" height="100%" flexGrow={1} style={{ overflow: "hidden" }}>
 									{expandedContent}
 								</Box>
-
 								<Box>
 									<IconButton
 										color="primary"
@@ -581,7 +571,6 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 									>
 										<i className={sideMenuView ? "icon-caret-right icon-1x" : "icon-caret-left icon-1x"} />
 									</IconButton>
-
 									{onShowNextPost && (
 										<Box
 											className={classes.expandedBtn}
@@ -604,7 +593,6 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 							</Paper>
 						</Fade>
 					</Grid>
-
 					{sideMenuView && (
 						<Grid
 							xs={3}
@@ -628,7 +616,14 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 												{"r/"}
 											</Typography>
 											<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px" }}>
-												{post.subreddit}
+												<Link
+													href={`https://reddit.com/r/${post.subreddit}`}
+													target="_blank"
+													rel="noreferrer"
+													color="inherit"
+												>
+													{post.subreddit}
+												</Link>
 											</Typography>
 										</Box>
 									</Box>
@@ -637,7 +632,14 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 											{"Posted by u/"}
 										</Typography>
 										<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px" }}>
-											{post.author}
+											<Link
+												href={`https://reddit.com/u/${post.author}`}
+												target="_blank"
+												rel="noreferrer"
+												color="inherit"
+											>
+												{post.author}
+											</Link>
 										</Typography>
 										<Typography variant="caption" style={{ fontSize: "13px" }}>
 											{` • ${formatDate(post.created * 1000, null, true)}`}
@@ -645,7 +647,9 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 									</Box>
 									<Box fontWeight={500} fontFamily="Monospace" py={1}>
 										<Typography gutterBottom variant="h6" component="h6">
-											{post.title}
+											<Link href={post.permalink} target="_blank" rel="noreferrer" color="inherit">
+												{htmlEscape(post.title)}
+											</Link>
 										</Typography>
 									</Box>
 									<Box fontWeight={500} fontFamily="Monospace" pt={1}>
