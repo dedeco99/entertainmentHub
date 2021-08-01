@@ -80,10 +80,8 @@ function Notifications({ height, wrapTitle }) {
 			const response = await getNotifications(after, pagination.history, filter);
 
 			if (response.status === 200 && isMounted) {
-				// prettier-ignore
-				const newNotifications = pagination.page === 0
-					? response.data.notifications
-					: notifications.concat(response.data.notifications);
+				const newNotifications =
+					pagination.page === 0 ? response.data.notifications : notifications.concat(response.data.notifications);
 
 				dispatch({ type: "SET_NOTIFICATIONS", notifications: newNotifications, total: response.data.total });
 

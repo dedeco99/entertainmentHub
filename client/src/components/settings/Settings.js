@@ -36,7 +36,7 @@ import { settings as styles } from "../../styles/Header";
 const useStyles = makeStyles(styles);
 
 function Settings() {
-	const REDIRECT = "https://ehub.rabbitsoftware.dev";
+	const REDIRECT = "http://localhost:3000";
 
 	const match = useRouteMatch();
 	const classes = useStyles();

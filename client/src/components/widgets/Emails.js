@@ -9,7 +9,7 @@ import Loading from "../.partials/Loading";
 import AnimatedList from "../.partials/AnimatedList";
 import SingleView from "../.partials/SingleView";
 
-import { getEmails } from "../../api/gmail";
+import { getEmails } from "../../api/emails";
 
 import { formatDate } from "../../utils/utils";
 

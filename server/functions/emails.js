@@ -80,7 +80,7 @@ async function getEmails(event) {
 		threads.push({ id: thread, messages });
 	}
 
-	return response(200, "GET_GMAIL_EMAILS", threads);
+	return response(200, "GET_EMAILS", threads);
 }
 
 module.exports = { getEmails };

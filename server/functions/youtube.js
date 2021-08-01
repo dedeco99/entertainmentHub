@@ -38,8 +38,9 @@ async function getVideoDuration(items) {
 		remainingItems = remainingItems.slice(50, remainingItems.length);
 		const videoIds = paginatedItems.map(i => i.yt_videoId);
 
-		// prettier-ignore
-		const url = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,liveStreamingDetails&id=${videoIds.join(",")}&key=${process.env.youtubeKey}`;
+		const url = `https://www.googleapis.com/youtube/v3/videos?part=contentDetails,liveStreamingDetails&id=${videoIds.join(
+			",",
+		)}&key=${process.env.youtubeKey}`;
 
 		requests.push(api({ method: "get", url }));
 	}
@@ -66,15 +67,15 @@ async function getSubscriptions(event) {
 	let url = null;
 	switch (type) {
 		case "mine":
-			// prettier-ignore
-			url =	"https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&order=alphabetical&maxResults=20";
+			url =
+				"https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&order=alphabetical&maxResults=20";
 			break;
 		case "search":
 			url = `https://www.googleapis.com/youtube/v3/search?part=snippet&type=channel&q=${filter}&maxResults=20`;
 			break;
 		default:
-			// prettier-ignore
-			url =	"https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&order=alphabetical&maxResults=20";
+			url =
+				"https://www.googleapis.com/youtube/v3/subscriptions?part=snippet&mine=true&order=alphabetical&maxResults=20";
 			break;
 	}
 
@@ -156,8 +157,8 @@ async function getPlaylists(event) {
 
 	if (accessToken.status === 401) return errors.youtubeRefreshToken;
 
-	// prettier-ignore
-	let url = "https://www.googleapis.com/youtube/v3/playlists?part=snippet&mine=true&order=alphabetical&maxResults=20";
+	let url =
+		"https://www.googleapis.com/youtube/v3/playlists?part=snippet&mine=true&order=alphabetical&maxResults=20";
 	if (after) url += `&pageToken=${after}`;
 
 	const headers = {
@@ -186,7 +187,6 @@ async function getPlaylistVideos(event) {
 
 	if (accessToken.status === 401) return errors.youtubeRefreshToken;
 
-	// prettier-ignore
 	let url = `https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId=${id}&maxResults=20`;
 	if (after) url += `&pageToken=${after}`;
 

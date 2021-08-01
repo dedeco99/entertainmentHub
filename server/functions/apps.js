@@ -23,8 +23,9 @@ async function addApp(event) {
 		case "reddit": {
 			const url = `https://www.reddit.com/api/v1/access_token?code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/reddit`;
 
-			// prettier-ignore
-			const encryptedAuth = new Buffer.from(`${process.env.redditClientId}:${process.env.redditSecret}`).toString("base64");
+			const encryptedAuth = new Buffer.from(`${process.env.redditClientId}:${process.env.redditSecret}`).toString(
+				"base64",
+			);
 			const auth = `Basic ${encryptedAuth}`;
 
 			const headers = {
