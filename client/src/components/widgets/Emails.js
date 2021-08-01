@@ -86,9 +86,7 @@ function Emails() {
 											<Typography variant="body2" title={message.from.match(/<(.*)>/)[1]}>
 												{message.from.match(/(.*) </)[1]}
 											</Typography>
-											<Typography variant="caption">
-												{formatDate(message.dateToSend, "DD-MM-YYYY HH:mm")}
-											</Typography>
+											<Typography variant="caption">{formatDate(message.dateSent, "DD-MM-YYYY HH:mm")}</Typography>
 										</Box>
 									</ListItem>
 								)),

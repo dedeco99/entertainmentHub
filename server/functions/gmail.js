@@ -1,3 +1,5 @@
+const dayjs = require("dayjs");
+
 const { response, api } = require("../utils/request");
 const errors = require("../utils/errors");
 
@@ -63,6 +65,7 @@ async function getEmails(event) {
 			formattedMessage.subject = message.payload.headers.find(h => h.name === "Subject").value;
 			formattedMessage.from = message.payload.headers.find(h => h.name === "From").value;
 			formattedMessage.to = message.payload.headers.find(h => h.name === "To").value;
+			formattedMessage.dateSent = dayjs.unix(Number(message.internalDate) / 1000);
 			if (message.payload.parts[1] && message.payload.parts[1].body.data) {
 				formattedMessage.data = Buffer.from(message.payload.parts[1].body.data, "base64").toString();
 			} else if (message.payload.parts[0] && message.payload.parts[0].body.data) {
