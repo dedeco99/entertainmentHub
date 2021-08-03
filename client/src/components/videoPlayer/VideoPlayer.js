@@ -24,10 +24,11 @@ import {
 
 import Input from "../.partials/Input";
 
-import { getPlaylists, getPlaylistVideos } from "../../api/youtube";
+import { getPlaylistVideos } from "../../api/youtube";
 
 import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 import { UserContext } from "../../contexts/UserContext";
+import { YoutubeContext } from "../../contexts/YoutubeContext";
 
 import { videoPlayer as styles } from "../../styles/VideoPlayer";
 
@@ -39,7 +40,8 @@ function VideoPlayer() {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(VideoPlayerContext);
 	const { user } = useContext(UserContext);
-	const [playlists, setPlaylists] = useState([]);
+	const { state: youtubeState } = useContext(YoutubeContext);
+	const { playlists } = youtubeState;
 	const [youtubePlaylistLink, setYoutubePlaylistLink] = useState("");
 	const [youtubePlaylist, setYoutubePlaylist] = useState("");
 	const { currentVideo, videos, x, y, width, height, minimized, selectedTab, showQueue } = state;
@@ -91,18 +93,6 @@ function VideoPlayer() {
 			dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: videos[selectedTab][0] });
 		}
 	}, [selectedTab, videos, currentVideo]);
-
-	useEffect(() => {
-		async function fetchUserPlaylists() {
-			const response = await getPlaylists();
-
-			if (response.status === 200) {
-				setPlaylists(response.data);
-			}
-		}
-
-		fetchUserPlaylists();
-	}, []);
 
 	function hasPreviousVideo() {
 		const currentVideoIndex = videos[selectedTab].findIndex(video => video.url === currentVideo.url);

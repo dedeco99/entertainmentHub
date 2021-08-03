@@ -24,10 +24,10 @@ import Input from "../.partials/Input";
 import DeleteConfirmation from "../.partials/DeleteConfirmation";
 
 import { UserContext } from "../../contexts/UserContext";
+import { YoutubeContext } from "../../contexts/YoutubeContext";
 
 import { deleteApp } from "../../api/apps";
 import { editUser } from "../../api/users";
-import { getPlaylists } from "../../api/youtube";
 
 import { translate } from "../../utils/translations";
 
@@ -41,6 +41,8 @@ function Settings() {
 	const match = useRouteMatch();
 	const classes = useStyles();
 	const { user, dispatch } = useContext(UserContext);
+	const { state } = useContext(YoutubeContext);
+	const { playlists } = state;
 
 	const apps = {
 		reddit: {
@@ -94,7 +96,6 @@ function Settings() {
 	};
 	const [selectedMenu, setSelectedMenu] = useState(0);
 	const [settings, setSettings] = useState({});
-	const [playlists, setPlaylists] = useState([]);
 	const [selectedApp, setSelectedApp] = useState(null);
 	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
 
@@ -125,14 +126,6 @@ function Settings() {
 			notificationPermission.onchange = () => {
 				setSettings({ ...settings, browserNotifications: Notification.permission });
 			};
-
-			if (apps.youtube.active) {
-				const response = await getPlaylists();
-
-				if (response.status === 200) {
-					setPlaylists(response.data);
-				}
-			}
 		}
 
 		fetchData();

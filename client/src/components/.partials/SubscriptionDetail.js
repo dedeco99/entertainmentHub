@@ -22,8 +22,7 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import Input from "./Input";
 
 import { UserContext } from "../../contexts/UserContext";
-
-import { getPlaylists } from "../../api/youtube";
+import { YoutubeContext } from "../../contexts/YoutubeContext";
 
 import { translate } from "../../utils/translations";
 
@@ -34,6 +33,8 @@ const useStyles = makeStyles(styles);
 function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscription, onClose }) {
 	const classes = useStyles();
 	const { user } = useContext(UserContext);
+	const { state } = useContext(YoutubeContext);
+	const { playlists } = state;
 	const [title, setTitle] = useState("");
 	const [group, setGroup] = useState({ name: "Ungrouped", pos: 0 });
 	const [notifications, setNotifications] = useState({
@@ -43,7 +44,6 @@ function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscr
 		dontShowWithTheseWords: [],
 		onlyShowWithTheseWords: [],
 	});
-	const [playlists, setPlaylists] = useState([]);
 
 	const addGroupSubject = new Subject();
 
@@ -75,22 +75,6 @@ function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscr
 			}
 		}
 	}, [subscription]);
-
-	useEffect(() => {
-		async function fetchData() {
-			const hasYoutube = user.apps.find(app => app.platform === "youtube");
-
-			if (hasYoutube) {
-				const response = await getPlaylists();
-
-				if (response.status === 200) {
-					setPlaylists(response.data);
-				}
-			}
-		}
-
-		fetchData();
-	}, []);
 
 	function handleChangeTitle(e) {
 		setTitle(e.target.value);

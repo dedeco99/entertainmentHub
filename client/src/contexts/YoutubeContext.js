@@ -10,6 +10,7 @@ const YoutubeContextProvider = ({ children }) => {
 		follows: [],
 		subscriptions: [],
 		feeds: [],
+		playlists: [],
 	};
 
 	const [state, dispatch] = useReducer(youtubeReducer, initState);
