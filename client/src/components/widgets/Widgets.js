@@ -36,7 +36,7 @@ const widgetRestrictions = {
 	tv: { minW: 2, minH: 2, maxW: 6, maxH: 6 },
 	finance: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
 	price: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
-	currency: { minW: 2, minH: 2, maxW: 2, maxH: 2 },
+	currency: { minW: 2, minH: 1, maxW: 2, maxH: 1 },
 };
 
 const widgetsInfo = {

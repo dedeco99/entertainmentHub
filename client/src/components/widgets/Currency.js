@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { Subject } from "rxjs";
+import { debounceTime, filter } from "rxjs/operators";
 
-import { makeStyles, Box, MenuItem } from "@material-ui/core";
+import { makeStyles, Box } from "@material-ui/core";
 
 import { twitch as twitchStyles } from "../../styles/Widgets";
 import generalStyles from "../../styles/General";
@@ -8,6 +10,7 @@ import generalStyles from "../../styles/General";
 import { getExchangeRates } from "../../api/finance";
 
 import Input from "../.partials/Input";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 
 const useStyles = makeStyles({ ...twitchStyles, ...generalStyles });
 
@@ -15,107 +18,137 @@ function Currency() {
 	const classes = useStyles();
 	const [currencies, setCurrencies] = useState([]);
 
-	const [currencyConvertFrom, setCurrencyConvertFrom] = useState(0);
-	const [currencyConvertFromRate, setCurrencyConvertFromRate] = useState("");
+	const [currencySelectFromTo, setCurrencySelectFromTo] = useState(null);
+	const [currencySelectFromToExchangeRate, setCurrencySelectFromToExchangeRate] = useState(null);
+	const [currencySelectFromToValue, setCurrencySelectFromToValue] = useState(0.0);
 
-	const [currencyConvertTo, setCurrencyConvertTo] = useState(0);
-	const [currencyConvertToRate, setCurrencyConvertToRate] = useState("");
+	const [currencySelectToFrom, setCurrencySelectToFrom] = useState(null);
+	const [currencySelectToFromExchangeRate, setCurrencySelectToFromExchangeRate] = useState(null);
+	const [currencySelectToFromValue, setCurrencySelectToFromValue] = useState(0.0);
+
+	const getCitiesSubject = new Subject();
 
 	useEffect(() => {
-		async function fetchData() {
-			const response = await getExchangeRates();
+		const subscription = getCitiesSubject
+			.pipe(
+				debounceTime(250),
+				filter(query => query),
+			)
+			.subscribe(async query => {
+				const response = await getExchangeRates(query);
 
-			if (response.status === 200) {
-				setCurrencies(response.data);
-			}
-		}
+				if (response.status === 200) {
+					setCurrencies(response.data);
+				}
+			});
+		return () => subscription.unsubscribe();
+	});
 
-		fetchData();
-	}, []);
+	function renderCurrencyOptionLabel(option) {
+		return `${option.toString().split(",")[0]}`;
+	}
 
-	function handleChangeCurrencyConvertFrom(e) {
-		setCurrencyConvertFrom(e.target.value);
+	function renderCurrenciesInput(params, currencyFromTo) {
+		return (
+			<Input
+				{...params}
+				label={currencyFromTo === "currencyFromTo" ? "Currency From" : "Currency To"}
+				variant="outlined"
+				fullWidth
+				margin="normal"
+			/>
+		);
+	}
 
-		if (currencyConvertToRate) {
-			setCurrencyConvertTo((e.target.value * currencyConvertFromRate).toFixed(2));
+	function handleGetCurrencies(e, query) {
+		getCitiesSubject.next(query);
+	}
+
+	function handleSelectCurrencyFromTo(e, currency) {
+		if (!currency) return;
+
+		setCurrencySelectFromTo(currency.toString().split(",")[0]);
+		setCurrencySelectFromToExchangeRate(Number(currency.toString().split(",")[1]));
+
+		if (currencySelectToFromExchangeRate && currencySelectFromToValue) {
+			setCurrencySelectToFromValue(
+				(currencySelectFromToValue / Number(currency.toString().split(",")[1])).toFixed(2),
+			);
 		}
 	}
 
-	function handleChangeCurrencyFromRate(e) {
-		if (e.target.value !== currencyConvertToRate) {
-			setCurrencyConvertFromRate(e.target.value);
-			setCurrencyConvertTo((currencyConvertFrom * currencyConvertFromRate).toFixed(2));
+	function handleSelectCurrencyToFrom(e, currency) {
+		if (!currency) return;
+
+		setCurrencySelectToFrom(currency.toString().split(",")[0]);
+		setCurrencySelectToFromExchangeRate(Number(currency.toString().split(",")[1]));
+
+		if (currencySelectFromToExchangeRate && currencySelectToFromValue) {
+			setCurrencySelectToFromValue((currencySelectToFromValue / currencySelectFromToExchangeRate).toFixed(2));
+		}
+	}
+
+	function handleChangeCurrencyConvertFrom(e) {
+		setCurrencySelectFromToValue(e.target.value);
+
+		if (currencySelectToFromExchangeRate) {
+			setCurrencySelectToFromValue((e.target.value / currencySelectFromToExchangeRate).toFixed(2));
 		}
 	}
 
 	function handleChangeCurrencyConvertTo(e) {
-		setCurrencyConvertTo(e.target.value);
+		setCurrencySelectToFromValue(e.target.value);
 
-		if (currencyConvertFromRate) {
-			setCurrencyConvertFrom((e.target.value * currencyConvertToRate).toFixed(2));
-		}
-	}
-
-	function handleChangeCurrencyToRate(e) {
-		if (e.target.value !== currencyConvertFromRate) {
-			setCurrencyConvertToRate(e.target.value);
-			setCurrencyConvertFrom((currencyConvertTo * currencyConvertToRate).toFixed(2));
+		if (currencySelectFromToExchangeRate) {
+			setCurrencySelectFromToValue((e.target.value * currencySelectFromToExchangeRate).toFixed(2));
 		}
 	}
 
 	return (
 		<Box className={classes.root} style={{ textAlign: "center" }}>
-			<Box style={{ marginTop: "40px" }}>
-				<Input
-					label="Currency from Rate"
-					id="currencyConvertFromRate"
-					value={currencyConvertFromRate}
-					onChange={handleChangeCurrencyFromRate}
-					variant="outlined"
-					select
-					style={{ width: "80%" }}
-				>
-					{Object.entries(currencies).map(p => (
-						<MenuItem key={p[0]} value={p[1]}>
-							{p[0]}
-						</MenuItem>
-					))}
-				</Input>
+			<Box style={{ display: "flex" }}>
+				<Autocomplete
+					value={currencySelectFromTo}
+					getOptionSelected={option => option[0]}
+					options={Object.entries(currencies) || []}
+					onInputChange={handleGetCurrencies}
+					onChange={handleSelectCurrencyFromTo}
+					getOptionLabel={renderCurrencyOptionLabel}
+					renderInput={params => renderCurrenciesInput(params, "currencyFromTo")}
+					style={{ width: "90%", padding: "10px" }}
+				/>
 
+				<Autocomplete
+					value={currencySelectToFrom}
+					options={Object.entries(currencies) || []}
+					onInputChange={handleGetCurrencies}
+					getOptionSelected={option => option[0]}
+					onChange={handleSelectCurrencyToFrom}
+					getOptionLabel={renderCurrencyOptionLabel}
+					renderInput={params => renderCurrenciesInput(params, "currencyToFrom")}
+					style={{ width: "90%", padding: "10px" }}
+				/>
+			</Box>
+
+			<Box style={{ display: "flex" }}>
 				<Input
-					label="Currency from Rate"
-					id="currencyConvertFrom"
-					value={currencyConvertFrom}
+					label="Currency From"
+					id="currencyConvertFromTo"
+					value={currencySelectFromToValue}
 					onChange={handleChangeCurrencyConvertFrom}
 					type="number"
 					variant="outlined"
-					style={{ width: "80%", marginTop: "10px" }}
+					style={{ width: "83%", paddingRight: "10px", marginLeft: "10px" }}
 				/>
 
 				<Input
-					label="Currency to Rate"
-					id="currencyConvertFromRate"
-					value={currencyConvertToRate}
-					onChange={handleChangeCurrencyToRate}
-					variant="outlined"
-					select
-					style={{ width: "80%", marginTop: "30px" }}
-				>
-					{Object.entries(currencies).map(p => (
-						<MenuItem key={p[0]} value={p[1]}>
-							{p[0]}
-						</MenuItem>
-					))}
-				</Input>
-
-				<Input
-					label="Currency to Rate"
-					id="currencyConvertFrom"
-					value={currencyConvertTo}
+					label="Currency To"
+					id="currencyConvertToFrom"
+					value={currencySelectToFromValue}
 					onChange={handleChangeCurrencyConvertTo}
 					type="number"
 					variant="outlined"
-					style={{ width: "80%", marginTop: "10px" }}
+					style={{ width: "83%", paddingRight: "10px", marginLeft: "10px" }}
 				/>
 			</Box>
 		</Box>
