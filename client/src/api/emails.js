@@ -9,6 +9,26 @@ async function getEmails() {
 	return res;
 }
 
+async function getEmailLabels() {
+	const res = await api({
+		method: "get",
+		url: "/api/emails/labels",
+	});
+
+	return res;
+}
+
+async function editEmail(id, label) {
+	const res = await api({
+		method: "put",
+		url: `/api/emails/${id}`,
+		data: { label },
+		message: true,
+	});
+
+	return res;
+}
+
 async function deleteEmail(id) {
 	const res = await api({
 		method: "delete",
@@ -18,4 +38,4 @@ async function deleteEmail(id) {
 	return res;
 }
 
-export { getEmails, deleteEmail };
+export { getEmails, getEmailLabels, editEmail, deleteEmail };

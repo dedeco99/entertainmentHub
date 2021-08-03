@@ -18,25 +18,29 @@ import Loading from "../.partials/Loading";
 import AnimatedList from "../.partials/AnimatedList";
 import SingleView from "../.partials/SingleView";
 
-import { getEmails, deleteEmail } from "../../api/emails";
+import { getEmails, getEmailLabels, editEmail, deleteEmail } from "../../api/emails";
 
 import { formatDate } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
 function Emails() {
 	const [emails, setEmails] = useState([]);
+	const [labels, setLabels] = useState([]);
 	const [showListView, setShowListView] = useState(true);
 	const [selectedEmail, setSelectedEmail] = useState(null);
 	const [emailAnchorEl, setEmailAnchorEl] = useState(null);
+	const [labelsAnchorEl, setLabelsAnchorEl] = useState(null);
 	const [actionLoading, setActionLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 
 	useEffect(() => {
 		async function fetchData() {
-			const response = await getEmails();
+			const labelsResponse = await getEmailLabels();
+			const emailsResponse = await getEmails();
 
-			if (response.status === 200) {
-				setEmails(response.data);
+			if (labelsResponse.status === 200 && emailsResponse.status === 200) {
+				setLabels(labelsResponse.data);
+				setEmails(emailsResponse.data);
 
 				setOpen(true);
 			}
@@ -82,10 +86,30 @@ function Emails() {
 		setEmailAnchorEl(null);
 	}
 
+	function handleCloseLabelsOptions() {
+		setLabelsAnchorEl(null);
+	}
+
 	async function handleDeleteEmail() {
 		setActionLoading(true);
 
 		const response = await deleteEmail(selectedEmail.id);
+
+		if (response.status === 200) {
+			setEmails(emails.filter(e => e.id !== selectedEmail.id));
+		}
+
+		setActionLoading(false);
+	}
+
+	function handleOpenLabelsList() {
+		setLabelsAnchorEl(emailAnchorEl);
+	}
+
+	async function handleAddToLabelOption(label) {
+		setActionLoading(true);
+
+		const response = await editEmail(selectedEmail.id, label);
 
 		if (response.status === 200) {
 			setEmails(emails.filter(e => e.id !== selectedEmail.id));
@@ -111,7 +135,10 @@ function Emails() {
 	if (!open) return <Loading />;
 
 	if (showListView) {
-		const actions = [{ name: translate("delete"), onClick: handleDeleteEmail }];
+		const actions = [
+			{ name: translate("moveToFolder"), onClick: handleOpenLabelsList },
+			{ name: translate("delete"), onClick: handleDeleteEmail },
+		];
 
 		return (
 			<Zoom in={open}>
@@ -161,6 +188,24 @@ function Emails() {
 								}}
 							>
 								{action.name}
+							</MenuItem>
+						))}
+					</Menu>
+					<Menu
+						anchorEl={labelsAnchorEl}
+						keepMounted
+						open={Boolean(labelsAnchorEl)}
+						onClose={handleCloseLabelsOptions}
+					>
+						{labels.map(label => (
+							<MenuItem
+								key={label.id}
+								onClick={() => {
+									handleAddToLabelOption(label.id);
+									handleCloseLabelsOptions();
+								}}
+							>
+								{label.name}
 							</MenuItem>
 						))}
 					</Menu>

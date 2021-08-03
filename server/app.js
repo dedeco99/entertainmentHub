@@ -184,6 +184,10 @@ app.get("/api/tv/:id", token, (req, res) => middleware(req, res, tv.getEpisodes)
 
 app.get("/api/emails", token, (req, res) => middleware(req, res, emails.getEmails));
 
+app.get("/api/emails/labels", token, (req, res) => middleware(req, res, emails.getEmailLabels));
+
+app.put("/api/emails/:id", token, (req, res) => middleware(req, res, emails.editEmail));
+
 app.delete("/api/emails/:id", token, (req, res) => middleware(req, res, emails.deleteEmail));
 
 app.get("*/", (req, res) => {

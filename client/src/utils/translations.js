@@ -247,6 +247,10 @@ const translations = {
 		en: "Auto play for video player",
 		pt: "Reprodução automática para o reprodutor de vídeo",
 	},
+	moveToFolder: {
+		en: "Move to folder",
+		pt: "Mover para uma pasta",
+	},
 	multipleParamExample: (...params) => ({
 		en: `Hello ${params[0]}, my name is ${params[1]}`,
 		pt: `Boas ${params[0]}, o meu nome é ${params[1]}`,
@@ -413,6 +417,14 @@ const translations = {
 	WATCH_LATER: {
 		en: "Video saved to watch later",
 		pt: "Vídeo guardado para ver mais tarde",
+	},
+	EDIT_EMAIL: {
+		en: "Email has been updated",
+		pt: "Email foi atualizado",
+	},
+	DELETE_EMAIL: {
+		en: "Email deleted",
+		pt: "Email apagado",
 	},
 
 	/* API Errors */

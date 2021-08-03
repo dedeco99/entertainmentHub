@@ -86,6 +86,50 @@ async function getEmails(event) {
 	return response(200, "GET_EMAILS", threads);
 }
 
+async function getEmailLabels(event) {
+	const { user } = event;
+
+	const accessToken = await getAccessToken(user);
+
+	if (accessToken.status === 401) return errors.gmailRefreshToken;
+
+	const url = "https://www.googleapis.com/gmail/v1/users/me/labels";
+
+	const headers = {
+		Authorization: `Bearer ${accessToken}`,
+	};
+
+	const res = await api({ method: "get", url, headers });
+
+	const labels = res.data.labels
+		.filter(label => label.type === "user")
+		.map(label => ({ id: label.id, name: label.name }));
+
+	return response(200, "GET_EMAIL_LABELS", labels);
+}
+
+async function editEmail(event) {
+	const { params, body, user } = event;
+	const { id } = params;
+	const { label } = body;
+
+	const accessToken = await getAccessToken(user);
+
+	if (accessToken.status === 401) return errors.gmailRefreshToken;
+
+	const url = `https://www.googleapis.com/gmail/v1/users/me/threads/${id}/modify`;
+
+	const headers = {
+		Authorization: `Bearer ${accessToken}`,
+	};
+
+	const data = { addLabelIds: [label], removeLabelIds: ["INBOX"] };
+
+	await api({ method: "post", url, headers, data });
+
+	return response(200, "EDIT_EMAIL");
+}
+
 async function deleteEmail(event) {
 	const { params, user } = event;
 	const { id } = params;
@@ -105,4 +149,4 @@ async function deleteEmail(event) {
 	return response(200, "DELETE_EMAIL");
 }
 
-module.exports = { getEmails, deleteEmail };
+module.exports = { getEmails, getEmailLabels, editEmail, deleteEmail };
