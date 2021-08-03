@@ -27,6 +27,7 @@ import AnimatedList from "../.partials/AnimatedList";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 import { UserContext } from "../../contexts/UserContext";
+import { YoutubeContext } from "../../contexts/YoutubeContext";
 
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
 import { getPlaylists, addToWatchLater } from "../../api/youtube";
@@ -42,10 +43,12 @@ const useStyles = makeStyles({ ...widgetStyles, ...videoPlayerStyles, ...general
 
 function Notifications({ height, wrapTitle }) {
 	const classes = useStyles();
+	const { user } = useContext(UserContext);
 	const { state, dispatch } = useContext(NotificationContext);
 	const { notifications, total } = state;
 	const videoPlayer = useContext(VideoPlayerContext);
-	const { user } = useContext(UserContext);
+	const { state: youtubeState, dispatch: youtubeDispatch } = useContext(YoutubeContext);
+	const { playlists } = youtubeState;
 	const [pagination, setPagination] = useState({
 		loading: false,
 		page: 0,
@@ -53,7 +56,6 @@ function Notifications({ height, wrapTitle }) {
 		filter: "filter-all",
 		history: false,
 	});
-	const [playlists, setPlaylists] = useState([]);
 	const [filterAnchorEl, setFilterAnchorEl] = useState(null);
 	const [selectedIndex, setSelectedIndex] = useState(0);
 	const [notificationAnchorEl, setNotificationAnchorEl] = useState(null);
@@ -102,17 +104,23 @@ function Notifications({ height, wrapTitle }) {
 		async function fetchData() {
 			await handleGetNotifications();
 
-			const response = await getPlaylists();
+			if (user.apps) {
+				const hasYoutube = user.apps.find(app => app.platform === "youtube");
 
-			if (response.status === 200) {
-				setPlaylists(response.data);
+				if (hasYoutube && !playlists.length) {
+					const response = await getPlaylists();
+
+					if (response.status === 200) {
+						youtubeDispatch({ type: "SET_PLAYLISTS", playlists: response.data });
+					}
+				}
 			}
 		}
 
 		fetchData();
 
 		return () => (isMounted = false);
-	}, [pagination.filter, pagination.history]);
+	}, [pagination.filter, pagination.history, user]);
 
 	async function handleHideNotification(notificationsToHide = [selectedNotification._id]) {
 		setActionLoading(true);
