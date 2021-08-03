@@ -31,10 +31,9 @@ export const youtubeReducer = (state, action) => {
 
 			return { ...state, follows, subscriptions };
 		case "EDIT_SUBSCRIPTION":
-			subscriptions = [
-				...subscriptions.filter(s => s._id !== action.subscription._id),
-				action.subscription,
-			].sort((a, b) => (a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1));
+			subscriptions = [...subscriptions.filter(s => s._id !== action.subscription._id), action.subscription].sort(
+				(a, b) => (a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1),
+			);
 
 			return { ...state, subscriptions };
 		case "DELETE_SUBSCRIPTION":
@@ -59,6 +58,8 @@ export const youtubeReducer = (state, action) => {
 			feeds = feeds.filter(c => c._id !== action.feed._id);
 
 			return { ...state, feeds };
+		case "SET_PLAYLISTS":
+			return { ...state, playlists: action.playlists };
 		default:
 			return state;
 	}

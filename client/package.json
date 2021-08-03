@@ -27,6 +27,7 @@
 		"react-infinite-scroller": "^1.2.4",
 		"react-masonry-css": "^1.0.16",
 		"react-player": "^2.6.1",
+		"react-prismazoom": "^2.0.3",
 		"react-rnd": "^10.3.3",
 		"react-router-dom": "^5.1.2",
 		"react-scripts": "^4.0.3",

@@ -99,6 +99,7 @@ function Reddit({ subreddit, search, listView }) {
 				content={
 					<Post
 						post={posts[num]}
+						num={num}
 						multipleSubs={subreddit.includes("+") || subreddit === "all"}
 						onShowPreviousPost={handleShowPreviousPost}
 						onShowNextPost={handleShowNextPost}

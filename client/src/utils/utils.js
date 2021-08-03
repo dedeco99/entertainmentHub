@@ -25,6 +25,9 @@ function formatVideoDuration(duration) {
 	const hasSeconds = duration.includes("S");
 
 	const values = duration.substring(2).slice(0, -1).split(/[HM]/g);
+
+	if (!hasHours && !hasMinutes) values[0] = `0${values[0]}`;
+
 	for (let i = 1; i < values.length; i++) {
 		if (values[i].length < 2) values[i] = `0${values[i]}`;
 	}
@@ -35,7 +38,7 @@ function formatVideoDuration(duration) {
 	} else if (hasMinutes && !hasSeconds) {
 		values.push("00");
 	} else if (hasSeconds && !hasMinutes) {
-		values.unshift("00");
+		values.unshift("0");
 	}
 
 	return values.join(":");

@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import ReactPlayer from "react-player";
 
+import PrismaZoom from "react-prismazoom";
+
 import {
 	makeStyles,
 	CardMedia,
@@ -30,7 +32,7 @@ import { reddit as styles } from "../../styles/Widgets";
 
 const useStyles = makeStyles(styles);
 
-function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, customStyles }) {
+function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inList, customStyles }) {
 	const classes = useStyles({ inList });
 	const [expandedView, setExpandedView] = useState(false);
 	const [sideMenuView, setSideMenuView] = useState(true);
@@ -51,8 +53,8 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 	}
 
 	useEffect(() => {
-		handleGetComments();
-	}, [post.id]);
+		if (expandedView) handleGetComments();
+	}, [post.id, expandedView]);
 
 	useEffect(() => {
 		setGalleryIndex(0);
@@ -85,18 +87,30 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 		return () => window.removeEventListener("resize", updateSideMenuView);
 	}, []);
 
-	function formatTextPost() {
+	function formatTextPost(expanded) {
+		const text =
+			post.text === "null" ? (
+				<Typography>
+					<Link href={post.url} target="_blank" rel="noreferrer" color="inherit">
+						{post.url}
+					</Link>
+				</Typography>
+			) : (
+				// eslint-disable-next-line react/no-danger
+				<Box
+					className={classes.textContent}
+					dangerouslySetInnerHTML={{ __html: htmlEscape(`${post.text}${post.text}`) }}
+				/>
+			);
+
 		return (
-			<Box p={2} maxWidth={1450} style={{ backgroundColor: "#212121" }}>
-				{post.text === "null" ? (
-					<Typography>
-						<Link href={post.url} target="_blank" rel="noreferrer" color="inherit">
-							{post.url}
-						</Link>
-					</Typography>
+			<Box display="flex" alignItems="center" height="100%">
+				{expanded ? (
+					<Box p={2} maxWidth={1450} style={{ backgroundColor: "#212121", overflow: "auto" }} maxHeight="1000px">
+						{text}
+					</Box>
 				) : (
-					// eslint-disable-next-line react/no-danger
-					<div className={classes.textContent} dangerouslySetInnerHTML={{ __html: htmlEscape(post.text) }} />
+					text
 				)}
 			</Box>
 		);
@@ -117,37 +131,51 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 				<CardMedia component="img" src={post.url} className={classes.media} onClick={handleOpenExpandedView} />
 			);
 			expandedContent = (
-				<img
-					src={post.url}
-					alt={post.url}
-					style={{
-						width: "100%",
-						height: "100%",
-						maxWidth: "100%",
-						maxHeight: "100%",
-						margin: "auto",
-						display: "block",
-						position: "absolute",
-						objectFit: "contain",
-					}}
-				/>
+				<PrismaZoom className={classes.zoomImage}>
+					<img
+						src={post.url}
+						alt={post.url}
+						style={{
+							width: "100%",
+							height: "100%",
+							maxWidth: "100%",
+							maxHeight: "100%",
+							margin: "auto",
+							display: "block",
+							position: "absolute",
+							objectFit: "contain",
+							cursor: "zoom-in",
+						}}
+					/>
+				</PrismaZoom>
 			);
 			expandedContent = (
-				<img
-					src={post.url}
-					alt={post.url}
-					style={{ display: "block", position: "absolute", margin: "auto", width: "100%", height: "100%" }}
-				/>
+				<PrismaZoom className={classes.zoomImage}>
+					<img
+						src={post.url}
+						alt={post.url}
+						style={{
+							display: "block",
+							position: "absolute",
+							margin: "auto",
+							width: "100%",
+							height: "100%",
+							cursor: "zoom-in",
+						}}
+					/>
+				</PrismaZoom>
 			);
 		} else if (post.gallery) {
 			content = (
-				<div>
-					<CardMedia
-						component="img"
-						src={post.gallery[galleryIndex]}
-						className={classes.media}
-						onClick={handleOpenExpandedView}
-					/>
+				<div className={classes.zoomImage}>
+					<PrismaZoom className={classes.zoomImage} style={{ position: "absolute" }}>
+						<CardMedia
+							component="img"
+							src={post.gallery[galleryIndex]}
+							className={classes.media}
+							onClick={handleOpenExpandedView}
+						/>
+					</PrismaZoom>
 					{galleryIndex > 0 && (
 						<Box left="10px" className={classes.galleryBtn}>
 							<IconButton
@@ -256,8 +284,8 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 			expandedContent = content;
 		} else {
 			isMedia = false;
-			content = formatTextPost(post);
-			expandedContent = content;
+			content = formatTextPost();
+			expandedContent = formatTextPost(true);
 		}
 
 		return { isMedia, content, expandedContent };
@@ -414,12 +442,10 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 						<Typography variant="caption" style={{ fontSize: "13px" }}>
 							{comment.author}
 						</Typography>
-
 						<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
 							{` • ${formatDate(comment.created * 1000, null, true)}`}
 						</Typography>
 					</Box>
-
 					<Box
 						style={{
 							display: "inline-flex",
@@ -430,7 +456,6 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 							<Typography variant="caption" style={{ fontSize: "12px" }}>
 								{comment.text}
 							</Typography>
-
 							<Box fontWeight={500} fontFamily="Monospace" pt={1}>
 								<Typography variant="caption" style={{ fontSize: "13px" }}>
 									{comment.score}
@@ -441,7 +466,6 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 							</Box>
 						</Box>
 					</Box>
-
 					{comment.replies &&
 						comment.replies.map(reply => (
 							<CardContent key={reply.id}>
@@ -449,12 +473,10 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 									<Typography variant="caption" style={{ fontSize: "13px" }}>
 										{reply.author}
 									</Typography>
-
 									<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
 										{` • ${formatDate(reply.created * 1000, null, true)}`}
 									</Typography>
 								</Box>
-
 								<Box
 									style={{
 										display: "inline-flex",
@@ -465,10 +487,9 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 										<Typography variant="caption" style={{ fontSize: "12px" }}>
 											{reply.text}
 										</Typography>
-
 										<Box fontWeight={500} fontFamily="Monospace" pt={1}>
 											<Typography variant="caption" style={{ fontSize: "13px" }}>
-												{comment.score}
+												{reply.score}
 											</Typography>
 											<Typography
 												variant="caption"
@@ -524,8 +545,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 									>
 										<i className="icon-cross icon-1x" />
 									</IconButton>
-
-									{onShowPreviousPost && (
+									{onShowPreviousPost && num ? (
 										<Box
 											className={classes.expandedBtn}
 											onClick={onShowPreviousPost}
@@ -537,22 +557,16 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 											}}
 										>
 											<Box>
-												<IconButton
-													onClick={onShowPreviousPost}
-													color="primary"
-													style={{ backgroundColor: "#3C3C3C", cursor: "pointer" }}
-												>
+												<IconButton color="primary" style={{ backgroundColor: "#3C3C3C", cursor: "pointer" }}>
 													<i className="icon-arrow-left icon-1x" />
 												</IconButton>
 											</Box>
 										</Box>
-									)}
+									) : null}
 								</Box>
-
-								<Box position="relative" height="100%" flexGrow={1} style={{ overflow: "auto" }}>
+								<Box position="relative" height="100%" flexGrow={1} style={{ overflow: "hidden" }}>
 									{expandedContent}
 								</Box>
-
 								<Box>
 									<IconButton
 										color="primary"
@@ -567,7 +581,6 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 									>
 										<i className={sideMenuView ? "icon-caret-right icon-1x" : "icon-caret-left icon-1x"} />
 									</IconButton>
-
 									{onShowNextPost && (
 										<Box
 											className={classes.expandedBtn}
@@ -580,11 +593,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 											}}
 										>
 											<Box>
-												<IconButton
-													onClick={onShowPreviousPost}
-													color="primary"
-													style={{ backgroundColor: "#3C3C3C", cursor: "pointer" }}
-												>
+												<IconButton color="primary" style={{ backgroundColor: "#3C3C3C", cursor: "pointer" }}>
 													<i className="icon-arrow-right icon-1x" />
 												</IconButton>
 											</Box>
@@ -594,7 +603,6 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 							</Paper>
 						</Fade>
 					</Grid>
-
 					{sideMenuView && (
 						<Grid
 							xs={3}
@@ -618,7 +626,14 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 												{"r/"}
 											</Typography>
 											<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px" }}>
-												{post.subreddit}
+												<Link
+													href={`https://reddit.com/r/${post.subreddit}`}
+													target="_blank"
+													rel="noreferrer"
+													color="inherit"
+												>
+													{post.subreddit}
+												</Link>
 											</Typography>
 										</Box>
 									</Box>
@@ -627,7 +642,14 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 											{"Posted by u/"}
 										</Typography>
 										<Typography variant="caption" style={{ color: "#EC6E4C", fontSize: "13px" }}>
-											{post.author}
+											<Link
+												href={`https://reddit.com/u/${post.author}`}
+												target="_blank"
+												rel="noreferrer"
+												color="inherit"
+											>
+												{post.author}
+											</Link>
 										</Typography>
 										<Typography variant="caption" style={{ fontSize: "13px" }}>
 											{` • ${formatDate(post.created * 1000, null, true)}`}
@@ -635,7 +657,9 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 									</Box>
 									<Box fontWeight={500} fontFamily="Monospace" py={1}>
 										<Typography gutterBottom variant="h6" component="h6">
-											{post.title}
+											<Link href={post.permalink} target="_blank" rel="noreferrer" color="inherit">
+												{htmlEscape(post.title)}
+											</Link>
 										</Typography>
 									</Box>
 									<Box fontWeight={500} fontFamily="Monospace" pt={1}>
@@ -684,6 +708,7 @@ function Post({ post, multipleSubs, onShowPreviousPost, onShowNextPost, inList, 
 
 Post.propTypes = {
 	post: PropTypes.object.isRequired,
+	num: PropTypes.number,
 	multipleSubs: PropTypes.bool.isRequired,
 	onShowPreviousPost: PropTypes.func,
 	onShowNextPost: PropTypes.func,
