@@ -3,20 +3,32 @@ import InfiniteScroll from "react-infinite-scroller";
 import parse from "html-react-parser";
 import { enable as enableDarkReader, disable as disableDarkReader } from "darkreader";
 
-import { Zoom, Box, Typography, ListItem } from "@material-ui/core";
+import {
+	Zoom,
+	Box,
+	Typography,
+	ListItem,
+	ListItemSecondaryAction,
+	IconButton,
+	Menu,
+	MenuItem,
+} from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
 import AnimatedList from "../.partials/AnimatedList";
 import SingleView from "../.partials/SingleView";
 
-import { getEmails } from "../../api/emails";
+import { getEmails, deleteEmail } from "../../api/emails";
 
 import { formatDate } from "../../utils/utils";
+import { translate } from "../../utils/translations";
 
 function Emails() {
 	const [emails, setEmails] = useState([]);
 	const [showListView, setShowListView] = useState(true);
 	const [selectedEmail, setSelectedEmail] = useState(null);
+	const [emailAnchorEl, setEmailAnchorEl] = useState(null);
+	const [actionLoading, setActionLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 
 	useEffect(() => {
@@ -61,9 +73,46 @@ function Emails() {
 		disableDarkReader();
 	}
 
+	function handleOptionsClick(e, email) {
+		setEmailAnchorEl(e.currentTarget);
+		setSelectedEmail(email);
+	}
+
+	function handleCloseOptions() {
+		setEmailAnchorEl(null);
+	}
+
+	async function handleDeleteEmail() {
+		setActionLoading(true);
+
+		const response = await deleteEmail(selectedEmail.id);
+
+		if (response.status === 200) {
+			setEmails(emails.filter(e => e.id !== selectedEmail.id));
+		}
+
+		setActionLoading(false);
+	}
+
+	function renderEmailAction(email) {
+		if (selectedEmail && selectedEmail.id === email.id && actionLoading) {
+			return <Loading />;
+		}
+
+		return (
+			<ListItemSecondaryAction id={email.id} onClick={e => handleOptionsClick(e, email)}>
+				<IconButton edge="end">
+					<i className="icon-more" />
+				</IconButton>
+			</ListItemSecondaryAction>
+		);
+	}
+
 	if (!open) return <Loading />;
 
 	if (showListView) {
+		const actions = [{ name: translate("delete"), onClick: handleDeleteEmail }];
+
 		return (
 			<Zoom in={open}>
 				<Box
@@ -86,7 +135,7 @@ function Emails() {
 						<AnimatedList>
 							{emails.map(email =>
 								[email.messages[email.messages.length - 1]].map(message => (
-									<ListItem key={email._id} divider onClick={() => handleSelectEmail(email)}>
+									<ListItem key={email.id} divider onClick={() => handleSelectEmail(email)}>
 										<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
 											<Typography variant="body1" title={message.subject}>
 												{message.subject}
@@ -96,11 +145,25 @@ function Emails() {
 											</Typography>
 											<Typography variant="caption">{formatDate(message.dateSent, "DD-MM-YYYY HH:mm")}</Typography>
 										</Box>
+										{renderEmailAction(email)}
 									</ListItem>
 								)),
 							)}
 						</AnimatedList>
 					</InfiniteScroll>
+					<Menu anchorEl={emailAnchorEl} keepMounted open={Boolean(emailAnchorEl)} onClose={handleCloseOptions}>
+						{actions.map(action => (
+							<MenuItem
+								key={action.name}
+								onClick={() => {
+									action.onClick();
+									handleCloseOptions();
+								}}
+							>
+								{action.name}
+							</MenuItem>
+						))}
+					</Menu>
 				</Box>
 			</Zoom>
 		);
@@ -111,7 +174,7 @@ function Emails() {
 			<SingleView
 				open={open}
 				content={
-					<Box style={{ width: "100%", overflow: "auto", padding: "10px" }}>
+					<Box style={{ width: "100%", height: "100%", overflow: "auto", padding: "10px" }}>
 						{parse(selectedEmail.messages[selectedEmail.messages.length - 1].data)}
 					</Box>
 				}

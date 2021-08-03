@@ -9,4 +9,13 @@ async function getEmails() {
 	return res;
 }
 
-export { getEmails };
+async function deleteEmail(id) {
+	const res = await api({
+		method: "delete",
+		url: `/api/emails/${id}`,
+	});
+
+	return res;
+}
+
+export { getEmails, deleteEmail };

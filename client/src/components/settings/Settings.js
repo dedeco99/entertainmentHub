@@ -36,7 +36,7 @@ import { settings as styles } from "../../styles/Header";
 const useStyles = makeStyles(styles);
 
 function Settings() {
-	const REDIRECT = "http://localhost:3000";
+	const REDIRECT = "https://ehub.rabbitsoftware.dev";
 
 	const match = useRouteMatch();
 	const classes = useStyles();
@@ -102,7 +102,7 @@ function Settings() {
 				&access_type=offline
 				&response_type=code
 				&client_id=539994951120-kabifq9ct2lbk92m9ef4hddc5f57nksl.apps.googleusercontent.com
-				&scope=https://www.googleapis.com/auth/gmail.readonly`,
+				&scope=https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify`,
 			color: "linear-gradient(0deg, rgba(1,97,234,1) 0%, rgba(0,187,250,1) 100%)",
 		},
 	};

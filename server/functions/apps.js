@@ -56,7 +56,6 @@ async function addApp(event) {
 
 			const res = await api({ method: "post", url });
 			json = res.data;
-			console.log(json);
 			break;
 		}
 		default: {

@@ -62,11 +62,14 @@ async function getEmails(event) {
 		for (const message of thread.data.messages) {
 			const formattedMessage = {};
 
+			formattedMessage.id = message.id;
 			formattedMessage.subject = message.payload.headers.find(h => h.name === "Subject").value;
 			formattedMessage.from = message.payload.headers.find(h => h.name === "From").value;
 			formattedMessage.to = message.payload.headers.find(h => h.name === "To").value;
 			formattedMessage.dateSent = dayjs.unix(Number(message.internalDate) / 1000);
-			if (message.payload.parts[1] && message.payload.parts[1].body.data) {
+			if (!message.payload.parts) {
+				formattedMessage.data = "";
+			} else if (message.payload.parts[1] && message.payload.parts[1].body.data) {
 				formattedMessage.data = Buffer.from(message.payload.parts[1].body.data, "base64").toString();
 			} else if (message.payload.parts[0] && message.payload.parts[0].body.data) {
 				formattedMessage.data = Buffer.from(message.payload.parts[0].body.data, "base64").toString();
@@ -77,10 +80,29 @@ async function getEmails(event) {
 			messages.push(formattedMessage);
 		}
 
-		threads.push({ id: thread, messages });
+		threads.push({ id: thread.data.id, messages });
 	}
 
 	return response(200, "GET_EMAILS", threads);
 }
 
-module.exports = { getEmails };
+async function deleteEmail(event) {
+	const { params, user } = event;
+	const { id } = params;
+
+	const accessToken = await getAccessToken(user);
+
+	if (accessToken.status === 401) return errors.gmailRefreshToken;
+
+	const url = `https://www.googleapis.com/gmail/v1/users/me/messages/${id}/trash`;
+
+	const headers = {
+		Authorization: `Bearer ${accessToken}`,
+	};
+
+	await api({ method: "post", url, headers });
+
+	return response(200, "DELETE_EMAIL");
+}
+
+module.exports = { getEmails, deleteEmail };
