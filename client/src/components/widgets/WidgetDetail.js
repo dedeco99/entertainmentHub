@@ -2,7 +2,7 @@
 import React, { useState, useContext, useEffect } from "react";
 import PropTypes from "prop-types";
 import { Subject } from "rxjs";
-import { debounceTime, filter, distinctUntilChanged } from "rxjs/operators";
+import { debounceTime, filter } from "rxjs/operators";
 
 import {
 	makeStyles,
@@ -59,7 +59,6 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 	const getCitiesSubject = new Subject();
 	const getCoinsSubject = new Subject();
 	const getStocksSubject = new Subject();
-	const submitSubject = new Subject();
 
 	useEffect(() => {
 		const subscription = addGroupSubject
@@ -68,8 +67,6 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 				filter(name => name),
 			)
 			.subscribe(name => {
-				widgetGroups.push({ name });
-
 				setGroup({ name });
 			});
 		return () => subscription.unsubscribe();
@@ -120,36 +117,6 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 					setStocks(response.data);
 				}
 			});
-		return () => subscription.unsubscribe();
-	});
-
-	useEffect(() => {
-		const subscription = submitSubject.pipe(distinctUntilChanged((a, b) => a === b)).subscribe(async () => {
-			if (widget) {
-				const response = await editWidget({ ...widget, group, refreshRateMinutes, info });
-
-				if (response.status === 200) {
-					dispatch({ type: "EDIT_WIDGET", widget: response.data });
-					onClose();
-					setInfo({});
-				}
-			} else {
-				const response = await addWidget({
-					type,
-					group,
-					width: widgetRestrictions[type].minW,
-					height: widgetRestrictions[type].minH,
-					refreshRateMinutes,
-					info,
-				});
-
-				if (response.status === 201) {
-					dispatch({ type: "ADD_WIDGET", widget: response.data });
-					onClose();
-					setInfo({});
-				}
-			}
-		});
 		return () => subscription.unsubscribe();
 	});
 
@@ -249,12 +216,37 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 		addGroupSubject.next(name);
 	}
 
-	function handleSubmit(e) {
+	async function handleSubmit(e) {
 		e.preventDefault();
 
 		if (refreshRateMinutes !== null && refreshRateMinutes < 5) return false;
 
-		submitSubject.next(info);
+		if (widget) {
+			const response = await editWidget({ ...widget, group, refreshRateMinutes, info });
+
+			if (response.status === 200) {
+				dispatch({ type: "EDIT_WIDGET", widget: response.data });
+				onClose();
+				setInfo({});
+			}
+		} else {
+			const response = await addWidget({
+				type,
+				group,
+				width: widgetRestrictions[type].minW,
+				height: widgetRestrictions[type].minH,
+				refreshRateMinutes,
+				info,
+			});
+
+			if (response.status === 201) {
+				dispatch({ type: "ADD_WIDGET", widget: response.data });
+				onClose();
+				setInfo({});
+			}
+		}
+
+		if (!widgetGroups.map(g => g.name).includes(group.name)) widgetGroups.push({ name: group.name });
 
 		return true;
 	}
@@ -496,9 +488,10 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 			{ value: "tv", displayName: "TV" },
 			{ value: "price", displayName: "Price" },
 			{ value: "email", displayName: "Email" },
+			{ value: "currencyConverter", displayName: "Currency Converter" },
 		];
 
-		const nonAppWidgets = ["notifications", "weather", "finance", "price"];
+		const nonAppWidgets = ["notifications", "weather", "finance", "price", "currencyConverter"];
 		const groupedAppWidgets = { email: ["gmail"] };
 		const groupedApps = [];
 

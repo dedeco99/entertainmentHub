@@ -163,6 +163,10 @@ function Settings() {
 		}
 	}
 
+	function handleCurrencyChange(e) {
+		setSettings({ ...settings, currency: e.target.value });
+	}
+
 	function handleCheckboxChange(property) {
 		setSettings({ ...settings, [property]: !settings[property] });
 	}
@@ -260,6 +264,20 @@ function Settings() {
 				<Typography variant="h4">{translate("settings")}</Typography>
 				<form onSubmit={handleSubmitSettings} style={{ display: "contents" }}>
 					<FormControl margin="normal">
+						<Input
+							label="Currency"
+							value={settings.currency}
+							onChange={handleCurrencyChange}
+							variant="outlined"
+							select
+							fullWidth
+						>
+							{["EUR", "USD", "GBP"].map(c => (
+								<MenuItem key={c} value={c}>
+									{c}
+								</MenuItem>
+							))}
+						</Input>
 						<FormControlLabel
 							control={
 								<Checkbox
@@ -325,7 +343,6 @@ function Settings() {
 								</Typography>
 								<Input
 									label="Youtube Watch Later Default Playlist"
-									id="watchLaterPlaylist"
 									value={settings.youtube ? settings.youtube.watchLaterPlaylist : ""}
 									onChange={handleWatchLaterPlaylistChange}
 									variant="outlined"
