@@ -105,6 +105,11 @@ function AppMenu() {
 	return (
 		<div className={classes.root}>
 			<List>
+				<ListItem key="home" button component={Link} className={classes.appItem} to="/">
+					<Typography>
+						<i className="icon-home icon-2x" />
+					</Typography>
+				</ListItem>
 				{renderAppList()}
 				{renderAddMoreApps()}
 			</List>
