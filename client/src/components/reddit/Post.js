@@ -545,7 +545,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 									>
 										<i className="icon-cross icon-1x" />
 									</IconButton>
-									{onShowPreviousPost && num && (
+									{onShowPreviousPost && num ? (
 										<Box
 											className={classes.expandedBtn}
 											onClick={onShowPreviousPost}
@@ -562,7 +562,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 												</IconButton>
 											</Box>
 										</Box>
-									)}
+									) : null}
 								</Box>
 								<Box position="relative" height="100%" flexGrow={1} style={{ overflow: "hidden" }}>
 									{expandedContent}

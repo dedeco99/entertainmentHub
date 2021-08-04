@@ -13,6 +13,9 @@ module.exports = {
 	youtubeRefreshToken: error(401, "YOUTUBE_TOKEN"),
 	youtubeForbidden: error(403, "YOUTUBE_FORBIDDEN"),
 
+	gmailRefreshToken: error(401, "GMAIL_TOKEN"),
+	gmailForbidden: error(403, "GMAIL_FORBIDDEN"),
+
 	redditRefreshToken: error(401, "REDDIT_TOKEN"),
 	redditForbidden: error(403, "REDDIT_FORBIDDEN"),
 	redditNotFound: subreddit => error(404, `Subreddit ${subreddit} not found`),

@@ -23,8 +23,9 @@ async function addApp(event) {
 		case "reddit": {
 			const url = `https://www.reddit.com/api/v1/access_token?code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/reddit`;
 
-			// prettier-ignore
-			const encryptedAuth = new Buffer.from(`${process.env.redditClientId}:${process.env.redditSecret}`).toString("base64");
+			const encryptedAuth = new Buffer.from(`${process.env.redditClientId}:${process.env.redditSecret}`).toString(
+				"base64",
+			);
 			const auth = `Basic ${encryptedAuth}`;
 
 			const headers = {
@@ -45,6 +46,13 @@ async function addApp(event) {
 		}
 		case "youtube": {
 			const url = `https://www.googleapis.com/oauth2/v4/token?client_id=${process.env.youtubeClientId}&client_secret=${process.env.youtubeSecret}&code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/youtube`;
+
+			const res = await api({ method: "post", url });
+			json = res.data;
+			break;
+		}
+		case "gmail": {
+			const url = `https://www.googleapis.com/oauth2/v4/token?client_id=${process.env.youtubeClientId}&client_secret=${process.env.youtubeSecret}&code=${code}&grant_type=authorization_code&redirect_uri=${process.env.redirect}/apps/gmail`;
 
 			const res = await api({ method: "post", url });
 			json = res.data;

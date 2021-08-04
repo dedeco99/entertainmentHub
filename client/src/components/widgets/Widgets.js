@@ -13,6 +13,7 @@ import Weather from "../widgets/Weather";
 import TV from "../widgets/TV";
 import Finance from "../widgets/Finance";
 import Price from "../widgets/Price";
+import Emails from "../widgets/Emails";
 import WidgetDetail from "../widgets/WidgetDetail";
 import CurrencyConverter from "../widgets/CurrencyConverter";
 
@@ -37,6 +38,7 @@ const widgetRestrictions = {
 	finance: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
 	price: { minW: 1, minH: 1, maxW: 4, maxH: 4 },
 	currencyConverter: { minW: 2, minH: 1, maxW: 2, maxH: 1 },
+	email: { minW: 2, minH: 2, maxW: 6, maxH: 6 },
 };
 
 const widgetsInfo = {
@@ -101,6 +103,13 @@ const widgetsInfo = {
 		editIcon: "icon-money",
 		dimensions: { w: widget.width || 2, h: widget.height || 2 },
 		restrictions: widgetRestrictions.currency,
+	}),
+	email: widget => ({
+		content: <Emails />,
+		editText: "Emails",
+		editIcon: "icon-money",
+		dimensions: { w: widget.width || 2, h: widget.height || 2 },
+		restrictions: widgetRestrictions.email,
 	}),
 };
 
@@ -235,8 +244,7 @@ function Widgets() {
 	}
 
 	function handleWidthChange(containerWidth, margin, cols) {
-		// prettier-ignore
-		setRowHeight((containerWidth - (margin[0] * (cols - 1))) / cols);
+		setRowHeight((containerWidth - margin[0] * (cols - 1)) / cols);
 	}
 
 	function handleLayoutChange(layout, newLayouts) {

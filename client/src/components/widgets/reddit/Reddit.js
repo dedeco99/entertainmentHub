@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import Loading from "../../.partials/Loading";
-import SingleView from "./SingleView";
+import SingleView from "../../.partials/SingleView";
 import ListView from "./ListView";
+import Post from "../../reddit/Post";
 
 import { getPosts, getSearch } from "../../../api/reddit";
 
@@ -95,11 +96,17 @@ function Reddit({ subreddit, search, listView }) {
 		return (
 			<SingleView
 				open={open}
-				post={posts[num]}
-				num={num}
-				multipleSubs={subreddit.includes("+") || subreddit === "all"}
-				onShowNextPost={handleShowNextPost}
-				onShowPreviousPost={handleShowPreviousPost}
+				content={
+					<Post
+						post={posts[num]}
+						num={num}
+						multipleSubs={subreddit.includes("+") || subreddit === "all"}
+						onShowPreviousPost={handleShowPreviousPost}
+						onShowNextPost={handleShowNextPost}
+					/>
+				}
+				onShowPrevious={handleShowPreviousPost}
+				onShowNext={handleShowNextPost}
 				onShowListView={handleShowListView}
 			/>
 		);

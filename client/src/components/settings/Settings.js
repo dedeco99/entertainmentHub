@@ -93,6 +93,20 @@ function Settings() {
 			link: "/apps/tv",
 			color: "linear-gradient(0deg, rgba(1,97,234,1) 0%, rgba(0,187,250,1) 100%)",
 		},
+		gmail: {
+			active: false,
+			key: "gmail",
+			displayName: "Gmail",
+			icon: "icon-monitor",
+			link: `https://accounts.google.com/o/oauth2/v2/auth
+				?redirect_uri=${REDIRECT}/apps/gmail
+				&prompt=consent
+				&access_type=offline
+				&response_type=code
+				&client_id=539994951120-kabifq9ct2lbk92m9ef4hddc5f57nksl.apps.googleusercontent.com
+				&scope=https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify`,
+			color: "linear-gradient(0deg, rgba(1,97,234,1) 0%, rgba(0,187,250,1) 100%)",
+		},
 	};
 	const [selectedMenu, setSelectedMenu] = useState(0);
 	const [settings, setSettings] = useState({});

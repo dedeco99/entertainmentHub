@@ -23,6 +23,7 @@ const feeds = require("./functions/feeds");
 const youtube = require("./functions/youtube");
 const twitch = require("./functions/twitch");
 const tv = require("./functions/tv");
+const emails = require("./functions/emails");
 
 global.sockets = [];
 global.cache = {
@@ -182,6 +183,14 @@ app.get("/api/tv/search/:search", token, (req, res) => middleware(req, res, tv.g
 app.get("/api/tv/popular", token, (req, res) => middleware(req, res, tv.getPopular));
 
 app.get("/api/tv/:id", token, (req, res) => middleware(req, res, tv.getEpisodes));
+
+app.get("/api/emails", token, (req, res) => middleware(req, res, emails.getEmails));
+
+app.get("/api/emails/labels", token, (req, res) => middleware(req, res, emails.getEmailLabels));
+
+app.put("/api/emails/:id", token, (req, res) => middleware(req, res, emails.editEmail));
+
+app.delete("/api/emails/:id", token, (req, res) => middleware(req, res, emails.deleteEmail));
 
 app.get("*/", (req, res) => {
 	res.sendFile(path.join(`${__dirname}/build/index.html`));

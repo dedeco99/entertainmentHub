@@ -13,7 +13,7 @@ function Apps() {
 		async function fetchData() {
 			const platform = history.location.pathname.split("/")[2];
 			let code = history.location.search.split("code=")[1];
-			code = platform === "youtube" || platform === "twitch" ? code.split("&")[0] : code;
+			code = platform === "youtube" || platform === "twitch" || platform === "gmail" ? code.split("&")[0] : code;
 
 			const response = await addApp(platform, code);
 
