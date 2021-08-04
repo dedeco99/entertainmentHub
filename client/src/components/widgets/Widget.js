@@ -110,7 +110,7 @@ function Widget({
 		setOpenDeleteConfirmation(false);
 	}
 
-	const nonAppWidgets = ["notifications", "weather", "finance", "price"];
+	const nonAppWidgets = ["notifications", "weather", "finance", "price", "currencyConverter"];
 	const groupedAppWidgets = { email: ["gmail"] };
 
 	const appFound =

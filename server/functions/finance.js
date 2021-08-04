@@ -107,8 +107,6 @@ async function getExchangeRates(event) {
 	const { query, user } = event;
 	const { base } = query;
 
-	console.log("base", base);
-
 	let useCache = true;
 	let exchangeRates = global.cache.exchangeRates.data;
 
