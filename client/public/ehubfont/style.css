@@ -1,9 +1,9 @@
 @font-face {
 	font-family: "Ehub-icons";
-	src: url("fonts/Ehub-icons.eot?ov9q51");
-	src: url("fonts/Ehub-icons.eot?ov9q51#iefix") format("embedded-opentype"),
-		url("fonts/Ehub-icons.ttf?ov9q51") format("truetype"), url("fonts/Ehub-icons.woff?ov9q51") format("woff"),
-		url("fonts/Ehub-icons.svg?ov9q51#Ehub-icons") format("svg");
+	src: url("fonts/Ehub-icons.eot?3f7ybw");
+	src: url("fonts/Ehub-icons.eot?3f7ybw#iefix") format("embedded-opentype"),
+		url("fonts/Ehub-icons.ttf?3f7ybw") format("truetype"), url("fonts/Ehub-icons.woff?3f7ybw") format("woff"),
+		url("fonts/Ehub-icons.svg?3f7ybw#Ehub-icons") format("svg");
 	font-weight: normal;
 	font-style: normal;
 	font-display: block;
@@ -183,7 +183,7 @@
 	content: "\ea32";
 }
 .icon-cross:before {
-	content: "\ea0f";
+	content: "\e932";
 }
 .icon-eye:before {
 	content: "\e92f";
@@ -193,6 +193,15 @@
 }
 .icon-star:before {
 	content: "\e931";
+}
+.icon-finance:before {
+	content: "\e933";
+}
+.icon-converter:before {
+	content: "\e934";
+}
+.icon-email:before {
+	content: "\e935";
 }
 
 .icon-1x {
