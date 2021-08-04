@@ -17,6 +17,19 @@ function formatNumber(number) {
 	return number.toString().replace(/(.)(?=(\d{3})+$)/g, "$1 ");
 }
 
+function getCurrencySymbol(currency) {
+	switch (currency) {
+		case "EUR":
+			return "€";
+		case "USD":
+			return "$";
+		case "GBP":
+			return "£";
+		default:
+			return "";
+	}
+}
+
 function formatVideoDuration(duration) {
 	if (!duration || duration === "P0D") return "Live";
 
@@ -100,6 +113,7 @@ export {
 	formatDate,
 	diff,
 	formatNumber,
+	getCurrencySymbol,
 	formatVideoDuration,
 	formatNotification,
 	htmlEscape,

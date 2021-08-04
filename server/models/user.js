@@ -6,6 +6,7 @@ const UserSchema = new Schema(
 		password: { type: String, default: "" },
 		language: { type: String, default: "en" },
 		settings: {
+			currency: { type: String, default: "EUR" },
 			useCustomScrollbar: { type: Boolean, default: false },
 			animations: { type: Boolean, default: true },
 			borderColor: { type: Boolean, default: false },
