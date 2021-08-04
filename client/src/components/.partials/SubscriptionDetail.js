@@ -54,8 +54,6 @@ function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscr
 				filter(name => name),
 			)
 			.subscribe(name => {
-				subscriptionGroups.push({ name });
-
 				setGroup({ name });
 			});
 		return () => subscription.unsubscribe();
@@ -104,6 +102,8 @@ function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscr
 		e.preventDefault();
 
 		await editSubscription(subscription._id, { displayName: title, group, notifications });
+
+		if (!subscriptionGroups.map(g => g.name).includes(group.name)) subscriptionGroups.push({ name: group.name });
 	}
 
 	function renderTags(value, getTagProps) {
