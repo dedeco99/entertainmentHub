@@ -86,7 +86,7 @@ const widgetsInfo = {
 	finance: widget => ({
 		content: <Finance coins={widget.info.coins} stocks={widget.info.stocks} />,
 		editText: "Finance",
-		editIcon: "icon-crypto",
+		editIcon: "icon-finance",
 		dimensions: { w: widget.width || 1, h: widget.height || 1 },
 		restrictions: widgetRestrictions.finance,
 	}),
@@ -100,14 +100,14 @@ const widgetsInfo = {
 	currencyConverter: widget => ({
 		content: <CurrencyConverter />,
 		editText: "Currency Converter",
-		editIcon: "icon-money",
+		editIcon: "icon-converter",
 		dimensions: { w: widget.width || 2, h: widget.height || 2 },
 		restrictions: widgetRestrictions.currency,
 	}),
 	email: widget => ({
 		content: <Emails />,
 		editText: "Emails",
-		editIcon: "icon-money",
+		editIcon: "icon-email",
 		dimensions: { w: widget.width || 2, h: widget.height || 2 },
 		restrictions: widgetRestrictions.email,
 	}),
