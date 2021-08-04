@@ -1,6 +1,6 @@
 {
 	"name": "entertainmenthub",
-	"version": "0.6.0",
+	"version": "0.7.0",
 	"author": "Andre Coelho",
 	"license": "MIT",
 	"main": "app.js",
@@ -26,18 +26,18 @@
 		"cheerio": "^1.0.0-rc.10",
 		"dayjs": "^1.10.6",
 		"express": "^4.17.1",
-		"mongoose": "^5.13.2",
+		"mongoose": "^5.13.5",
 		"morgan": "^1.10.0",
 		"node-cron": "^3.0.0",
 		"rss-converter": "^1.1.6",
 		"sanitize-html": "^2.4.0",
 		"socket.io": "^4.1.3",
-		"yahoo-finance2": "^1.14.0"
+		"yahoo-finance2": "^1.14.2"
 	},
 	"devDependencies": {
 		"concurrently": "^6.2.0",
-		"eslint": "^7.30.0",
-		"jest": "^26.4.2",
+		"eslint": "^7.32.0",
+		"jest": "^27.0.6",
 		"nodemon": "^2.0.12"
 	}
 }
