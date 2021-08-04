@@ -102,15 +102,15 @@ function Notifications({ height, wrapTitle }) {
 		async function fetchData() {
 			await handleGetNotifications();
 
-			if (user.apps) {
-				const hasYoutube = user.apps.find(app => app.platform === "youtube");
+			if (!user.apps) return;
 
-				if (hasYoutube && !playlists.length) {
-					const response = await getPlaylists();
+			const hasYoutube = user.apps.find(app => app.platform === "youtube");
 
-					if (response.status === 200) {
-						youtubeDispatch({ type: "SET_PLAYLISTS", playlists: response.data });
-					}
+			if (hasYoutube && !playlists.length) {
+				const response = await getPlaylists();
+
+				if (response.status === 200) {
+					youtubeDispatch({ type: "SET_PLAYLISTS", playlists: response.data });
 				}
 			}
 		}

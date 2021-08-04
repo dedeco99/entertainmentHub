@@ -496,7 +496,11 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 		const groupedApps = [];
 
 		for (const groupedType in groupedAppWidgets) {
-			if (user.apps.find(app => groupedAppWidgets[groupedType].includes(app.platform))) {
+			if (
+				user.apps &&
+				user.apps.length &&
+				user.apps.find(app => groupedAppWidgets[groupedType].includes(app.platform))
+			) {
 				groupedApps.push(groupedType);
 			}
 		}

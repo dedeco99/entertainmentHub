@@ -112,12 +112,16 @@ function Widget({
 
 	const nonAppWidgets = ["notifications", "weather", "finance", "price"];
 	const groupedAppWidgets = { email: ["gmail"] };
-	const appFound = user.apps.find(
-		app =>
-			app.platform === type ||
-			nonAppWidgets.includes(type) ||
-			(groupedAppWidgets[type] && groupedAppWidgets[type].includes(app.platform)),
-	);
+
+	const appFound =
+		user.apps &&
+		user.apps.length &&
+		user.apps.find(
+			app =>
+				app.platform === type ||
+				nonAppWidgets.includes(type) ||
+				(groupedAppWidgets[type] && groupedAppWidgets[type].includes(app.platform)),
+		);
 	const hasApp = user.apps && user.apps.length ? appFound : nonAppWidgets.includes(type);
 
 	return (
