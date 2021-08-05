@@ -15,6 +15,7 @@ import {
 	Tooltip,
 	Chip,
 	IconButton,
+	Zoom,
 } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
@@ -159,27 +160,29 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 										/>
 									</a>
 									{providers[serie.externalId] && (
-										<Box
-											style={{
-												position: "absolute",
-												bottom: serie.numWatched > 0 ? "3px" : "0px",
-												right: "3px",
-											}}
-										>
-											{providers[serie.externalId].length ? (
-												providers[serie.externalId].map(provider => (
-													<a href={provider.url} target="_blank" rel="noreferrer" key={provider.url}>
-														<img
-															src={provider.icon}
-															height="35px"
-															style={{ margin: "2px", borderRadius: "2px" }}
-														/>
-													</a>
-												))
-											) : (
-												<i className="icon-close-circled icon-3x" />
-											)}
-										</Box>
+										<Zoom in={providers[serie.externalId]}>
+											<Box
+												style={{
+													position: "absolute",
+													bottom: serie.numWatched > 0 ? "3px" : "0px",
+													right: "3px",
+												}}
+											>
+												{providers[serie.externalId].length ? (
+													providers[serie.externalId].map(provider => (
+														<a href={provider.url} target="_blank" rel="noreferrer" key={provider.url}>
+															<img
+																src={provider.icon}
+																height="35px"
+																style={{ margin: "2px", borderRadius: "2px" }}
+															/>
+														</a>
+													))
+												) : (
+													<i className="icon-close-circled icon-3x" />
+												)}
+											</Box>
+										</Zoom>
 									)}
 									{serie.numToWatch > 0 ? (
 										<Chip
