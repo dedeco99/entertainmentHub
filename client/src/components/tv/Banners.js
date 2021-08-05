@@ -16,6 +16,7 @@ import {
 	Chip,
 	IconButton,
 	Zoom,
+	Slide,
 } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
@@ -159,40 +160,38 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 											style={{ display: "block", width: "100%" }}
 										/>
 									</a>
-									{providers[serie.externalId] && (
-										<Zoom in={providers[serie.externalId]}>
-											<Box
-												style={{
-													position: "absolute",
-													bottom: serie.numWatched > 0 ? "3px" : "0px",
-													right: "3px",
-												}}
-											>
-												{providers[serie.externalId].length ? (
-													providers[serie.externalId].map(provider => (
-														<a href={provider.url} target="_blank" rel="noreferrer" key={provider.url}>
-															<img
-																src={provider.icon}
-																height="35px"
-																style={{ margin: "2px", borderRadius: "2px" }}
-															/>
-														</a>
-													))
-												) : (
-													<i className="icon-close-circled icon-3x" />
-												)}
-											</Box>
-										</Zoom>
-									)}
-									{serie.numToWatch > 0 ? (
+									<Zoom in={providers[serie.externalId]}>
+										<Box
+											style={{
+												position: "absolute",
+												bottom: serie.numWatched > 0 ? "3px" : "0px",
+												right: "3px",
+											}}
+										>
+											{providers[serie.externalId] && providers[serie.externalId].length ? (
+												providers[serie.externalId].map(provider => (
+													<a href={provider.url} target="_blank" rel="noreferrer" key={provider.url}>
+														<img
+															src={provider.icon}
+															height="35px"
+															style={{ margin: "2px", borderRadius: "2px" }}
+														/>
+													</a>
+												))
+											) : (
+												<i className="icon-close-circled icon-3x" />
+											)}
+										</Box>
+									</Zoom>
+									<Zoom in={serie.numToWatch > 0}>
 										<Chip
 											color="secondary"
 											size="small"
 											label={serie.numToWatch}
 											style={{ position: "absolute", top: "5px", right: "5px", borderRadius: "2px" }}
 										/>
-									) : null}
-									{serie.numWatched > 0 ? (
+									</Zoom>
+									<Slide direction="right" timeout={750} in={serie.numWatched > 0}>
 										<Tooltip title={`${serie.numWatched} watched`} placement="top">
 											<LinearProgress
 												color="secondary"
@@ -201,7 +200,7 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 												className={classes.watchedProgressBar}
 											/>
 										</Tooltip>
-									) : null}
+									</Slide>
 								</CardActionArea>
 							</Card>
 							<Typography variant="body2" style={{ display: "flex", flexGrow: 1 }}>
