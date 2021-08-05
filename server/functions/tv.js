@@ -353,7 +353,7 @@ async function getSearch(event) {
 	const series = json.results.map((s, i) => ({
 		externalId: s.id,
 		displayName: s.name,
-		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}`,
+		image: s.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}` : "",
 		imdbId: tmdbSeries[i].data.imdb_id,
 		year: dayjs(s.first_air_date).get("year"),
 		rating: s.vote_average,
@@ -428,13 +428,11 @@ async function getPopular(event) {
 						: null,
 					imdbId: infos[i].id,
 					displayName: infos[i].name,
-					image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${
-						tmdbSeries[i].data.tv_results.length
-							? tmdbSeries[i].data.tv_results[0].poster_path
-							: tmdbSeries[i].data.movie_results.length
-							? tmdbSeries[i].data.movie_results[0].poster_path
-							: null
-					}`,
+					image: tmdbSeries[i].data.tv_results.length
+						? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSeries[i].data.tv_results[0].poster_path}`
+						: tmdbSeries[i].data.movie_results.length
+						? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSeries[i].data.movie_results[0].poster_path}`
+						: "",
 					year: infos[i].year,
 					rank: infos[i].rank,
 					trend: infos[i].trend,
@@ -460,7 +458,7 @@ async function getPopular(event) {
 		series = json.results.map(s => ({
 			externalId: s.id,
 			displayName: s.name,
-			image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}`,
+			image: s.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}` : "",
 		}));
 	}
 
@@ -481,7 +479,7 @@ async function getProviders(event) {
 		url: `https://apis.justwatch.com/content/titles/pt_PT/popular?body={"page_size":1,"page":1,"query":"${search}","content_types":["show"]}`,
 	});
 
-	let providers = [];
+	const providers = [];
 	if (justWatchRes.data.items.length) {
 		const offers = justWatchRes.data.items[0].offers;
 
@@ -493,11 +491,11 @@ async function getProviders(event) {
 						.find(p => p.id === offer.provider_id)
 						.icon_url.replace("/{profile}", "")}/s100`;
 
+					providers.push({ url: offer.urls.standard_web, icon: offer.icon });
+
 					existingLinks.push(offer.urls.standard_web);
 				}
 			}
-
-			providers = offers.map(o => ({ url: o.urls.standard_web, icon: o.icon }));
 		}
 	}
 

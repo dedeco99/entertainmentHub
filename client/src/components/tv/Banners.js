@@ -9,6 +9,7 @@ import {
 	Grid,
 	LinearProgress,
 	Card,
+	CardMedia,
 	CardActionArea,
 	Checkbox,
 	Tooltip,
@@ -135,6 +136,7 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 
 		return (
 			<Grid container justify="center">
+				{/* eslint-disable-next-line complexity*/}
 				{series.map(serie => (
 					<Grid item key={serie.externalId} style={{ padding: "8px" }}>
 						<Box display="flex" flexDirection="column" width={bannerWidth} height="100%">
@@ -153,11 +155,11 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 									}}
 								>
 									<Box>
-										<img
+										<CardMedia
+											component="img"
+											width="100%"
+											image={serie.image ? serie.image : placeholder}
 											style={{ display: "block", width: "100%" }}
-											src={serie.image ? serie.image : placeholder}
-											alt="Serie poster"
-											draggable="false"
 										/>
 										{providers[serie.externalId] && (
 											<Box
@@ -167,15 +169,19 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 													right: "3px",
 												}}
 											>
-												{providers[serie.externalId].map(provider => (
-													<a href={provider} key={provider}>
-														<img
-															src={provider.icon}
-															height="35px"
-															style={{ margin: "2px", borderRadius: "2px" }}
-														/>
-													</a>
-												))}
+												{providers[serie.externalId].length ? (
+													providers[serie.externalId].map(provider => (
+														<a href={provider.url} key={provider.url}>
+															<img
+																src={provider.icon}
+																height="35px"
+																style={{ margin: "2px", borderRadius: "2px" }}
+															/>
+														</a>
+													))
+												) : (
+													<i className="icon-close-circled icon-3x" />
+												)}
 											</Box>
 										)}
 										{serie.numToWatch > 0 ? (
