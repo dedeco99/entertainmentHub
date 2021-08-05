@@ -141,68 +141,64 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 					<Grid item key={serie.externalId} style={{ padding: "8px" }}>
 						<Box display="flex" flexDirection="column" width={bannerWidth} height="100%">
 							<Card component={Box} mb={1}>
-								<CardActionArea
-									onClick={() => {
-										// TODO: Change this onclick to our own series page
-										const newWindow = window.open(
+								<CardActionArea>
+									<a
+										href={
 											serie.imdbId
 												? `https://www.imdb.com/title/${serie.imdbId}`
-												: `https://www.themoviedb.org/tv/${serie.externalId}`,
-											"_blank",
-											"noopener,noreferrer",
-										);
-										if (newWindow) newWindow.opener = null;
-									}}
-								>
-									<Box>
+												: `https://www.themoviedb.org/tv/${serie.externalId}` // TODO: Change this onclick to our own series page
+										}
+										target="_blank"
+										rel="noreferrer"
+									>
 										<CardMedia
 											component="img"
 											width="100%"
 											image={serie.image ? serie.image : placeholder}
 											style={{ display: "block", width: "100%" }}
 										/>
-										{providers[serie.externalId] && (
-											<Box
-												style={{
-													position: "absolute",
-													bottom: serie.numWatched > 0 ? "3px" : "0px",
-													right: "3px",
-												}}
-											>
-												{providers[serie.externalId].length ? (
-													providers[serie.externalId].map(provider => (
-														<a href={provider.url} key={provider.url}>
-															<img
-																src={provider.icon}
-																height="35px"
-																style={{ margin: "2px", borderRadius: "2px" }}
-															/>
-														</a>
-													))
-												) : (
-													<i className="icon-close-circled icon-3x" />
-												)}
-											</Box>
-										)}
-										{serie.numToWatch > 0 ? (
-											<Chip
+									</a>
+									{providers[serie.externalId] && (
+										<Box
+											style={{
+												position: "absolute",
+												bottom: serie.numWatched > 0 ? "3px" : "0px",
+												right: "3px",
+											}}
+										>
+											{providers[serie.externalId].length ? (
+												providers[serie.externalId].map(provider => (
+													<a href={provider.url} target="_blank" rel="noreferrer" key={provider.url}>
+														<img
+															src={provider.icon}
+															height="35px"
+															style={{ margin: "2px", borderRadius: "2px" }}
+														/>
+													</a>
+												))
+											) : (
+												<i className="icon-close-circled icon-3x" />
+											)}
+										</Box>
+									)}
+									{serie.numToWatch > 0 ? (
+										<Chip
+											color="secondary"
+											size="small"
+											label={serie.numToWatch}
+											style={{ position: "absolute", top: "5px", right: "5px", borderRadius: "2px" }}
+										/>
+									) : null}
+									{serie.numWatched > 0 ? (
+										<Tooltip title={`${serie.numWatched} watched`} placement="top">
+											<LinearProgress
 												color="secondary"
-												size="small"
-												label={serie.numToWatch}
-												style={{ position: "absolute", top: "5px", right: "5px", borderRadius: "2px" }}
+												variant="determinate"
+												value={(serie.numWatched / serie.numTotal) * 100}
+												className={classes.watchedProgressBar}
 											/>
-										) : null}
-										{serie.numWatched > 0 ? (
-											<Tooltip title={`${serie.numWatched} watched`} placement="top">
-												<LinearProgress
-													color="secondary"
-													variant="determinate"
-													value={(serie.numWatched / serie.numTotal) * 100}
-													className={classes.watchedProgressBar}
-												/>
-											</Tooltip>
-										) : null}
-									</Box>
+										</Tooltip>
+									) : null}
 								</CardActionArea>
 							</Card>
 							<Typography variant="body2" style={{ display: "flex", flexGrow: 1 }}>
