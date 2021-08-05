@@ -164,8 +164,8 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 										<Box
 											style={{
 												position: "absolute",
-												bottom: serie.numWatched > 0 ? "3px" : "0px",
-												right: "3px",
+												bottom: "2px",
+												right: "1px",
 											}}
 										>
 											{providers[serie.externalId] && providers[serie.externalId].length ? (
