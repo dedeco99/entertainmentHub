@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 const cheerio = require("cheerio");
 const dayjs = require("dayjs");
 
@@ -466,6 +467,50 @@ async function getPopular(event) {
 	return response(200, "GET_SERIES", series);
 }
 
+async function getProviders(event) {
+	const { query } = event;
+	const { search } = query;
+
+	const providersRes = await api({
+		method: "get",
+		url: "https://apis.justwatch.com/content/providers/locale/pt_PT",
+	});
+
+	const justWatchRes = await api({
+		method: "get",
+		url: `https://apis.justwatch.com/content/titles/pt_PT/popular?body={"page_size":1,"page":1,"query":"${search}","content_types":["show"]}`,
+	});
+
+	let providers = [];
+	if (justWatchRes.data.items.length) {
+		const offers = justWatchRes.data.items[0].offers;
+
+		if (offers) {
+			const existingLinks = [];
+			for (const offer of offers) {
+				if (!existingLinks.includes(offer.urls.standard_web)) {
+					offer.icon = `https://images.justwatch.com${providersRes.data
+						.find(p => p.id === offer.provider_id)
+						.icon_url.replace("/{profile}", "")}/s100`;
+
+					existingLinks.push(offer.urls.standard_web);
+				}
+			}
+
+			providers = offers.map(o => ({ url: o.urls.standard_web, icon: o.icon }));
+		}
+	}
+
+	/*
+	const justWatchDetailRes = await api({
+		method: "get",
+		url: `https://apis.justwatch.com/content/titles/show/${justWatchRes.data.items[0].id}/locale/pt_PT`,
+	});
+	*/
+
+	return response(200, "GET_PROVIDERS", providers);
+}
+
 module.exports = {
 	fetchEpisodes,
 	cronjob,
@@ -473,4 +518,5 @@ module.exports = {
 	getEpisodes,
 	getSearch,
 	getPopular,
+	getProviders,
 };

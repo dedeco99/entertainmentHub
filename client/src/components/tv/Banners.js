@@ -13,6 +13,7 @@ import {
 	Checkbox,
 	Tooltip,
 	Chip,
+	IconButton,
 } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
@@ -25,6 +26,7 @@ import {
 	patchSubscription,
 	deleteSubscription,
 } from "../../api/subscriptions";
+import { getProviders } from "../../api/tv";
 
 import { banners as styles } from "../../styles/TV";
 
@@ -37,6 +39,7 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 	const classes = useStyles();
 	const { state, dispatch } = useContext(TVContext);
 	const { subscriptions } = state;
+	const [providers, setProviders] = useState({});
 	const [rerender, setRerender] = useState(true);
 
 	useEffect(() => {
@@ -119,6 +122,14 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 		}
 	}
 
+	async function handleGetProviders(serie) {
+		const response = await getProviders(serie.displayName);
+
+		if (response.status === 200) {
+			setProviders({ ...providers, [serie.externalId]: response.data });
+		}
+	}
+
 	function renderSeriesBlock() {
 		if (!series || !series.length) return <div />;
 
@@ -148,6 +159,25 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 											alt="Serie poster"
 											draggable="false"
 										/>
+										{providers[serie.externalId] && (
+											<Box
+												style={{
+													position: "absolute",
+													bottom: serie.numWatched > 0 ? "3px" : "0px",
+													right: "3px",
+												}}
+											>
+												{providers[serie.externalId].map(provider => (
+													<a href={provider} key={provider}>
+														<img
+															src={provider.icon}
+															height="35px"
+															style={{ margin: "2px", borderRadius: "2px" }}
+														/>
+													</a>
+												))}
+											</Box>
+										)}
 										{serie.numToWatch > 0 ? (
 											<Chip
 												color="secondary"
@@ -221,11 +251,22 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 									</>
 								)}
 								{serie.rating ? (
-									<Box display="flex" alignItems="center" color="#fbc005" height="100%">
+									<Box
+										display="flex"
+										alignItems="center"
+										color="#fbc005"
+										height="100%"
+										style={{ paddingRight: "5px" }}
+									>
 										<i className="icon-star" style={{ paddingLeft: "5px", paddingRight: "5px" }} />
 										<Typography variant="caption">{serie.rating}</Typography>
 									</Box>
 								) : null}
+								<Tooltip title={"Providers"} placement="top">
+									<IconButton onClick={() => handleGetProviders(serie)} classes={{ root: classes.checkboxSize }}>
+										<i className="icon-monitor" style={{ fontSize: "0.875rem" }} />
+									</IconButton>
+								</Tooltip>
 							</Box>
 						</Box>
 					</Grid>
