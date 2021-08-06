@@ -13,7 +13,7 @@ function SocketClient() {
 	const { dispatch: tvDispatch } = useContext(TVContext);
 
 	useEffect(() => {
-		const socket = socketio("wss://ehub.rabbitsoftware.dev", { transports: ["websocket"] });
+		const socket = socketio(process.env.REACT_APP_SOCKET_URL, { transports: ["websocket"] });
 
 		socket.on("connect", () => {
 			socket.emit("bind", user);
