@@ -84,8 +84,35 @@ const watchedQuery = user => [
 	},
 ];
 
+async function getEpisodeNumbers(series, user) {
+	const promises = [];
+	for (const singleSeries of series) {
+		promises.push(
+			Episode.aggregate([
+				{ $match: { seriesId: singleSeries.externalId.toString() } },
+				...watchedQuery(user),
+				{
+					$facet: {
+						watched: [{ $match: { watched: true } }, { $count: "total" }],
+						total: [{ $count: "total" }],
+					},
+				},
+			]),
+		);
+	}
+
+	const episodes = await Promise.all(promises);
+	for (let i = 0; i < series.length; i++) {
+		series[i].numWatched = episodes[i][0].watched.length ? episodes[i][0].watched[0].total : 0;
+		series[i].numTotal = episodes[i][0].total.length ? episodes[i][0].total[0].total : 0;
+		series[i].numToWatch = series[i].numTotal - series[i].numWatched;
+	}
+
+	return series;
+}
+
 // eslint-disable-next-line complexity, max-lines-per-function
-async function fetchEpisodes(series) {
+async function fetchEpisodes(series, user) {
 	const episodesToAdd = [];
 	const episodesToUpdate = [];
 	const notificationsToAdd = [];
@@ -196,6 +223,20 @@ async function fetchEpisodes(series) {
 	if (episodesToUpdate.length) await Promise.all(episodesToUpdate);
 	if (notificationsToAdd.length) await addScheduledNotifications(notificationsToAdd);
 
+	if (user && global.sockets[user._id]) {
+		let subscription = await Subscription.findOne({
+			user: user._id,
+			platform: "tv",
+			externalId: series._id,
+		}).lean();
+
+		subscription = await getEpisodeNumbers([subscription], user);
+
+		for (const socket of global.sockets[user._id]) {
+			socket.emit("editSubscription", subscription[0]);
+		}
+	}
+
 	console.log(`${series.displayName} finished`);
 
 	return true;
@@ -223,33 +264,6 @@ async function cronjob() {
 	console.log("Cronjob finished");
 
 	return true;
-}
-
-async function getEpisodeNumbers(series, user) {
-	const promises = [];
-	for (const singleSeries of series) {
-		promises.push(
-			Episode.aggregate([
-				{ $match: { seriesId: singleSeries.externalId.toString() } },
-				...watchedQuery(user),
-				{
-					$facet: {
-						watched: [{ $match: { watched: true } }, { $count: "total" }],
-						total: [{ $count: "total" }],
-					},
-				},
-			]),
-		);
-	}
-
-	const episodes = await Promise.all(promises);
-	for (let i = 0; i < series.length; i++) {
-		series[i].numWatched = episodes[i][0].watched.length ? episodes[i][0].watched[0].total : 0;
-		series[i].numTotal = episodes[i][0].total.length ? episodes[i][0].total[0].total : 0;
-		series[i].numToWatch = series[i].numTotal - series[i].numWatched;
-	}
-
-	return series;
 }
 
 // eslint-disable-next-line max-lines-per-function
@@ -328,7 +342,7 @@ async function getEpisodes(event) {
 }
 
 async function getSearch(event) {
-	const { params, query } = event;
+	const { params, query, user } = event;
 	const { search } = params;
 	const { page } = query;
 
@@ -350,14 +364,17 @@ async function getSearch(event) {
 
 	const tmdbSeries = await Promise.all(promises);
 
-	const series = json.results.map((s, i) => ({
-		externalId: s.id,
-		displayName: s.name,
-		image: s.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}` : "",
-		imdbId: tmdbSeries[i].data.imdb_id,
-		year: dayjs(s.first_air_date).get("year"),
-		rating: s.vote_average,
-	}));
+	const series = await getEpisodeNumbers(
+		json.results.map((s, i) => ({
+			externalId: s.id,
+			displayName: s.name,
+			image: s.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}` : "",
+			imdbId: tmdbSeries[i].data.imdb_id,
+			year: dayjs(s.first_air_date).get("year"),
+			rating: s.vote_average,
+		})),
+		user,
+	);
 
 	return response(200, "GET_SERIES", series);
 }

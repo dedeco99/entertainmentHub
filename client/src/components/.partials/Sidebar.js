@@ -75,6 +75,7 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 		<List className={classes.listMenu}>
 			{Object.keys(groups).map((group, index) => (
 				<List
+					key={index}
 					disablePadding
 					subheader={
 						<>
@@ -98,8 +99,7 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 								onClick={() => {
 									option.viewers ? handleClick(option) : handleClick(option[idField]);
 								}}
-								key={option[idField]}
-								id={option[idField]}
+								key={index}
 								style={index === 0 ? { marginTop: "10px" } : null}
 							>
 								<ListItemAvatar>
@@ -143,7 +143,7 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 				>
 					{menu.map((option, index) => (
 						<MenuItem
-							key={option.displayName}
+							key={index}
 							id={anchorEl && anchorEl.id}
 							onClick={e => {
 								option.onClick(e);

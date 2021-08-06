@@ -70,13 +70,7 @@ async function addSubscriptions(event) {
 				if (platform === "tv") {
 					const seriesPopulated = await Subscription.findOne({ platform, externalId }).lean();
 
-					if (!seriesPopulated) {
-						tv.fetchEpisodes({
-							_id: externalId,
-							displayName,
-							users: [user._id],
-						});
-					}
+					if (!seriesPopulated) tv.fetchEpisodes({ _id: externalId, displayName }, user);
 				}
 			}
 		}
@@ -92,7 +86,7 @@ async function addSubscriptions(event) {
 }
 
 async function editSubscription(event) {
-	const { params, body } = event;
+	const { params, body, user } = event;
 	const { id } = params;
 	const { displayName, group, notifications } = body;
 
@@ -108,6 +102,10 @@ async function editSubscription(event) {
 	}
 
 	if (!subscription) return errors.notFound;
+
+	if (subscription.platform === "tv") {
+		subscription = (await tv.getEpisodeNumbers([subscription], user))[0];
+	}
 
 	return response(200, "EDIT_SUBSCRIPTIONS", subscription);
 }
@@ -137,12 +135,16 @@ async function patchSubscription(event) {
 			toObjectId(id) ? { _id: id } : { user: user._id, externalId: id },
 			updateQuery,
 			{ new: true },
-		);
+		).lean();
 	} catch (err) {
 		return errors.notFound;
 	}
 
 	if (!subscription) return errors.notFound;
+
+	if (subscription.platform === "tv") {
+		subscription = (await tv.getEpisodeNumbers([subscription], user))[0];
+	}
 
 	return response(200, "PATCH_SUBSCRIPTIONS", subscription);
 }

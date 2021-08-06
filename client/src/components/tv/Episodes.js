@@ -34,7 +34,6 @@ function Episodes() {
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [currentSeries, setCurrentSeries] = useState(null);
-	const [rerender, setRerender] = useState(true);
 	let isMounted = true;
 	const hasUnwatchedEpisodes = !!episodes.find(e => !e.watched);
 
@@ -169,8 +168,6 @@ function Episodes() {
 			}
 
 			dispatch({ type: "EDIT_EPISODES_TO_WATCH", subscription: response.data, increment });
-
-			setRerender(!rerender);
 		}
 	}
 

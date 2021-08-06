@@ -63,7 +63,7 @@ function Search() {
 					fullWidth
 				/>
 			</form>
-			<Banners series={follows} getMore={handleGetSearch} hasMore={hasMore} type={"tv"} bannerWidth={180} />
+			<Banners getMore={handleGetSearch} hasMore={hasMore} type={"tv"} bannerWidth={180} />
 		</div>
 	);
 }

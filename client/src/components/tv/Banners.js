@@ -38,22 +38,26 @@ import { translate } from "../../utils/translations";
 
 const useStyles = makeStyles(styles);
 
-function Banners({ series, getMore, hasMore, type, bannerWidth, useWindowScroll }) {
+function Banners({ getMore, hasMore, type, bannerWidth, useWindowScroll }) {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(TVContext);
-	const { subscriptions } = state;
+	const { subscriptions, follows } = state;
 	const [providers, setProviders] = useState({});
-	const [rerender, setRerender] = useState(true);
+	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
 		let isMounted = true;
 
 		async function fetchData() {
+			setLoading(true);
+
 			const response = await getSubscriptions("tv");
 
 			if (response.status === 200 && isMounted) {
 				dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
 			}
+
+			setLoading(false);
 		}
 
 		if (!subscriptions.length) fetchData();
@@ -61,17 +65,31 @@ function Banners({ series, getMore, hasMore, type, bannerWidth, useWindowScroll 
 		return () => (isMounted = false);
 	}, []);
 
+	useEffect(() => {
+		for (const follow of follows) {
+			const subscriptionFound = subscriptions.find(s => s.externalId === follow.externalId.toString());
+
+			if (subscriptionFound) {
+				follow.numTotal = subscriptionFound.numTotal;
+				follow.numWatched = subscriptionFound.numWatched;
+				follow.numToWatch = subscriptionFound.numToWatch;
+			} else {
+				follow.numTotal = 0;
+				follow.numWatched = 0;
+				follow.numToWatch = 0;
+			}
+		}
+
+		dispatch({ type: "SET_FOLLOWS", follows });
+	}, [subscriptions]);
+
 	async function handleAddSeries(serie) {
-		const seriesToAdd = series.find(s => s.externalId === serie.externalId);
+		const seriesToAdd = follows.find(s => s.externalId === serie.externalId);
 		seriesToAdd.externalId = seriesToAdd.externalId.toString();
 		seriesToAdd.group = { name: "Ungrouped" };
 		const response = await addSubscriptions("tv", [seriesToAdd]);
 
 		if (response.status === 201) {
-			serie.numTotal = response.data[0].numTotal;
-			serie.numWatched = response.data[0].numWatched;
-			serie.numToWatch = response.data[0].numToWatch;
-
 			dispatch({ type: "ADD_SUBSCRIPTION", subscription: response.data });
 		}
 	}
@@ -81,10 +99,6 @@ function Banners({ series, getMore, hasMore, type, bannerWidth, useWindowScroll 
 		const response = await deleteSubscription(seriesToRemove._id);
 
 		if (response.status === 200) {
-			serie.numTotal = 0;
-			serie.numWatched = 0;
-			serie.numToWatch = 0;
-
 			dispatch({ type: "DELETE_SUBSCRIPTION", subscription: response.data });
 		}
 	}
@@ -110,8 +124,11 @@ function Banners({ series, getMore, hasMore, type, bannerWidth, useWindowScroll 
 	*/
 
 	function handleFavoriteChange(e, serie) {
-		if (e.target.checked) handleAddSeries(serie);
-		else handleDeleteSeries(serie);
+		if (e.target.checked) {
+			handleAddSeries(serie);
+		} else {
+			handleDeleteSeries(serie);
+		}
 	}
 
 	function isSubscribed(serie) {
@@ -123,13 +140,7 @@ function Banners({ series, getMore, hasMore, type, bannerWidth, useWindowScroll 
 		const response = await patchSubscription(serie.externalId, !isWatched, "all");
 
 		if (response.status === 200) {
-			// This looks like the inverse logic but because we are using the old isWatched it works
-			serie.numWatched = isWatched ? 0 : serie.numTotal;
-			serie.numToWatch = isWatched ? serie.numTotal : 0;
-
-			dispatch({ type: "EDIT_SUBSCRIPTION", subscription: { ...response.data, numToWatch: serie.numToWatch } });
-
-			setRerender(!rerender);
+			dispatch({ type: "EDIT_SUBSCRIPTION", subscription: response.data });
 		}
 	}
 
@@ -228,6 +239,7 @@ function Banners({ series, getMore, hasMore, type, bannerWidth, useWindowScroll 
 								<Checkbox
 									color="secondary"
 									checked={isSubscribed(serie)}
+									disabled={loading}
 									icon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
 									checkedIcon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
 									onChange={e => handleFavoriteChange(e, serie)}
@@ -245,7 +257,7 @@ function Banners({ series, getMore, hasMore, type, bannerWidth, useWindowScroll 
 								<Checkbox
 									color="secondary"
 									checked={isSubscribed(serie) && serie.numWatched > 0 && serie.numTotal === serie.numWatched}
-									disabled={!isSubscribed(serie) || !serie.numTotal}
+									disabled={loading || !isSubscribed(serie) || !serie.numTotal}
 									icon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
 									checkedIcon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
 									onChange={e => handleMarkAsWatched(e, serie)}
@@ -271,11 +283,11 @@ function Banners({ series, getMore, hasMore, type, bannerWidth, useWindowScroll 
 	}
 
 	function renderSeriesBlock() {
-		if (!series || !series.length) return <div />;
+		if (!follows || !follows.length) return <div />;
 
 		return (
 			<Grid container justify="center">
-				{series.map(serie => (
+				{follows.map(serie => (
 					<Grid item key={serie.externalId} style={{ padding: "8px" }}>
 						<Box display="flex" flexDirection="column" width={bannerWidth} height="100%">
 							{renderPosterCard(serie)}
@@ -295,7 +307,6 @@ function Banners({ series, getMore, hasMore, type, bannerWidth, useWindowScroll 
 }
 
 Banners.propTypes = {
-	series: PropTypes.array.isRequired,
 	getMore: PropTypes.func.isRequired,
 	hasMore: PropTypes.bool.isRequired,
 	type: PropTypes.string.isRequired,
