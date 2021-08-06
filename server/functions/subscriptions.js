@@ -47,7 +47,7 @@ async function addSubscriptions(event) {
 
 	if (!subscriptions || !subscriptions.length) return errors.requiredFieldsMissing;
 
-	const subscriptionsToAdd = [];
+	let subscriptionsToAdd = [];
 	for (const subscription of subscriptions) {
 		const { externalId, displayName, group, image, notifications } = subscription;
 
@@ -83,6 +83,10 @@ async function addSubscriptions(event) {
 	}
 
 	await Subscription.insertMany(subscriptionsToAdd);
+
+	if (platform === "tv") {
+		subscriptionsToAdd = await tv.getEpisodeNumbers(JSON.parse(JSON.stringify(subscriptionsToAdd)), user);
+	}
 
 	return response(201, "ADD_SUBSCRIPTIONS", subscriptionsToAdd);
 }

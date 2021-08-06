@@ -68,6 +68,10 @@ function Banners({ series, getMore, hasMore, type, bannerWidth, useWindowScroll 
 		const response = await addSubscriptions("tv", [seriesToAdd]);
 
 		if (response.status === 201) {
+			serie.numTotal = response.data[0].numTotal;
+			serie.numWatched = response.data[0].numWatched;
+			serie.numToWatch = response.data[0].numToWatch;
+
 			dispatch({ type: "ADD_SUBSCRIPTION", subscription: response.data });
 		}
 	}
@@ -77,6 +81,10 @@ function Banners({ series, getMore, hasMore, type, bannerWidth, useWindowScroll 
 		const response = await deleteSubscription(seriesToRemove._id);
 
 		if (response.status === 200) {
+			serie.numTotal = 0;
+			serie.numWatched = 0;
+			serie.numToWatch = 0;
+
 			dispatch({ type: "DELETE_SUBSCRIPTION", subscription: response.data });
 		}
 	}
@@ -237,7 +245,7 @@ function Banners({ series, getMore, hasMore, type, bannerWidth, useWindowScroll 
 								<Checkbox
 									color="secondary"
 									checked={isSubscribed(serie) && serie.numWatched > 0 && serie.numTotal === serie.numWatched}
-									disabled={!isSubscribed(serie)}
+									disabled={!isSubscribed(serie) || !serie.numTotal}
 									icon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
 									checkedIcon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
 									onChange={e => handleMarkAsWatched(e, serie)}
