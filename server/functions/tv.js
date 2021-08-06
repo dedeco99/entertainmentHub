@@ -467,7 +467,7 @@ async function getPopular(event) {
 
 async function getProviders(event) {
 	const { query } = event;
-	const { search } = query;
+	const { type, search } = query;
 
 	const providersRes = await api({
 		method: "get",
@@ -476,7 +476,9 @@ async function getProviders(event) {
 
 	const justWatchRes = await api({
 		method: "get",
-		url: `https://apis.justwatch.com/content/titles/pt_PT/popular?body={"page_size":1,"page":1,"query":"${search}","content_types":["show"]}`,
+		url: `https://apis.justwatch.com/content/titles/pt_PT/popular?body={"page_size":1,"page":1,"query":"${search}","content_types":["${
+			type === "tv" ? "show" : "movie"
+		}"]}`,
 	});
 
 	const providers = [];

@@ -36,10 +36,10 @@ async function getPopular(page, source, type) {
 	return res;
 }
 
-async function getProviders(search) {
+async function getProviders(type, search) {
 	const res = await api({
 		method: "get",
-		url: `/api/tv/providers?search=${search}`,
+		url: `/api/tv/providers?type=${type}&search=${search}`,
 	});
 
 	return res;
