@@ -67,7 +67,7 @@ function Banners({ getMore, hasMore, type, bannerWidth, useWindowScroll }) {
 
 	useEffect(() => {
 		for (const follow of follows) {
-			const subscriptionFound = subscriptions.find(s => s.externalId === follow.externalId.toString());
+			const subscriptionFound = subscriptions.find(s => s.externalId === follow.externalId);
 
 			if (subscriptionFound) {
 				follow.numTotal = subscriptionFound.numTotal;
@@ -85,7 +85,6 @@ function Banners({ getMore, hasMore, type, bannerWidth, useWindowScroll }) {
 
 	async function handleAddSeries(serie) {
 		const seriesToAdd = follows.find(s => s.externalId === serie.externalId);
-		seriesToAdd.externalId = seriesToAdd.externalId.toString();
 		seriesToAdd.group = { name: "Ungrouped" };
 		const response = await addSubscriptions("tv", [seriesToAdd]);
 
@@ -95,7 +94,7 @@ function Banners({ getMore, hasMore, type, bannerWidth, useWindowScroll }) {
 	}
 
 	async function handleDeleteSeries(serie) {
-		const seriesToRemove = subscriptions.find(s => s.externalId === serie.externalId.toString());
+		const seriesToRemove = subscriptions.find(s => s.externalId === serie.externalId);
 		const response = await deleteSubscription(seriesToRemove._id);
 
 		if (response.status === 200) {
@@ -132,7 +131,7 @@ function Banners({ getMore, hasMore, type, bannerWidth, useWindowScroll }) {
 	}
 
 	function isSubscribed(serie) {
-		return subscriptions.map(us => us.externalId).includes(serie.externalId.toString());
+		return subscriptions.map(us => us.externalId).includes(serie.externalId);
 	}
 
 	async function handleMarkAsWatched(e, serie) {

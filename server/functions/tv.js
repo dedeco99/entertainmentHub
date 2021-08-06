@@ -355,7 +355,7 @@ async function getEpisodes(event) {
 }
 
 async function getSearch(event) {
-	const { params, query, user } = event;
+	const { params, query } = event;
 	const { search } = params;
 	const { page } = query;
 
@@ -378,7 +378,7 @@ async function getSearch(event) {
 	const tmdbSeries = await Promise.all(promises);
 
 	const series = json.results.map((s, i) => ({
-		externalId: s.id,
+		externalId: s.id.toString(),
 		displayName: s.name,
 		image: s.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}` : "",
 		imdbId: tmdbSeries[i].data.imdb_id,
@@ -449,9 +449,9 @@ async function getPopular(event) {
 			for (let i = 0; i < infos.length; i++) {
 				series.push({
 					externalId: tmdbSeries[i].data.tv_results.length
-						? tmdbSeries[i].data.tv_results[0].id
+						? tmdbSeries[i].data.tv_results[0].id.toString()
 						: tmdbSeries[i].data.movie_results.length
-						? tmdbSeries[i].data.movie_results[0].id
+						? tmdbSeries[i].data.movie_results[0].id.toString()
 						: null,
 					imdbId: infos[i].id,
 					displayName: infos[i].name,
@@ -480,7 +480,7 @@ async function getPopular(event) {
 		const json = res.data;
 
 		series = json.results.map(s => ({
-			externalId: s.id,
+			externalId: s.id.toString(),
 			displayName: s.name,
 			image: s.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}` : "",
 		}));
