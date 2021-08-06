@@ -85,30 +85,43 @@ const watchedQuery = user => [
 ];
 
 async function getEpisodeNumbers(series, user) {
-	const promises = [];
-	for (const singleSeries of series) {
-		promises.push(
-			Episode.aggregate([
-				{ $match: { seriesId: singleSeries.externalId.toString() } },
-				...watchedQuery(user),
-				{
-					$facet: {
-						watched: [{ $match: { watched: true } }, { $count: "total" }],
-						total: [{ $count: "total" }],
-					},
-				},
-			]),
-		);
-	}
+	const seriesIds = series.map(s => s.externalId.toString());
+	const seriesTotals = await Episode.aggregate([
+		{ $match: { seriesId: { $in: seriesIds } } },
+		...watchedQuery(user),
+		{
+			$group: {
+				_id: "$seriesId",
+				watched: { $sum: { $cond: [{ $eq: ["$watched", true] }, 1, 0] } },
+				total: { $sum: 1 },
+			},
+		},
+	]);
 
-	const episodes = await Promise.all(promises);
-	for (let i = 0; i < series.length; i++) {
-		series[i].numWatched = episodes[i][0].watched.length ? episodes[i][0].watched[0].total : 0;
-		series[i].numTotal = episodes[i][0].total.length ? episodes[i][0].total[0].total : 0;
-		series[i].numToWatch = series[i].numTotal - series[i].numWatched;
+	for (const serie of series) {
+		const seriesFound = seriesTotals.find(s => s._id === serie.externalId.toString());
+
+		if (seriesFound) {
+			serie.numTotal = seriesFound.total;
+			serie.numWatched = seriesFound.watched;
+			serie.numToWatch = seriesFound.total - seriesFound.watched;
+		}
 	}
 
 	return series;
+}
+
+async function sendSocketUpdate(type, subscriptions, user) {
+	if (global.sockets[user._id]) {
+		const updatedSubscriptions = await getEpisodeNumbers(subscriptions, user);
+
+		for (const socket of global.sockets[user._id]) {
+			socket.emit(
+				type === "edit" ? "editSubscription" : "setSubscriptions",
+				type === "edit" ? updatedSubscriptions[0] : updatedSubscriptions,
+			);
+		}
+	}
 }
 
 // eslint-disable-next-line complexity, max-lines-per-function
@@ -223,18 +236,18 @@ async function fetchEpisodes(series, user) {
 	if (episodesToUpdate.length) await Promise.all(episodesToUpdate);
 	if (notificationsToAdd.length) await addScheduledNotifications(notificationsToAdd);
 
-	if (user && global.sockets[user._id]) {
-		let subscription = await Subscription.findOne({
-			user: user._id,
-			platform: "tv",
-			externalId: series._id,
-		}).lean();
-
-		subscription = await getEpisodeNumbers([subscription], user);
-
-		for (const socket of global.sockets[user._id]) {
-			socket.emit("editSubscription", subscription[0]);
-		}
+	if (user) {
+		sendSocketUpdate(
+			"edit",
+			[
+				await Subscription.findOne({
+					user: user._id,
+					platform: "tv",
+					externalId: series._id,
+				}).lean(),
+			],
+			user,
+		);
 	}
 
 	console.log(`${series.displayName} finished`);
@@ -364,17 +377,14 @@ async function getSearch(event) {
 
 	const tmdbSeries = await Promise.all(promises);
 
-	const series = await getEpisodeNumbers(
-		json.results.map((s, i) => ({
-			externalId: s.id,
-			displayName: s.name,
-			image: s.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}` : "",
-			imdbId: tmdbSeries[i].data.imdb_id,
-			year: dayjs(s.first_air_date).get("year"),
-			rating: s.vote_average,
-		})),
-		user,
-	);
+	const series = json.results.map((s, i) => ({
+		externalId: s.id,
+		displayName: s.name,
+		image: s.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}` : "",
+		imdbId: tmdbSeries[i].data.imdb_id,
+		year: dayjs(s.first_air_date).get("year"),
+		rating: s.vote_average,
+	}));
 
 	return response(200, "GET_SERIES", series);
 }
@@ -460,10 +470,7 @@ async function getPopular(event) {
 			global.cache[type].popular = series;
 		}
 
-		series = await getEpisodeNumbers(
-			global.cache[type].popular.slice(Number(page) * 20, Number(page) * 20 + 20),
-			user,
-		);
+		series = global.cache[type].popular.slice(Number(page) * 20, Number(page) * 20 + 20);
 	} else {
 		const url = `https://api.themoviedb.org/3/tv/popular?${`page=${Number(page) + 1}`}&api_key=${
 			process.env.tmdbKey
@@ -532,6 +539,7 @@ module.exports = {
 	fetchEpisodes,
 	cronjob,
 	getEpisodeNumbers,
+	sendSocketUpdate,
 	getEpisodes,
 	getSearch,
 	getPopular,

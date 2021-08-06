@@ -81,7 +81,7 @@ function Banners({ getMore, hasMore, type, bannerWidth, useWindowScroll }) {
 		}
 
 		dispatch({ type: "SET_FOLLOWS", follows });
-	}, [subscriptions]);
+	}, [follows, subscriptions]);
 
 	async function handleAddSeries(serie) {
 		const seriesToAdd = follows.find(s => s.externalId === serie.externalId);

@@ -34,7 +34,7 @@ async function getSubscriptions(event) {
 			return subscription;
 		});
 	} else if (platform === "tv") {
-		subscriptions = await tv.getEpisodeNumbers(subscriptions, user);
+		tv.sendSocketUpdate("set", subscriptions, user);
 	}
 
 	return response(200, "GET_SUBSCRIPTIONS", subscriptions);
@@ -47,7 +47,7 @@ async function addSubscriptions(event) {
 
 	if (!subscriptions || !subscriptions.length) return errors.requiredFieldsMissing;
 
-	let subscriptionsToAdd = [];
+	const subscriptionsToAdd = [];
 	for (const subscription of subscriptions) {
 		const { externalId, displayName, group, image, notifications } = subscription;
 
@@ -79,7 +79,7 @@ async function addSubscriptions(event) {
 	await Subscription.insertMany(subscriptionsToAdd);
 
 	if (platform === "tv") {
-		subscriptionsToAdd = await tv.getEpisodeNumbers(JSON.parse(JSON.stringify(subscriptionsToAdd)), user);
+		tv.sendSocketUpdate("edit", JSON.parse(JSON.stringify(subscriptionsToAdd)), user);
 	}
 
 	return response(201, "ADD_SUBSCRIPTIONS", subscriptionsToAdd);
@@ -104,7 +104,7 @@ async function editSubscription(event) {
 	if (!subscription) return errors.notFound;
 
 	if (subscription.platform === "tv") {
-		subscription = (await tv.getEpisodeNumbers([subscription], user))[0];
+		tv.sendSocketUpdate("edit", [subscription], user);
 	}
 
 	return response(200, "EDIT_SUBSCRIPTIONS", subscription);
@@ -143,7 +143,7 @@ async function patchSubscription(event) {
 	if (!subscription) return errors.notFound;
 
 	if (subscription.platform === "tv") {
-		subscription = (await tv.getEpisodeNumbers([subscription], user))[0];
+		tv.sendSocketUpdate("edit", [subscription], user);
 	}
 
 	return response(200, "PATCH_SUBSCRIPTIONS", subscription);
