@@ -13,6 +13,15 @@ async function getSeasons(series, page, filter) {
 	return res;
 }
 
+async function getSearch(search, page) {
+	const res = await api({
+		method: "get",
+		url: `/api/tv/search/${search}${page >= 0 ? `?page=${page}` : ""}`,
+	});
+
+	return res;
+}
+
 async function getPopular(page, source, type) {
 	let query = "";
 	query += page >= 0 ? `?page=${page}` : "";
@@ -27,13 +36,13 @@ async function getPopular(page, source, type) {
 	return res;
 }
 
-async function getSearch(search, page) {
+async function getProviders(type, search) {
 	const res = await api({
 		method: "get",
-		url: `/api/tv/search/${search}${page >= 0 ? `?page=${page}` : ""}`,
+		url: `/api/tv/providers?type=${type}&search=${search}`,
 	});
 
 	return res;
 }
 
-export { getSeasons, getPopular, getSearch };
+export { getSeasons, getSearch, getPopular, getProviders };
