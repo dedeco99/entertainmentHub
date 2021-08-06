@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 import React from "react";
 
 const translations = {
@@ -488,6 +489,10 @@ const translations = {
 		en: "Some videos were not saved to watch later",
 		pt: "Alguns vídeos não foram guardados para ver mais tarde",
 	},
+	UNKNOWN_ERROR: {
+		en: "Unknown Error",
+		pt: "Erro Desconhecido",
+	},
 };
 
 function translate(code, ...params) {
@@ -498,7 +503,7 @@ function translate(code, ...params) {
 		return translations[code](...params)[lang];
 	}
 
-	return translations[code][lang];
+	return translations[code] ? translations[code][lang] : translations.UNKNOWN_ERROR[lang];
 }
 
 export { translate };

@@ -75,7 +75,7 @@ function TV({ tabs, listView }) {
 						</ToggleButton>
 					</ToggleButtonGroup>
 				</Box>
-				<Popular type={popularFilter} bannerWidth={140} useWindowScroll={false} listView={listView} />
+				<Popular type={popularFilter} bannerWidth={150} useWindowScroll={false} listView={listView} />
 			</>
 		);
 	}
