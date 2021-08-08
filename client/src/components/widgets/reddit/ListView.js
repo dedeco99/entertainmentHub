@@ -24,6 +24,7 @@ function ListView({ open, subreddit, posts, multipleSubs, getPosts, hasMorePosts
 					{post.flairs.map((flair, i) =>
 						flair.includes("https") ? (
 							<img
+								key={flair}
 								src={flair}
 								style={{
 									height: "25px",
