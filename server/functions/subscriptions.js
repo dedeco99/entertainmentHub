@@ -34,7 +34,7 @@ async function getSubscriptions(event) {
 			return subscription;
 		});
 	} else if (platform === "tv") {
-		subscriptions = await tv.getEpisodeNumbers(subscriptions, user);
+		tv.sendSocketUpdate("set", subscriptions, user);
 	}
 
 	return response(200, "GET_SUBSCRIPTIONS", subscriptions);
@@ -70,13 +70,7 @@ async function addSubscriptions(event) {
 				if (platform === "tv") {
 					const seriesPopulated = await Subscription.findOne({ platform, externalId }).lean();
 
-					if (!seriesPopulated) {
-						tv.fetchEpisodes({
-							_id: externalId,
-							displayName,
-							users: [user._id],
-						});
-					}
+					if (!seriesPopulated) tv.fetchEpisodes({ _id: externalId, displayName }, user);
 				}
 			}
 		}
@@ -84,11 +78,15 @@ async function addSubscriptions(event) {
 
 	await Subscription.insertMany(subscriptionsToAdd);
 
+	if (platform === "tv") {
+		tv.sendSocketUpdate("edit", JSON.parse(JSON.stringify(subscriptionsToAdd)), user);
+	}
+
 	return response(201, "ADD_SUBSCRIPTIONS", subscriptionsToAdd);
 }
 
 async function editSubscription(event) {
-	const { params, body } = event;
+	const { params, body, user } = event;
 	const { id } = params;
 	const { displayName, group, notifications } = body;
 
@@ -104,6 +102,10 @@ async function editSubscription(event) {
 	}
 
 	if (!subscription) return errors.notFound;
+
+	if (subscription.platform === "tv") {
+		tv.sendSocketUpdate("edit", [subscription], user);
+	}
 
 	return response(200, "EDIT_SUBSCRIPTIONS", subscription);
 }
@@ -133,12 +135,16 @@ async function patchSubscription(event) {
 			toObjectId(id) ? { _id: id } : { user: user._id, externalId: id },
 			updateQuery,
 			{ new: true },
-		);
+		).lean();
 	} catch (err) {
 		return errors.notFound;
 	}
 
 	if (!subscription) return errors.notFound;
+
+	if (subscription.platform === "tv") {
+		tv.sendSocketUpdate("edit", [subscription], user);
+	}
 
 	return response(200, "PATCH_SUBSCRIPTIONS", subscription);
 }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import InfiniteScroll from "react-infinite-scroller";
 
@@ -6,6 +6,8 @@ import { makeStyles, List, ListItem, Typography } from "@material-ui/core";
 
 import Banners from "./Banners";
 import Loading from "../.partials/Loading";
+
+import { TVContext } from "../../contexts/TVContext";
 
 import { getPopular } from "../../api/tv";
 
@@ -15,7 +17,8 @@ const useStyles = makeStyles(styles);
 
 function Popular({ type, bannerWidth, useWindowScroll, listView }) {
 	const classes = useStyles();
-	const [follows, setFollows] = useState([]);
+	const { state, dispatch } = useContext(TVContext);
+	const { follows } = state;
 	const [hasMore, setHasMore] = useState(false);
 	const [page, setPage] = useState(0);
 	const [loading, setLoading] = useState(false);
@@ -27,8 +30,9 @@ function Popular({ type, bannerWidth, useWindowScroll, listView }) {
 			const response = await getPopular(page, "imdb", type);
 
 			if (response.status === 200) {
+				dispatch({ type: "SET_FOLLOWS", follows: [...follows, ...response.data] });
+
 				setPage(prev => prev + 1);
-				setFollows(prev => [...prev, ...response.data]);
 				setHasMore(!(response.data.length < 20));
 				setLoading(false);
 			}
@@ -37,7 +41,7 @@ function Popular({ type, bannerWidth, useWindowScroll, listView }) {
 
 	useEffect(() => {
 		setPage(0);
-		setFollows([]);
+		dispatch({ type: "SET_FOLLOWS", follows: [] });
 		setHasMore(true);
 	}, [type]);
 
@@ -61,7 +65,6 @@ function Popular({ type, bannerWidth, useWindowScroll, listView }) {
 		</InfiniteScroll>
 	) : (
 		<Banners
-			series={follows}
 			getMore={handleGetPopular}
 			hasMore={hasMore}
 			type={type}

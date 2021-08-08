@@ -3,12 +3,10 @@ export const tvReducer = (state, action) => {
 
 	switch (action.type) {
 		case "SET_FOLLOWS":
-			follows = action.follows.filter(f => !subscriptions.map(s => s.externalId).includes(f.externalId));
+			follows = action.follows;
 
 			return { ...state, follows };
 		case "SET_SUBSCRIPTIONS":
-			follows = follows.filter(f => subscriptions.map(s => s.externalId).includes(f.externalId));
-
 			return { ...state, follows, subscriptions: action.subscriptions };
 		case "ADD_SUBSCRIPTION":
 			subscriptions = [...subscriptions, ...action.subscription].sort((a, b) =>

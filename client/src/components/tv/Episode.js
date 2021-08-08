@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useContext } from "react";
 import PropTypes from "prop-types";
 
 import { makeStyles, Card, CardMedia, CardActionArea } from "@material-ui/core";
@@ -20,7 +20,6 @@ function Episode({ episode }) {
 	const classes = useStyles();
 	const { user } = useContext(UserContext);
 	const { dispatch } = useContext(TVContext);
-	const [rerender, setRerender] = useState(true);
 
 	async function markAsWatched() {
 		const response = await patchSubscription(episode.series._id, !episode.watched, [
@@ -35,8 +34,6 @@ function Episode({ episode }) {
 				subscription: response.data,
 				increment: episode.watched ? -1 : 1,
 			});
-
-			setRerender(!rerender);
 		}
 	}
 

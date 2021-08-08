@@ -84,8 +84,48 @@ const watchedQuery = user => [
 	},
 ];
 
+async function getEpisodeNumbers(series, user) {
+	const seriesIds = series.map(s => s.externalId.toString());
+	const seriesTotals = await Episode.aggregate([
+		{ $match: { seriesId: { $in: seriesIds } } },
+		...watchedQuery(user),
+		{
+			$group: {
+				_id: "$seriesId",
+				watched: { $sum: { $cond: [{ $eq: ["$watched", true] }, 1, 0] } },
+				total: { $sum: 1 },
+			},
+		},
+	]);
+
+	for (const serie of series) {
+		const seriesFound = seriesTotals.find(s => s._id === serie.externalId.toString());
+
+		if (seriesFound) {
+			serie.numTotal = seriesFound.total;
+			serie.numWatched = seriesFound.watched;
+			serie.numToWatch = seriesFound.total - seriesFound.watched;
+		}
+	}
+
+	return series;
+}
+
+async function sendSocketUpdate(type, subscriptions, user) {
+	if (global.sockets[user._id]) {
+		const updatedSubscriptions = await getEpisodeNumbers(subscriptions, user);
+
+		for (const socket of global.sockets[user._id]) {
+			socket.emit(
+				type === "edit" ? "editSubscription" : "setSubscriptions",
+				type === "edit" ? updatedSubscriptions[0] : updatedSubscriptions,
+			);
+		}
+	}
+}
+
 // eslint-disable-next-line complexity, max-lines-per-function
-async function fetchEpisodes(series) {
+async function fetchEpisodes(series, user) {
 	const episodesToAdd = [];
 	const episodesToUpdate = [];
 	const notificationsToAdd = [];
@@ -196,6 +236,20 @@ async function fetchEpisodes(series) {
 	if (episodesToUpdate.length) await Promise.all(episodesToUpdate);
 	if (notificationsToAdd.length) await addScheduledNotifications(notificationsToAdd);
 
+	if (user) {
+		sendSocketUpdate(
+			"edit",
+			[
+				await Subscription.findOne({
+					user: user._id,
+					platform: "tv",
+					externalId: series._id,
+				}).lean(),
+			],
+			user,
+		);
+	}
+
 	console.log(`${series.displayName} finished`);
 
 	return true;
@@ -223,33 +277,6 @@ async function cronjob() {
 	console.log("Cronjob finished");
 
 	return true;
-}
-
-async function getEpisodeNumbers(series, user) {
-	const promises = [];
-	for (const singleSeries of series) {
-		promises.push(
-			Episode.aggregate([
-				{ $match: { seriesId: singleSeries.externalId.toString() } },
-				...watchedQuery(user),
-				{
-					$facet: {
-						watched: [{ $match: { watched: true } }, { $count: "total" }],
-						total: [{ $count: "total" }],
-					},
-				},
-			]),
-		);
-	}
-
-	const episodes = await Promise.all(promises);
-	for (let i = 0; i < series.length; i++) {
-		series[i].numWatched = episodes[i][0].watched.length ? episodes[i][0].watched[0].total : 0;
-		series[i].numTotal = episodes[i][0].total.length ? episodes[i][0].total[0].total : 0;
-		series[i].numToWatch = series[i].numTotal - series[i].numWatched;
-	}
-
-	return series;
 }
 
 // eslint-disable-next-line max-lines-per-function
@@ -351,7 +378,7 @@ async function getSearch(event) {
 	const tmdbSeries = await Promise.all(promises);
 
 	const series = json.results.map((s, i) => ({
-		externalId: s.id,
+		externalId: s.id.toString(),
 		displayName: s.name,
 		image: s.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}` : "",
 		imdbId: tmdbSeries[i].data.imdb_id,
@@ -422,9 +449,9 @@ async function getPopular(event) {
 			for (let i = 0; i < infos.length; i++) {
 				series.push({
 					externalId: tmdbSeries[i].data.tv_results.length
-						? tmdbSeries[i].data.tv_results[0].id
+						? tmdbSeries[i].data.tv_results[0].id.toString()
 						: tmdbSeries[i].data.movie_results.length
-						? tmdbSeries[i].data.movie_results[0].id
+						? tmdbSeries[i].data.movie_results[0].id.toString()
 						: null,
 					imdbId: infos[i].id,
 					displayName: infos[i].name,
@@ -443,10 +470,7 @@ async function getPopular(event) {
 			global.cache[type].popular = series;
 		}
 
-		series = await getEpisodeNumbers(
-			global.cache[type].popular.slice(Number(page) * 20, Number(page) * 20 + 20),
-			user,
-		);
+		series = global.cache[type].popular.slice(Number(page) * 20, Number(page) * 20 + 20);
 	} else {
 		const url = `https://api.themoviedb.org/3/tv/popular?${`page=${Number(page) + 1}`}&api_key=${
 			process.env.tmdbKey
@@ -456,7 +480,7 @@ async function getPopular(event) {
 		const json = res.data;
 
 		series = json.results.map(s => ({
-			externalId: s.id,
+			externalId: s.id.toString(),
 			displayName: s.name,
 			image: s.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}` : "",
 		}));
@@ -515,6 +539,7 @@ module.exports = {
 	fetchEpisodes,
 	cronjob,
 	getEpisodeNumbers,
+	sendSocketUpdate,
 	getEpisodes,
 	getSearch,
 	getPopular,
