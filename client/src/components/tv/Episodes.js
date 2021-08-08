@@ -12,7 +12,7 @@ import Episode from "./Episode";
 
 import { TVContext } from "../../contexts/TVContext";
 
-import { getSeasons } from "../../api/tv";
+import { getEpisodes } from "../../api/tv";
 import { patchSubscription } from "../../api/subscriptions";
 
 import { translate } from "../../utils/translations";
@@ -42,7 +42,7 @@ function Episodes() {
 			setLoading(true);
 			if (page === 0) setOpen(false);
 
-			const response = await getSeasons("all", page, filter);
+			const response = await getEpisodes("all", page, filter);
 
 			if (response.status === 200 && isMounted) {
 				const newEpisodes = page === 0 ? response.data : episodes.concat(response.data);
@@ -73,7 +73,7 @@ function Episodes() {
 	async function handleGetSeasons(seriesId) {
 		setOpen(false);
 
-		const response = await getSeasons(seriesId);
+		const response = await getEpisodes(seriesId);
 
 		if (response.status === 200 && isMounted) {
 			response.data = response.data.map(season => ({

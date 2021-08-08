@@ -8,7 +8,7 @@ import Loading from "../.partials/Loading";
 import CustomScrollbar from "../.partials/CustomScrollbar";
 import Popular from "../tv/Popular";
 
-import { getSeasons } from "../../api/tv";
+import { getEpisodes } from "../../api/tv";
 import { formatDate } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
@@ -30,9 +30,9 @@ function TV({ tabs, listView }) {
 
 		async function fetchData() {
 			const response = await Promise.all([
-				getSeasons("all", 0, "queue"),
-				getSeasons("all", 0, "passed"),
-				getSeasons("all", 0, "future"),
+				getEpisodes("all", 0, "queue"),
+				getEpisodes("all", 0, "passed"),
+				getEpisodes("all", 0, "future"),
 			]);
 
 			if (isMounted) {
