@@ -139,7 +139,7 @@ async function fetchEpisodes(series, user) {
 
 	let seasons = [];
 	if (json.seasons) {
-		seasons = json.seasons.map(season => season.season_number);
+		seasons = json.seasons.map(season => season.season_number).filter(season => season);
 	}
 
 	const seasonsPromises = [];
@@ -308,7 +308,7 @@ async function getEpisodes(event) {
 	if (id === "all") {
 		if (filter === "queue") {
 			episodes = await Episode.aggregate([
-				{ $match: { ...episodeQuery, season: { $ne: 0 } } },
+				{ $match: episodeQuery },
 				...watchedQuery(user),
 				{ $match: { watched: false } },
 				{ $sort: { season: 1, number: 1 } },
