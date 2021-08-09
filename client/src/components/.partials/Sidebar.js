@@ -81,6 +81,12 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 						<>
 							<ListSubheader style={{ backgroundColor: "#333", zIndex: 2 }}>
 								{group === "null" ? "Ungrouped" : group}
+								<Badge
+									color="secondary"
+									max={999}
+									badgeContent={groups[group].length}
+									style={{ position: "absolute", top: "23px", right: "60px" }}
+								/>
 								<ListItemSecondaryAction onClick={() => handleExpand(index)}>
 									<IconButton color="primary" edge="end">
 										<i className={expandedLists.includes(index) ? "icon-caret-up" : "icon-caret-down"} />
