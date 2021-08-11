@@ -82,8 +82,8 @@ function TV() {
 				<Button
 					onClick={handleShowSeries}
 					className={classes.outlinedBtn}
-					color="primary"
-					variant="outlined"
+					color={blocks.openSeries ? "secondary" : "primary"}
+					variant={blocks.openSeries ? "contained" : "outlined"}
 					fullWidth
 				>
 					{translate("series")}
@@ -91,8 +91,8 @@ function TV() {
 				<Button
 					onClick={handleShowAll}
 					className={classes.outlinedBtn}
-					color="primary"
-					variant="outlined"
+					color={blocks.openEpisodes ? "secondary" : "primary"}
+					variant={blocks.openEpisodes ? "contained" : "outlined"}
 					fullWidth
 				>
 					{translate("episodes")}
