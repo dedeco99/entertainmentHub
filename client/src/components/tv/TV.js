@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
 
-import { makeStyles, Grid, Fab, Button } from "@material-ui/core";
+import { makeStyles, Grid, Button } from "@material-ui/core";
 
 import Subscriptions from "../.partials/Subscriptions";
 import Episodes from "./Episodes";
-import Search from "./Search";
-import Popular from "./Popular";
+import Series from "./Series";
 
 import { translate } from "../../utils/translations";
 
@@ -19,21 +18,16 @@ function TV() {
 	const match = useRouteMatch();
 	const classes = useStyles();
 	const [blocks, setBlocks] = useState({
-		openSearch: false,
-		openPopular: false,
+		openSeries: false,
 		openEpisodes: false,
 	});
 
-	function handleShowSearchBlock() {
-		setBlocks({ openSearch: true, openPopular: false, openEpisodes: false });
-	}
-
-	function handleShowPopularBlock() {
-		setBlocks({ openSearch: false, openPopular: true, openEpisodes: false });
+	function handleShowSeriesBlock() {
+		setBlocks({ openSeries: true, openEpisodes: false });
 	}
 
 	function handleShowEpisodesBlock() {
-		setBlocks({ openSearch: false, openPopular: false, openEpisodes: true });
+		setBlocks({ openSeries: false, openEpisodes: true });
 	}
 
 	function handleShowEpisodes(id) {
@@ -48,10 +42,10 @@ function TV() {
 		handleShowEpisodes("all");
 	}
 
-	function handleShowPopular() {
-		history.push("/tv/popular");
+	function handleShowSeries() {
+		history.push("/tv/series");
 
-		handleShowPopularBlock();
+		handleShowSeriesBlock();
 	}
 
 	useEffect(() => {
@@ -59,8 +53,8 @@ function TV() {
 			case "/tv":
 				history.replace("tv/all");
 				break;
-			case "/tv/popular":
-				handleShowPopularBlock();
+			case "/tv/series":
+				handleShowSeriesBlock();
 				break;
 			case "/tv/all":
 			case "/tv/:seriesId":
@@ -72,40 +66,9 @@ function TV() {
 		}
 	}, [match.url]);
 
-	function renderButtons() {
-		return (
-			<div align="center">
-				<Fab onClick={handleShowSearchBlock} variant="extended" size="medium" className={classes.searchBtn}>
-					<i className="icon-search icon-2x" />
-					{translate("search")}
-				</Fab>
-				<Button
-					onClick={handleShowPopular}
-					className={classes.outlinedBtn}
-					color="primary"
-					variant="outlined"
-					fullWidth
-				>
-					{"Popular"}
-				</Button>
-				<Button
-					onClick={handleShowAll}
-					className={classes.outlinedBtn}
-					color="primary"
-					variant="outlined"
-					fullWidth
-				>
-					{translate("all")}
-				</Button>
-			</div>
-		);
-	}
-
 	function renderContent() {
-		if (blocks.openSearch) {
-			return <Search />;
-		} else if (blocks.openPopular) {
-			return <Popular type="tv" bannerWidth={180} useWindowScroll />;
+		if (blocks.openSeries) {
+			return <Series contentType="tv" bannerWidth={180} useWindowScroll />;
 		} else if (blocks.openEpisodes) {
 			return <Episodes />;
 		}
@@ -116,7 +79,24 @@ function TV() {
 	return (
 		<Grid container spacing={2}>
 			<Grid item xs={12} sm={2} md={3} lg={2}>
-				{renderButtons()}
+				<Button
+					onClick={handleShowSeries}
+					className={classes.outlinedBtn}
+					color="primary"
+					variant="outlined"
+					fullWidth
+				>
+					{translate("series")}
+				</Button>
+				<Button
+					onClick={handleShowAll}
+					className={classes.outlinedBtn}
+					color="primary"
+					variant="outlined"
+					fullWidth
+				>
+					{translate("episodes")}
+				</Button>
 				<Subscriptions
 					platform="tv"
 					selected={match.params.seriesId}

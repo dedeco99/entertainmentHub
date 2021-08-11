@@ -1,6 +1,5 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import PropTypes from "prop-types";
-import InfiniteScroll from "react-infinite-scroller";
 
 import {
 	makeStyles,
@@ -19,16 +18,9 @@ import {
 	Slide,
 } from "@material-ui/core";
 
-import Loading from "../.partials/Loading";
-
 import { TVContext } from "../../contexts/TVContext";
 
-import {
-	getSubscriptions,
-	addSubscriptions,
-	patchSubscription,
-	deleteSubscription,
-} from "../../api/subscriptions";
+import { addSubscriptions, patchSubscription, deleteSubscription } from "../../api/subscriptions";
 import { getProviders } from "../../api/tv";
 
 import { banners as styles } from "../../styles/TV";
@@ -38,68 +30,50 @@ import { translate } from "../../utils/translations";
 
 const useStyles = makeStyles(styles);
 
-function Banners({ getMore, hasMore, type, bannerWidth, useWindowScroll }) {
+function Banners({ series, contentType, loading, bannerWidth }) {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(TVContext);
-	const { subscriptions, follows } = state;
+	const { subscriptions } = state;
 	const [providers, setProviders] = useState({});
-	const [loading, setLoading] = useState(false);
 
-	useEffect(() => {
-		let isMounted = true;
+	async function handleSubscriptionChange(e, serie) {
+		if (e.target.checked) {
+			const seriesToAdd = series.find(s => s.externalId === serie.externalId);
+			seriesToAdd.group = { name: "Ungrouped" };
+			const response = await addSubscriptions("tv", [seriesToAdd]);
 
-		async function fetchData() {
-			setLoading(true);
-
-			const response = await getSubscriptions("tv");
-
-			if (response.status === 200 && isMounted) {
-				dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
+			if (response.status === 201) {
+				dispatch({ type: "ADD_SUBSCRIPTION", subscription: response.data });
 			}
+		} else {
+			const seriesToRemove = subscriptions.find(s => s.externalId === serie.externalId);
+			const response = await deleteSubscription(seriesToRemove._id);
 
-			setLoading(false);
-		}
-
-		if (!subscriptions.length) fetchData();
-
-		return () => (isMounted = false);
-	}, []);
-
-	useEffect(() => {
-		for (const follow of follows) {
-			const subscriptionFound = subscriptions.find(s => s.externalId === follow.externalId);
-
-			if (subscriptionFound) {
-				follow.numTotal = subscriptionFound.numTotal;
-				follow.numWatched = subscriptionFound.numWatched;
-				follow.numToWatch = subscriptionFound.numToWatch;
-			} else {
-				follow.numTotal = 0;
-				follow.numWatched = 0;
-				follow.numToWatch = 0;
+			if (response.status === 200) {
+				dispatch({ type: "DELETE_SUBSCRIPTION", subscription: response.data });
 			}
-		}
-
-		dispatch({ type: "SET_FOLLOWS", follows });
-	}, [follows, subscriptions]);
-
-	async function handleAddSeries(serie) {
-		const seriesToAdd = follows.find(s => s.externalId === serie.externalId);
-		seriesToAdd.group = { name: "Ungrouped" };
-		const response = await addSubscriptions("tv", [seriesToAdd]);
-
-		if (response.status === 201) {
-			dispatch({ type: "ADD_SUBSCRIPTION", subscription: response.data });
 		}
 	}
 
-	async function handleDeleteSeries(serie) {
-		const seriesToRemove = subscriptions.find(s => s.externalId === serie.externalId);
-		const response = await deleteSubscription(seriesToRemove._id);
+	async function handleMarkAsWatched(e, serie) {
+		const isWatched = serie.numWatched > 0 && serie.numTotal === serie.numWatched;
+		const response = await patchSubscription(serie.externalId, !isWatched, "all");
 
 		if (response.status === 200) {
-			dispatch({ type: "DELETE_SUBSCRIPTION", subscription: response.data });
+			dispatch({ type: "EDIT_SUBSCRIPTION", subscription: response.data });
 		}
+	}
+
+	async function handleGetProviders(serie) {
+		const response = await getProviders(contentType, serie.displayName);
+
+		if (response.status === 200) {
+			setProviders({ ...providers, [serie.externalId]: response.data });
+		}
+	}
+
+	function isSubscribed(serie) {
+		return subscriptions.map(us => us.externalId).includes(serie.externalId);
 	}
 
 	/*
@@ -121,35 +95,6 @@ function Banners({ getMore, hasMore, type, bannerWidth, useWindowScroll }) {
 			/>
 		</Box>
 	*/
-
-	function handleFavoriteChange(e, serie) {
-		if (e.target.checked) {
-			handleAddSeries(serie);
-		} else {
-			handleDeleteSeries(serie);
-		}
-	}
-
-	function isSubscribed(serie) {
-		return subscriptions.map(us => us.externalId).includes(serie.externalId);
-	}
-
-	async function handleMarkAsWatched(e, serie) {
-		const isWatched = serie.numWatched > 0 && serie.numTotal === serie.numWatched;
-		const response = await patchSubscription(serie.externalId, !isWatched, "all");
-
-		if (response.status === 200) {
-			dispatch({ type: "EDIT_SUBSCRIPTION", subscription: response.data });
-		}
-	}
-
-	async function handleGetProviders(serie) {
-		const response = await getProviders(type, serie.displayName);
-
-		if (response.status === 200) {
-			setProviders({ ...providers, [serie.externalId]: response.data });
-		}
-	}
 
 	function renderPosterCard(serie) {
 		return (
@@ -229,7 +174,7 @@ function Banners({ getMore, hasMore, type, bannerWidth, useWindowScroll }) {
 					>
 						{serie.year || null}
 					</Typography>
-					{type === "tv" && (
+					{contentType === "tv" && (
 						<>
 							<Tooltip
 								title={isSubscribed(serie) ? translate("removeFavorites") : translate("addFavorites")}
@@ -241,7 +186,7 @@ function Banners({ getMore, hasMore, type, bannerWidth, useWindowScroll }) {
 									disabled={loading}
 									icon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
 									checkedIcon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
-									onChange={e => handleFavoriteChange(e, serie)}
+									onChange={e => handleSubscriptionChange(e, serie)}
 									classes={{ root: classes.checkboxSize }}
 								/>
 							</Tooltip>
@@ -281,36 +226,27 @@ function Banners({ getMore, hasMore, type, bannerWidth, useWindowScroll }) {
 		);
 	}
 
-	function renderSeriesBlock() {
-		if (!follows || !follows.length) return <div />;
-
-		return (
-			<Grid container justifyContent="center">
-				{follows.map(serie => (
-					<Grid item key={serie.externalId} style={{ padding: "8px" }}>
-						<Box display="flex" flexDirection="column" width={bannerWidth} height="100%">
-							{renderPosterCard(serie)}
-							{renderInfoAndActions(serie)}
-						</Box>
-					</Grid>
-				))}
-			</Grid>
-		);
-	}
+	if (!series || !series.length) return <div />;
 
 	return (
-		<InfiniteScroll loadMore={getMore} hasMore={hasMore} loader={<Loading key={0} />} useWindow={useWindowScroll}>
-			{renderSeriesBlock()}
-		</InfiniteScroll>
+		<Grid container justifyContent="center">
+			{series.map(serie => (
+				<Grid item key={serie.externalId} style={{ padding: "8px" }}>
+					<Box display="flex" flexDirection="column" width={bannerWidth} height="100%">
+						{renderPosterCard(serie)}
+						{renderInfoAndActions(serie)}
+					</Box>
+				</Grid>
+			))}
+		</Grid>
 	);
 }
 
 Banners.propTypes = {
-	getMore: PropTypes.func.isRequired,
-	hasMore: PropTypes.bool.isRequired,
-	type: PropTypes.string.isRequired,
+	series: PropTypes.array.isRequired,
+	contentType: PropTypes.string.isRequired,
+	loading: PropTypes.bool.isRequired,
 	bannerWidth: PropTypes.number.isRequired,
-	useWindowScroll: PropTypes.bool.isRequired,
 };
 
 export default Banners;
