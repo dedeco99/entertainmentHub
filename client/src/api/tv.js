@@ -1,6 +1,6 @@
 import { api } from "../utils/request";
 
-async function getSeasons(series, page, filter) {
+async function getEpisodes(series, page, filter) {
 	let query = "";
 	query += page >= 0 ? `?page=${page}` : "";
 	query += filter ? `${query ? "&" : "?"}filter=${filter}` : "";
@@ -45,4 +45,4 @@ async function getProviders(type, search) {
 	return res;
 }
 
-export { getSeasons, getSearch, getPopular, getProviders };
+export { getEpisodes, getSearch, getPopular, getProviders };

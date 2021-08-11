@@ -285,7 +285,7 @@ function Banners({ getMore, hasMore, type, bannerWidth, useWindowScroll }) {
 		if (!follows || !follows.length) return <div />;
 
 		return (
-			<Grid container justify="center">
+			<Grid container justifyContent="center">
 				{follows.map(serie => (
 					<Grid item key={serie.externalId} style={{ padding: "8px" }}>
 						<Box display="flex" flexDirection="column" width={bannerWidth} height="100%">
