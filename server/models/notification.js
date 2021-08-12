@@ -7,6 +7,8 @@ const NotificationSchema = new Schema(
 		notificationId: { type: String, unique: true, required: true },
 		user: { type: Schema.ObjectId, ref: "User", required: true },
 		type: { type: String, required: true },
+		priority: { type: Number, default: 0 },
+		topPriority: { type: Boolean, default: false },
 		info: {
 			displayName: { type: String },
 			thumbnail: { type: String },

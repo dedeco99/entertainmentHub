@@ -18,7 +18,7 @@ async function getNotifications(event) {
 	if (after) searchQuery._id = { $lt: toObjectId(after) };
 	if (type) searchQuery.type = type;
 
-	const sortQuery = { dateToSend: -1, _id: -1 };
+	const sortQuery = { topPriority: -1, dateToSend: -1, _id: -1 };
 
 	const notifications = await Notification.aggregate([
 		{ $match: searchQuery },
@@ -53,7 +53,7 @@ async function deleteNotifications(event) {
 
 async function addNotifications(notifications) {
 	for (const notification of notifications) {
-		const { active, dateToSend, notificationId, user, type, info } = notification;
+		const { active, dateToSend, notificationId, user, type, topPriority, priority, info } = notification;
 
 		const notificationExists = await Notification.findOne({ user, type, notificationId }).lean();
 
@@ -64,6 +64,8 @@ async function addNotifications(notifications) {
 				notificationId,
 				user,
 				type,
+				topPriority,
+				priority,
 				info,
 			});
 
