@@ -428,7 +428,7 @@ function Notifications({ height, wrapTitle }) {
 				<Box
 					mr={2}
 					style={{
-						border: notification.priority ? `2px solid ${getPriorityColor(notification.priority)}` : null,
+						border: `2px solid ${notification.priority && getPriorityColor(notification.priority)}`,
 						borderRadius: "3px",
 					}}
 				>

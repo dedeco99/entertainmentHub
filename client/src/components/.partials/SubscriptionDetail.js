@@ -39,6 +39,7 @@ function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscr
 	const [group, setGroup] = useState({ name: "Ungrouped", pos: 0 });
 	const [notifications, setNotifications] = useState({
 		active: true,
+		priority: 0,
 		autoAddToWatchLater: false,
 		watchLaterPlaylist: user.settings.youtube && user.settings.youtube.watchLaterPlaylist,
 		dontShowWithTheseWords: [],
@@ -96,6 +97,10 @@ function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscr
 
 	function handleChangeActive(e) {
 		setNotifications({ ...notifications, active: !notifications.active });
+	}
+
+	function handleChangePriority(e) {
+		setNotifications({ ...notifications, priority: e.target.value });
 	}
 
 	async function handleSubmit(e) {
@@ -168,6 +173,25 @@ function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscr
 								control={<Checkbox checked={notifications.active} color="primary" onChange={handleChangeActive} />}
 								label={"Active"}
 							/>
+							<Input
+								label="Priority"
+								value={notifications.priority}
+								onChange={handleChangePriority}
+								variant="outlined"
+								select
+								fullWidth
+							>
+								{[
+									{ name: "High", value: 3 },
+									{ name: "Medium", value: 2 },
+									{ name: "Low", value: 1 },
+									{ name: "None", value: 0 },
+								].map(p => (
+									<MenuItem key={p.value} value={p.value}>
+										{p.name}
+									</MenuItem>
+								))}
+							</Input>
 						</>
 					)}
 					{subscription && subscription.platform === "youtube" && (

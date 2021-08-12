@@ -53,7 +53,7 @@ async function deleteNotifications(event) {
 
 async function addNotifications(notifications) {
 	for (const notification of notifications) {
-		const { active, dateToSend, notificationId, user, type, info } = notification;
+		const { active, dateToSend, notificationId, user, type, topPriority, priority, info } = notification;
 
 		const notificationExists = await Notification.findOne({ user, type, notificationId }).lean();
 
@@ -64,6 +64,8 @@ async function addNotifications(notifications) {
 				notificationId,
 				user,
 				type,
+				topPriority,
+				priority,
 				info,
 			});
 

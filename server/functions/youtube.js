@@ -333,6 +333,8 @@ async function cronjob() {
 					notificationId: `${user._id}${video.yt_videoId}`,
 					user: user._id,
 					type: "youtube",
+					topPriority: user.notifications.priority === 3,
+					priority: user.notifications.priority,
 					info: {
 						displayName: user.subscriptionDisplayName,
 						thumbnail: video.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),
