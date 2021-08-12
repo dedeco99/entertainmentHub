@@ -5,6 +5,7 @@ import InfiniteScroll from "react-infinite-scroller";
 import { motion } from "framer-motion";
 
 import {
+	withStyles,
 	makeStyles,
 	Zoom,
 	IconButton,
@@ -38,6 +39,14 @@ import { translate } from "../../utils/translations";
 import { notifications as widgetStyles } from "../../styles/Widgets";
 import { videoPlayer as videoPlayerStyles } from "../../styles/VideoPlayer";
 import generalStyles from "../../styles/General";
+
+const PriorityBadge = withStyles({
+	badge: {
+		backgroundColor: props => props.color,
+		fontSize: "1.15em",
+		fontWeight: "bold",
+	},
+})(Badge);
 
 const useStyles = makeStyles({ ...widgetStyles, ...videoPlayerStyles, ...generalStyles });
 
@@ -407,65 +416,84 @@ function Notifications({ height, wrapTitle }) {
 		}
 	}
 
+	function getPriorityColor(priority) {
+		return priority === 3 ? "#e13e39" : priority === 2 ? "#ffa617" : "#4772fa";
+	}
+
 	function renderNotificationContent(notification) {
 		const { thumbnail, overlay } = formatNotification(notification);
 
 		return (
 			<>
-				{thumbnail ? (
-					<Box
-						flexShrink="0"
-						mr={2}
-						className={classes.videoThumbnail}
-						style={{ position: "relative", width: "128px", height: "72px" }}
+				<Box
+					mr={2}
+					style={{
+						border: notification.priority ? `2px solid ${getPriorityColor(notification.priority)}` : null,
+						borderRadius: "3px",
+					}}
+				>
+					<PriorityBadge
+						badgeContent={"!".repeat(notification.priority)}
+						invisible={!notification.priority}
+						color={getPriorityColor(notification.priority)}
 					>
-						<img src={thumbnail} width="128px" height="72px" alt="Video thumbnail" />
-						{overlay && (
-							<Typography variant="caption" className={classes.bottomRightOverlay}>
-								{overlay}
-							</Typography>
-						)}
-						{notification.type === "youtube" && (
-							<Box
-								className={classes.videoPlayOverlay}
-								display="flex"
-								alignItems="center"
-								justifyContent="center"
-								onClick={() => handleAddToVideoPlayer("youtube", notification)}
-							>
-								<i className="icon-play icon-2x" />
-							</Box>
-						)}
-					</Box>
-				) : (
-					<Box
-						flexShrink="0"
-						mr={2}
-						className={classes.videoThumbnail}
-						align="center"
-						style={{ backgroundColor: "#444", position: "relative", width: "128px", height: "72px" }}
-					>
-						<Avatar className={classes.avatar} style={{ top: "15px" }}>
-							{renderNotificationType(notification.type)}
-						</Avatar>
-						{overlay && (
-							<Typography variant="caption" className={classes.bottomRightOverlay}>
-								{overlay}
-							</Typography>
-						)}
-						{notification.type === "youtube" && (
-							<Box
-								className={classes.videoPlayOverlay}
-								display="flex"
-								alignItems="center"
-								justifyContent="center"
-								onClick={() => handleAddToVideoPlayer("youtube", notification)}
-							>
-								<i className="icon-play icon-2x" />
-							</Box>
-						)}
-					</Box>
-				)}
+						<Box
+							flexShrink="0"
+							className={classes.videoThumbnail}
+							align="center"
+							style={{
+								backgroundColor: "#444",
+								position: "relative",
+								width: "128px",
+								height: "72px",
+							}}
+						>
+							{thumbnail ? (
+								<>
+									<img src={thumbnail} width="128px" height="72px" alt="Video thumbnail" />
+									{overlay && (
+										<Typography variant="caption" className={classes.bottomRightOverlay}>
+											{overlay}
+										</Typography>
+									)}
+									{notification.type === "youtube" && (
+										<Box
+											className={classes.videoPlayOverlay}
+											display="flex"
+											alignItems="center"
+											justifyContent="center"
+											onClick={() => handleAddToVideoPlayer("youtube", notification)}
+										>
+											<i className="icon-play icon-2x" />
+										</Box>
+									)}
+								</>
+							) : (
+								<>
+									<Avatar className={classes.avatar} style={{ top: "15px" }}>
+										{renderNotificationType(notification.type)}
+									</Avatar>
+									{overlay && (
+										<Typography variant="caption" className={classes.bottomRightOverlay}>
+											{overlay}
+										</Typography>
+									)}
+									{notification.type === "youtube" && (
+										<Box
+											className={classes.videoPlayOverlay}
+											display="flex"
+											alignItems="center"
+											justifyContent="center"
+											onClick={() => handleAddToVideoPlayer("youtube", notification)}
+										>
+											<i className="icon-play icon-2x" />
+										</Box>
+									)}
+								</>
+							)}
+						</Box>
+					</PriorityBadge>
+				</Box>
 				{renderNotificationText(notification)}
 			</>
 		);

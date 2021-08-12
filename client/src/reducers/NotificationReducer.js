@@ -8,6 +8,8 @@ export const notificationReducer = (state, action) => {
 		case "ADD_NOTIFICATION":
 			notifications.unshift(action.notification);
 
+			notifications = notifications.sort((a, b) => (a.topPriority <= b.topPriority ? 1 : -1));
+
 			return { ...state, notifications, total: state.total + 1 };
 		case "DELETE_NOTIFICATION":
 			const notificationIds = action.notifications.map(n => n._id);
