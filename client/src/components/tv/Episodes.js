@@ -3,8 +3,7 @@ import InfiniteScroll from "react-infinite-scroller";
 import { useHistory, useRouteMatch } from "react-router-dom";
 
 import { makeStyles, Grid, Button } from "@material-ui/core";
-import ToggleButton from "@material-ui/lab/ToggleButton";
-import ToggleButtonGroup from "@material-ui/lab/ToggleButtonGroup";
+import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
 
 import Categories from "../.partials/Categories";
 import Loading from "../.partials/Loading";

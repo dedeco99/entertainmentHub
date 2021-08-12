@@ -100,7 +100,7 @@ function App() {
 
 				<PrivateRoute exact path="/tv" component={TV} />
 				<PrivateRoute exact path="/tv/all" component={TV} />
-				<PrivateRoute exact path="/tv/popular" component={TV} />
+				<PrivateRoute exact path="/tv/series" component={TV} />
 				<PrivateRoute exact path="/tv/:seriesId" component={TV} />
 				<PrivateRoute exact path="/tv/:seriesId/:season" component={TV} />
 

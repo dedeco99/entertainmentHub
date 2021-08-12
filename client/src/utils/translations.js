@@ -132,6 +132,14 @@ const translations = {
 		en: "Edit Reddit",
 		pt: "Editar Reddit",
 	},
+	series: {
+		en: "Series",
+		pt: "Séries",
+	},
+	episodes: {
+		en: "Episodes",
+		pt: "Episódios",
+	},
 	noEpisodes: {
 		en: "No Episodes",
 		pt: "Não há episódios",

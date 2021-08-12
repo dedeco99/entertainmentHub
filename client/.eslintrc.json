@@ -225,7 +225,7 @@
 			}
 		],
 		"no-negated-condition": "error",
-		"no-nested-ternary": "error",
+		"no-nested-ternary": "warn",
 		"no-new-object": "error",
 		// "no-plusplus": "error",
 		"no-restricted-syntax": "error",
