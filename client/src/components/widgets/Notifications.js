@@ -32,7 +32,7 @@ import { YoutubeContext } from "../../contexts/YoutubeContext";
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
 import { getPlaylists, addToWatchLater } from "../../api/youtube";
 
-import { formatDate, diff, formatVideoDuration, formatNotification } from "../../utils/utils";
+import { formatDate, diff, formatNotification } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
 import { notifications as widgetStyles } from "../../styles/Widgets";
@@ -345,125 +345,130 @@ function Notifications({ height, wrapTitle }) {
 		);
 	}
 
-	function renderNotificationContent(notification) {
-		const { thumbnail, overlay, title, subtitle } = formatNotification(notification);
+	function renderNotificationText(notification) {
+		const { overlay, title, subtitle } = formatNotification(notification);
 
 		switch (notification.type) {
 			case "youtube":
 				return (
-					<>
-						{thumbnail ? (
-							<Box position="relative" flexShrink="0" width="100px" mr={2} className={classes.videoThumbnail}>
-								<img src={thumbnail} width="100%" alt="Video thumbnail" />
-								<Typography variant="caption" className={classes.bottomRightOverlay}>
-									{formatVideoDuration(overlay)}
-								</Typography>
-								<Box
-									className={classes.videoPlayOverlay}
-									display="flex"
-									alignItems="center"
-									justifyContent="center"
-									onClick={() => handleAddToVideoPlayer("youtube", notification)}
-								>
-									<i className="icon-play icon-2x" />
-								</Box>
-							</Box>
+					<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
+						<Typography variant="body1" title={subtitle} noWrap={!wrapTitle}>
+							<Link
+								href={`https://www.youtube.com/watch?v=${notification.info.videoId}`}
+								target="_blank"
+								rel="noreferrer"
+								color="inherit"
+							>
+								{subtitle}
+							</Link>
+						</Typography>
+						<Typography variant="body2" title={title} noWrap>
+							<Link
+								href={`https://www.youtube.com/channel/${notification.info.channelId}`}
+								target="_blank"
+								rel="noreferrer"
+								color="inherit"
+							>
+								{title}
+							</Link>
+						</Typography>
+						{notification.info.scheduled && diff(notification.info.scheduled, "minutes") <= 0 ? (
+							<Typography variant="caption">
+								{`Scheduled for ${formatDate(notification.info.scheduled, "DD-MM-YYYY HH:mm")}`}
+							</Typography>
 						) : (
-							<Box display="flex" justifyContent="center" flexShrink="0" width="100px" mr={2}>
-								<Avatar className={classes.avatar}>{renderNotificationType(notification.type)}</Avatar>
-							</Box>
+							<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
 						)}
-						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
-							<Typography variant="body1" title={subtitle} noWrap={!wrapTitle}>
-								<Link
-									href={`https://www.youtube.com/watch?v=${notification.info.videoId}`}
-									target="_blank"
-									rel="noreferrer"
-									color="inherit"
-								>
-									{subtitle}
-								</Link>
-							</Typography>
-							<Typography variant="body2" title={title} noWrap>
-								<Link
-									href={`https://www.youtube.com/channel/${notification.info.channelId}`}
-									target="_blank"
-									rel="noreferrer"
-									color="inherit"
-								>
-									{title}
-								</Link>
-							</Typography>
-
-							{notification.info.scheduled && diff(notification.info.scheduled, "minutes") <= 0 ? (
-								<Typography variant="caption">
-									{`Scheduled for ${formatDate(notification.info.scheduled, "DD-MM-YYYY HH:mm")}`}
-								</Typography>
-							) : (
-								<Typography variant="caption">
-									{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}
-								</Typography>
-							)}
-						</Box>
-					</>
+					</Box>
 				);
 			case "tv":
 				return (
-					<>
-						{thumbnail ? (
-							<Box position="relative" flexShrink="0" width="100px" mr={2} className={classes.videoThumbnail}>
-								<img src={thumbnail} width="100%" alt="Video thumbnail" />
-								<Box className={classes.bottomRightOverlay}>
-									<Typography variant="caption">{overlay}</Typography>
-								</Box>
-							</Box>
-						) : (
-							<Box
-								flexShrink="0"
-								width="100px"
-								mr={2}
-								align="center"
-								style={{ backgroundColor: "#444", height: "55px" }}
-							>
-								<Avatar className={classes.avatar} style={{ top: "5px" }}>
-									{renderNotificationType(notification.type)}
-								</Avatar>
-								<Box
-									className={classes.bottomRightOverlay}
-									style={{ bottom: "10px", left: "70px", right: "initial" }}
-								>
-									<Typography variant="caption">{overlay}</Typography>
-								</Box>
-							</Box>
-						)}
-						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
-							<Typography variant="body1" title={title} noWrap>
-								{title}
-							</Typography>
-							<Typography variant="body2" title={notification.info.episodeTitle || overlay} noWrap>
-								{notification.info.episodeTitle || overlay}
-							</Typography>
-							<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
-						</Box>
-					</>
+					<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
+						<Typography variant="body1" title={title} noWrap>
+							{title}
+						</Typography>
+						<Typography variant="body2" title={notification.info.episodeTitle || overlay} noWrap>
+							{notification.info.episodeTitle || overlay}
+						</Typography>
+						<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
+					</Box>
 				);
 			case "reminder":
 				return (
-					<>
-						<Box display="flex" justifyContent="center" flexShrink="0" width="100px" mr={2}>
-							<Avatar className={classes.avatar}>{renderNotificationType(notification.type)}</Avatar>
-						</Box>
-						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
-							<Typography variant="body1" title={title} noWrap>
-								{title}
-							</Typography>
-							<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
-						</Box>
-					</>
+					<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
+						<Typography variant="body1" title={title} noWrap>
+							{title}
+						</Typography>
+						<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
+					</Box>
 				);
 			default:
 				return null;
 		}
+	}
+
+	function renderNotificationContent(notification) {
+		const { thumbnail, overlay } = formatNotification(notification);
+
+		return (
+			<>
+				{thumbnail ? (
+					<Box
+						flexShrink="0"
+						mr={2}
+						className={classes.videoThumbnail}
+						style={{ position: "relative", width: "128px", height: "72px" }}
+					>
+						<img src={thumbnail} width="128px" height="72px" alt="Video thumbnail" />
+						{overlay && (
+							<Typography variant="caption" className={classes.bottomRightOverlay}>
+								{overlay}
+							</Typography>
+						)}
+						{notification.type === "youtube" && (
+							<Box
+								className={classes.videoPlayOverlay}
+								display="flex"
+								alignItems="center"
+								justifyContent="center"
+								onClick={() => handleAddToVideoPlayer("youtube", notification)}
+							>
+								<i className="icon-play icon-2x" />
+							</Box>
+						)}
+					</Box>
+				) : (
+					<Box
+						flexShrink="0"
+						mr={2}
+						className={classes.videoThumbnail}
+						align="center"
+						style={{ backgroundColor: "#444", position: "relative", width: "128px", height: "72px" }}
+					>
+						<Avatar className={classes.avatar} style={{ top: "15px" }}>
+							{renderNotificationType(notification.type)}
+						</Avatar>
+						{overlay && (
+							<Typography variant="caption" className={classes.bottomRightOverlay}>
+								{overlay}
+							</Typography>
+						)}
+						{notification.type === "youtube" && (
+							<Box
+								className={classes.videoPlayOverlay}
+								display="flex"
+								alignItems="center"
+								justifyContent="center"
+								onClick={() => handleAddToVideoPlayer("youtube", notification)}
+							>
+								<i className="icon-play icon-2x" />
+							</Box>
+						)}
+					</Box>
+				)}
+				{renderNotificationText(notification)}
+			</>
+		);
 	}
 
 	function renderNotificationList() {

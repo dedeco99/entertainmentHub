@@ -39,7 +39,7 @@ function formatVideoDuration(duration) {
 
 	const values = duration.substring(2).slice(0, -1).split(/[HM]/g);
 
-	if (!hasHours && !hasMinutes) values[0] = `0${values[0]}`;
+	if (!hasHours && !hasMinutes && values[0].length < 2) values[0] = `0${values[0]}`;
 
 	for (let i = 1; i < values.length; i++) {
 		if (values[i].length < 2) values[i] = `0${values[i]}`;
@@ -65,7 +65,7 @@ function formatNotification(notification) {
 		case "youtube":
 			return {
 				thumbnail,
-				overlay: duration,
+				overlay: formatVideoDuration(duration),
 				title: displayName,
 				subtitle: videoTitle,
 			};
