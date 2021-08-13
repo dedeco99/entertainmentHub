@@ -27,7 +27,7 @@ async function getStreams(event) {
 	const { query, user } = event;
 	const { after, skipGame } = query;
 
-	const subscriptions = await Subscription.find({ user: user._id, platform: "twitch" }).lean();
+	const subscriptions = await Subscription.find({ active: true, user: user._id, platform: "twitch" }).lean();
 
 	if (!subscriptions.length) return response(200, "No streams found", []);
 

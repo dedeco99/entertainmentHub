@@ -28,6 +28,7 @@ async function cronjobScheduler(toSchedule) {
 		switch (type) {
 			case "tv":
 				const userSeries = await Subscription.find({
+					active: true,
 					platform: "tv",
 					externalId: info.seriesId,
 					"notifications.active": true,

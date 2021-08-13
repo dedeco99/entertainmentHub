@@ -285,7 +285,9 @@ async function getEpisodes(event) {
 	const { id } = params;
 	const { page, filter } = query;
 
-	const userSeries = await Subscription.find({ user: user._id, platform: "tv" }).sort({ displayName: 1 }).lean();
+	const userSeries = await Subscription.find({ active: true, user: user._id, platform: "tv" })
+		.sort({ displayName: 1 })
+		.lean();
 
 	const seriesIds = userSeries.map(s => s.externalId);
 
