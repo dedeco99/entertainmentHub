@@ -229,6 +229,7 @@ async function addToWatchLater(event) {
 	};
 
 	const subscriptions = await Subscription.find({
+		active: true,
 		user: user._id,
 		platform: "youtube",
 		externalId: { $in: videos.map(v => v.channelId) },

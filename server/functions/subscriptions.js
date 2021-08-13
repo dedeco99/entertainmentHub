@@ -12,7 +12,7 @@ async function getSubscriptions(event) {
 	const { params, user } = event;
 	const { platform } = params;
 
-	let subscriptions = await Subscription.find({ user: user._id, platform })
+	let subscriptions = await Subscription.find({ active: true, user: user._id, platform })
 		.collation({ locale: "en" })
 		.sort({ displayName: 1 })
 		.lean();
@@ -66,17 +66,29 @@ async function addSubscriptions(event) {
 						notifications,
 					}),
 				);
+			} else if (!subscriptionExists.active) {
+				subscriptionsToAdd.push(
+					await Subscription.findOneAndUpdate(
+						{ _id: subscriptionExists._id },
+						{ active: true },
+						{ new: true },
+					).lean(),
+				);
+			}
 
-				if (platform === "tv") {
-					const seriesPopulated = await Subscription.findOne({ platform, externalId }).lean();
+			if (platform === "tv") {
+				const seriesPopulated = await Subscription.findOne({ active: true, platform, externalId }).lean();
 
-					if (!seriesPopulated) tv.fetchEpisodes({ _id: externalId, displayName }, user);
-				}
+				if (!seriesPopulated) tv.fetchEpisodes({ _id: externalId, displayName }, user);
 			}
 		}
 	}
 
-	await Subscription.insertMany(subscriptionsToAdd);
+	try {
+		await Subscription.insertMany(subscriptionsToAdd);
+	} catch (err) {
+		console.log(err);
+	}
 
 	if (platform === "tv") {
 		tv.sendSocketUpdate("edit", JSON.parse(JSON.stringify(subscriptionsToAdd)), user);
@@ -155,7 +167,7 @@ async function deleteSubscription(event) {
 
 	let subscription = null;
 	try {
-		subscription = await Subscription.findOneAndDelete({ _id: id });
+		subscription = await Subscription.findOneAndUpdate({ _id: id }, { active: false });
 	} catch (e) {
 		return errors.notFound;
 	}
