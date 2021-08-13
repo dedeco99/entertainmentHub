@@ -1,3 +1,5 @@
+const dayjs = require("dayjs");
+
 const { response } = require("../utils/request");
 const { toObjectId } = require("../utils/utils");
 
@@ -15,10 +17,15 @@ async function getNotifications(event) {
 
 	const total = await Notification.countDocuments(searchQuery);
 
-	if (after) searchQuery._id = { $lt: toObjectId(after) };
+	if (after) {
+		const lastNotification = await Notification.findOne({ _id: after }).lean();
+
+		searchQuery._id = { $ne: toObjectId(lastNotification._id) };
+		searchQuery.dateToSend = { $lte: dayjs(lastNotification.dateToSend).toDate() };
+	}
 	if (type) searchQuery.type = type;
 
-	const sortQuery = { topPriority: -1, dateToSend: -1, _id: -1 };
+	const sortQuery = { topPriority: -1, dateToSend: -1 };
 
 	const notifications = await Notification.aggregate([
 		{ $match: searchQuery },

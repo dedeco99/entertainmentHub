@@ -42,7 +42,7 @@ import generalStyles from "../../styles/General";
 
 const PriorityBadge = withStyles({
 	badge: {
-		backgroundColor: props => props.color,
+		backgroundColor: props => props.background,
 		fontSize: "1.15em",
 		fontWeight: "bold",
 	},
@@ -77,7 +77,6 @@ function Notifications({ height, wrapTitle }) {
 	const [loadingBatchWatchLater, setLoadingBatchWatchLater] = useState(false);
 	const [loadingBatchDelete, setLoadingBatchDelete] = useState(false);
 	const [loadingBatchRestore, setLoadingBatchRestore] = useState(false);
-	let isMounted = true;
 
 	async function handleGetNotifications() {
 		if (!pagination.loading) {
@@ -90,7 +89,7 @@ function Notifications({ height, wrapTitle }) {
 
 			const response = await getNotifications(after, pagination.history, filter);
 
-			if (response.status === 200 && isMounted) {
+			if (response.status === 200) {
 				const newNotifications =
 					pagination.page === 0 ? response.data.notifications : notifications.concat(response.data.notifications);
 
@@ -110,7 +109,13 @@ function Notifications({ height, wrapTitle }) {
 	useEffect(() => {
 		async function fetchData() {
 			await handleGetNotifications();
+		}
 
+		fetchData();
+	}, [pagination.filter, pagination.history, user]);
+
+	useEffect(() => {
+		async function fetchData() {
 			if (!user.apps) return;
 
 			const hasYoutube = user.apps.find(app => app.platform === "youtube");
@@ -125,9 +130,7 @@ function Notifications({ height, wrapTitle }) {
 		}
 
 		fetchData();
-
-		return () => (isMounted = false);
-	}, [pagination.filter, pagination.history, user]);
+	}, [user]);
 
 	async function handleHideNotification(notificationsToHide = [selectedNotification._id]) {
 		setActionLoading(true);
@@ -435,7 +438,7 @@ function Notifications({ height, wrapTitle }) {
 					<PriorityBadge
 						badgeContent={"!".repeat(notification.priority)}
 						invisible={!notification.priority}
-						color={getPriorityColor(notification.priority)}
+						background={getPriorityColor(notification.priority)}
 					>
 						<Box
 							flexShrink="0"
