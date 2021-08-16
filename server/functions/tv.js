@@ -501,14 +501,20 @@ async function getPopular(event) {
 }
 
 async function getRecommendations(event) {
-	const { user } = event;
+	const { query, user } = event;
+	const { search } = query;
+
+	if (!search) return response(200, "GET_RECOMMENDATIONS", []);
 
 	const userSeries = await Subscription.aggregate([
 		{ $match: { active: true, user: user._id, platform: "tv" } },
 		{ $project: { displayName: 1, externalId: 1 } },
 	]);
 
-	const sample = userSeries.sort(() => 0.5 - Math.random()).slice(0, 5);
+	const sample = await Subscription.aggregate([
+		{ $match: { externalId: { $in: search.split(",") } } },
+		{ $project: { displayName: 1, externalId: 1 } },
+	]);
 
 	const promises = sample.map(series =>
 		api({

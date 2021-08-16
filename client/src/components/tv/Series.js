@@ -33,6 +33,7 @@ function Series({ contentType, bannerWidth, useWindowScroll, listView, widget })
 	const [recommendationsHasMore, setRecommendationsHasMore] = useState(true);
 	const [recommendationsPage, setRecommendationsPage] = useState(0);
 	const [recommendationsLoading, setRecommendationsLoading] = useState(false);
+	const [recommendationsSearched, setRecommendationsSearched] = useState([]);
 	const [search, setSearch] = useState([]);
 	const [query, setQuery] = useState("");
 	const [searchHasMore, setSearchHasMore] = useState(true);
@@ -88,12 +89,21 @@ function Series({ contentType, bannerWidth, useWindowScroll, listView, widget })
 		if (!recommendationsLoading) {
 			setRecommendationsLoading(true);
 
-			const response = await getRecommendations(recommendationsPage);
+			const recommendationsSearch = subscriptions
+				.filter(s => !recommendationsSearched.includes(s.externalId))
+				.map(s => s.externalId)
+				.splice(0, 5);
+
+			const response = await getRecommendations(recommendationsPage, recommendationsSearch.join(","));
 
 			if (response.status === 200) {
-				setRecommendations(prev => [...prev, ...response.data]);
+				setRecommendations(prev => [
+					...prev,
+					...response.data.filter(s => !prev.map(p => p.externalId).includes(s.externalId)),
+				]);
 				setRecommendationsPage(prev => prev + 1);
 				setRecommendationsHasMore(!(response.data.length < 20));
+				setRecommendationsSearched(prev => [...prev, ...recommendationsSearch]);
 			}
 
 			setRecommendationsLoading(false);
