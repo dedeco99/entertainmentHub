@@ -33,6 +33,7 @@ function Series({ contentType, bannerWidth, useWindowScroll, listView, widget })
 	const [recommendationsHasMore, setRecommendationsHasMore] = useState(true);
 	const [recommendationsPage, setRecommendationsPage] = useState(0);
 	const [recommendationsLoading, setRecommendationsLoading] = useState(false);
+	const [recommendationsSearched, setRecommendationsSearched] = useState([]);
 	const [search, setSearch] = useState([]);
 	const [query, setQuery] = useState("");
 	const [searchHasMore, setSearchHasMore] = useState(true);
@@ -88,15 +89,18 @@ function Series({ contentType, bannerWidth, useWindowScroll, listView, widget })
 		if (!recommendationsLoading) {
 			setRecommendationsLoading(true);
 
-			const response = await getRecommendations(recommendationsPage);
+			const recommendationsSearch = subscriptions
+				.filter(s => !recommendationsSearched.includes(s.externalId))
+				.map(s => s.externalId)
+				.splice(0, 5);
+
+			const response = await getRecommendations(recommendationsPage, recommendationsSearch.join(","));
 
 			if (response.status === 200) {
-				setRecommendations(prev => [
-					...prev,
-					...response.data.filter(s => !prev.map(p => p.externalId).includes(s.externalId)),
-				]);
+				setRecommendations(prev => [...prev, ...response.data]);
 				setRecommendationsPage(prev => prev + 1);
 				setRecommendationsHasMore(!!response.data.length);
+				setRecommendationsSearched(prev => [...prev, ...recommendationsSearch]);
 			}
 
 			setRecommendationsLoading(false);
@@ -173,6 +177,7 @@ function Series({ contentType, bannerWidth, useWindowScroll, listView, widget })
 	}
 
 	function renderSeries() {
+		// eslint-disable-next-line no-nested-ternary
 		return listView ? (
 			<List>
 				{(filter === "subscriptions" ? subscriptions : populateSeries(getFilterVariables().series)).map(serie => (
@@ -184,12 +189,29 @@ function Series({ contentType, bannerWidth, useWindowScroll, listView, widget })
 					</ListItem>
 				))}
 			</List>
+		) : filter === "recommendations" ? (
+			recommendations.map(series => (
+				<Box key={series.originalSeries.externalId} m="10px">
+					<Typography variant="h5" align="left">
+						{`Because you watch ${series.originalSeries.displayName}`}
+					</Typography>
+					<Box pt="5px" borderRadius="3px" style={{ backgroundColor: "#333" }}>
+						<Banners
+							series={populateSeries(series.recommendations)}
+							contentType={contentType}
+							loading={popularLoading || recommendationsLoading || searchLoading}
+							bannerWidth={bannerWidth}
+						/>
+					</Box>
+				</Box>
+			))
 		) : (
 			<Banners
 				series={filter === "subscriptions" ? subscriptions : populateSeries(getFilterVariables().series)}
 				contentType={contentType}
 				loading={popularLoading || recommendationsLoading || searchLoading}
 				bannerWidth={bannerWidth}
+				grid
 			/>
 		);
 	}
