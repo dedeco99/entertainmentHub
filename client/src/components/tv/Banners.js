@@ -30,7 +30,7 @@ import { translate } from "../../utils/translations";
 
 const useStyles = makeStyles(styles);
 
-function Banners({ series, contentType, loading, bannerWidth, grid }) {
+function Banners({ series, contentType, loading, bannerWidth }) {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(TVContext);
 	const { subscriptions } = state;
@@ -163,6 +163,11 @@ function Banners({ series, contentType, loading, bannerWidth, grid }) {
 				<Typography variant="body2" align="left">
 					{serie.displayName}
 				</Typography>
+				{serie.originalSeries && (
+					<Typography variant="caption" align="left">
+						{`Because you watch ${serie.originalSeries.displayName}`}
+					</Typography>
+				)}
 				<Box display="flex" alignItems="center">
 					<Typography
 						variant="caption"
@@ -228,23 +233,17 @@ function Banners({ series, contentType, loading, bannerWidth, grid }) {
 
 	if (!series || !series.length) return <div />;
 
-	const seriesList = series.map(serie => (
-		<Grid item key={serie.externalId} style={{ padding: "8px" }}>
-			<Box display="flex" flexDirection="column" width={bannerWidth} height="100%">
-				{renderPosterCard(serie)}
-				{renderInfoAndActions(serie)}
-			</Box>
-		</Grid>
-	));
-
-	return grid ? (
+	return (
 		<Grid container justifyContent="center">
-			{seriesList}
+			{series.map(serie => (
+				<Grid item key={serie.externalId} style={{ padding: "8px" }}>
+					<Box display="flex" flexDirection="column" width={bannerWidth} height="100%">
+						{renderPosterCard(serie)}
+						{renderInfoAndActions(serie)}
+					</Box>
+				</Grid>
+			))}
 		</Grid>
-	) : (
-		<Box display="flex" flexDirection="row" width="100%" overflow="auto">
-			{seriesList}
-		</Box>
 	);
 }
 
@@ -253,7 +252,6 @@ Banners.propTypes = {
 	contentType: PropTypes.string.isRequired,
 	loading: PropTypes.bool.isRequired,
 	bannerWidth: PropTypes.number.isRequired,
-	grid: PropTypes.bool,
 };
 
 export default Banners;

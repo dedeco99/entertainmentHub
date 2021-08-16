@@ -501,20 +501,14 @@ async function getPopular(event) {
 }
 
 async function getRecommendations(event) {
-	const { query, user } = event;
-	const { search } = query;
-
-	if (!search) return response(200, "GET_RECOMMENDATIONS", []);
+	const { user } = event;
 
 	const userSeries = await Subscription.aggregate([
 		{ $match: { active: true, user: user._id, platform: "tv" } },
 		{ $project: { displayName: 1, externalId: 1 } },
 	]);
 
-	const sample = await Subscription.aggregate([
-		{ $match: { active: true, user: user._id, platform: "tv", externalId: { $in: search.split(",") } } },
-		{ $project: { displayName: 1, externalId: 1 } },
-	]);
+	const sample = userSeries.sort(() => 0.5 - Math.random()).slice(0, 5);
 
 	const promises = sample.map(series =>
 		api({
@@ -527,21 +521,26 @@ async function getRecommendations(event) {
 
 	const series = [];
 	for (let i = 0; i < sample.length; i++) {
-		series.push({
-			originalSeries: sample[i],
-			recommendations: tmdbSeries[i].data.results
-				.filter(r => !userSeries.find(s => s.externalId === r.id.toString()))
-				.map(s => ({
-					externalId: s.id.toString(),
-					displayName: s.name,
-					image: s.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}` : "",
-					year: dayjs(s.first_air_date).get("year"),
-					rating: s.vote_average.toFixed(1),
-				})),
-		});
+		for (const recommendation of tmdbSeries[i].data.results) {
+			if (
+				!userSeries.find(s => s.externalId === recommendation.id.toString()) &&
+				!series.find(s => s.externalId === recommendation.id.toString())
+			) {
+				series.push({
+					externalId: recommendation.id.toString(),
+					displayName: recommendation.name,
+					image: recommendation.poster_path
+						? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${recommendation.poster_path}`
+						: "",
+					year: dayjs(recommendation.first_air_date).get("year"),
+					rating: recommendation.vote_average.toFixed(1),
+					originalSeries: userSeries[i],
+				});
+			}
+		}
 	}
 
-	return response(200, "GET_RECOMMENDATIONS", series);
+	return response(200, "GET_RECOMMENDATIONS", series.sort(() => 0.5 - Math.random()).slice(0, 20));
 }
 
 async function getProviders(event) {
