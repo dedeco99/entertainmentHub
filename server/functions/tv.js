@@ -151,16 +151,19 @@ async function fetchEpisodes(series, user) {
 
 	seasons = await Promise.all(seasonsPromises);
 
+	const episodes = await Episode.find({ seriesId: series._id }).lean();
+
+	const validEpisodes = [];
 	for (const season of seasons) {
 		json = season.data;
 
 		if (json.episodes && json.episodes.length) {
 			for (const episode of json.episodes) {
-				const episodeExists = await Episode.findOne({
-					seriesId: series._id,
-					season: episode.season_number,
-					number: episode.episode_number,
-				}).lean();
+				validEpisodes.push(`S${episode.season_number}E${episode.episode_number}`);
+
+				const episodeExists = episodes.find(
+					e => e.season === episode.season_number && e.number === episode.episode_number,
+				);
 
 				if (!episodeExists) {
 					const newEpisode = new Episode({
@@ -232,6 +235,12 @@ async function fetchEpisodes(series, user) {
 		}
 	}
 
+	const episodesToDelete = [];
+	for (const episode of episodes) {
+		if (!validEpisodes.includes(`S${episode.season}E${episode.number}`)) episodesToDelete.push(episode._id);
+	}
+
+	if (episodesToDelete.length) await Episode.deleteMany({ _id: { $in: episodesToDelete } });
 	if (episodesToAdd.length) await Episode.insertMany(episodesToAdd);
 	if (episodesToUpdate.length) await Promise.all(episodesToUpdate);
 	if (notificationsToAdd.length) await addScheduledNotifications(notificationsToAdd);
@@ -400,7 +409,7 @@ function getTrend(trend) {
 }
 
 async function getPopular(event) {
-	const { query, user } = event;
+	const { query } = event;
 	const { page, source, type } = query;
 
 	if (!page && page !== "0") return response(400, "Missing page in query");
