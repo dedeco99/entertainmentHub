@@ -497,7 +497,50 @@ async function getPopular(event) {
 		}));
 	}
 
-	return response(200, "GET_SERIES", series);
+	return response(200, "GET_POPULAR", series);
+}
+
+async function getRecommendations(event) {
+	const { user } = event;
+
+	const userSeries = await Subscription.aggregate([
+		{ $match: { active: true, user: user._id, platform: "tv" } },
+		{ $project: { displayName: 1, externalId: 1 } },
+	]);
+
+	const sample = userSeries.sort(() => 0.5 - Math.random()).slice(0, 5);
+
+	const promises = sample.map(series =>
+		api({
+			method: "get",
+			url: `https://api.themoviedb.org/3/tv/${series.externalId}/recommendations?api_key=${process.env.tmdbKey}`,
+		}),
+	);
+
+	const tmdbSeries = await Promise.all(promises);
+
+	const series = [];
+	for (let i = 0; i < sample.length; i++) {
+		for (const recommendation of tmdbSeries[i].data.results) {
+			if (
+				!userSeries.find(s => s.externalId === recommendation.id.toString()) &&
+				!series.find(s => s.externalId === recommendation.id.toString())
+			) {
+				series.push({
+					externalId: recommendation.id.toString(),
+					displayName: recommendation.name,
+					image: recommendation.poster_path
+						? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${recommendation.poster_path}`
+						: "",
+					year: dayjs(recommendation.first_air_date).get("year"),
+					rating: recommendation.vote_average.toFixed(1),
+					originalSeries: userSeries[i],
+				});
+			}
+		}
+	}
+
+	return response(200, "GET_RECOMMENDATIONS", series.sort(() => 0.5 - Math.random()).slice(0, 20));
 }
 
 async function getProviders(event) {
@@ -554,5 +597,6 @@ module.exports = {
 	getEpisodes,
 	getSearch,
 	getPopular,
+	getRecommendations,
 	getProviders,
 };

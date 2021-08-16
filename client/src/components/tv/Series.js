@@ -12,7 +12,7 @@ import Loading from "../.partials/Loading";
 import { TVContext } from "../../contexts/TVContext";
 
 import { getSubscriptions } from "../../api/subscriptions";
-import { getSearch, getPopular } from "../../api/tv";
+import { getSearch, getPopular, getRecommendations } from "../../api/tv";
 
 import { translate } from "../../utils/translations";
 
@@ -26,28 +26,35 @@ function Series({ contentType, bannerWidth, useWindowScroll, listView, widget })
 	const { subscriptions } = state;
 	const [filter, setFilter] = useState(widget ? "popular" : "subscriptions");
 	const [popular, setPopular] = useState([]);
-	const [hasMore, setHasMore] = useState(false);
-	const [page, setPage] = useState(0);
-	const [loading, setLoading] = useState(false);
+	const [popularHasMore, setPopularHasMore] = useState(true);
+	const [popularPage, setPopularPage] = useState(0);
+	const [popularLoading, setPopularLoading] = useState(false);
+	const [recommendations, setRecommendations] = useState([]);
+	const [recommendationsHasMore, setRecommendationsHasMore] = useState(true);
+	const [recommendationsPage, setRecommendationsPage] = useState(0);
+	const [recommendationsLoading, setRecommendationsLoading] = useState(false);
 	const [search, setSearch] = useState([]);
 	const [query, setQuery] = useState("");
-	const [searchHasMore, setSearchHasMore] = useState(false);
+	const [searchHasMore, setSearchHasMore] = useState(true);
 	const [searchPage, setSearchPage] = useState(0);
 	const [searchLoading, setSearchLoading] = useState(false);
+	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
 		let isMounted = true;
 
 		async function fetchData() {
-			setLoading(true);
+			if (!loading) {
+				setLoading(true);
 
-			const response = await getSubscriptions("tv");
+				const response = await getSubscriptions("tv");
 
-			if (response.status === 200 && isMounted) {
-				dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
+				if (response.status === 200 && isMounted) {
+					dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
+				}
+
+				setLoading(false);
 			}
-
-			setLoading(false);
 		}
 
 		if (!subscriptions.length) fetchData();
@@ -56,24 +63,40 @@ function Series({ contentType, bannerWidth, useWindowScroll, listView, widget })
 	}, []);
 
 	useEffect(() => {
-		setPage(0);
+		setPopularPage(0);
 		setPopular([]);
-		setHasMore(true);
+		setPopularHasMore(true);
 	}, [contentType]);
 
 	async function handleGetPopular() {
-		if (!loading) {
-			setLoading(true);
+		if (!popularLoading) {
+			setPopularLoading(true);
 
-			const response = await getPopular(page, "imdb", contentType);
+			const response = await getPopular(popularPage, "imdb", contentType);
 
 			if (response.status === 200) {
 				setPopular(prev => [...prev, ...response.data]);
-				setPage(prev => prev + 1);
-				setHasMore(!(response.data.length < 20));
+				setPopularPage(prev => prev + 1);
+				setPopularHasMore(!(response.data.length < 20));
 			}
 
-			setLoading(false);
+			setPopularLoading(false);
+		}
+	}
+
+	async function handleGetRecommendations() {
+		if (!recommendationsLoading) {
+			setRecommendationsLoading(true);
+
+			const response = await getRecommendations(recommendationsPage);
+
+			if (response.status === 200) {
+				setRecommendations(prev => [...prev, ...response.data]);
+				setRecommendationsPage(prev => prev + 1);
+				setRecommendationsHasMore(!(response.data.length < 20));
+			}
+
+			setRecommendationsLoading(false);
 		}
 	}
 
@@ -114,6 +137,20 @@ function Series({ contentType, bannerWidth, useWindowScroll, listView, widget })
 		}
 	}
 
+	function getFilterVariables() {
+		const functionsMap = {
+			popular: { series: popular, loadMore: handleGetPopular, hasMore: popularHasMore },
+			recommendations: {
+				series: recommendations,
+				loadMore: handleGetRecommendations,
+				hasMore: recommendationsHasMore,
+			},
+			search: { series: search, loadMore: handleGetSearch, hasMore: searchHasMore },
+		};
+
+		return functionsMap[filter];
+	}
+
 	function populateSeries(series) {
 		for (const serie of series) {
 			const subscriptionFound = subscriptions.find(s => s.externalId === serie.externalId);
@@ -135,10 +172,7 @@ function Series({ contentType, bannerWidth, useWindowScroll, listView, widget })
 	function renderSeries() {
 		return listView ? (
 			<List>
-				{(filter === "subscriptions"
-					? subscriptions
-					: populateSeries(filter === "popular" ? popular : search)
-				).map(serie => (
+				{(filter === "subscriptions" ? subscriptions : populateSeries(getFilterVariables().series)).map(serie => (
 					<ListItem key={serie.externalId} button divider>
 						<img src={serie.image} height="100x" alt="Series" />
 						<Typography variant="body1" className={classes.popularText}>
@@ -149,11 +183,9 @@ function Series({ contentType, bannerWidth, useWindowScroll, listView, widget })
 			</List>
 		) : (
 			<Banners
-				series={
-					filter === "subscriptions" ? subscriptions : populateSeries(filter === "popular" ? popular : search)
-				}
+				series={filter === "subscriptions" ? subscriptions : populateSeries(getFilterVariables().series)}
 				contentType={contentType}
-				loading={loading || searchLoading}
+				loading={popularLoading || recommendationsLoading || searchLoading}
 				bannerWidth={bannerWidth}
 			/>
 		);
@@ -169,6 +201,14 @@ function Series({ contentType, bannerWidth, useWindowScroll, listView, widget })
 						</ToggleButton>
 						<ToggleButton value="popular" className={classes.episodeBtn} color="primary" variant="outlined">
 							{"Popular"}
+						</ToggleButton>
+						<ToggleButton
+							value="recommendations"
+							className={classes.episodeBtn}
+							color="primary"
+							variant="outlined"
+						>
+							{"Recommendations"}
 						</ToggleButton>
 					</ToggleButtonGroup>
 					<form onSubmit={handleSubmit}>
@@ -193,8 +233,8 @@ function Series({ contentType, bannerWidth, useWindowScroll, listView, widget })
 				renderSeries()
 			) : (
 				<InfiniteScroll
-					loadMore={filter === "popular" ? handleGetPopular : handleGetSearch}
-					hasMore={filter === "popular" ? hasMore : searchHasMore}
+					loadMore={getFilterVariables().loadMore}
+					hasMore={getFilterVariables().hasMore}
 					loader={<Loading key={0} />}
 					useWindow={useWindowScroll}
 				>

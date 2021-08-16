@@ -163,6 +163,11 @@ function Banners({ series, contentType, loading, bannerWidth }) {
 				<Typography variant="body2" style={{ display: "flex", flexGrow: 1 }}>
 					{serie.displayName}
 				</Typography>
+				{serie.originalSeries && (
+					<Typography variant="caption" style={{ display: "flex", flexGrow: 1 }}>
+						{`Because you watch ${serie.originalSeries.displayName}`}
+					</Typography>
+				)}
 				<Box display="flex" alignItems="center">
 					<Typography
 						variant="caption"
