@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import GridLayout from "react-grid-layout";
 
@@ -25,14 +25,15 @@ import Loading from "./Loading";
 
 import { patchSubscription } from "../../api/subscriptions";
 
-import { formatNumber, groupOptionsArray } from "../../utils/utils";
+import { formatNumber, groupOptionsArray, chooseContext } from "../../utils/utils";
 
 import styles from "../../styles/General";
 
 const useStyles = makeStyles(styles);
 
-function Sidebar({ options, selected, idField, countField, action, menu, loading, noResultsMessage }) {
+function Sidebar({ options, platform, selected, idField, countField, action, menu, loading, noResultsMessage }) {
 	const classes = useStyles();
+	const { dispatch } = useContext(chooseContext(platform));
 	const [anchorEl, setAnchorEl] = useState(null);
 	const [groups, setGroups] = useState([]);
 	const [expandedLists, setExpandedLists] = useState([]);
@@ -80,7 +81,11 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 	async function handleOrderChange(layout, oldItem, newItem) {
 		const group = groups[oldItem.y];
 
-		await patchSubscription(group.list[0]._id, { group: { name: group.name, pos: newItem.y } });
+		const response = await patchSubscription(group.list[0]._id, { group: { name: group.name, pos: newItem.y } });
+
+		if (response.status === 200) {
+			dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
+		}
 	}
 
 	if (loading) return <Loading />;
@@ -102,8 +107,8 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 				onDragStop={handleOrderChange}
 				draggableHandle=".handleListItem"
 			>
-				{groups.map((group, index) => (
-					<div key={index} data-grid={{ x: 0, y: index, w: 1, h: 1 }}>
+				{groups.map(group => (
+					<div key={group.name} data-grid={{ x: 0, y: group.pos, w: 1, h: 1 }}>
 						<Box display="flex" height="100%" width="100%" position="relative" border="1px solid #222">
 							<Box
 								display="flex"
@@ -234,6 +239,7 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 
 Sidebar.propTypes = {
 	options: PropTypes.array.isRequired,
+	platform: PropTypes.string.isRequired,
 	selected: PropTypes.string,
 	idField: PropTypes.string.isRequired,
 	action: PropTypes.func.isRequired,

@@ -5,6 +5,11 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(relativeTime);
 dayjs.extend(customParseFormat);
 
+import { RedditContext } from "../contexts/RedditContext";
+import { YoutubeContext } from "../contexts/YoutubeContext";
+import { TwitchContext } from "../contexts/TwitchContext";
+import { TVContext } from "../contexts/TVContext";
+
 function formatDate(date, format, relative, originalFormat) {
 	return relative ? dayjs(date).fromNow() : dayjs(date, originalFormat).format(format);
 }
@@ -124,6 +129,21 @@ function groupOptionsArray(array) {
 	return grouped;
 }
 
+function chooseContext(platform) {
+	switch (platform) {
+		case "reddit":
+			return RedditContext;
+		case "youtube":
+			return YoutubeContext;
+		case "twitch":
+			return TwitchContext;
+		case "tv":
+			return TVContext;
+		default:
+			return null;
+	}
+}
+
 export {
 	formatDate,
 	diff,
@@ -135,4 +155,5 @@ export {
 	getField,
 	groupOptions,
 	groupOptionsArray,
+	chooseContext,
 };

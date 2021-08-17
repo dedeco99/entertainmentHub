@@ -180,6 +180,10 @@ async function patchSubscription(event) {
 				{ new: true },
 			),
 		]);
+
+		const subscriptions = await getSubscriptions({ user, params: { platform: "tv" } });
+
+		subscription = subscriptions.body.data;
 	}
 
 	if (!subscription) return errors.notFound;

@@ -127,6 +127,7 @@ function Subscriptions({ platform, selected, idField, countField, action }) {
 		<>
 			<Sidebar
 				options={subscriptions}
+				platform={platform}
 				selected={selected}
 				idField={idField}
 				countField={countField}
