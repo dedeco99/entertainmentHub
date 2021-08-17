@@ -22,9 +22,10 @@ function Episode({ episode }) {
 	const { dispatch } = useContext(TVContext);
 
 	async function markAsWatched() {
-		const response = await patchSubscription(episode.series._id, !episode.watched, [
-			`S${episode.season}E${episode.number}`,
-		]);
+		const response = await patchSubscription(episode.series._id, {
+			markAsWatched: !episode.watched,
+			watched: [`S${episode.season}E${episode.number}`],
+		});
 
 		if (response.status === 200) {
 			episode.watched = Boolean(response.data.watched.find(w => w.key === `S${episode.season}E${episode.number}`));

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import GridLayout from "react-grid-layout";
 
 import {
 	makeStyles,
@@ -16,11 +17,15 @@ import {
 	Badge,
 	Collapse,
 	Divider,
+	Box,
+	Typography,
 } from "@material-ui/core";
 
 import Loading from "./Loading";
 
-import { formatNumber, groupOptions } from "../../utils/utils";
+import { patchSubscription } from "../../api/subscriptions";
+
+import { formatNumber, groupOptionsArray } from "../../utils/utils";
 
 import styles from "../../styles/General";
 
@@ -32,14 +37,15 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 	const [groups, setGroups] = useState([]);
 	const [expandedLists, setExpandedLists] = useState([]);
 	const [firstTime, setFirstTime] = useState(true);
+	const [editMode, setEditMode] = useState(true);
 
 	useEffect(() => {
-		const updatedGroups = groupOptions(options, "group.name");
+		const updatedGroups = groupOptionsArray(options).sort((a, b) => (a.pos > b.pos ? 1 : -1));
 
 		setGroups(updatedGroups);
 
-		if (Object.keys(updatedGroups).length && firstTime) {
-			setExpandedLists([...Array(Object.keys(updatedGroups).length).keys()]);
+		if (updatedGroups.length && firstTime) {
+			setExpandedLists([...Array(updatedGroups.length).keys()]);
 			setFirstTime(false);
 		}
 	}, [options]);
@@ -67,24 +73,75 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 		}
 	}
 
+	async function handleOrderChange(layout, oldItem, newItem) {
+		const group = groups[oldItem.y];
+
+		await patchSubscription(group.list[0]._id, { group: { name: group.name, pos: newItem.y } });
+	}
+
 	if (loading) return <Loading />;
 
 	if (!options || !options.length) return <div className={classes.center}>{noResultsMessage}</div>;
 
+	if (editMode) {
+		return (
+			<List className={classes.listMenu} style={{ overflow: "hidden" }}>
+				<GridLayout
+					className="layout"
+					cols={1}
+					rowHeight={55}
+					width={500}
+					margin={[0, 0]}
+					isResizable={false}
+					onDragStart={(layout, oldItem, newItem, placeholder, e) => {
+						e.stopPropagation();
+					}}
+					onDragStop={handleOrderChange}
+					draggableHandle=".handleListItem"
+				>
+					{groups.map((group, index) => (
+						<div key={index} data-grid={{ x: 0, y: index, w: 1, h: 1 }}>
+							<Box display="flex" height="100%" width="100%" position="relative">
+								<Box
+									display="flex"
+									className="handleListItem"
+									width="30px"
+									height="100%"
+									alignItems="center"
+									justifyContent="center"
+									style={{ cursor: "grab" }}
+								>
+									<i className="icon-drag-handle" />
+								</Box>
+								<ListItem button disableGutters component={Box} flex={1} pl={1} pr={6} minWidth={0}>
+									<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
+										<Typography variant="body1" title={group.name} noWrap>
+											{group.name}
+										</Typography>
+									</Box>
+								</ListItem>
+							</Box>
+						</div>
+					))}
+				</GridLayout>
+			</List>
+		);
+	}
+
 	return (
 		<List className={classes.listMenu}>
-			{Object.keys(groups).map((group, index) => (
+			{groups.map((group, index) => (
 				<List
 					key={index}
 					disablePadding
 					subheader={
 						<>
 							<ListSubheader style={{ backgroundColor: "#333", zIndex: 2 }}>
-								{group === "null" ? "Ungrouped" : group}
+								{group.name === "null" ? "Ungrouped" : group.name}
 								<Badge
 									color="secondary"
 									max={999}
-									badgeContent={groups[group].length}
+									badgeContent={group.list.length}
 									style={{ position: "absolute", top: "23px", right: "60px" }}
 								/>
 								<ListItemSecondaryAction onClick={() => handleExpand(index)}>
@@ -93,12 +150,12 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 									</IconButton>
 								</ListItemSecondaryAction>
 							</ListSubheader>
-							{index !== Object.keys(groups).length - 1 && <Divider />}
+							{index !== groups.length - 1 && <Divider />}
 						</>
 					}
 				>
 					<Collapse in={expandedLists.includes(index)}>
-						{groups[group].map((option, index) => (
+						{group.list.map((option, index) => (
 							<ListItem
 								button
 								selected={selected === option[idField]}

@@ -144,11 +144,10 @@ function Episodes() {
 	}, [seasons, filter]);
 
 	async function markAsWatched() {
-		const response = await patchSubscription(
-			episodes[0].series._id,
-			hasUnwatchedEpisodes,
-			episodes.map(e => `S${e.season}E${e.number}`),
-		);
+		const response = await patchSubscription(episodes[0].series._id, {
+			markAsWatched: hasUnwatchedEpisodes,
+			watched: episodes.map(e => `S${e.season}E${e.number}`),
+		});
 
 		if (response.status === 200) {
 			let increment = 0;

@@ -57,7 +57,7 @@ function Banners({ series, contentType, loading, bannerWidth }) {
 
 	async function handleMarkAsWatched(e, serie) {
 		const isWatched = serie.numWatched > 0 && serie.numTotal === serie.numWatched;
-		const response = await patchSubscription(serie.externalId, !isWatched, "all");
+		const response = await patchSubscription(serie.externalId, { markAsWatched: !isWatched, watched: "all" });
 
 		if (response.status === 200) {
 			dispatch({ type: "EDIT_SUBSCRIPTION", subscription: response.data });

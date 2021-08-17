@@ -36,7 +36,7 @@ function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscr
 	const { state } = useContext(YoutubeContext);
 	const { playlists } = state;
 	const [title, setTitle] = useState("");
-	const [group, setGroup] = useState({ name: "Ungrouped", pos: 0 });
+	const [group, setGroup] = useState({ name: "Ungrouped", pos: subscriptionGroups.length });
 	const [notifications, setNotifications] = useState({
 		active: true,
 		priority: 0,
@@ -55,7 +55,7 @@ function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscr
 				filter(name => name),
 			)
 			.subscribe(name => {
-				setGroup({ name });
+				setGroup({ name, pos: subscriptionGroups.length });
 			});
 		return () => subscription.unsubscribe();
 	});
@@ -108,7 +108,7 @@ function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscr
 
 		await editSubscription(subscription._id, { displayName: title, group, notifications });
 
-		if (!subscriptionGroups.map(g => g.name).includes(group.name)) subscriptionGroups.push({ name: group.name });
+		if (!subscriptionGroups.map(g => g.name).includes(group.name)) subscriptionGroups.push(group);
 	}
 
 	function renderTags(value, getTagProps) {
@@ -155,7 +155,7 @@ function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscr
 						freeSolo
 						value={group}
 						renderTags={renderTags}
-						options={subscriptionGroups || []}
+						options={subscriptionGroups.sort((a, b) => (a.pos > b.pos ? 1 : -1)) || []}
 						onChange={handleChangeGroup}
 						onInputChange={handleAddGroup}
 						className={classes.autocomplete}
