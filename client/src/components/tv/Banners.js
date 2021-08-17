@@ -35,6 +35,7 @@ function Banners({ series, contentType, loading, bannerWidth }) {
 	const { state, dispatch } = useContext(TVContext);
 	const { subscriptions } = state;
 	const [providers, setProviders] = useState({});
+	const [originalSeriesVisible, setOriginalSeriesVisible] = useState(false);
 
 	async function handleSubscriptionChange(e, serie) {
 		if (e.target.checked) {
@@ -74,6 +75,14 @@ function Banners({ series, contentType, loading, bannerWidth }) {
 
 	function isSubscribed(serie) {
 		return subscriptions.map(us => us.externalId).includes(serie.externalId);
+	}
+
+	function handleNameClick() {
+		if (originalSeriesVisible) {
+			setOriginalSeriesVisible(false);
+		} else {
+			setOriginalSeriesVisible(true);
+		}
 	}
 
 	/*
@@ -160,10 +169,10 @@ function Banners({ series, contentType, loading, bannerWidth }) {
 	function renderInfoAndActions(serie) {
 		return (
 			<>
-				<Typography variant="body2" align="left">
+				<Typography variant="body2" align="left" onClick={handleNameClick}>
 					{serie.displayName}
 				</Typography>
-				{serie.originalSeries && (
+				{serie.originalSeries && originalSeriesVisible && (
 					<Typography variant="caption" align="left">
 						{`Because you watch ${serie.originalSeries.displayName}`}
 					</Typography>
