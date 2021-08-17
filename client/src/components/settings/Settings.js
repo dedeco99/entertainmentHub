@@ -113,6 +113,11 @@ function Settings() {
 	const [selectedApp, setSelectedApp] = useState(null);
 	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
 
+	const [email, setEmail] = useState("");
+	const [oldPassword, setOldPassword] = useState("");
+	const [newPassword, setNewPassword] = useState("");
+	const [repeatNewPassword, setRepeatNewPassword] = useState("");
+
 	for (const userApp of user.apps) {
 		apps[userApp.platform].id = userApp._id;
 		apps[userApp.platform].active = true;
@@ -134,6 +139,9 @@ function Settings() {
 	}, [match]);
 
 	useEffect(() => {
+		console.log(user);
+		setEmail(user.email);
+
 		async function fetchData() {
 			const notificationPermission = await navigator.permissions.query({ name: "notifications" });
 
@@ -146,7 +154,16 @@ function Settings() {
 	}, []);
 
 	async function handleSubmitSettings() {
-		const response = await editUser({ settings });
+		const password = oldPassword;
+		let response = "";
+
+		if (!email) setEmail(user.email);
+
+		if (email.includes("@") && email.includes(".com")) response = await editUser({ email, settings });
+
+		if (newPassword === repeatNewPassword && password) {
+			response = await editUser({ email, newPassword, password, settings });
+		}
 
 		if (response.status === 200) {
 			dispatch({ type: "SET_USER", user: { ...user, ...response.data } });
@@ -202,6 +219,22 @@ function Settings() {
 
 			setSettings({ ...settings, browserNotifications });
 		}
+	}
+
+	function handleEmail(e) {
+		setEmail(e.target.value);
+	}
+
+	function handleOldPassword(e) {
+		setOldPassword(e.target.value);
+	}
+
+	function handleNewPassword(e) {
+		setNewPassword(e.target.value);
+	}
+
+	function handleRepeatNewPassword(e) {
+		setRepeatNewPassword(e.target.value);
 	}
 
 	function renderApp(app) {
@@ -357,6 +390,55 @@ function Settings() {
 								</Input>
 							</>
 						)}
+						<Divider style={{ marginTop: 20, marginBottom: 20 }} />
+						<Typography variant="h6" style={{ marginBottom: 10 }}>
+							{"Change Email"}
+						</Typography>
+						<Input
+							id="email"
+							type="email"
+							label="Email"
+							value={email}
+							onChange={handleEmail}
+							margin="normal"
+							variant="outlined"
+							fullWidth
+						/>
+						<Divider style={{ marginTop: 20, marginBottom: 20 }} />
+						<Typography variant="h6" style={{ marginBottom: 10 }}>
+							{"Change Password"}
+						</Typography>
+
+						<Input
+							id="oldPassword"
+							type="password"
+							label="Old Password"
+							value={oldPassword}
+							onChange={handleOldPassword}
+							margin="normal"
+							variant="outlined"
+							fullWidth
+						/>
+						<Input
+							id="newPassword"
+							type="password"
+							label="New Password"
+							value={newPassword}
+							onChange={handleNewPassword}
+							margin="normal"
+							variant="outlined"
+							fullWidth
+						/>
+						<Input
+							id="repeatNewPassword"
+							type="password"
+							label="Repeat New Password"
+							value={repeatNewPassword}
+							onChange={handleRepeatNewPassword}
+							margin="normal"
+							variant="outlined"
+							fullWidth
+						/>
 					</FormControl>
 					<Button variant="contained" onClick={handleSubmitSettings}>
 						{translate("save")}
