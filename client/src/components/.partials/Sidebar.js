@@ -18,7 +18,7 @@ import {
 	Collapse,
 	Divider,
 	Box,
-	Typography,
+	Button,
 } from "@material-ui/core";
 
 import Loading from "./Loading";
@@ -37,7 +37,7 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 	const [groups, setGroups] = useState([]);
 	const [expandedLists, setExpandedLists] = useState([]);
 	const [firstTime, setFirstTime] = useState(true);
-	const [editMode, setEditMode] = useState(true);
+	const [sortMode, setSortMode] = useState(false);
 
 	useEffect(() => {
 		const updatedGroups = groupOptionsArray(options).sort((a, b) => (a.pos > b.pos ? 1 : -1));
@@ -73,6 +73,10 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 		}
 	}
 
+	function handleGroupSortMode() {
+		setSortMode(!sortMode);
+	}
+
 	async function handleOrderChange(layout, oldItem, newItem) {
 		const group = groups[oldItem.y];
 
@@ -83,52 +87,44 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 
 	if (!options || !options.length) return <div className={classes.center}>{noResultsMessage}</div>;
 
-	if (editMode) {
-		return (
-			<List className={classes.listMenu} style={{ overflow: "hidden" }}>
-				<GridLayout
-					className="layout"
-					cols={1}
-					rowHeight={55}
-					width={500}
-					margin={[0, 0]}
-					isResizable={false}
-					onDragStart={(layout, oldItem, newItem, placeholder, e) => {
-						e.stopPropagation();
-					}}
-					onDragStop={handleOrderChange}
-					draggableHandle=".handleListItem"
-				>
-					{groups.map((group, index) => (
-						<div key={index} data-grid={{ x: 0, y: index, w: 1, h: 1 }}>
-							<Box display="flex" height="100%" width="100%" position="relative">
-								<Box
-									display="flex"
-									className="handleListItem"
-									width="30px"
-									height="100%"
-									alignItems="center"
-									justifyContent="center"
-									style={{ cursor: "grab" }}
-								>
-									<i className="icon-drag-handle" />
-								</Box>
-								<ListItem button disableGutters component={Box} flex={1} pl={1} pr={6} minWidth={0}>
-									<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
-										<Typography variant="body1" title={group.name} noWrap>
-											{group.name}
-										</Typography>
-									</Box>
-								</ListItem>
+	const optionsList = sortMode ? (
+		<List className={classes.listMenu} style={{ overflow: "hidden" }}>
+			<GridLayout
+				className="layout"
+				cols={1}
+				rowHeight={55}
+				width={500}
+				margin={[0, 0]}
+				isResizable={false}
+				onDragStart={(layout, oldItem, newItem, placeholder, e) => {
+					e.stopPropagation();
+				}}
+				onDragStop={handleOrderChange}
+				draggableHandle=".handleListItem"
+			>
+				{groups.map((group, index) => (
+					<div key={index} data-grid={{ x: 0, y: index, w: 1, h: 1 }}>
+						<Box display="flex" height="100%" width="100%" position="relative" border="1px solid #222">
+							<Box
+								display="flex"
+								className="handleListItem"
+								width="55px"
+								height="100%"
+								alignItems="center"
+								justifyContent="center"
+								style={{ cursor: "grab" }}
+							>
+								<i className="icon-drag-handle" />
 							</Box>
-						</div>
-					))}
-				</GridLayout>
-			</List>
-		);
-	}
-
-	return (
+							<ListSubheader style={{ backgroundColor: "#333", width: "100%" }}>
+								{group.name === "null" ? "Ungrouped" : group.name}
+							</ListSubheader>
+						</Box>
+					</div>
+				))}
+			</GridLayout>
+		</List>
+	) : (
 		<List className={classes.listMenu}>
 			{groups.map((group, index) => (
 				<List
@@ -219,6 +215,20 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 				</Menu>
 			) : null}
 		</List>
+	);
+
+	const actions = [];
+	if (groups.length > 1) {
+		actions.push({ name: "Sort groups", icon: <i className="icon-tabs" />, handleClick: handleGroupSortMode });
+	}
+
+	return (
+		<Box>
+			<Button onClick={handleGroupSortMode} style={{ width: "100%" }}>
+				<i className="icon-tabs" />
+			</Button>
+			{optionsList}
+		</Box>
 	);
 }
 

@@ -159,7 +159,7 @@ function Follows({ open, platform, onClose }) {
 		if (foundFollow === -1) {
 			const follow = follows.find(f => f.externalId === externalId);
 
-			updatedFollows.push(follow);
+			updatedFollows.push({ ...follow, group: { name: "Ungrouped", pos: 0 } });
 		} else {
 			updatedFollows.splice(foundFollow, 1);
 		}
