@@ -36,6 +36,18 @@ async function getPopular(page, source, type) {
 	return res;
 }
 
+async function getRecommendations(page) {
+	let query = "";
+	query += page >= 0 ? `?page=${page}` : "";
+
+	const res = await api({
+		method: "get",
+		url: `/api/tv/recommendations${query}`,
+	});
+
+	return res;
+}
+
 async function getProviders(type, search) {
 	const res = await api({
 		method: "get",
@@ -45,4 +57,4 @@ async function getProviders(type, search) {
 	return res;
 }
 
-export { getEpisodes, getSearch, getPopular, getProviders };
+export { getEpisodes, getSearch, getPopular, getRecommendations, getProviders };
