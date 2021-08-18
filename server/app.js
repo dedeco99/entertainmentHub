@@ -170,6 +170,8 @@ app.get("/api/twitch/follows/mine", token, (req, res) => middleware(req, res, tw
 
 app.get("/api/twitch/follows/search", token, (req, res) => middleware(req, res, twitch.getSearch));
 
+app.get("/api/twitch/clips/:id", token, (req, res) => middleware(req, res, twitch.getClips));
+
 /*
 app.get("/api/twitch/games/", token, (req, res) => middleware(req, res, twitch.getGames));
 

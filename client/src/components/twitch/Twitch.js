@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useContext, useState, useEffect } from "react";
 
 import { makeStyles, Grid } from "@material-ui/core";
 import { SpeedDial, SpeedDialAction } from "@material-ui/lab";
@@ -8,15 +8,30 @@ import Subscriptions from "../.partials/Subscriptions";
 
 import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 
+import { getClips } from "../../api/twitch";
+
 import styles from "../../styles/General";
 
 const useStyles = makeStyles(styles);
 
 function Twitch() {
 	const classes = useStyles();
+	const videoPlayer = useContext(VideoPlayerContext);
 	const [openOptions, setOpenOptions] = useState(false);
 	const [openFollows, setOpenFollows] = useState(false);
-	const videoPlayer = useContext(VideoPlayerContext);
+	const [clips, setClips] = useState([]);
+
+	useEffect(() => {
+		async function fetchData() {
+			const response = await getClips("31239503");
+
+			if (response.status === 200) {
+				setClips(response.data);
+			}
+		}
+
+		fetchData();
+	}, []);
 
 	function handleOpenOptions() {
 		setOpenOptions(true);
@@ -61,7 +76,15 @@ function Twitch() {
 				<Follows open={openFollows} platform="twitch" onClose={handleCloseFollows} />
 				<Subscriptions platform="twitch" action={handleAddToVideoPlayer} />
 			</Grid>
-			<Grid item xs={12} sm={10} md={8} />
+			<Grid item xs={12} sm={10} md={8}>
+				<Grid container spacing={2}>
+					{clips.map(clip => (
+						<Grid item key={clip.id} xs={12} lg={6} xl={4}>
+							<iframe src={`${clip.url}&parent=localhost`} height="400px" width="100%" allowFullScreen />
+						</Grid>
+					))}
+				</Grid>
+			</Grid>
 			<SpeedDial
 				ariaLabel="Options"
 				icon={<i className="icon-add" />}

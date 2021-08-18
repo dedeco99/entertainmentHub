@@ -165,6 +165,31 @@ async function getSearch(event) {
 	return response(200, "GET_CHANNELS", channels);
 }
 
+async function getClips(event) {
+	const { params, query, user } = event;
+	const { id } = params;
+	const { after } = query;
+
+	const accessToken = await getAccessToken(user, "client_credentials");
+
+	if (accessToken.status === 401) return errors.twitchRefreshToken;
+
+	let url = `https://api.twitch.tv/helix/clips?broadcaster_id=${id}&first=5`;
+	if (after) url += `&after=${after}`;
+
+	const headers = {
+		"Client-ID": process.env.twitchClientId,
+		Authorization: `Bearer ${accessToken}`,
+	};
+
+	const res = await api({ method: "get", url, headers });
+	const json = res.data;
+
+	const clips = json.data.map(clip => ({ id: clip.id, url: clip.embed_url, thumbnail: clip.thumbnail_url }));
+
+	return response(200, "GET_CLIPS", clips);
+}
+
 async function testWebhooks(accessToken) {
 	let url = "https://api.twitch.tv/helix/webhooks/hub";
 
@@ -202,4 +227,5 @@ module.exports = {
 	getStreams,
 	getFollows,
 	getSearch,
+	getClips,
 };
