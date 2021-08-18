@@ -40,7 +40,7 @@ function Banners({ series, contentType, loading, bannerWidth }) {
 	async function handleSubscriptionChange(e, serie) {
 		if (e.target.checked) {
 			const seriesToAdd = series.find(s => s.externalId === serie.externalId);
-			seriesToAdd.group = { name: "Ungrouped" };
+			seriesToAdd.group = { name: "Ungrouped", pos: 0 };
 			const response = await addSubscriptions("tv", [seriesToAdd]);
 
 			if (response.status === 201) {
@@ -58,7 +58,7 @@ function Banners({ series, contentType, loading, bannerWidth }) {
 
 	async function handleMarkAsWatched(e, serie) {
 		const isWatched = serie.numWatched > 0 && serie.numTotal === serie.numWatched;
-		const response = await patchSubscription(serie.externalId, !isWatched, "all");
+		const response = await patchSubscription(serie.externalId, { markAsWatched: !isWatched, watched: "all" });
 
 		if (response.status === 200) {
 			dispatch({ type: "EDIT_SUBSCRIPTION", subscription: response.data });

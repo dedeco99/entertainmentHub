@@ -25,33 +25,17 @@ import {
 import Loading from "../.partials/Loading";
 import Input from "../.partials/Input";
 
-import { RedditContext } from "../../contexts/RedditContext";
-import { YoutubeContext } from "../../contexts/YoutubeContext";
-import { TwitchContext } from "../../contexts/TwitchContext";
-
 import { getSubreddits } from "../../api/reddit";
 import { getSubscriptions } from "../../api/youtube";
 import { getFollows } from "../../api/twitch";
 import { addSubscriptions } from "../../api/subscriptions";
 
+import { chooseContext } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
 import { youtube as styles } from "../../styles/Youtube";
 
 const useStyles = makeStyles(styles);
-
-function chooseContext(platform) {
-	switch (platform) {
-		case "reddit":
-			return RedditContext;
-		case "youtube":
-			return YoutubeContext;
-		case "twitch":
-			return TwitchContext;
-		default:
-			break;
-	}
-}
 
 function chooseApiCall(platform) {
 	switch (platform) {
@@ -62,7 +46,7 @@ function chooseApiCall(platform) {
 		case "twitch":
 			return getFollows;
 		default:
-			break;
+			return null;
 	}
 }
 
@@ -159,7 +143,7 @@ function Follows({ open, platform, onClose }) {
 		if (foundFollow === -1) {
 			const follow = follows.find(f => f.externalId === externalId);
 
-			updatedFollows.push(follow);
+			updatedFollows.push({ ...follow, group: { name: "Ungrouped", pos: 0 } });
 		} else {
 			updatedFollows.splice(foundFollow, 1);
 		}

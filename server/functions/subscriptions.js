@@ -14,7 +14,7 @@ async function getSubscriptions(event) {
 
 	let subscriptions = await Subscription.find({ active: true, user: user._id, platform })
 		.collation({ locale: "en" })
-		.sort({ displayName: 1 })
+		.sort({ "group.pos": 1, displayName: 1 })
 		.lean();
 
 	if (platform === "twitch") {
@@ -125,38 +125,68 @@ async function editSubscription(event) {
 async function patchSubscription(event) {
 	const { params, body, user } = event;
 	const { id } = params;
-	const { markAsWatched } = body;
+	const { markAsWatched, group } = body;
 	let { watched } = body;
 
 	let subscription = await Subscription.findOne(
 		toObjectId(id) ? { _id: id } : { user: user._id, externalId: id },
 	).lean();
 
-	if (watched === "all") {
-		const episodes = await Episode.find({ seriesId: id });
+	if (watched) {
+		if (watched === "all") {
+			const episodes = await Episode.find({ seriesId: id });
 
-		watched = episodes.map(e => `S${e.season}E${e.number}`);
-	}
+			watched = episodes.map(e => `S${e.season}E${e.number}`);
+		}
 
-	try {
-		const updateQuery = markAsWatched
-			? { $addToSet: { watched: { $each: watched.map(key => ({ key, date: Date.now() })) } } }
-			: { $pull: { watched: { key: { $in: watched } } } };
+		try {
+			const updateQuery = markAsWatched
+				? { $addToSet: { watched: { $each: watched.map(key => ({ key, date: Date.now() })) } } }
+				: { $pull: { watched: { key: { $in: watched } } } };
 
-		subscription = await Subscription.findOneAndUpdate(
-			toObjectId(id) ? { _id: id } : { user: user._id, externalId: id },
-			updateQuery,
-			{ new: true },
-		).lean();
-	} catch (err) {
-		return errors.notFound;
+			subscription = await Subscription.findOneAndUpdate(
+				toObjectId(id) ? { _id: id } : { user: user._id, externalId: id },
+				updateQuery,
+				{ new: true },
+			).lean();
+		} catch (err) {
+			return errors.notFound;
+		}
+
+		tv.sendSocketUpdate("edit", [subscription], user);
+	} else if (group) {
+		await Promise.all([
+			Subscription.updateMany(
+				{
+					user: user._id,
+					platform: subscription.platform,
+					"group.name": { $ne: group.name },
+					"group.pos": { $gte: subscription.group.pos, $lte: group.pos },
+				},
+				{ $inc: { "group.pos": -1 } },
+			),
+			Subscription.updateMany(
+				{
+					user: user._id,
+					platform: subscription.platform,
+					"group.name": { $ne: group.name },
+					"group.pos": { $gte: group.pos, $lte: subscription.group.pos },
+				},
+				{ $inc: { "group.pos": 1 } },
+			),
+			Subscription.updateMany(
+				{ user: user._id, platform: subscription.platform, "group.name": group.name },
+				{ "group.pos": group.pos },
+				{ new: true },
+			),
+		]);
+
+		const subscriptions = await getSubscriptions({ user, params: { platform: "tv" } });
+
+		subscription = subscriptions.body.data;
 	}
 
 	if (!subscription) return errors.notFound;
-
-	if (subscription.platform === "tv") {
-		tv.sendSocketUpdate("edit", [subscription], user);
-	}
 
 	return response(200, "PATCH_SUBSCRIPTIONS", subscription);
 }

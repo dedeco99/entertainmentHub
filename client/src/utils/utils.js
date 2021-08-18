@@ -5,6 +5,11 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(relativeTime);
 dayjs.extend(customParseFormat);
 
+import { RedditContext } from "../contexts/RedditContext";
+import { YoutubeContext } from "../contexts/YoutubeContext";
+import { TwitchContext } from "../contexts/TwitchContext";
+import { TVContext } from "../contexts/TVContext";
+
 function formatDate(date, format, relative, originalFormat) {
 	return relative ? dayjs(date).fromNow() : dayjs(date, originalFormat).format(format);
 }
@@ -109,6 +114,36 @@ function groupOptions(array, key) {
 	}, {});
 }
 
+function groupOptionsArray(array) {
+	const grouped = [];
+	for (const elem of array) {
+		const groupExists = grouped.find(g => g.name === elem.group.name);
+
+		if (groupExists) {
+			groupExists.list.push(elem);
+		} else {
+			grouped.push({ name: elem.group.name, pos: elem.group.pos, list: [elem] });
+		}
+	}
+
+	return grouped;
+}
+
+function chooseContext(platform) {
+	switch (platform) {
+		case "reddit":
+			return RedditContext;
+		case "youtube":
+			return YoutubeContext;
+		case "twitch":
+			return TwitchContext;
+		case "tv":
+			return TVContext;
+		default:
+			return null;
+	}
+}
+
 export {
 	formatDate,
 	diff,
@@ -119,4 +154,6 @@ export {
 	htmlEscape,
 	getField,
 	groupOptions,
+	groupOptionsArray,
+	chooseContext,
 };
