@@ -62,7 +62,7 @@ function Subscriptions({ platform, selected, idField, countField, action }) {
 		const uniqueGroups = [];
 
 		for (const subscription of subscriptions) {
-			subscription.group = subscription.group ? subscription.group : { name: "Ungrouped" };
+			subscription.group = subscription.group ? subscription.group : { name: "Ungrouped", pos: 0 };
 
 			if (!uniqueGroups.find(group => group.name === subscription.group.name)) {
 				uniqueGroups.push(subscription.group);

@@ -121,9 +121,7 @@ function Sidebar({ options, platform, selected, idField, countField, action, men
 							>
 								<i className="icon-drag-handle" />
 							</Box>
-							<ListSubheader style={{ backgroundColor: "#333", width: "100%" }}>
-								{group.name === "null" ? "Ungrouped" : group.name}
-							</ListSubheader>
+							<ListSubheader style={{ backgroundColor: "#333", width: "100%" }}>{group.name}</ListSubheader>
 						</Box>
 					</div>
 				))}
@@ -138,7 +136,7 @@ function Sidebar({ options, platform, selected, idField, countField, action, men
 					subheader={
 						<>
 							<ListSubheader style={{ backgroundColor: "#333", zIndex: 2 }}>
-								{group.name === "null" ? "Ungrouped" : group.name}
+								{group.name}
 								<Badge
 									color="secondary"
 									max={999}

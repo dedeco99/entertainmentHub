@@ -36,7 +36,7 @@ function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscr
 	const { state } = useContext(YoutubeContext);
 	const { playlists } = state;
 	const [title, setTitle] = useState("");
-	const [group, setGroup] = useState({ name: "Ungrouped", pos: subscriptionGroups.length });
+	const [group, setGroup] = useState({ name: "Ungrouped", pos: 0 });
 	const [notifications, setNotifications] = useState({
 		active: true,
 		priority: 0,
