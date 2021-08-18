@@ -222,16 +222,13 @@ function Sidebar({ options, platform, selected, idField, countField, action, men
 		</List>
 	);
 
-	const actions = [];
-	if (groups.length > 1) {
-		actions.push({ name: "Sort groups", icon: <i className="icon-tabs" />, handleClick: handleGroupSortMode });
-	}
-
 	return (
 		<Box>
-			<Button onClick={handleGroupSortMode} style={{ width: "100%" }}>
-				<i className="icon-tabs" />
-			</Button>
+			{groups.length > 1 && (
+				<Button onClick={handleGroupSortMode} style={{ width: "100%" }}>
+					<i className="icon-tabs" />
+				</Button>
+			)}
 			{optionsList}
 		</Box>
 	);
