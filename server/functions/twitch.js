@@ -195,7 +195,7 @@ async function getClips(event) {
 		videoId: clip.id,
 		channelId: clip.user_id || clip.broadcaster_id,
 		views: clip.view_count,
-		duration: isNaN(clip.duration) ? clip.duration : clip.duration.toFixed(),
+		duration: isNaN(clip.duration) ? clip.duration : `${clip.duration.toFixed()}s`,
 		after: json.pagination.cursor,
 	}));
 

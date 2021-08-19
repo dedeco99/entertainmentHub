@@ -47,6 +47,8 @@ function formatVideoDuration(duration) {
 
 	const values = formattedDuration.split(/[hms]/g).filter(d => d);
 
+	if (values[0] === "60") return "1:00";
+
 	if (!hasHours && !hasMinutes && values[0].length < 2) values[0] = `0${values[0]}`;
 
 	for (let i = 1; i < values.length; i++) {
