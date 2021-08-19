@@ -453,7 +453,7 @@ function VideoPlayer() {
 						) : (
 							<>
 								<Box flexGrow={1}>
-									{currentVideo.videoSource === "twitch" ? (
+									{currentVideo.videoSource === "twitchClip" ? (
 										<iframe src={currentVideo.url} height="100%" width="100%" allowFullScreen />
 									) : (
 										<ReactPlayer

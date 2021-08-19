@@ -4,7 +4,7 @@ export const videoPlayerReducer = (state, action) => {
 
 	switch (action.type) {
 		case "ADD_VIDEO":
-			action.video.videoSource = action.videoSource;
+			if (!action.video.videoSource) action.video.videoSource = action.videoSource;
 
 			if (!videos[action.videoSource].find(v => v.url === action.video.url)) {
 				if (action.videoSource === "twitchStream") {

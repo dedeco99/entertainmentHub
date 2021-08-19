@@ -14,22 +14,35 @@ import { videoPlayer as videoPlayerStyles } from "../../styles/VideoPlayer";
 
 const useStyles = makeStyles({ ...feedStyles, ...videoPlayerStyles });
 
-function Video({ platform, video }) {
+function Video({ platform, type, video }) {
 	const classes = useStyles();
 	const videoPlayer = useContext(VideoPlayerContext);
+
+	function getVideoUrl(embed) {
+		if (platform === "youtube") return `https://www.youtube.com/watch?v=${video.videoId}`;
+
+		if (platform === "twitch") {
+			if (type === "clips") {
+				return embed
+					? `https://clips.twitch.tv/embed?clip=${video.videoId}&parent=${window.location.hostname}`
+					: `https://clips.twitch.tv/${video.videoId}`;
+			}
+
+			return `https://www.twitch.tv/videos/${video.videoId}`;
+		}
+
+		return null;
+	}
 
 	function handleAddToVideoPlayer() {
 		videoPlayer.dispatch({
 			type: "ADD_VIDEO",
 			videoSource: platform,
 			video: {
+				videoSource: platform === "twitch" && type === "clips" ? "twitchClip" : platform,
 				name: video.videoTitle,
 				thumbnail: video.thumbnail,
-				// https://www.twitch.tv/videos/1088547163
-				url:
-					platform === "youtube"
-						? `https://www.youtube.com/watch?v=${video.videoId}`
-						: `https://clips.twitch.tv/embed?clip=${video.videoId}&parent=${window.location.hostname}`,
+				url: getVideoUrl(true),
 				channelName: video.displayName,
 				channelUrl:
 					platform === "youtube"
@@ -60,16 +73,7 @@ function Video({ platform, video }) {
 					</Box>
 					<Box style={{ paddingLeft: 5, paddingRight: 10, height: 108 }}>
 						<Typography className={classes.videoTitle} variant="body1" title={video.videoTitle}>
-							<Link
-								href={
-									platform === "youtube"
-										? `https://www.youtube.com/watch?v=${video.videoId}`
-										: `https://clips.twitch.tv/${video.videoId}`
-								}
-								target="_blank"
-								rel="noreferrer"
-								color="inherit"
-							>
+							<Link href={getVideoUrl()} target="_blank" rel="noreferrer" color="inherit">
 								{video.videoTitle}
 							</Link>
 						</Typography>
@@ -117,6 +121,7 @@ function Video({ platform, video }) {
 
 Video.propTypes = {
 	platform: PropTypes.string.isRequired,
+	type: PropTypes.string,
 	video: PropTypes.object.isRequired,
 };
 

@@ -72,7 +72,7 @@ function Videos({ platform, type }) {
 		return videos.map(video => (
 			<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={video.videoId}>
 				<Card variant="outlined" className={classes.root}>
-					<Video platform={platform} video={video} />
+					<Video platform={platform} type={type} video={video} />
 				</Card>
 			</Grid>
 		));
