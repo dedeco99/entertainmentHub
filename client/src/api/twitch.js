@@ -22,9 +22,10 @@ async function getFollows(after, type, filter) {
 	return res;
 }
 
-async function getClips(id, after) {
+async function getClips(id, type, after) {
 	let query = "";
-	query += after ? `?after=${after}` : "";
+	query += type ? `?type=${type}` : "";
+	query += after ? `${query ? "&" : "?"}after=${after}` : "";
 
 	const res = await api({
 		method: "get",

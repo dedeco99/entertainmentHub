@@ -2,8 +2,8 @@ import React, { useContext, useState, useEffect } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import ReactPlayer from "react-player";
 
-import { makeStyles, Grid } from "@material-ui/core";
-import { SpeedDial, SpeedDialAction } from "@material-ui/lab";
+import { makeStyles, Grid, Box } from "@material-ui/core";
+import { SpeedDial, SpeedDialAction, ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 
 import Follows from "../.partials/Follows";
 import Subscriptions from "../.partials/Subscriptions";
@@ -24,6 +24,7 @@ function Twitch() {
 	const [openOptions, setOpenOptions] = useState(false);
 	const [openFollows, setOpenFollows] = useState(false);
 	const [activeSubscription, setActiveSubscription] = useState(false);
+	const [type, setType] = useState("videos");
 
 	useEffect(() => {
 		const subscription = subscriptions.find(s => s.externalId === match.params.channel);
@@ -51,6 +52,10 @@ function Twitch() {
 		if (match.params.channel !== id) {
 			history.push(`/twitch/${id}`);
 		}
+	}
+
+	function handleChangeType(e, value) {
+		if (value && value !== type) setType(value);
 	}
 
 	const actions = [
@@ -83,8 +88,17 @@ function Twitch() {
 								width="100%"
 							/>
 						)}
-						<br />
-						<Videos platform="twitch" />
+						<Box align="center" m={2}>
+							<ToggleButtonGroup value={type} onChange={handleChangeType} color="primary" exclusive>
+								<ToggleButton value="videos" color="primary" variant="outlined">
+									{"Videos"}
+								</ToggleButton>
+								<ToggleButton value="clips" color="primary" variant="outlined">
+									{"Clips"}
+								</ToggleButton>
+							</ToggleButtonGroup>
+						</Box>
+						<Videos platform="twitch" type={type} />
 					</>
 				)}
 			</Grid>

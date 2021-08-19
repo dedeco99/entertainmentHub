@@ -170,13 +170,13 @@ async function getSearch(event) {
 async function getClips(event) {
 	const { params, query, user } = event;
 	const { id } = params;
-	const { after } = query;
+	const { type, after } = query;
 
 	const accessToken = await getAccessToken(user, "client_credentials");
 
 	if (accessToken.status === 401) return errors.twitchRefreshToken;
 
-	let url = `https://api.twitch.tv/helix/clips?broadcaster_id=${id}`;
+	let url = `https://api.twitch.tv/helix/${type}?${type === "clips" ? "broadcaster_id" : "user_id"}=${id}`;
 	if (after) url += `&after=${after}`;
 
 	const headers = {
@@ -188,16 +188,18 @@ async function getClips(event) {
 	const json = res.data;
 
 	const clips = json.data.map(clip => ({
-		published: dayjs(clip.created_at).toDate(),
-		displayName: clip.broadcaster_name,
-		thumbnail: clip.thumbnail_url,
+		published: dayjs(clip.published_at || clip.created_at).toDate(),
+		displayName: clip.user_name || clip.broadcaster_name,
+		thumbnail: clip.thumbnail_url.replace("%{width}", "640").replace("%{height}", "360"),
 		videoTitle: clip.title,
 		videoId: clip.id,
-		channelId: clip.broadcaster_id,
+		channelId: clip.user_id || clip.broadcaster_id,
 		views: clip.view_count,
-		duration: clip.duration,
+		duration: isNaN(clip.duration) ? clip.duration : clip.duration.toFixed(),
 		after: json.pagination.cursor,
 	}));
+
+	console.log(clips);
 
 	return response(200, "GET_CLIPS", clips);
 }

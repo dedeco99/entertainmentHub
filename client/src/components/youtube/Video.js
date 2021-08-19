@@ -7,6 +7,8 @@ import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 
 import { formatDate, diff, formatVideoDuration } from "../../utils/utils";
 
+import placeholder from "../../img/noimage.png";
+
 import { feed as feedStyles } from "../../styles/Youtube";
 import { videoPlayer as videoPlayerStyles } from "../../styles/VideoPlayer";
 
@@ -23,6 +25,7 @@ function Video({ platform, video }) {
 			video: {
 				name: video.videoTitle,
 				thumbnail: video.thumbnail,
+				// https://www.twitch.tv/videos/1088547163
 				url:
 					platform === "youtube"
 						? `https://www.youtube.com/watch?v=${video.videoId}`
@@ -41,7 +44,7 @@ function Video({ platform, video }) {
 			<ListItem key={video.videoId} divider style={{ padding: 0, margin: 0 }}>
 				<Box display="flex" flexDirection="column" flex="auto" minWidth={0}>
 					<Box position="relative" className={classes.videoThumbnail}>
-						<img src={video.thumbnail} width="100%" alt="Video thumbnail" />
+						<img src={video.thumbnail ? video.thumbnail : placeholder} width="100%" alt="Video thumbnail" />
 						<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
 							<Typography variant="caption">{formatVideoDuration(video.duration, platform)}</Typography>
 						</Box>

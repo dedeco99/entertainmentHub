@@ -15,7 +15,7 @@ import { videos as styles } from "../../styles/Youtube";
 
 const useStyles = makeStyles(styles);
 
-function Videos({ platform }) {
+function Videos({ platform, type }) {
 	const match = useRouteMatch();
 	const classes = useStyles();
 	const [videos, setVideos] = useState([]);
@@ -35,7 +35,9 @@ function Videos({ platform }) {
 			if (pagination.page === 0) setOpen(false);
 
 			const response =
-				platform === "youtube" ? await getVideos(match.params.channel) : await getClips(match.params.channel);
+				platform === "youtube"
+					? await getVideos(match.params.channel)
+					: await getClips(match.params.channel, type);
 
 			if (response.status === 200) {
 				const newVideos = pagination.page === 0 ? response.data : videos.concat(response.data);
@@ -56,7 +58,7 @@ function Videos({ platform }) {
 	useEffect(() => {
 		setPagination({ page: 0, hasMore: false, after: null });
 		setCallApi(!callApi);
-	}, [match.url]);
+	}, [match.url, type]);
 
 	useEffect(() => {
 		async function fetchData() {
@@ -97,6 +99,7 @@ function Videos({ platform }) {
 
 Videos.propTypes = {
 	platform: PropTypes.string.isRequired,
+	type: PropTypes.string,
 };
 
 export default Videos;

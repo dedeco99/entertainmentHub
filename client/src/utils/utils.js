@@ -36,16 +36,16 @@ function getCurrencySymbol(currency) {
 }
 
 // eslint-disable-next-line complexity
-function formatVideoDuration(duration, platform) {
-	if (platform === "twitch") return duration.toFixed() === "60" ? "1:00" : `0:${duration.toFixed()}`;
-
+function formatVideoDuration(duration) {
 	if (!duration || duration === "P0D") return "Live";
 
-	const hasHours = duration.includes("H");
-	const hasMinutes = duration.includes("M");
-	const hasSeconds = duration.includes("S");
+	const formattedDuration = duration.replace("PT", "").toLowerCase();
 
-	const values = duration.substring(2).slice(0, -1).split(/[HM]/g);
+	const hasHours = formattedDuration.includes("h");
+	const hasMinutes = formattedDuration.includes("m");
+	const hasSeconds = formattedDuration.includes("s");
+
+	const values = formattedDuration.split(/[hms]/g).filter(d => d);
 
 	if (!hasHours && !hasMinutes && values[0].length < 2) values[0] = `0${values[0]}`;
 
