@@ -35,7 +35,10 @@ function getCurrencySymbol(currency) {
 	}
 }
 
-function formatVideoDuration(duration) {
+// eslint-disable-next-line complexity
+function formatVideoDuration(duration, platform) {
+	if (platform === "twitch") return duration.toFixed() === "60" ? "1:00" : `0:${duration.toFixed()}`;
+
 	if (!duration || duration === "P0D") return "Live";
 
 	const hasHours = duration.includes("H");

@@ -1,6 +1,8 @@
 const { response, api } = require("../utils/request");
 const errors = require("../utils/errors");
 
+const dayjs = require("dayjs");
+
 const App = require("../models/app");
 const Subscription = require("../models/subscription");
 
@@ -185,7 +187,17 @@ async function getClips(event) {
 	const res = await api({ method: "get", url, headers });
 	const json = res.data;
 
-	const clips = json.data.map(clip => ({ id: clip.id, url: clip.embed_url, thumbnail: clip.thumbnail_url }));
+	const clips = json.data.map(clip => ({
+		published: dayjs(clip.created_at).toDate(),
+		displayName: clip.broadcaster_name,
+		thumbnail: clip.thumbnail_url,
+		videoTitle: clip.title,
+		videoId: clip.id,
+		channelId: clip.broadcaster_id,
+		views: clip.view_count,
+		duration: clip.duration,
+		after: json.pagination.cursor,
+	}));
 
 	return response(200, "GET_CLIPS", clips);
 }

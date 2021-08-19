@@ -158,9 +158,7 @@ function Sidebar({ options, platform, selected, idField, countField, action, men
 							<ListItem
 								button
 								selected={selected === option[idField]}
-								onClick={() => {
-									option.viewers ? handleClick(option) : handleClick(option[idField]);
-								}}
+								onClick={() => handleClick(option[idField])}
 								key={index}
 								style={index === 0 ? { marginTop: "10px" } : null}
 							>

@@ -12,20 +12,26 @@ import { videoPlayer as videoPlayerStyles } from "../../styles/VideoPlayer";
 
 const useStyles = makeStyles({ ...feedStyles, ...videoPlayerStyles });
 
-function Video({ video }) {
+function Video({ platform, video }) {
 	const classes = useStyles();
 	const videoPlayer = useContext(VideoPlayerContext);
 
 	function handleAddToVideoPlayer() {
 		videoPlayer.dispatch({
 			type: "ADD_VIDEO",
-			videoSource: "youtube",
+			videoSource: platform,
 			video: {
 				name: video.videoTitle,
 				thumbnail: video.thumbnail,
-				url: `https://www.youtube.com/watch?v=${video.videoId}`,
+				url:
+					platform === "youtube"
+						? `https://www.youtube.com/watch?v=${video.videoId}`
+						: `'https://clips.twitch.tv/embed?clip=${video.videoId}&parent=localhost`,
 				channelName: video.displayName,
-				channelUrl: `https://www.youtube.com/channel/${video.channelId}`,
+				channelUrl:
+					platform === "youtube"
+						? `https://www.youtube.com/channel/${video.channelId}`
+						: `https://www.twitch.com/${video.displayName}`,
 			},
 		});
 	}
@@ -37,7 +43,7 @@ function Video({ video }) {
 					<Box position="relative" className={classes.videoThumbnail}>
 						<img src={video.thumbnail} width="100%" alt="Video thumbnail" />
 						<Box position="absolute" bottom="0" right="0" px={0.5} style={{ backgroundColor: "#212121DD" }}>
-							<Typography variant="caption">{formatVideoDuration(video.duration)}</Typography>
+							<Typography variant="caption">{formatVideoDuration(video.duration, platform)}</Typography>
 						</Box>
 						<Box
 							className={classes.videoPlayOverlay}
@@ -52,7 +58,11 @@ function Video({ video }) {
 					<Box style={{ paddingLeft: 5, paddingRight: 10, height: 108 }}>
 						<Typography className={classes.videoTitle} variant="body1" title={video.videoTitle}>
 							<Link
-								href={`https://www.youtube.com/watch?v=${video.videoId}`}
+								href={
+									platform === "youtube"
+										? `https://www.youtube.com/watch?v=${video.videoId}`
+										: `https://clips.twitch.tv/${video.videoId}`
+								}
 								target="_blank"
 								rel="noreferrer"
 								color="inherit"
@@ -62,7 +72,11 @@ function Video({ video }) {
 						</Typography>
 						<Typography variant="body2" title={video.displayName}>
 							<Link
-								href={`https://www.youtube.com/channel/${video.channelId}`}
+								href={
+									platform === "youtube"
+										? `https://www.youtube.com/channel/${video.channelId}`
+										: `https://www.twitch.com/${video.displayName}`
+								}
 								target="_blank"
 								rel="noreferrer"
 								color="inherit"
@@ -77,16 +91,18 @@ function Video({ video }) {
 								`${formatDate(video.published, "DD-MM-YYYY HH:mm", true)} • ${video.views} views`
 							)}
 						</Typography>
-						<Box display="flex" flexDirection="row" flex="1 1 auto" minWidth={0}>
-							<Typography variant="caption" style={{ paddingRight: "10px" }}>
-								<i className="icon-thumbs-up" />
-								{` ${video.likes}`}
-							</Typography>
-							<Typography variant="caption">
-								<i className="icon-thumbs-down" />
-								{` ${video.dislikes}`}
-							</Typography>
-						</Box>
+						{video.likes && video.dislikes && (
+							<Box display="flex" flexDirection="row" flex="1 1 auto" minWidth={0}>
+								<Typography variant="caption" style={{ paddingRight: "10px" }}>
+									<i className="icon-thumbs-up" />
+									{` ${video.likes}`}
+								</Typography>
+								<Typography variant="caption">
+									<i className="icon-thumbs-down" />
+									{` ${video.dislikes}`}
+								</Typography>
+							</Box>
+						)}
 					</Box>
 				</Box>
 			</ListItem>
@@ -97,6 +113,7 @@ function Video({ video }) {
 }
 
 Video.propTypes = {
+	platform: PropTypes.string.isRequired,
 	video: PropTypes.object.isRequired,
 };
 

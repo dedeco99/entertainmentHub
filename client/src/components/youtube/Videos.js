@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import PropTypes from "prop-types";
 import InfiniteScroll from "react-infinite-scroller";
 import { useRouteMatch } from "react-router-dom";
 
@@ -8,12 +9,13 @@ import Loading from "../.partials/Loading";
 import Video from "./Video";
 
 import { getVideos } from "../../api/youtube";
+import { getClips } from "../../api/twitch";
 
 import { videos as styles } from "../../styles/Youtube";
 
 const useStyles = makeStyles(styles);
 
-function Videos() {
+function Videos({ platform }) {
 	const match = useRouteMatch();
 	const classes = useStyles();
 	const [videos, setVideos] = useState([]);
@@ -32,7 +34,8 @@ function Videos() {
 
 			if (pagination.page === 0) setOpen(false);
 
-			const response = await getVideos(match.params.channel);
+			const response =
+				platform === "youtube" ? await getVideos(match.params.channel) : await getClips(match.params.channel);
 
 			if (response.status === 200) {
 				const newVideos = pagination.page === 0 ? response.data : videos.concat(response.data);
@@ -67,7 +70,7 @@ function Videos() {
 		return videos.map(video => (
 			<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={video.id}>
 				<Card variant="outlined" display="flex" flexDirection="column" className={classes.root}>
-					<Video video={video} />
+					<Video platform={platform} video={video} />
 				</Card>
 			</Grid>
 		));
@@ -91,5 +94,9 @@ function Videos() {
 
 	return renderAllVideos();
 }
+
+Videos.propTypes = {
+	platform: PropTypes.string.isRequired,
+};
 
 export default Videos;

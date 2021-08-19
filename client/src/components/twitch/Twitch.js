@@ -1,14 +1,12 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState } from "react";
+import { useHistory, useRouteMatch } from "react-router-dom";
 
 import { makeStyles, Grid } from "@material-ui/core";
 import { SpeedDial, SpeedDialAction } from "@material-ui/lab";
 
 import Follows from "../.partials/Follows";
 import Subscriptions from "../.partials/Subscriptions";
-
-import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
-
-import { getClips } from "../../api/twitch";
+import Videos from "../youtube/Videos";
 
 import styles from "../../styles/General";
 
@@ -16,22 +14,10 @@ const useStyles = makeStyles(styles);
 
 function Twitch() {
 	const classes = useStyles();
-	const videoPlayer = useContext(VideoPlayerContext);
+	const history = useHistory();
+	const match = useRouteMatch();
 	const [openOptions, setOpenOptions] = useState(false);
 	const [openFollows, setOpenFollows] = useState(false);
-	const [clips, setClips] = useState([]);
-
-	useEffect(() => {
-		async function fetchData() {
-			const response = await getClips("31239503");
-
-			if (response.status === 200) {
-				setClips(response.data);
-			}
-		}
-
-		fetchData();
-	}, []);
 
 	function handleOpenOptions() {
 		setOpenOptions(true);
@@ -49,6 +35,12 @@ function Twitch() {
 		setOpenFollows(false);
 	}
 
+	function handleShowVideos(id) {
+		if (match.params.channel !== id) {
+			history.push(`/twitch/${id}`);
+		}
+	}
+
 	const actions = [
 		{
 			name: "Add Subscriptions",
@@ -57,33 +49,19 @@ function Twitch() {
 		},
 	];
 
-	function handleAddToVideoPlayer(stream) {
-		videoPlayer.dispatch({
-			type: "ADD_VIDEO",
-			videoSource: "twitch",
-			video: {
-				name: stream.displayName,
-				thumbnail: stream.image,
-				url: `https://www.twitch.tv/${stream.displayName}`,
-				channelName: stream.displayName,
-			},
-		});
-	}
-
 	return (
 		<Grid container spacing={2}>
 			<Grid item xs={12} sm={2} md={4}>
 				<Follows open={openFollows} platform="twitch" onClose={handleCloseFollows} />
-				<Subscriptions platform="twitch" action={handleAddToVideoPlayer} />
+				<Subscriptions
+					platform="twitch"
+					selected={match.params.channel}
+					idField="externalId"
+					action={handleShowVideos}
+				/>
 			</Grid>
 			<Grid item xs={12} sm={10} md={8}>
-				<Grid container spacing={2}>
-					{clips.map(clip => (
-						<Grid item key={clip.id} xs={12} lg={6} xl={4}>
-							<iframe src={`${clip.url}&parent=localhost`} height="400px" width="100%" allowFullScreen />
-						</Grid>
-					))}
-				</Grid>
+				{match.params.channel && <Videos platform="twitch" />}
 			</Grid>
 			<SpeedDial
 				ariaLabel="Options"
