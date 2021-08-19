@@ -232,123 +232,117 @@ function VideoPlayer() {
 	}
 
 	function renderQueueOrChat() {
-		switch (selectedTab) {
-			case "youtubePlaylists":
-			case "youtube":
-				return showQueue ? (
-					<Box display="flex" flexDirection="column" height="100%" width="250px" className={classes.background}>
-						<Box>
-							<Box display="flex" flexDirection="row" className={classes.queueList}>
-								<Typography textAlign="center" component={Box} flexGrow={1} pt={1}>
-									{`${videos[selectedTab].length} video${videos[selectedTab].length > 1 ? "s" : ""} in queue`}
-								</Typography>
-								<IconButton edge="end" aria-label="delete" onClick={handleDeleteVideos} style={{ right: "17px" }}>
-									<i className="icon-delete" />
-								</IconButton>
-							</Box>
-						</Box>
-						<Divider />
-						<Box flexGrow={1} className={classes.queueList}>
-							<GridLayout
-								className="layout"
-								cols={1}
-								rowHeight={55}
-								width={calcQueueWidth()}
-								margin={[0, 0]}
-								isResizable={false}
-								onDragStart={(layout, oldItem, newItem, placeholder, e) => {
-									e.stopPropagation();
-								}}
-								onDragStop={handleOrderChange}
-								draggableHandle=".handleListItem"
-							>
-								{videos[selectedTab].map((v, i) => (
-									<div key={v.url} data-grid={{ x: 0, y: i, w: 1, h: 1 }}>
-										<Box display="flex" height="100%" width="100%" position="relative">
-											<Box
-												display="flex"
-												className="handleListItem"
-												width="30px"
-												height="100%"
-												alignItems="center"
-												justifyContent="center"
-												style={{ cursor: "grab" }}
-											>
-												<i className="icon-drag-handle" />
-											</Box>
-											<ListItem
-												button
-												disableGutters
-												onClick={() => dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: v })}
-												selected={currentVideo.url === v.url}
-												component={Box}
-												flex={1}
-												pl={1}
-												pr={6}
-												minWidth={0}
-											>
-												<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
-													<Typography variant="body1" title={v.name} noWrap>
-														{v.name}
-													</Typography>
-													<Typography variant="caption" title={v.channelName} noWrap>
-														{v.channelName}
-													</Typography>
-												</Box>
-											</ListItem>
-										</Box>
-										<Box className={classes.listItemAction}>
-											<IconButton edge="end" aria-label="delete" onClick={() => handleDeleteVideo(v)}>
-												<i className="icon-delete" />
-											</IconButton>
-										</Box>
-										<Divider />
-									</div>
-								))}
-							</GridLayout>
-						</Box>
-						<Box textAlign="center" style={{ borderTop: "1px solid #ffffff3b" }}>
-							<Tooltip title="Previous Video">
-								<IconButton
-									edge="end"
-									aria-label="previousVideo"
-									disabled={!hasPreviousVideo()}
-									onClick={handlePreviousVideo}
-								>
-									<i className="icon-caret-left" />
-								</IconButton>
-							</Tooltip>
-							<Tooltip title="Next Video">
-								<IconButton edge="end" disabled={!hasNextVideo()} aria-label="nextVideo" onClick={handleNextVideo}>
-									<i className="icon-caret-right" />
-								</IconButton>
-							</Tooltip>
-						</Box>
+		if (!showQueue) return null;
+
+		return currentVideo.videoSource === "twitchStream" ? (
+			<Box display="flex" flexDirection="column">
+				<Box flexGrow={1}>
+					<iframe
+						title={currentVideo.channelName}
+						frameBorder="0"
+						scrolling="no"
+						src={`https://www.twitch.tv/embed/${currentVideo.channelName}/chat?parent=${window.location.hostname}`}
+						width="250px"
+						height="100%"
+					/>
+				</Box>
+				<Box textAlign="center">
+					<IconButton edge="end" aria-label="delete" onClick={() => handleDeleteVideo(currentVideo)}>
+						<i className="icon-delete" />
+					</IconButton>
+				</Box>
+			</Box>
+		) : (
+			<Box display="flex" flexDirection="column" height="100%" width="250px" className={classes.background}>
+				<Box>
+					<Box display="flex" flexDirection="row" className={classes.queueList}>
+						<Typography textAlign="center" component={Box} flexGrow={1} pt={1}>
+							{`${videos[selectedTab].length} video${videos[selectedTab].length > 1 ? "s" : ""} in queue`}
+						</Typography>
+						<IconButton edge="end" aria-label="delete" onClick={handleDeleteVideos} style={{ right: "17px" }}>
+							<i className="icon-delete" />
+						</IconButton>
 					</Box>
-				) : null;
-			case "twitch":
-				return showQueue ? (
-					<Box display="flex" flexDirection="column">
-						<Box flexGrow={1}>
-							<iframe
-								title={currentVideo.channelName}
-								frameBorder="0"
-								scrolling="no"
-								src={`https://www.twitch.tv/embed/${currentVideo.channelName}/chat?parent=${window.location.hostname}`}
-								width="250px"
-								height="100%"
-							/>
-						</Box>
-						<Box textAlign="center">
-							<IconButton edge="end" aria-label="delete" onClick={() => handleDeleteVideo(currentVideo)}>
-								<i className="icon-delete" />
-							</IconButton>
-						</Box>
-					</Box>
-				) : null;
-			default:
-				return null;
-		}
+				</Box>
+				<Divider />
+				<Box flexGrow={1} className={classes.queueList}>
+					<GridLayout
+						className="layout"
+						cols={1}
+						rowHeight={55}
+						width={calcQueueWidth()}
+						margin={[0, 0]}
+						isResizable={false}
+						onDragStart={(layout, oldItem, newItem, placeholder, e) => {
+							e.stopPropagation();
+						}}
+						onDragStop={handleOrderChange}
+						draggableHandle=".handleListItem"
+					>
+						{videos[selectedTab].map((v, i) => (
+							<div key={v.url} data-grid={{ x: 0, y: i, w: 1, h: 1 }}>
+								<Box display="flex" height="100%" width="100%" position="relative">
+									<Box
+										display="flex"
+										className="handleListItem"
+										width="30px"
+										height="100%"
+										alignItems="center"
+										justifyContent="center"
+										style={{ cursor: "grab" }}
+									>
+										<i className="icon-drag-handle" />
+									</Box>
+									<ListItem
+										button
+										disableGutters
+										onClick={() => dispatch({ type: "SET_CURRENT_VIDEO", currentVideo: v })}
+										selected={currentVideo.url === v.url}
+										component={Box}
+										flex={1}
+										pl={1}
+										pr={6}
+										minWidth={0}
+									>
+										<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
+											<Typography variant="body1" title={v.name} noWrap>
+												{v.name}
+											</Typography>
+											<Typography variant="caption" title={v.channelName} noWrap>
+												{v.channelName}
+											</Typography>
+										</Box>
+									</ListItem>
+								</Box>
+								<Box className={classes.listItemAction}>
+									<IconButton edge="end" aria-label="delete" onClick={() => handleDeleteVideo(v)}>
+										<i className="icon-delete" />
+									</IconButton>
+								</Box>
+								<Divider />
+							</div>
+						))}
+					</GridLayout>
+				</Box>
+				<Box textAlign="center" style={{ borderTop: "1px solid #ffffff3b" }}>
+					<Tooltip title="Previous Video">
+						<IconButton
+							edge="end"
+							aria-label="previousVideo"
+							disabled={!hasPreviousVideo()}
+							onClick={handlePreviousVideo}
+						>
+							<i className="icon-caret-left" />
+						</IconButton>
+					</Tooltip>
+					<Tooltip title="Next Video">
+						<IconButton edge="end" disabled={!hasNextVideo()} aria-label="nextVideo" onClick={handleNextVideo}>
+							<i className="icon-caret-right" />
+						</IconButton>
+					</Tooltip>
+				</Box>
+			</Box>
+		);
 	}
 
 	const tab = tabs.find(t => t.name === selectedTab);
@@ -459,16 +453,20 @@ function VideoPlayer() {
 						) : (
 							<>
 								<Box flexGrow={1}>
-									<ReactPlayer
-										// playing
-										controls
-										// eslint-disable-next-line react/jsx-boolean-value
-										playing={user.settings.autoplayVideoPlayer}
-										url={currentVideo ? currentVideo.url : null}
-										height="100%"
-										width="100%"
-										onEnded={() => handleDeleteVideo(currentVideo)}
-									/>
+									{currentVideo.videoSource === "twitch" ? (
+										<iframe src={currentVideo.url} height="100%" width="100%" allowFullScreen />
+									) : (
+										<ReactPlayer
+											// playing
+											controls
+											// eslint-disable-next-line react/jsx-boolean-value
+											playing={user.settings.autoplayVideoPlayer}
+											url={currentVideo ? currentVideo.url : null}
+											height="100%"
+											width="100%"
+											onEnded={() => handleDeleteVideo(currentVideo)}
+										/>
+									)}
 								</Box>
 								{renderQueueOrChat()}
 							</>

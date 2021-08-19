@@ -26,7 +26,7 @@ function Video({ platform, video }) {
 				url:
 					platform === "youtube"
 						? `https://www.youtube.com/watch?v=${video.videoId}`
-						: `'https://clips.twitch.tv/embed?clip=${video.videoId}&parent=localhost`,
+						: `https://clips.twitch.tv/embed?clip=${video.videoId}&parent=${window.location.hostname}`,
 				channelName: video.displayName,
 				channelUrl:
 					platform === "youtube"
