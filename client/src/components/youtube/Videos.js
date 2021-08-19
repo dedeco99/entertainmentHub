@@ -45,7 +45,7 @@ function Videos({ platform }) {
 				setPagination({
 					page: pagination.page + 1,
 					hasMore: !(response.data.length < 25),
-					after: response.data[response.data.length - 1].after,
+					after: response.data.length ? response.data[response.data.length - 1].after : null,
 				});
 				setLoading(false);
 				if (pagination.page === 0) setOpen(true);
@@ -68,8 +68,8 @@ function Videos({ platform }) {
 
 	function renderVideos() {
 		return videos.map(video => (
-			<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={video.id}>
-				<Card variant="outlined" display="flex" flexDirection="column" className={classes.root}>
+			<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={video.videoId}>
+				<Card variant="outlined" className={classes.root}>
 					<Video platform={platform} video={video} />
 				</Card>
 			</Grid>

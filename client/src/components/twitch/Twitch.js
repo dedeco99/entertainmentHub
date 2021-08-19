@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
+import ReactPlayer from "react-player";
 
 import { makeStyles, Grid } from "@material-ui/core";
 import { SpeedDial, SpeedDialAction } from "@material-ui/lab";
@@ -7,6 +8,8 @@ import { SpeedDial, SpeedDialAction } from "@material-ui/lab";
 import Follows from "../.partials/Follows";
 import Subscriptions from "../.partials/Subscriptions";
 import Videos from "../youtube/Videos";
+
+import { TwitchContext } from "../../contexts/TwitchContext";
 
 import styles from "../../styles/General";
 
@@ -16,8 +19,17 @@ function Twitch() {
 	const classes = useStyles();
 	const history = useHistory();
 	const match = useRouteMatch();
+	const { state } = useContext(TwitchContext);
+	const { subscriptions } = state;
 	const [openOptions, setOpenOptions] = useState(false);
 	const [openFollows, setOpenFollows] = useState(false);
+	const [activeSubscription, setActiveSubscription] = useState(false);
+
+	useEffect(() => {
+		const subscription = subscriptions.find(s => s.externalId === match.params.channel);
+
+		if (subscription) setActiveSubscription(subscription);
+	}, [subscriptions, match.url]);
 
 	function handleOpenOptions() {
 		setOpenOptions(true);
@@ -61,7 +73,20 @@ function Twitch() {
 				/>
 			</Grid>
 			<Grid item xs={12} sm={10} md={8}>
-				{match.params.channel && <Videos platform="twitch" />}
+				{match.params.channel && (
+					<>
+						{activeSubscription && (
+							<ReactPlayer
+								controls
+								url={`https://www.twitch.tv/${activeSubscription.displayName}`}
+								height="400px"
+								width="100%"
+							/>
+						)}
+						<br />
+						<Videos platform="twitch" />
+					</>
+				)}
 			</Grid>
 			<SpeedDial
 				ariaLabel="Options"

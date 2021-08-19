@@ -176,7 +176,7 @@ async function getClips(event) {
 
 	if (accessToken.status === 401) return errors.twitchRefreshToken;
 
-	let url = `https://api.twitch.tv/helix/clips?broadcaster_id=${id}&first=5`;
+	let url = `https://api.twitch.tv/helix/clips?broadcaster_id=${id}`;
 	if (after) url += `&after=${after}`;
 
 	const headers = {
