@@ -5,6 +5,7 @@ import "react-toastify/dist/ReactToastify.css";
 
 import { makeStyles, ThemeProvider, createTheme, CssBaseline } from "@material-ui/core";
 
+import PageHints from "./.partials/PageHints";
 import BackUpButton from "./.partials/BackUpButton";
 import SocketClient from "./.partials/SocketClient";
 import PrivateRoute from "./auth/PrivateRoute";
@@ -126,6 +127,7 @@ function App() {
 											<BrowserRouter>
 												<Header />
 												<div className={classes.main}>{renderRoutes()}</div>
+												<PageHints />
 												<BackUpButton />
 												<VideoPlayer />
 												<ToastContainer position="bottom-right" newestOnTop />

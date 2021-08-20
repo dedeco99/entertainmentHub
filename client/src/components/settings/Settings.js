@@ -335,6 +335,13 @@ function Settings() {
 								onChange={handleEpisodesThumbnailsChange}
 							/>
 						)}
+						<FormControlLabel
+							checked={settings.appHints || false}
+							color="primary"
+							control={<Checkbox color="primary" />}
+							label={translate("appHints")}
+							onChange={() => handleCheckboxChange("appHints")}
+						/>
 						{apps.youtube.active && (
 							<>
 								<Divider style={{ marginTop: 20, marginBottom: 20 }} />

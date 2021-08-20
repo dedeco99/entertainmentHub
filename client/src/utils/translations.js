@@ -251,6 +251,26 @@ const translations = {
 		en: "Move to folder",
 		pt: "Mover para uma pasta",
 	},
+	appHints: {
+		en: "Application Hints for actions",
+		pt: "Ajudas para ações na Aplicação",
+	},
+	addWidget: {
+		en: "Add Widget",
+		pt: "Adicionar um Widget",
+	},
+	actionsWidget: {
+		en: "How to move and resize Widgets",
+		pt: "Como mover e redimensionar Widgets",
+	},
+	addTab: {
+		en: "Add a Tab",
+		pt: "Adicionar uma Tab",
+	},
+	actionsTab: {
+		en: "How to move and resize Tabs",
+		pt: "Como mover e redimensionar Tabs",
+	},
 	multipleParamExample: (...params) => ({
 		en: `Hello ${params[0]}, my name is ${params[1]}`,
 		pt: `Boas ${params[0]}, o meu nome é ${params[1]}`,

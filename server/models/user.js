@@ -17,6 +17,7 @@ const UserSchema = new Schema(
 			tv: {
 				hideEpisodesThumbnails: { type: Boolean, default: true },
 			},
+			appHints: { type: Boolean, default: true },
 		},
 	},
 	{ timestamps: { createdAt: "_created", updatedAt: "_modified" } },

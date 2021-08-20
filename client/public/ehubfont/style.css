@@ -207,6 +207,10 @@
 	content: "\e936";
 }
 
+.icon-question:before {
+  content: "\ea09";
+}
+
 .icon-1x {
 	font-size: 1em;
 }
