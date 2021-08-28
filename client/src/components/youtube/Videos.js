@@ -37,7 +37,7 @@ function Videos({ platform, type }) {
 			const response =
 				platform === "youtube"
 					? await getVideos(match.params.channel)
-					: await getClips(match.params.channel, type);
+					: await getClips(match.params.channel, type, videos.length ? videos[videos.length - 1].after : null);
 
 			if (response.status === 200) {
 				const newVideos = pagination.page === 0 ? response.data : videos.concat(response.data);
@@ -46,7 +46,7 @@ function Videos({ platform, type }) {
 
 				setPagination({
 					page: pagination.page + 1,
-					hasMore: !(response.data.length < 25),
+					hasMore: !!response.data[response.data.length - 1].after,
 					after: response.data.length ? response.data[response.data.length - 1].after : null,
 				});
 				setLoading(false);

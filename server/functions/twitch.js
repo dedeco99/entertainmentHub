@@ -199,8 +199,6 @@ async function getClips(event) {
 		after: json.pagination.cursor,
 	}));
 
-	console.log(clips);
-
 	return response(200, "GET_CLIPS", clips);
 }
 
