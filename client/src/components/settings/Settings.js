@@ -112,7 +112,6 @@ function Settings() {
 	const [settings, setSettings] = useState({});
 	const [selectedApp, setSelectedApp] = useState(null);
 	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
-
 	const [email, setEmail] = useState("");
 	const [oldPassword, setOldPassword] = useState("");
 	const [newPassword, setNewPassword] = useState("");
@@ -139,7 +138,6 @@ function Settings() {
 	}, [match]);
 
 	useEffect(() => {
-		console.log(user);
 		setEmail(user.email);
 
 		async function fetchData() {
@@ -155,19 +153,29 @@ function Settings() {
 
 	async function handleSubmitSettings() {
 		const password = oldPassword;
-		let response = "";
+		const body = { settings };
 
-		if (!email) setEmail(user.email);
+		const emailRegex =
+			/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+		if (email !== user.email) {
+			console.log(emailRegex.test(email));
+			if (!emailRegex.test(email)) return toast.error("Email is incorrect");
 
-		if (email.includes("@") && email.includes(".com")) response = await editUser({ email, settings });
+			body.email = email;
+		}
 
 		if (newPassword === repeatNewPassword && password) {
-			response = await editUser({ email, newPassword, password, settings });
+			body.password = password;
+			body.newPassword = newPassword;
 		}
+
+		const response = await editUser(body);
 
 		if (response.status === 200) {
 			dispatch({ type: "SET_USER", user: { ...user, ...response.data } });
 		}
+
+		return null;
 	}
 
 	async function handleDeleteApp() {
@@ -359,40 +367,9 @@ function Settings() {
 							label={translate("autoplayVideoPlayer")}
 							onChange={() => handleCheckboxChange("autoplayVideoPlayer")}
 						/>
-						{apps.tv.active && (
-							<FormControlLabel
-								checked={settings.tv ? settings.tv.hideEpisodesThumbnails : false}
-								color="primary"
-								control={<Checkbox color="primary" />}
-								label={translate("hideEpisodesThumbnails")}
-								onChange={handleEpisodesThumbnailsChange}
-							/>
-						)}
-						{apps.youtube.active && (
-							<>
-								<Divider style={{ marginTop: 20, marginBottom: 20 }} />
-								<Typography variant="h6" style={{ marginBottom: 10 }}>
-									{"Youtube"}
-								</Typography>
-								<Input
-									label="Youtube Watch Later Default Playlist"
-									value={settings.youtube ? settings.youtube.watchLaterPlaylist : ""}
-									onChange={handleWatchLaterPlaylistChange}
-									variant="outlined"
-									select
-									fullWidth
-								>
-									{playlists.map(p => (
-										<MenuItem key={p.externalId} value={p.externalId}>
-											{p.displayName}
-										</MenuItem>
-									))}
-								</Input>
-							</>
-						)}
 						<Divider style={{ marginTop: 20, marginBottom: 20 }} />
 						<Typography variant="h6" style={{ marginBottom: 10 }}>
-							{"Change Email"}
+							{"Account"}
 						</Typography>
 						<Input
 							id="email"
@@ -404,11 +381,7 @@ function Settings() {
 							variant="outlined"
 							fullWidth
 						/>
-						<Divider style={{ marginTop: 20, marginBottom: 20 }} />
-						<Typography variant="h6" style={{ marginBottom: 10 }}>
-							{"Change Password"}
-						</Typography>
-
+						<br />
 						<Input
 							id="oldPassword"
 							type="password"
@@ -439,6 +412,41 @@ function Settings() {
 							variant="outlined"
 							fullWidth
 						/>
+						{apps.tv.active && (
+							<>
+								<Divider style={{ marginTop: 20, marginBottom: 20 }} />
+								<Typography variant="h6">{"TV"}</Typography>
+								<FormControlLabel
+									checked={settings.tv ? settings.tv.hideEpisodesThumbnails : false}
+									color="primary"
+									control={<Checkbox color="primary" />}
+									label={translate("hideEpisodesThumbnails")}
+									onChange={handleEpisodesThumbnailsChange}
+								/>
+							</>
+						)}
+						{apps.youtube.active && (
+							<>
+								<Divider style={{ marginTop: 20, marginBottom: 20 }} />
+								<Typography variant="h6" style={{ marginBottom: 10 }}>
+									{"Youtube"}
+								</Typography>
+								<Input
+									label="Youtube Watch Later Default Playlist"
+									value={settings.youtube ? settings.youtube.watchLaterPlaylist : ""}
+									onChange={handleWatchLaterPlaylistChange}
+									variant="outlined"
+									select
+									fullWidth
+								>
+									{playlists.map(p => (
+										<MenuItem key={p.externalId} value={p.externalId}>
+											{p.displayName}
+										</MenuItem>
+									))}
+								</Input>
+							</>
+						)}
 					</FormControl>
 					<Button variant="contained" onClick={handleSubmitSettings}>
 						{translate("save")}
