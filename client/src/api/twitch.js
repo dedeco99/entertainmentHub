@@ -22,4 +22,17 @@ async function getFollows(after, type, filter) {
 	return res;
 }
 
-export { getStreams, getFollows };
+async function getClips(id, type, after) {
+	let query = "";
+	query += type ? `?type=${type}` : "";
+	query += after ? `${query ? "&" : "?"}after=${after}` : "";
+
+	const res = await api({
+		method: "get",
+		url: `/api/twitch/clips/${id}${query}`,
+	});
+
+	return res;
+}
+
+export { getStreams, getFollows, getClips };

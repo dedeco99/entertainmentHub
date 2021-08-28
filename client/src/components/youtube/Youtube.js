@@ -105,7 +105,7 @@ function Youtube() {
 		if (blocks.openFeeds) {
 			return <Feeds platform="youtube" />;
 		} else if (blocks.openVideos) {
-			return <Videos />;
+			return <Videos platform="youtube" />;
 		}
 
 		return <div />;

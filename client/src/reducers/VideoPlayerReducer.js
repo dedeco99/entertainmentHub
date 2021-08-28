@@ -4,8 +4,10 @@ export const videoPlayerReducer = (state, action) => {
 
 	switch (action.type) {
 		case "ADD_VIDEO":
+			if (!action.video.videoSource) action.video.videoSource = action.videoSource;
+
 			if (!videos[action.videoSource].find(v => v.url === action.video.url)) {
-				if (action.videoSource === "twitch") {
+				if (action.videoSource === "twitchStream") {
 					videos = { ...videos, [action.videoSource]: [action.video] };
 				} else {
 					videos = { ...videos, [action.videoSource]: [...videos[action.videoSource], action.video] };
@@ -14,7 +16,7 @@ export const videoPlayerReducer = (state, action) => {
 
 			if (action.videoSource !== selectedTab) {
 				selectedTab = action.videoSource;
-				currentVideo = action.videoSource === "twitch" ? action.video : videos[selectedTab][0];
+				currentVideo = action.videoSource === "twitchStream" ? action.video : videos[selectedTab][0];
 			}
 
 			return { ...state, videos, selectedTab, currentVideo };

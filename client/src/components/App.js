@@ -97,6 +97,7 @@ function App() {
 				<PrivateRoute exact path="/reddit/:sub/:category" component={Reddit} />
 
 				<PrivateRoute exact path="/twitch" component={Twitch} />
+				<PrivateRoute exact path="/twitch/:channel" component={Twitch} />
 
 				<PrivateRoute exact path="/tv" component={TV} />
 				<PrivateRoute exact path="/tv/all" component={TV} />
