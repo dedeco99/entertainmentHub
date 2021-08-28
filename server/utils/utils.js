@@ -1,8 +1,20 @@
+const bcrypt = require("bcryptjs");
 const { Types } = require("mongoose");
 const dayjs = require("dayjs");
 const relativeTime = require("dayjs/plugin/relativeTime");
 
 dayjs.extend(relativeTime);
+
+async function hashPassword(password) {
+	const salt = await bcrypt.genSalt(10);
+	const hash = await bcrypt.hash(password, salt);
+
+	return hash;
+}
+
+function isPassword(password, userPassword) {
+	return bcrypt.compare(password, userPassword);
+}
 
 function toObjectId(id) {
 	try {
@@ -21,6 +33,8 @@ function diff(date, unit) {
 }
 
 module.exports = {
+	hashPassword,
+	isPassword,
 	toObjectId,
 	formatDate,
 	diff,
