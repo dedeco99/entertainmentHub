@@ -1,15 +1,8 @@
 const { response } = require("../utils/request");
+const { hashPassword, isPassword } = require("../utils/utils");
 const errors = require("../utils/errors");
-const bcrypt = require("bcryptjs");
 
 const User = require("../models/user");
-
-async function hashPassword(password) {
-	const salt = await bcrypt.genSalt(10);
-	const hash = await bcrypt.hash(password, salt);
-
-	return hash;
-}
 
 async function editUser(event) {
 	const { body, user } = event;
@@ -25,9 +18,9 @@ async function editUser(event) {
 		toUpdate.email = body.email;
 	}
 	if ("password" in body) {
-		const isPassword = await bcrypt.compare(body.password, user.password);
+		const correctPassword = await isPassword(body.password, user.password);
 
-		if (isPassword) {
+		if (correctPassword) {
 			toUpdate.password = await hashPassword(body.newPassword);
 		} else {
 			return errors.userPasswordWrong;
