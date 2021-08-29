@@ -23,7 +23,7 @@ async function cronjobScheduler(toSchedule) {
 
 	const notifications = [];
 	for (const scheduledNotification of scheduledNotifications) {
-		const { dateToSend, notificationId, user, type, info } = scheduledNotification;
+		const { _id, dateToSend, notificationId, user, type, info } = scheduledNotification;
 
 		switch (type) {
 			case "tv":
@@ -39,23 +39,27 @@ async function cronjobScheduler(toSchedule) {
 					number: info.number,
 				}).lean();
 
-				for (const series of userSeries) {
-					notifications.push({
-						active: true,
-						scheduledNotification: scheduledNotification._id,
-						dateToSend,
-						notificationId: `${series.user}${notificationId}`,
-						user: series.user,
-						type,
-						topPriority: series.notifications.priority === 3,
-						priority: series.notifications.priority,
-						info: {
-							...info,
-							displayName: series.displayName,
-							thumbnail: episode.image,
-							episodeTitle: episode.title,
-						},
-					});
+				if (episode) {
+					for (const series of userSeries) {
+						notifications.push({
+							active: true,
+							scheduledNotification: scheduledNotification._id,
+							dateToSend,
+							notificationId: `${series.user}${notificationId}`,
+							user: series.user,
+							type,
+							topPriority: series.notifications.priority === 3,
+							priority: series.notifications.priority,
+							info: {
+								...info,
+								displayName: series.displayName,
+								thumbnail: episode.image,
+								episodeTitle: episode.title,
+							},
+						});
+					}
+				} else {
+					await ScheduledNotification.findOneAndDelete({ _id });
 				}
 
 				break;
