@@ -277,7 +277,7 @@ async function addToWatchLater(event) {
 
 async function cronjob() {
 	const subscriptions = await Subscription.aggregate([
-		{ $match: { platform: "youtube" } },
+		{ $match: { active: true, platform: "youtube" } },
 		{
 			$lookup: {
 				from: "users",

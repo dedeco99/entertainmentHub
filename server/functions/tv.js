@@ -266,7 +266,7 @@ async function fetchEpisodes(series, user) {
 
 async function cronjob() {
 	const seriesList = await Subscription.aggregate([
-		{ $match: { platform: "tv" } },
+		{ $match: { active: true, platform: "tv" } },
 		{
 			$group: {
 				_id: "$externalId",
