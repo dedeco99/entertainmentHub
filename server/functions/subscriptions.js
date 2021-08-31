@@ -177,7 +177,6 @@ async function patchSubscription(event) {
 			Subscription.updateMany(
 				{ user: user._id, platform: subscription.platform, "group.name": group.name },
 				{ "group.pos": group.pos },
-				{ new: true },
 			),
 		]);
 

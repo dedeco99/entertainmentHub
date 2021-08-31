@@ -79,9 +79,13 @@ function Sidebar({ options, platform, selected, idField, countField, action, men
 	}
 
 	async function handleOrderChange(layout, oldItem, newItem) {
-		const group = groups[oldItem.y];
+		const group = groups.find(g => g.name === newItem.i);
 
-		const response = await patchSubscription(group.list[0]._id, { group: { name: group.name, pos: newItem.y } });
+		console.log(group);
+
+		const response = await patchSubscription(group.list[0]._id, {
+			group: { name: group.name, pos: newItem.y ? newItem.y : 1 },
+		});
 
 		if (response.status === 200) {
 			dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
@@ -107,24 +111,26 @@ function Sidebar({ options, platform, selected, idField, countField, action, men
 				onDragStop={handleOrderChange}
 				draggableHandle=".handleListItem"
 			>
-				{groups.map(group => (
-					<div key={group.name} data-grid={{ x: 0, y: group.pos, w: 1, h: 1 }}>
-						<Box display="flex" height="100%" width="100%" position="relative" border="1px solid #222">
-							<Box
-								display="flex"
-								className="handleListItem"
-								width="55px"
-								height="100%"
-								alignItems="center"
-								justifyContent="center"
-								style={{ cursor: "grab" }}
-							>
-								<i className="icon-drag-handle" />
+				{groups
+					.filter(g => g.name !== "Ungrouped")
+					.map(group => (
+						<div key={group.name} data-grid={{ x: 0, y: group.pos, w: 1, h: 1 }}>
+							<Box display="flex" height="100%" width="100%" position="relative" border="1px solid #222">
+								<Box
+									display="flex"
+									className="handleListItem"
+									width="55px"
+									height="100%"
+									alignItems="center"
+									justifyContent="center"
+									style={{ cursor: "grab" }}
+								>
+									<i className="icon-drag-handle" />
+								</Box>
+								<ListSubheader style={{ backgroundColor: "#333", width: "100%" }}>{group.name}</ListSubheader>
 							</Box>
-							<ListSubheader style={{ backgroundColor: "#333", width: "100%" }}>{group.name}</ListSubheader>
-						</Box>
-					</div>
-				))}
+						</div>
+					))}
 			</GridLayout>
 		</List>
 	) : (
@@ -137,12 +143,6 @@ function Sidebar({ options, platform, selected, idField, countField, action, men
 						<>
 							<ListSubheader style={{ backgroundColor: "#333", zIndex: 2 }}>
 								{group.name}
-								<Badge
-									color="secondary"
-									max={999}
-									badgeContent={group.list.length}
-									style={{ position: "absolute", top: "23px", right: "60px" }}
-								/>
 								<ListItemSecondaryAction onClick={() => handleExpand(index)}>
 									<IconButton color="primary" edge="end">
 										<i className={expandedLists.includes(index) ? "icon-caret-up" : "icon-caret-down"} />
