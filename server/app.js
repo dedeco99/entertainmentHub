@@ -247,3 +247,51 @@ if (process.env.ENV === "prod") {
 
 	console.log("Cronjobs are running");
 }
+
+async function updateSubscriptions() {
+	const Subscription = require("./models/subscription");
+
+	const subscriptions = await Subscription.find({ platform: "tv" }).lean();
+
+	const users = [];
+	for (const subscription of subscriptions) {
+		if (subscription.group.name !== "Ungrouped") {
+			const userFound = users.find(u => u._id === subscription.user.toString());
+
+			if (userFound) {
+				const groupFound = userFound.groups.find(g => g.name === subscription.group.name);
+
+				if (groupFound) {
+					groupFound.subscriptions.push(subscription._id);
+				} else {
+					userFound.groups.push({
+						name: subscription.group.name,
+						pos: subscription.group.pos,
+						subscriptions: [subscription._id],
+					});
+				}
+			} else {
+				users.push({
+					_id: subscription.user.toString(),
+					groups: [
+						{ name: subscription.group.name, pos: subscription.group.pos, subscriptions: [subscription._id] },
+					],
+				});
+			}
+		}
+	}
+
+	for (const user of users) {
+		console.log(user);
+		for (let i = 0; i < user.groups.length; i++) {
+			/*
+			await Subscription.updateMany(
+				{ _id: { $in: user.groups[i].subscriptions } },
+				{ $set: { "group.pos": i + 1 } },
+			);
+			*/
+		}
+	}
+}
+
+// updateSubscriptions();
