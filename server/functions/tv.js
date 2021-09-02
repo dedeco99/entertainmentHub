@@ -93,6 +93,9 @@ async function getEpisodeNumbers(series, user) {
 			$group: {
 				_id: "$seriesId",
 				watched: { $sum: { $cond: [{ $eq: ["$watched", true] }, 1, 0] } },
+				toWatch: {
+					$sum: { $cond: [{ $and: [{ $eq: ["$watched", false] }, { $lte: ["$date", dayjs().toDate()] }] }, 1, 0] },
+				},
 				total: { $sum: 1 },
 			},
 		},
@@ -104,7 +107,7 @@ async function getEpisodeNumbers(series, user) {
 		if (seriesFound) {
 			serie.numTotal = seriesFound.total;
 			serie.numWatched = seriesFound.watched;
-			serie.numToWatch = seriesFound.total - seriesFound.watched;
+			serie.numToWatch = seriesFound.toWatch;
 		}
 	}
 
@@ -310,7 +313,7 @@ async function getEpisodes(event) {
 		sortQuery.date = 1;
 	} else if (filter === "watched") {
 		afterQuery.watched = true;
-	} else if (filter === "toWatch") {
+	} else if (filter === "toWatch" || filter === "queue") {
 		episodeQuery.date = { $lte: new Date() };
 		afterQuery.watched = false;
 	}
@@ -321,7 +324,7 @@ async function getEpisodes(event) {
 			episodes = await Episode.aggregate([
 				{ $match: episodeQuery },
 				...watchedQuery(user),
-				{ $match: { watched: false } },
+				{ $match: afterQuery },
 				{ $sort: { season: 1, number: 1 } },
 				{ $group: { _id: "$seriesId", episodes: { $first: "$$ROOT" } } },
 				{ $replaceRoot: { newRoot: { $mergeObjects: ["$episodes", "$$ROOT"] } } },
