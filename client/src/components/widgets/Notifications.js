@@ -90,8 +90,12 @@ function Notifications({ height, wrapTitle }) {
 			const response = await getNotifications(after, pagination.history, filter);
 
 			if (response.status === 200) {
-				const newNotifications =
-					pagination.page === 0 ? response.data.notifications : notifications.concat(response.data.notifications);
+				let newNotifications = response.data.notifications;
+				if (pagination.page !== 0) {
+					newNotifications = notifications.concat(
+						response.data.notifications.filter(n => !notifications.find(n2 => n2._id === n._id)),
+					);
+				}
 
 				dispatch({ type: "SET_NOTIFICATIONS", notifications: newNotifications, total: response.data.total });
 
