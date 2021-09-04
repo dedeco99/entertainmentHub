@@ -2,10 +2,9 @@ import React, { useContext, useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroller";
 import { useHistory, useRouteMatch } from "react-router-dom";
 
-import { makeStyles, Grid, Button } from "@material-ui/core";
+import { makeStyles, Grid, Button, Box, Typography, Tabs, Tab, withStyles } from "@material-ui/core";
 import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
 
-import Categories from "../.partials/Categories";
 import Loading from "../.partials/Loading";
 import Episode from "./Episode";
 
@@ -19,6 +18,30 @@ import { translate } from "../../utils/translations";
 import { episodes as styles } from "../../styles/TV";
 
 const useStyles = makeStyles(styles);
+
+const ChipTabs = withStyles({
+	root: {
+		alignItems: "center",
+		minHeight: "0px",
+	},
+})(Tabs);
+
+const ChipTab = withStyles(() => ({
+	root: {
+		textTransform: "none",
+		backgroundColor: "transparent",
+		borderRadius: "16px",
+		border: "1px solid white",
+		color: "white",
+		minWidth: 0,
+		minHeight: 0,
+		height: "32px",
+		fontSize: "0.8125rem",
+		whiteSpace: "nowrap",
+		marginRight: "4px",
+		fontFamily: "Roboto",
+	},
+}))(props => <Tab {...props} />);
 
 function Episodes() {
 	const history = useHistory();
@@ -131,7 +154,7 @@ function Episodes() {
 				if (match.params.season) {
 					handleGetEpisodes(Number(match.params.season));
 				} else {
-					history.replace(`/tv/${match.params.seriesId}/${seasons[seasons.length - 1]._id}`);
+					history.replace(`/tv/${match.params.seriesId}/${seasons[0]._id}`);
 				}
 			} else {
 				await handleGetAll();
@@ -219,22 +242,62 @@ function Episodes() {
 
 	function renderSeasons() {
 		return (
-			<div>
-				<Categories
-					options={seasons}
-					idField="_id"
-					nameField="_id"
-					countField="toWatch"
-					action={handleSeasonClick}
-					selected={Number(match.params.season)}
-				/>
-				<Button color="secondary" variant="contained" onClick={markAsWatched} style={{ margin: "10px 0px" }}>
-					{hasUnwatchedEpisodes ? "Mark as Watched" : "Mark as Unwatched"}
-				</Button>
+			<Box>
+				<Box display="flex" flexDirection="row">
+					<Box flexGrow="1" style={{ backgroundColor: "white" }}>
+						<img src="" />
+					</Box>
+					<Box
+						display="flex"
+						flexDirection="column"
+						p={2}
+						ml={2}
+						pb={0}
+						style={{ backgroundColor: "blue" }}
+						borderRadius={5}
+					>
+						<Typography variant="body1" style={{ paddingBottom: "8px" }}>
+							{"Latest episodes"}
+						</Typography>
+						<Box width="250px" height="150px" mb={2} style={{ backgroundColor: "white" }} />
+						<Box width="250px" height="150px" mb={2} style={{ backgroundColor: "white" }} />
+						<Box width="250px" height="150px" mb={2} style={{ backgroundColor: "white" }} />
+					</Box>
+				</Box>
+				<Box display="flex" flexDirection="row" alignItems="center" py={3}>
+					<Typography variant="h4">{"All Seasons"}</Typography>
+					<Box flex="1 0 0" px={1} style={{ overflowX: "hidden" }}>
+						<ChipTabs
+							value={Number(match.params.season)}
+							variant="scrollable"
+							scrollButtons="auto"
+							TabIndicatorProps={{
+								style: {
+									display: "none",
+								},
+							}}
+						>
+							{seasons.map(season => {
+								return (
+									<ChipTab
+										key={season._id}
+										value={season._id}
+										color="primary"
+										label={`Season ${season._id}`}
+										onClick={() => handleSeasonClick(season._id)}
+									/>
+								);
+							})}
+						</ChipTabs>
+					</Box>
+					<Button color="secondary" variant="contained" onClick={markAsWatched} style={{ margin: "10px 0px" }}>
+						{hasUnwatchedEpisodes ? "Mark as Watched" : "Mark as Unwatched"}
+					</Button>
+				</Box>
 				<Grid container spacing={2} className={classes.episodeListContainer}>
 					{renderEpisodes()}
 				</Grid>
-			</div>
+			</Box>
 		);
 	}
 
