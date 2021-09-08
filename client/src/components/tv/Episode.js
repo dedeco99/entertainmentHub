@@ -3,6 +3,8 @@ import PropTypes from "prop-types";
 
 import { makeStyles, Card, CardMedia, CardActionArea } from "@material-ui/core";
 
+import Placeholder from "../.partials/Placeholder";
+
 import { UserContext } from "../../contexts/UserContext";
 import { TVContext } from "../../contexts/TVContext";
 
@@ -11,8 +13,6 @@ import { patchSubscription } from "../../api/subscriptions";
 import { formatDate } from "../../utils/utils";
 
 import { episode as styles } from "../../styles/TV";
-
-import placeholder from "../../img/noimage.png";
 
 const useStyles = makeStyles(styles);
 
@@ -40,21 +40,24 @@ function Episode({ episode, height }) {
 
 	const seasonLabel = episode.season > 9 ? `S${episode.season}` : `S0${episode.season}`;
 	const episodeLabel = episode.number > 9 ? `E${episode.number}` : `E0${episode.number}`;
-	const image = episode.image ? episode.image : placeholder;
 
 	return (
 		<Card className={classes.root}>
 			<CardActionArea onClick={markAsWatched}>
-				<CardMedia
-					component="img"
-					height={height ? height : "150"}
-					image={height ? image.replace("w454_and_h254_bestv2", "original") : image}
-					style={
-						user.settings.tv && user.settings.tv.hideEpisodesThumbnails
-							? { filter: "blur(30px)" }
-							: { filter: "blur(0px)" }
-					}
-				/>
+				{episode.image ? (
+					<CardMedia
+						component="img"
+						height={height ? height : "150"}
+						image={height ? episode.image.replace("w454_and_h254_bestv2", "original") : episode.image}
+						style={
+							user.settings.tv && user.settings.tv.hideEpisodesThumbnails
+								? { filter: "blur(30px)" }
+								: { filter: "blur(0px)" }
+						}
+					/>
+				) : (
+					<Placeholder height={150} />
+				)}
 				<div className={`${classes.overlay} ${classes.title}`} title={episode.title}>
 					{episode.title}
 				</div>
