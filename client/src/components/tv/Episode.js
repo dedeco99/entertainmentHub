@@ -16,7 +16,7 @@ import placeholder from "../../img/noimage.png";
 
 const useStyles = makeStyles(styles);
 
-function Episode({ episode }) {
+function Episode({ episode, height }) {
 	const classes = useStyles();
 	const { user } = useContext(UserContext);
 	const { dispatch } = useContext(TVContext);
@@ -47,8 +47,8 @@ function Episode({ episode }) {
 			<CardActionArea onClick={markAsWatched}>
 				<CardMedia
 					component="img"
-					height="150"
-					image={image}
+					height={height ? height : "150"}
+					image={height ? image.replace("w454_and_h254_bestv2", "original") : image}
 					style={
 						user.settings.tv && user.settings.tv.hideEpisodesThumbnails
 							? { filter: "blur(30px)" }
@@ -81,6 +81,7 @@ function Episode({ episode }) {
 
 Episode.propTypes = {
 	episode: PropTypes.object.isRequired,
+	height: PropTypes.string,
 };
 
 export default Episode;

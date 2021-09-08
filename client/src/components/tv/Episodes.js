@@ -2,7 +2,7 @@ import React, { useContext, useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroller";
 import { useHistory, useRouteMatch } from "react-router-dom";
 
-import { makeStyles, Grid, Button, Box, Typography, Tabs, Tab, withStyles } from "@material-ui/core";
+import { makeStyles, withStyles, Grid, Box, Typography, Tabs, Tab, Checkbox } from "@material-ui/core";
 import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
 
 import Loading from "../.partials/Loading";
@@ -13,6 +13,7 @@ import { TVContext } from "../../contexts/TVContext";
 import { getEpisodes } from "../../api/tv";
 import { patchSubscription } from "../../api/subscriptions";
 
+import { diff } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
 import { episodes as styles } from "../../styles/TV";
@@ -36,11 +37,11 @@ const ChipTab = withStyles(() => ({
 		minWidth: 0,
 		minHeight: 0,
 		height: "32px",
-		fontSize: "0.8125rem",
 		whiteSpace: "nowrap",
-		marginRight: "4px",
+		marginRight: "10px",
 		fontFamily: "Roboto",
 	},
+	selected: { backgroundColor: "#ec6e4c", color: "white", borderColor: "#ec6e4c" },
 }))(props => <Tab {...props} />);
 
 function Episodes() {
@@ -241,31 +242,49 @@ function Episodes() {
 	}
 
 	function renderSeasons() {
+		let latestEpisodes = [];
+		let nextEpisodeToWatch = null;
+		for (let i = seasons.length - 1; i >= 0; i--) {
+			const releasedEpisodes = seasons[i].episodes.filter(e => diff(e.date) > 0);
+			if (latestEpisodes.length < 3) latestEpisodes = latestEpisodes.concat(releasedEpisodes.slice(0, 3));
+
+			const episodesToWatch = releasedEpisodes.filter(e => !e.watched);
+
+			if (episodesToWatch.length) nextEpisodeToWatch = episodesToWatch[episodesToWatch.length - 1];
+
+			if (!nextEpisodeToWatch && i === 0) {
+				nextEpisodeToWatch = seasons[seasons.length - 1].episodes.filter(e => diff(e.date) > 0)[0];
+			}
+		}
+
 		return (
 			<Box>
-				<Box display="flex" flexDirection="row">
-					<Box flexGrow="1" style={{ backgroundColor: "white" }}>
-						<img src="" />
+				{nextEpisodeToWatch && (
+					<Box display="flex" flexDirection="row">
+						<Box flexGrow="1">
+							<Episode episode={nextEpisodeToWatch} height={"555px"} />
+						</Box>
+						<Box
+							display="flex"
+							flexDirection="column"
+							p={2}
+							ml={2}
+							pb={0}
+							style={{ backgroundColor: "#222" }}
+							borderRadius={5}
+						>
+							<Typography variant="body1" style={{ paddingBottom: "8px" }}>
+								{"Latest episodes"}
+							</Typography>
+							{latestEpisodes.map(episode => (
+								<Box key={episode._id} width="250px" height="150px" mb={2}>
+									<Episode episode={episode} />
+								</Box>
+							))}
+						</Box>
 					</Box>
-					<Box
-						display="flex"
-						flexDirection="column"
-						p={2}
-						ml={2}
-						pb={0}
-						style={{ backgroundColor: "blue" }}
-						borderRadius={5}
-					>
-						<Typography variant="body1" style={{ paddingBottom: "8px" }}>
-							{"Latest episodes"}
-						</Typography>
-						<Box width="250px" height="150px" mb={2} style={{ backgroundColor: "white" }} />
-						<Box width="250px" height="150px" mb={2} style={{ backgroundColor: "white" }} />
-						<Box width="250px" height="150px" mb={2} style={{ backgroundColor: "white" }} />
-					</Box>
-				</Box>
+				)}
 				<Box display="flex" flexDirection="row" alignItems="center" py={3}>
-					<Typography variant="h4">{"All Seasons"}</Typography>
 					<Box flex="1 0 0" px={1} style={{ overflowX: "hidden" }}>
 						<ChipTabs
 							value={Number(match.params.season)}
@@ -290,9 +309,15 @@ function Episodes() {
 							})}
 						</ChipTabs>
 					</Box>
-					<Button color="secondary" variant="contained" onClick={markAsWatched} style={{ margin: "10px 0px" }}>
-						{hasUnwatchedEpisodes ? "Mark as Watched" : "Mark as Unwatched"}
-					</Button>
+					<Checkbox
+						color="secondary"
+						checked={!hasUnwatchedEpisodes}
+						disabled={loading}
+						icon={<i className="icon-eye" />}
+						checkedIcon={<i className="icon-eye" />}
+						onChange={markAsWatched}
+						style={{ marginRight: "10px" }}
+					/>
 				</Box>
 				<Grid container spacing={2} className={classes.episodeListContainer}>
 					{renderEpisodes()}
