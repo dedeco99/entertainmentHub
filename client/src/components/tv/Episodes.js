@@ -53,7 +53,7 @@ function Episodes() {
 	const [episodes, setEpisodes] = useState([]);
 	const [page, setPage] = useState(0);
 	const [hasMore, setHasMore] = useState(false);
-	const [filter, setFilter] = useState("all");
+	const [filter, setFilter] = useState("passed");
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [currentSeries, setCurrentSeries] = useState(null);
@@ -213,9 +213,6 @@ function Episodes() {
 		return (
 			<div align="center">
 				<ToggleButtonGroup value={filter} onChange={handleFilterEpisodes} color="primary" exclusive>
-					<ToggleButton value="all" className={classes.episodeBtn} color="primary" variant="outlined">
-						{translate("all")}
-					</ToggleButton>
 					<ToggleButton value="passed" className={classes.episodeBtn} color="primary" variant="outlined">
 						{translate("releasedEpisodes")}
 					</ToggleButton>
