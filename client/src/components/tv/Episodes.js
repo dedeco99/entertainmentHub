@@ -2,10 +2,9 @@ import React, { useContext, useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroller";
 import { useHistory, useRouteMatch } from "react-router-dom";
 
-import { makeStyles, Grid, Button } from "@material-ui/core";
+import { makeStyles, withStyles, Grid, Box, Typography, Tabs, Tab, Checkbox } from "@material-ui/core";
 import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
 
-import Categories from "../.partials/Categories";
 import Loading from "../.partials/Loading";
 import Episode from "./Episode";
 
@@ -14,11 +13,36 @@ import { TVContext } from "../../contexts/TVContext";
 import { getEpisodes } from "../../api/tv";
 import { patchSubscription } from "../../api/subscriptions";
 
+import { diff } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
 import { episodes as styles } from "../../styles/TV";
 
 const useStyles = makeStyles(styles);
+
+const ChipTabs = withStyles({
+	root: {
+		alignItems: "center",
+		minHeight: "0px",
+	},
+})(Tabs);
+
+const ChipTab = withStyles(() => ({
+	root: {
+		textTransform: "none",
+		backgroundColor: "transparent",
+		borderRadius: "16px",
+		border: "1px solid white",
+		color: "white",
+		minWidth: 0,
+		minHeight: 0,
+		height: "32px",
+		whiteSpace: "nowrap",
+		marginRight: "10px",
+		fontFamily: "Roboto",
+	},
+	selected: { backgroundColor: "#ec6e4c", color: "white", borderColor: "#ec6e4c" },
+}))(props => <Tab {...props} />);
 
 function Episodes() {
 	const history = useHistory();
@@ -29,7 +53,7 @@ function Episodes() {
 	const [episodes, setEpisodes] = useState([]);
 	const [page, setPage] = useState(0);
 	const [hasMore, setHasMore] = useState(false);
-	const [filter, setFilter] = useState("all");
+	const [filter, setFilter] = useState("passed");
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [currentSeries, setCurrentSeries] = useState(null);
@@ -131,7 +155,7 @@ function Episodes() {
 				if (match.params.season) {
 					handleGetEpisodes(Number(match.params.season));
 				} else {
-					history.replace(`/tv/${match.params.seriesId}/${seasons[seasons.length - 1]._id}`);
+					history.replace(`/tv/${match.params.seriesId}/${seasons[0]._id}`);
 				}
 			} else {
 				await handleGetAll();
@@ -189,9 +213,6 @@ function Episodes() {
 		return (
 			<div align="center">
 				<ToggleButtonGroup value={filter} onChange={handleFilterEpisodes} color="primary" exclusive>
-					<ToggleButton value="all" className={classes.episodeBtn} color="primary" variant="outlined">
-						{translate("all")}
-					</ToggleButton>
 					<ToggleButton value="passed" className={classes.episodeBtn} color="primary" variant="outlined">
 						{translate("releasedEpisodes")}
 					</ToggleButton>
@@ -218,23 +239,87 @@ function Episodes() {
 	}
 
 	function renderSeasons() {
+		let latestEpisodes = [];
+		let nextEpisodeToWatch = null;
+		for (let i = seasons.length - 1; i >= 0; i--) {
+			const releasedEpisodes = seasons[i].episodes.filter(e => diff(e.date) > 0);
+			if (latestEpisodes.length < 3) latestEpisodes = latestEpisodes.concat(releasedEpisodes.slice(0, 3));
+
+			const episodesToWatch = releasedEpisodes.filter(e => !e.watched);
+
+			if (episodesToWatch.length) nextEpisodeToWatch = episodesToWatch[episodesToWatch.length - 1];
+
+			if (!nextEpisodeToWatch && i === 0) {
+				nextEpisodeToWatch = seasons[seasons.length - 1].episodes.filter(e => diff(e.date) > 0)[0];
+			}
+		}
+
 		return (
-			<div>
-				<Categories
-					options={seasons}
-					idField="_id"
-					nameField="_id"
-					countField="toWatch"
-					action={handleSeasonClick}
-					selected={Number(match.params.season)}
-				/>
-				<Button color="secondary" variant="contained" onClick={markAsWatched} style={{ margin: "10px 0px" }}>
-					{hasUnwatchedEpisodes ? "Mark as Watched" : "Mark as Unwatched"}
-				</Button>
+			<Box>
+				{nextEpisodeToWatch && (
+					<Box display="flex" flexDirection="row">
+						<Box flexGrow="1">
+							<Episode episode={nextEpisodeToWatch} height={"555px"} />
+						</Box>
+						<Box
+							display="flex"
+							flexDirection="column"
+							p={2}
+							ml={2}
+							pb={0}
+							style={{ backgroundColor: "#222" }}
+							borderRadius={5}
+						>
+							<Typography variant="body1" style={{ paddingBottom: "8px" }}>
+								{"Latest episodes"}
+							</Typography>
+							{latestEpisodes.map(episode => (
+								<Box key={episode._id} width="250px" height="150px" mb={2}>
+									<Episode episode={episode} />
+								</Box>
+							))}
+						</Box>
+					</Box>
+				)}
+				<Box display="flex" flexDirection="row" alignItems="center" py={3}>
+					<Box flex="1 0 0" px={1} style={{ overflowX: "hidden" }}>
+						<ChipTabs
+							value={Number(match.params.season)}
+							variant="scrollable"
+							scrollButtons="auto"
+							TabIndicatorProps={{
+								style: {
+									display: "none",
+								},
+							}}
+						>
+							{seasons.map(season => {
+								return (
+									<ChipTab
+										key={season._id}
+										value={season._id}
+										color="primary"
+										label={`Season ${season._id}`}
+										onClick={() => handleSeasonClick(season._id)}
+									/>
+								);
+							})}
+						</ChipTabs>
+					</Box>
+					<Checkbox
+						color="secondary"
+						checked={!hasUnwatchedEpisodes}
+						disabled={loading}
+						icon={<i className="icon-eye" />}
+						checkedIcon={<i className="icon-eye" />}
+						onChange={markAsWatched}
+						style={{ marginRight: "10px" }}
+					/>
+				</Box>
 				<Grid container spacing={2} className={classes.episodeListContainer}>
 					{renderEpisodes()}
 				</Grid>
-			</div>
+			</Box>
 		);
 	}
 

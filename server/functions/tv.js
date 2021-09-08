@@ -397,7 +397,7 @@ async function getSearch(event) {
 		image: s.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}` : "",
 		imdbId: tmdbSeries[i].data.imdb_id,
 		year: dayjs(s.first_air_date).get("year"),
-		rating: s.vote_average,
+		rating: s.vote_average.toFixed(1),
 	}));
 
 	return response(200, "GET_SERIES", series);

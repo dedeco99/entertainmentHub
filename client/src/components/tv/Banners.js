@@ -18,6 +18,8 @@ import {
 	Slide,
 } from "@material-ui/core";
 
+import Placeholder from "../.partials/Placeholder";
+
 import { TVContext } from "../../contexts/TVContext";
 
 import { addSubscriptions, patchSubscription, deleteSubscription } from "../../api/subscriptions";
@@ -25,7 +27,6 @@ import { getProviders } from "../../api/tv";
 
 import { banners as styles } from "../../styles/TV";
 
-import placeholder from "../../img/noimage.png";
 import { translate } from "../../utils/translations";
 
 const useStyles = makeStyles(styles);
@@ -117,13 +118,18 @@ function Banners({ series, contentType, loading, bannerWidth }) {
 						}
 						target="_blank"
 						rel="noreferrer"
+						style={{ textDecoration: "none" }}
 					>
-						<CardMedia
-							component="img"
-							width="100%"
-							image={serie.image ? serie.image : placeholder}
-							style={{ display: "block", width: "100%" }}
-						/>
+						{serie.image ? (
+							<CardMedia
+								component="img"
+								width="100%"
+								image={serie.image}
+								style={{ display: "block", width: "100%" }}
+							/>
+						) : (
+							<Placeholder height={270} />
+						)}
 					</a>
 					<Zoom in={!!providers[serie.externalId]}>
 						<Box
