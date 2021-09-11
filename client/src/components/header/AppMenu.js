@@ -1,5 +1,6 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Link, useHistory, useLocation } from "react-router-dom";
+import GridLayout from "react-grid-layout";
 
 import { makeStyles, List, ListItem, Typography } from "@material-ui/core";
 
@@ -76,20 +77,38 @@ function AppMenu() {
 	function renderAppList() {
 		if (loading) return <Loading />;
 
-		return apps.map(app => (
-			<ListItem
-				key={app.platform}
-				button
-				selected={selectedMenu === app.platform}
-				className={classes.appItem}
-				component={Link}
-				to={app.endpoint}
+		return (
+			<GridLayout
+				className="layout"
+				cols={1}
+				rowHeight={55}
+				width={50}
+				margin={[0, 0]}
+				isResizable={false}
+				onDragStart={(layout, oldItem, newItem, placeholder, e) => {
+					e.stopPropagation();
+				}}
+				// onDragStop={handleOrderChange}
+				draggableHandle=".handleListItem"
 			>
-				<Typography>
-					<i className={app.icon} />
-				</Typography>
-			</ListItem>
-		));
+				{apps.map((app, i) => (
+					<div key={app.platform} data-grid={{ x: 0, y: i, w: 1, h: 1 }}>
+						<ListItem
+							key={app.platform}
+							button
+							selected={selectedMenu === app.platform}
+							className={`${classes.appItem} handleListItem`}
+							component={Link}
+							to={app.endpoint}
+						>
+							<Typography>
+								<i className={app.icon} />
+							</Typography>
+						</ListItem>
+					</div>
+				))}
+			</GridLayout>
+		);
 	}
 
 	function renderAddMoreApps() {
