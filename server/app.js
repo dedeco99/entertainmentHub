@@ -80,6 +80,8 @@ app.get("/api/apps", token, (req, res) => middleware(req, res, apps.getApps));
 
 app.post("/api/apps", token, (req, res) => middleware(req, res, apps.addApp));
 
+app.patch("/api/apps/:id", token, (req, res) => middleware(req, res, apps.patchApp));
+
 app.delete("/api/apps/:id", token, (req, res) => middleware(req, res, apps.deleteApp));
 
 app.put("/api/users", token, (req, res) => middleware(req, res, users.editUser));
