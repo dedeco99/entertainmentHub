@@ -14,9 +14,9 @@ async function getApps(event) {
 async function addApp(event) {
 	const { body, user } = event;
 	const { platform, code } = body;
-	const appExists = await App.findOne({ user: user._id, platform });
+	const userApps = await App.find({ user: user._id });
 
-	if (appExists) return errors.duplicated;
+	if (userApps.find(a => a.platform === platform)) return errors.duplicated;
 
 	let json = {};
 	switch (platform) {
@@ -64,18 +64,59 @@ async function addApp(event) {
 	}
 
 	if (json.refresh_token) {
-		const newApp = new App({ user: user._id, platform, refreshToken: json.refresh_token });
+		const newApp = new App({ user: user._id, platform, refreshToken: json.refresh_token, pos: userApps.length });
 		await newApp.save();
 
 		return response(201, "ADD_APP", newApp);
 	} else if (platform === "tv") {
-		const newApp = new App({ user: user._id, platform });
+		const newApp = new App({ user: user._id, platform, pos: userApps.length });
 		await newApp.save();
 
 		return response(201, "ADD_APP", newApp);
 	}
 
 	return errors.badRequest;
+}
+
+async function patchApp(event) {
+	const { params, body, user } = event;
+	const { id } = params;
+	const { pos } = body;
+
+	let app = null;
+	try {
+		app = await App.findOne({ _id: id });
+	} catch (e) {
+		return errors.notFound;
+	}
+
+	if (!app) return errors.notFound;
+
+	try {
+		await Promise.all([
+			App.updateMany(
+				{
+					user: user._id,
+					_id: { $ne: id },
+					pos: { $gte: app.pos, $lte: pos },
+				},
+				{ $inc: { pos: -1 } },
+			),
+			App.updateMany(
+				{
+					user: user._id,
+					_id: { $ne: id },
+					pos: { $gte: pos, $lte: app.pos },
+				},
+				{ $inc: { pos: 1 } },
+			),
+			App.updateOne({ _id: id }, { pos }, { new: true }),
+		]);
+	} catch (e) {
+		return errors.notFound;
+	}
+
+	return response(200, "PATCH_APP");
 }
 
 async function deleteApp(event) {
@@ -97,5 +138,6 @@ async function deleteApp(event) {
 module.exports = {
 	getApps,
 	addApp,
+	patchApp,
 	deleteApp,
 };

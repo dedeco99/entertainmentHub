@@ -20,6 +20,16 @@ async function addApp(platform, code) {
 	return res;
 }
 
+async function patchApp(id, data) {
+	const res = await api({
+		method: "patch",
+		url: `/api/apps/${id}`,
+		data,
+	});
+
+	return res;
+}
+
 async function deleteApp(app) {
 	const res = await api({
 		method: "delete",
@@ -30,4 +40,4 @@ async function deleteApp(app) {
 	return res;
 }
 
-export { getApps, addApp, deleteApp };
+export { getApps, addApp, patchApp, deleteApp };
