@@ -48,11 +48,6 @@ const general = {
 		marginTop: 10,
 		marginBottom: 10,
 	},
-	speedDial: {
-		bottom: 15,
-		left: -3,
-		position: "fixed",
-	},
 };
 
 export default general;
