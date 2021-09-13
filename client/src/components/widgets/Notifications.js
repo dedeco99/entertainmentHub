@@ -429,6 +429,7 @@ function Notifications({ height, wrapTitle }) {
 
 	function renderNotificationContent(notification) {
 		const { thumbnail, overlay } = formatNotification(notification);
+		console.log(notification);
 
 		return (
 			<>
@@ -457,7 +458,18 @@ function Notifications({ height, wrapTitle }) {
 						>
 							{thumbnail ? (
 								<>
-									<img src={thumbnail} width="128px" height="72px" alt="Video thumbnail" />
+									<img
+										src={thumbnail}
+										width="128px"
+										height="72px"
+										alt="Video thumbnail"
+										style={{
+											filter:
+												notification.type === "tv" && user.settings.tv && user.settings.tv.hideEpisodesThumbnails
+													? "blur(11px)"
+													: "blur(0px)",
+										}}
+									/>
 									{overlay && (
 										<Typography variant="caption" className={classes.bottomRightOverlay}>
 											{overlay}
