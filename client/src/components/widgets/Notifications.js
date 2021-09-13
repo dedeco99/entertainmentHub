@@ -362,7 +362,8 @@ function Notifications({ height, wrapTitle }) {
 	}
 
 	function renderNotificationText(notification) {
-		const { overlay, title, subtitle } = formatNotification(notification);
+		const { overlay, title, subtitle, episodeNumber } = formatNotification(notification);
+		console.log(notification);
 
 		switch (notification.type) {
 			case "youtube":
@@ -401,7 +402,7 @@ function Notifications({ height, wrapTitle }) {
 				return (
 					<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
 						<Typography variant="body1" title={title} noWrap>
-							{title}
+							{user.settings.tv && user.settings.tv.hideEpisodesTitles ? `Episode ${episodeNumber}` : title}
 						</Typography>
 						<Typography variant="body2" title={notification.info.episodeTitle || overlay} noWrap>
 							{notification.info.episodeTitle || overlay}
@@ -429,7 +430,6 @@ function Notifications({ height, wrapTitle }) {
 
 	function renderNotificationContent(notification) {
 		const { thumbnail, overlay } = formatNotification(notification);
-		console.log(notification);
 
 		return (
 			<>

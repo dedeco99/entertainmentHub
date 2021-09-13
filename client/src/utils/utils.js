@@ -88,6 +88,7 @@ function formatNotification(notification) {
 				overlay: `${seasonLabel}${episodeLabel}`,
 				title: displayName,
 				subtitle: `${seasonLabel}${episodeLabel} - ${episodeTitle}`,
+				episodeNumber: number,
 			};
 		case "reminder":
 			return {

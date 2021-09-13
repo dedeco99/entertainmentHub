@@ -20,6 +20,7 @@ function Episode({ episode, height }) {
 	const classes = useStyles();
 	const { user } = useContext(UserContext);
 	const { dispatch } = useContext(TVContext);
+	console.log("episode", episode);
 
 	async function markAsWatched() {
 		const response = await patchSubscription(episode.series._id, {
@@ -59,7 +60,7 @@ function Episode({ episode, height }) {
 					<Placeholder height={150} />
 				)}
 				<div className={`${classes.overlay} ${classes.title}`} title={episode.title}>
-					{episode.title}
+					{user.settings.tv && user.settings.tv.hideEpisodesTitles ? `Episode ${episode.number}` : episode.title}
 				</div>
 				<div className={episode.series ? `${classes.overlay} ${classes.seriesName}` : ""}>
 					{episode.series && episode.series.displayName}
