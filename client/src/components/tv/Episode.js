@@ -43,14 +43,17 @@ function Episode({ episode, height }) {
 
 	return (
 		<Card className={classes.root}>
-			<CardActionArea onClick={markAsWatched}>
+			<CardActionArea
+				onClick={markAsWatched}
+				style={episode.watched ? { border: "3px solid #32CD32" } : { border: "3px solid transparent" }}
+			>
 				{episode.image ? (
 					<CardMedia
 						component="img"
 						height={height ? height : "150"}
 						image={height ? episode.image.replace("w454_and_h254_bestv2", "original") : episode.image}
 						style={
-							user.settings.tv && user.settings.tv.hideEpisodesThumbnails
+							user.settings.tv && user.settings.tv.hideEpisodesThumbnails && !episode.watched
 								? { filter: "blur(30px)" }
 								: { filter: "blur(0px)" }
 						}
@@ -67,15 +70,7 @@ function Episode({ episode, height }) {
 				<div className={episode.finale ? `${classes.overlay} ${classes.finale}` : ""}>
 					{episode.finale && "Finale"}
 				</div>
-				<div className={`${classes.overlay} ${classes.season}`}>
-					{seasonLabel + episodeLabel}
-					{episode.watched ? (
-						<i
-							className="icon-check-circled"
-							style={{ color: "green", top: "1px", marginLeft: "3px", position: "relative" }}
-						/>
-					) : null}
-				</div>
+				<div className={`${classes.overlay} ${classes.season}`}>{seasonLabel + episodeLabel}</div>
 				<div className={`${classes.overlay} ${classes.date}`}>{formatDate(episode.date, "DD-MM-YYYY")}</div>
 			</CardActionArea>
 		</Card>
