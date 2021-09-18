@@ -64,7 +64,10 @@ function Episode({ episode, height }) {
 				<div className={`${classes.overlay} ${classes.title}`} title={episode.title}>
 					{episode.title}
 				</div>
-				<div className={episode.series ? `${classes.overlay} ${classes.seriesName}` : ""}>
+				<div
+					className={episode.series ? `${classes.overlay} ${classes.seriesName}` : ""}
+					title={episode.series && episode.series.displayName}
+				>
 					{episode.series && episode.series.displayName}
 				</div>
 				<div className={episode.finale ? `${classes.overlay} ${classes.finale}` : ""}>
