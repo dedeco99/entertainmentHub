@@ -2,26 +2,22 @@ import React, { useContext, useState, useEffect } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import ReactPlayer from "react-player";
 
-import { makeStyles, Grid, Box } from "@material-ui/core";
-import { SpeedDial, SpeedDialAction, ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
+import { Grid, Box } from "@material-ui/core";
+import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 
 import Follows from "../.partials/Follows";
 import Subscriptions from "../.partials/Subscriptions";
 import Videos from "../youtube/Videos";
 
 import { TwitchContext } from "../../contexts/TwitchContext";
-
-import styles from "../../styles/General";
-
-const useStyles = makeStyles(styles);
+import { ActionContext } from "../../contexts/ActionContext";
 
 function Twitch() {
-	const classes = useStyles();
 	const history = useHistory();
 	const match = useRouteMatch();
 	const { state } = useContext(TwitchContext);
 	const { subscriptions } = state;
-	const [openOptions, setOpenOptions] = useState(false);
+	const { dispatch } = useContext(ActionContext);
 	const [openFollows, setOpenFollows] = useState(false);
 	const [activeSubscription, setActiveSubscription] = useState(false);
 	const [type, setType] = useState("videos");
@@ -31,14 +27,6 @@ function Twitch() {
 
 		if (subscription) setActiveSubscription(subscription);
 	}, [subscriptions, match.url]);
-
-	function handleOpenOptions() {
-		setOpenOptions(true);
-	}
-
-	function handleCloseOptions() {
-		setOpenOptions(false);
-	}
 
 	function handleOpenFollows() {
 		setOpenFollows(true);
@@ -58,13 +46,24 @@ function Twitch() {
 		if (value && value !== type) setType(value);
 	}
 
-	const actions = [
-		{
-			name: "Add Subscriptions",
-			icon: <i className="icon-user" />,
-			handleClick: handleOpenFollows,
-		},
-	];
+	useEffect(() => {
+		const actions = [
+			{
+				from: "twitch",
+				name: "Add Subscriptions",
+				icon: <i className="icon-user" />,
+				handleClick: handleOpenFollows,
+			},
+		];
+
+		function setupActions() {
+			dispatch({ type: "ADD_ACTIONS", actions });
+		}
+
+		setupActions();
+
+		return () => dispatch({ type: "DELETE_ACTIONS", from: "twitch" });
+	}, []);
 
 	return (
 		<Grid container spacing={2}>
@@ -102,24 +101,6 @@ function Twitch() {
 					</>
 				)}
 			</Grid>
-			<SpeedDial
-				ariaLabel="Options"
-				icon={<i className="icon-add" />}
-				onClose={handleCloseOptions}
-				onOpen={handleOpenOptions}
-				open={openOptions}
-				className={classes.speedDial}
-				FabProps={{ size: "small" }}
-			>
-				{actions.map(action => (
-					<SpeedDialAction
-						key={action.name}
-						icon={action.icon}
-						tooltipTitle={action.name}
-						onClick={action.handleClick}
-					/>
-				))}
-			</SpeedDial>
 		</Grid>
 	);
 }

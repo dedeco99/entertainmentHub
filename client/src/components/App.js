@@ -28,6 +28,7 @@ import TwitchContextProvider from "../contexts/TwitchContext";
 import RedditContextProvider from "../contexts/RedditContext";
 import TVContextProvider from "../contexts/TVContext";
 import VideoPlayerContextProvider from "../contexts/VideoPlayerContext";
+import ActionContextProvider from "../contexts/ActionContext";
 
 import styles from "../styles/General";
 
@@ -124,14 +125,16 @@ function App() {
 								<RedditContextProvider>
 									<TVContextProvider>
 										<VideoPlayerContextProvider>
-											<BrowserRouter>
-												<Header />
-												<div className={classes.main}>{renderRoutes()}</div>
-												<BackUpButton />
-												<VideoPlayer />
-												<ToastContainer position="bottom-right" newestOnTop />
-												<SocketClient />
-											</BrowserRouter>
+											<ActionContextProvider>
+												<BrowserRouter>
+													<Header />
+													<div className={classes.main}>{renderRoutes()}</div>
+													<BackUpButton />
+													<VideoPlayer />
+													<ToastContainer position="bottom-right" newestOnTop />
+													<SocketClient />
+												</BrowserRouter>
+											</ActionContextProvider>
 										</VideoPlayerContextProvider>
 									</TVContextProvider>
 								</RedditContextProvider>

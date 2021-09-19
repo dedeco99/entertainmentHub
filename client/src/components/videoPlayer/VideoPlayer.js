@@ -40,8 +40,9 @@ function VideoPlayer() {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(VideoPlayerContext);
 	const { user } = useContext(UserContext);
-	const { state: youtubeState } = useContext(YoutubeContext);
-	const { playlists } = youtubeState;
+	const {
+		state: { playlists },
+	} = useContext(YoutubeContext);
 	const [youtubePlaylistLink, setYoutubePlaylistLink] = useState("");
 	const [youtubePlaylist, setYoutubePlaylist] = useState("");
 	const { currentVideo, videos, x, y, width, height, minimized, selectedTab, showQueue } = state;

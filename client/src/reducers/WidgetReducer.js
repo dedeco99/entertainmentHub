@@ -16,8 +16,8 @@ export const widgetReducer = (state, action) => {
 			widgets = widgets.filter(n => n._id !== action.widget._id);
 
 			return { ...state, widgets };
-		case "SET_EDIT_MODE":
-			return { ...state, editMode: action.editMode };
+		case "TOGGLE_EDIT_MODE":
+			return { ...state, editMode: !state.editMode };
 		default:
 			return state;
 	}

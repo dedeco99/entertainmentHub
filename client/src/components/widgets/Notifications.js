@@ -56,8 +56,10 @@ function Notifications({ height, wrapTitle }) {
 	const { state, dispatch } = useContext(NotificationContext);
 	const { notifications, total } = state;
 	const videoPlayer = useContext(VideoPlayerContext);
-	const { state: youtubeState, dispatch: youtubeDispatch } = useContext(YoutubeContext);
-	const { playlists } = youtubeState;
+	const {
+		state: { playlists },
+		dispatch: youtubeDispatch,
+	} = useContext(YoutubeContext);
 	const [pagination, setPagination] = useState({
 		loading: false,
 		page: 0,
