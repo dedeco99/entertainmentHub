@@ -206,6 +206,13 @@ function Settings() {
 		});
 	}
 
+	function handleEpisodesTitlesChange() {
+		setSettings({
+			...settings,
+			tv: { ...settings.tv, hideEpisodesTitles: settings.tv ? !settings.tv.hideEpisodesTitles : true },
+		});
+	}
+
 	function handleOpenDeleteConfirmation(key) {
 		setSelectedApp(apps[key]);
 
@@ -421,6 +428,13 @@ function Settings() {
 									control={<Checkbox color="primary" />}
 									label={translate("hideEpisodesThumbnails")}
 									onChange={handleEpisodesThumbnailsChange}
+								/>
+								<FormControlLabel
+									checked={settings.tv ? settings.tv.hideEpisodesTitles : false}
+									color="primary"
+									control={<Checkbox color="primary" />}
+									label={translate("hideEpisodesTitles")}
+									onChange={handleEpisodesTitlesChange}
 								/>
 							</>
 						)}

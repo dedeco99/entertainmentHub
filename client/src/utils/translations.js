@@ -252,6 +252,10 @@ const translations = {
 		en: "Hide thumbnail on episodes",
 		pt: "Esconder a thumbnail dos episodios",
 	},
+	hideEpisodesTitles: {
+		en: "Hide titles on episodes",
+		pt: "Esconder os titulos dos episodios",
+	},
 	autoplayVideoPlayer: {
 		en: "Auto play for video player",
 		pt: "Reprodução automática para o reprodutor de vídeo",

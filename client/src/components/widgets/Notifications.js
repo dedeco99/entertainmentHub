@@ -362,7 +362,7 @@ function Notifications({ height, wrapTitle }) {
 	}
 
 	function renderNotificationText(notification) {
-		const { overlay, title, subtitle } = formatNotification(notification);
+		const { title, subtitle, overlay } = formatNotification(notification);
 
 		switch (notification.type) {
 			case "youtube":
@@ -401,10 +401,12 @@ function Notifications({ height, wrapTitle }) {
 				return (
 					<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
 						<Typography variant="body1" title={title} noWrap>
-							{title}
+							{user.settings.tv && user.settings.tv.hideEpisodesTitles
+								? `Episode ${notification.info.number}`
+								: title || overlay}
 						</Typography>
-						<Typography variant="body2" title={notification.info.episodeTitle || overlay} noWrap>
-							{notification.info.episodeTitle || overlay}
+						<Typography variant="body2" title={subtitle} noWrap>
+							{subtitle}
 						</Typography>
 						<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
 					</Box>
@@ -457,7 +459,18 @@ function Notifications({ height, wrapTitle }) {
 						>
 							{thumbnail ? (
 								<>
-									<img src={thumbnail} width="128px" height="72px" alt="Video thumbnail" />
+									<img
+										src={thumbnail}
+										width="128px"
+										height="72px"
+										alt="Video thumbnail"
+										style={{
+											filter:
+												notification.type === "tv" && user.settings.tv && user.settings.tv.hideEpisodesThumbnails
+													? "blur(11px)"
+													: "blur(0px)",
+										}}
+									/>
 									{overlay && (
 										<Typography variant="caption" className={classes.bottomRightOverlay}>
 											{overlay}
