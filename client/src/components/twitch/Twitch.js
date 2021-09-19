@@ -27,6 +27,12 @@ function Twitch() {
 	const [type, setType] = useState("videos");
 
 	useEffect(() => {
+		if (!match.params.channel && subscriptions.length) {
+			history.replace(`/twitch/${subscriptions[0].externalId}`);
+		}
+	}, []);
+
+	useEffect(() => {
 		const subscription = subscriptions.find(s => s.externalId === match.params.channel);
 
 		if (subscription) setActiveSubscription(subscription);
