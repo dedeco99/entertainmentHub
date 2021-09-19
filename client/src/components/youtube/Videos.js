@@ -80,15 +80,11 @@ function Videos({ platform, type }) {
 
 	function renderAllVideos() {
 		return (
-			<Grid container spacing={2}>
-				<Grid item xs={12}>
-					<InfiniteScroll loadMore={handleGetVideos} hasMore={pagination.hasMore} loader={<Loading key={0} />}>
-						<Grid container spacing={2}>
-							{renderVideos()}
-						</Grid>
-					</InfiniteScroll>
+			<InfiniteScroll loadMore={handleGetVideos} hasMore={pagination.hasMore} loader={<Loading key={0} />}>
+				<Grid container spacing={2}>
+					{renderVideos()}
 				</Grid>
-			</Grid>
+			</InfiniteScroll>
 		);
 	}
 
