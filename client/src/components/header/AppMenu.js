@@ -104,8 +104,7 @@ function AppMenu() {
 								button
 								selected={selectedMenu === app.platform}
 								className={`${classes.appItem} handleListItem`}
-								component={Link}
-								to={app.endpoint}
+								onClick={() => history.push(app.endpoint)}
 							>
 								<Typography>
 									<i className={app.icon} />
