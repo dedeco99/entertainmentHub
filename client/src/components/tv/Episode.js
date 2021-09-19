@@ -20,7 +20,6 @@ function Episode({ episode, height }) {
 	const classes = useStyles();
 	const { user } = useContext(UserContext);
 	const { dispatch } = useContext(TVContext);
-	console.log("episode", episode);
 
 	async function markAsWatched() {
 		const response = await patchSubscription(episode.series._id, {

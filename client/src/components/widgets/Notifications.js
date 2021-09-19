@@ -362,8 +362,7 @@ function Notifications({ height, wrapTitle }) {
 	}
 
 	function renderNotificationText(notification) {
-		const { overlay, title, subtitle, episodeNumber } = formatNotification(notification);
-		console.log(notification);
+		const { title, subtitle, overlay } = formatNotification(notification);
 
 		switch (notification.type) {
 			case "youtube":
@@ -402,10 +401,12 @@ function Notifications({ height, wrapTitle }) {
 				return (
 					<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
 						<Typography variant="body1" title={title} noWrap>
-							{user.settings.tv && user.settings.tv.hideEpisodesTitles ? `Episode ${episodeNumber}` : title}
+							{user.settings.tv && user.settings.tv.hideEpisodesTitles
+								? `Episode ${notification.info.number}`
+								: title || overlay}
 						</Typography>
-						<Typography variant="body2" title={notification.info.episodeTitle || overlay} noWrap>
-							{notification.info.episodeTitle || overlay}
+						<Typography variant="body2" title={subtitle} noWrap>
+							{subtitle}
 						</Typography>
 						<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
 					</Box>
