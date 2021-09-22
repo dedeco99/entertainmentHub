@@ -294,6 +294,7 @@ async function cronjob() {
 					$push: {
 						_id: "$user._id",
 						watchLaterPlaylist: "$user.settings.youtube.watchLaterPlaylist",
+						subscriptionId: "$_id",
 						subscriptionDisplayName: "$displayName",
 						notifications: "$notifications",
 					},
@@ -332,7 +333,7 @@ async function cronjob() {
 					dateToSend: video.published,
 					sent: true,
 					notificationId: `${user._id}${video.yt_videoId}`,
-					subscription: subscription._id,
+					subscription: user.subscriptionId,
 					user: user._id,
 					type: "youtube",
 					topPriority: user.notifications.priority === 3,
