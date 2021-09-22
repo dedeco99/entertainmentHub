@@ -28,6 +28,7 @@ import AnimatedList from "../.partials/AnimatedList";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 import { UserContext } from "../../contexts/UserContext";
+import { SubscriptionContext } from "../../contexts/SubscriptionContext";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
@@ -53,6 +54,7 @@ const useStyles = makeStyles({ ...widgetStyles, ...videoPlayerStyles, ...general
 function Notifications({ height, wrapTitle }) {
 	const classes = useStyles();
 	const { user } = useContext(UserContext);
+	const { dispatch: subscriptionDispatch } = useContext(SubscriptionContext);
 	const { state, dispatch } = useContext(NotificationContext);
 	const { notifications, total } = state;
 	const videoPlayer = useContext(VideoPlayerContext);
@@ -311,6 +313,12 @@ function Notifications({ height, wrapTitle }) {
 		setLoadingBatchWatchLater(false);
 	}
 
+	function handleShowSubscriptionDetail() {
+		subscriptionDispatch({ type: "SET_SUBSCRIPTION", subscription: selectedNotification.subscription });
+		subscriptionDispatch({ type: "SET_IS_NOTIFICATION", isNotification: true });
+		subscriptionDispatch({ type: "SET_OPEN", open: true });
+	}
+
 	function renderBatchButtons() {
 		if (Object.keys(selectedNotifications).length) {
 			return pagination.history ? (
@@ -567,31 +575,35 @@ function Notifications({ height, wrapTitle }) {
 	}
 
 	function getNotificationActions() {
-		if (selectedNotification) {
-			if (pagination.history) {
-				return [
-					{ name: translate("restore"), onClick: handleRestoreNotification },
-					{ name: translate("delete"), onClick: handleHideNotification },
-				];
+		let options = [];
+
+		if (!selectedNotification) return options;
+
+		if (pagination.history) {
+			options = [
+				{ name: translate("restore"), onClick: handleRestoreNotification },
+				{ name: translate("delete"), onClick: handleHideNotification },
+			];
+
+			return options;
+		} else if (selectedNotification.type === "youtube") {
+			options = [
+				{ name: translate("markAsRead"), onClick: handleHideNotification },
+				{ name: translate("addToPlaylist"), onClick: handleOpenPlaylistsList },
+			];
+
+			if (user.settings.youtube && user.settings.youtube.watchLaterPlaylist) {
+				options.push({ name: translate("watchLater"), onClick: handleWatchLaterOption });
 			}
-
-			switch (selectedNotification.type) {
-				case "youtube":
-					const youtubeOptions = [
-						{ name: translate("markAsRead"), onClick: handleHideNotification },
-						{ name: translate("addToPlaylist"), onClick: handleOpenPlaylistsList },
-					];
-
-					if (user.settings.youtube && user.settings.youtube.watchLaterPlaylist) {
-						youtubeOptions.push({ name: translate("watchLater"), onClick: handleWatchLaterOption });
-					}
-
-					return youtubeOptions;
-				default:
-					return [{ name: translate("markAsRead"), onClick: handleHideNotification }];
-			}
+		} else {
+			options = [{ name: translate("markAsRead"), onClick: handleHideNotification }];
 		}
-		return [];
+
+		if (selectedNotification.subscription) {
+			options.push({ name: "Edit Subscription", onClick: handleShowSubscriptionDetail });
+		}
+
+		return options;
 	}
 
 	if (!open) return <Loading />;
