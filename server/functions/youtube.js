@@ -332,6 +332,7 @@ async function cronjob() {
 					dateToSend: video.published,
 					sent: true,
 					notificationId: `${user._id}${video.yt_videoId}`,
+					subscription: subscription._id,
 					user: user._id,
 					type: "youtube",
 					topPriority: user.notifications.priority === 3,
