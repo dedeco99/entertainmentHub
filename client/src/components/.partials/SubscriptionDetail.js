@@ -47,7 +47,7 @@ function SubscriptionDetail() {
 		active: true,
 		priority: 0,
 		autoAddToWatchLater: false,
-		watchLaterPlaylist: user.settings.youtube && user.settings.youtube.watchLaterPlaylist,
+		watchLaterPlaylist: user.settings ? user.settings.youtube && user.settings.youtube.watchLaterPlaylist : null,
 		dontShowWithTheseWords: [],
 		onlyShowWithTheseWords: [],
 	});
@@ -142,6 +142,8 @@ function SubscriptionDetail() {
 	}
 
 	const hasNotifications = ["youtube", "tv"];
+
+	if (!user.token) return null;
 
 	return (
 		<Dialog
