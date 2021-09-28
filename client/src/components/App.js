@@ -19,15 +19,18 @@ import Reminders from "./reminders/Reminders";
 import Settings from "./settings/Settings";
 import Apps from "./settings/Apps";
 import VideoPlayer from "./videoPlayer/VideoPlayer";
+import SubscriptionDetail from "./.partials/SubscriptionDetail";
 
 import UserContextProvider from "../contexts/UserContext";
 import NotificationContextProvider from "../contexts/NotificationContext";
+import SubscriptionContextProvider from "../contexts/SubscriptionContext";
 import WidgetContextProvider from "../contexts/WidgetContext";
 import YoutubeContextProvider from "../contexts/YoutubeContext";
 import TwitchContextProvider from "../contexts/TwitchContext";
 import RedditContextProvider from "../contexts/RedditContext";
 import TVContextProvider from "../contexts/TVContext";
 import VideoPlayerContextProvider from "../contexts/VideoPlayerContext";
+import ActionContextProvider from "../contexts/ActionContext";
 
 import styles from "../styles/General";
 
@@ -118,26 +121,31 @@ function App() {
 			<CssBaseline />
 			<UserContextProvider>
 				<NotificationContextProvider>
-					<WidgetContextProvider>
-						<YoutubeContextProvider>
-							<TwitchContextProvider>
-								<RedditContextProvider>
-									<TVContextProvider>
-										<VideoPlayerContextProvider>
-											<BrowserRouter>
-												<Header />
-												<div className={classes.main}>{renderRoutes()}</div>
-												<BackUpButton />
-												<VideoPlayer />
-												<ToastContainer position="bottom-right" newestOnTop />
-												<SocketClient />
-											</BrowserRouter>
-										</VideoPlayerContextProvider>
-									</TVContextProvider>
-								</RedditContextProvider>
-							</TwitchContextProvider>
-						</YoutubeContextProvider>
-					</WidgetContextProvider>
+					<SubscriptionContextProvider>
+						<WidgetContextProvider>
+							<YoutubeContextProvider>
+								<TwitchContextProvider>
+									<RedditContextProvider>
+										<TVContextProvider>
+											<VideoPlayerContextProvider>
+												<ActionContextProvider>
+													<BrowserRouter>
+														<Header />
+														<div className={classes.main}>{renderRoutes()}</div>
+														<SubscriptionDetail />
+														<BackUpButton />
+														<VideoPlayer />
+														<ToastContainer position="bottom-right" newestOnTop />
+														<SocketClient />
+													</BrowserRouter>
+												</ActionContextProvider>
+											</VideoPlayerContextProvider>
+										</TVContextProvider>
+									</RedditContextProvider>
+								</TwitchContextProvider>
+							</YoutubeContextProvider>
+						</WidgetContextProvider>
+					</SubscriptionContextProvider>
 				</NotificationContextProvider>
 			</UserContextProvider>
 		</ThemeProvider>

@@ -2,9 +2,10 @@ import React, { useState, useContext, useEffect } from "react";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import GridLayout from "react-grid-layout";
 
-import { makeStyles, List, ListItem, Typography } from "@material-ui/core";
+import { makeStyles, List, ListItem, Typography, Box } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
+import Actions from "./Actions";
 
 import { UserContext } from "../../contexts/UserContext";
 
@@ -75,64 +76,68 @@ function AppMenu() {
 		if (loading) return <Loading />;
 
 		return (
-			<div>
-				<GridLayout
-					className="layout"
-					cols={1}
-					rowHeight={55}
-					width={50}
-					margin={[0, 0]}
-					isResizable={false}
-					onDragStart={(layout, oldItem, newItem, placeholder, e) => {
-						e.stopPropagation();
-					}}
-					onDragStop={handleOrderChange}
-					draggableHandle=".handleListItem"
-				>
-					{user.apps.map((app, i) => (
-						<div
-							key={app.platform}
-							data-grid={{
-								x: 0,
-								y: isNaN(app.pos) ? i : app.pos,
-								w: 1,
-								h: 1,
-							}}
-						>
-							<ListItem
-								key={app.platform}
-								button
-								selected={selectedMenu === app.platform}
-								className={`${classes.appItem} handleListItem`}
-								onClick={() => history.push(app.endpoint)}
-							>
-								<Typography>
-									<i className={app.icon} />
-								</Typography>
-							</ListItem>
-						</div>
-					))}
-				</GridLayout>
-				{fixedApps.map(app => (
-					<ListItem
-						key={app.platform}
-						button
-						selected={selectedMenu === app.platform}
-						className={`${classes.appItem} handleListItem`}
-						component={Link}
-						to={app.endpoint}
+			<Box display="flex" flexDirection="column" height="100%">
+				<Box flexGrow={1}>
+					<GridLayout
+						className="layout"
+						cols={1}
+						rowHeight={55}
+						width={50}
+						margin={[0, 0]}
+						isResizable={false}
+						onDragStart={(layout, oldItem, newItem, placeholder, e) => {
+							e.stopPropagation();
+						}}
+						onDragStop={handleOrderChange}
+						draggableHandle=".handleListItem"
 					>
-						<Typography>
-							<i className={app.icon} />
-						</Typography>
-					</ListItem>
-				))}
-			</div>
+						{user.apps &&
+							user.apps.map((app, i) => (
+								<div
+									key={app.platform}
+									data-grid={{
+										x: 0,
+										y: isNaN(app.pos) ? i : app.pos,
+										w: 1,
+										h: 1,
+									}}
+								>
+									<ListItem
+										key={app.platform}
+										button
+										selected={selectedMenu === app.platform}
+										className={`${classes.appItem} handleListItem`}
+										component={Link}
+										to={app.endpoint}
+									>
+										<Typography>
+											<i className={app.icon} />
+										</Typography>
+									</ListItem>
+								</div>
+							))}
+					</GridLayout>
+					{fixedApps.map(app => (
+						<ListItem
+							key={app.platform}
+							button
+							selected={selectedMenu === app.platform}
+							className={`${classes.appItem} handleListItem`}
+							onClick={() => history.push(app.endpoint)}
+						>
+							<Typography>
+								<i className={app.icon} />
+							</Typography>
+						</ListItem>
+					))}
+				</Box>
+				<Actions />
+			</Box>
 		);
 	}
 
 	function renderAddMoreApps() {
-		if (user.apps.length === allApps.length) return null;
+		if (!user.apps || user.apps.length === allApps.length) return null;
 
 		return (
 			<ListItem button className={classes.appItem} component={Link} to="/settings/apps">
@@ -143,7 +148,7 @@ function AppMenu() {
 
 	return (
 		<div className={classes.root}>
-			<List>
+			<List style={{ height: "100%" }}>
 				{renderAppList()}
 				{renderAddMoreApps()}
 			</List>

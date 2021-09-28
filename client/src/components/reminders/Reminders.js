@@ -12,11 +12,11 @@ import {
 	Paper,
 	IconButton,
 } from "@material-ui/core";
-import { SpeedDial, SpeedDialAction } from "@material-ui/lab";
 
 import ScheduledNotificationDetail from "../reminders/ScheduledNotificationDetail";
 
 import { NotificationContext } from "../../contexts/NotificationContext";
+import { ActionContext } from "../../contexts/ActionContext";
 
 import { formatDate } from "../../utils/utils";
 
@@ -28,27 +28,8 @@ function Reminders() {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(NotificationContext);
 	const { scheduledNotifications } = state;
-	const [openOptions, setOpenOptions] = useState(false);
+	const { dispatch: actionDispatch } = useContext(ActionContext);
 	const [openReminderDetail, setOpenReminderDetail] = useState(false);
-
-	useEffect(() => {
-		async function fetchData() {
-			const response = await getScheduledNotifications();
-			if (response.status === 200) {
-				dispatch({ type: "SET_SCHEDULED_NOTIFICATIONS", scheduledNotifications: response.data });
-			}
-		}
-
-		fetchData();
-	}, []);
-
-	function handleOpenOptions() {
-		setOpenOptions(true);
-	}
-
-	function handleCloseOptions() {
-		setOpenOptions(false);
-	}
 
 	function handleOpenReminderDetail() {
 		setOpenReminderDetail(true);
@@ -58,16 +39,36 @@ function Reminders() {
 		setOpenReminderDetail(false);
 	}
 
+	useEffect(() => {
+		const actions = [
+			{
+				from: "reminders",
+				name: "Create Reminder",
+				icon: <i className="icon-add" />,
+				handleClick: handleOpenReminderDetail,
+			},
+		];
+
+		async function fetchData() {
+			actionDispatch({ type: "ADD_ACTIONS", actions });
+
+			const response = await getScheduledNotifications();
+			if (response.status === 200) {
+				dispatch({ type: "SET_SCHEDULED_NOTIFICATIONS", scheduledNotifications: response.data });
+			}
+		}
+
+		fetchData();
+
+		return () => actionDispatch({ type: "DELETE_ACTIONS", from: "reminders" });
+	}, []);
+
 	async function handleDeleteNotification(id) {
 		const response = await deleteScheduledNotification(id);
 		if (response.status === 200) {
 			dispatch({ type: "DELETE_SCHEDULED_NOTIFICATION", scheduledNotification: response.data });
 		}
 	}
-
-	const actions = [
-		{ name: "Create Reminder", icon: <i className="icon-add" />, handleClick: handleOpenReminderDetail },
-	];
 
 	return (
 		<div>
@@ -96,24 +97,6 @@ function Reminders() {
 				</Table>
 			</TableContainer>
 			<ScheduledNotificationDetail open={openReminderDetail} onClose={handleReminderDetailClose} />
-			<SpeedDial
-				ariaLabel="Options"
-				icon={<i className="icon-add" />}
-				onClose={handleCloseOptions}
-				onOpen={handleOpenOptions}
-				open={openOptions}
-				className={classes.speedDial}
-				FabProps={{ size: "small" }}
-			>
-				{actions.map(action => (
-					<SpeedDialAction
-						key={action.name}
-						icon={action.icon}
-						tooltipTitle={action.name}
-						onClick={action.handleClick}
-					/>
-				))}
-			</SpeedDial>
 		</div>
 	);
 }

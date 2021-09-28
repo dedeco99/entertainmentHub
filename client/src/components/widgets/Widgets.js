@@ -2,7 +2,6 @@ import React, { useContext, useState, useEffect } from "react";
 import GridLayout, { Responsive, WidthProvider } from "react-grid-layout";
 
 import { makeStyles, Box, Tabs, Tab } from "@material-ui/core";
-import { SpeedDial, SpeedDialAction } from "@material-ui/lab";
 
 import Loading from "../.partials/Loading";
 import Widget from "../widgets/Widget";
@@ -18,6 +17,7 @@ import WidgetDetail from "../widgets/WidgetDetail";
 import CurrencyConverter from "../widgets/CurrencyConverter";
 
 import { WidgetContext } from "../../contexts/WidgetContext";
+import { ActionContext } from "../../contexts/ActionContext";
 
 import { getWidgets, editWidgets, deleteWidget } from "../../api/widgets";
 
@@ -115,11 +115,13 @@ const widgetsInfo = {
 
 function Widgets() {
 	const classes = useStyles();
-	const { state, dispatch } = useContext(WidgetContext);
-	const { widgets, editMode } = state;
+	const {
+		state: { widgets, editMode },
+		dispatch,
+	} = useContext(WidgetContext);
+	const { dispatch: actionDispatch } = useContext(ActionContext);
 	const [loading, setLoading] = useState(false);
 	const [openWidgetDetail, setOpenWidgetDetail] = useState(false);
-	const [openOptions, setOpenOptions] = useState(false);
 	const [rowHeight, setRowHeight] = useState(150);
 	const [layouts, setLayouts] = useState({});
 	const [selectedWidget, setSelectedWidget] = useState(null);
@@ -161,14 +163,6 @@ function Widgets() {
 		setTabs(uniqueTabs);
 	}, [widgets]);
 
-	function handleOpenOptions() {
-		setOpenOptions(true);
-	}
-
-	function handleCloseOptions() {
-		setOpenOptions(false);
-	}
-
 	function handleWidgetDetailOpen(e, widget) {
 		if (widget) setSelectedWidget(widget);
 		setOpenWidgetDetail(true);
@@ -180,12 +174,46 @@ function Widgets() {
 	}
 
 	function handleEditMode() {
-		dispatch({ type: "SET_EDIT_MODE", editMode: !editMode });
+		dispatch({ type: "TOGGLE_EDIT_MODE" });
 	}
 
 	function handleTabEditMode() {
 		setTabsEditMode(prev => !prev);
 	}
+
+	useEffect(() => {
+		const actions = [
+			{
+				from: "widgets",
+				name: "Add Widget",
+				icon: <i className="icon-add" />,
+				handleClick: handleWidgetDetailOpen,
+			},
+			{
+				from: "widgets",
+				name: "Move & Resize",
+				icon: <i className="icon-expand" />,
+				handleClick: handleEditMode,
+			},
+		];
+
+		if (tabs.length > 1) {
+			actions.push({
+				from: "widgets",
+				name: "Edit tabs",
+				icon: <i className="icon-tabs" />,
+				handleClick: handleTabEditMode,
+			});
+		}
+
+		function setupActions() {
+			actionDispatch({ type: "ADD_ACTIONS", actions });
+		}
+
+		setupActions();
+
+		return () => actionDispatch({ type: "DELETE_ACTIONS", from: "widgets" });
+	}, [tabs]);
 
 	async function handleEditWidget(updatedWidgets) {
 		const widgetsToUpdate = [];
@@ -376,15 +404,6 @@ function Widgets() {
 		);
 	}
 
-	const actions = [
-		{ name: "Add Widget", icon: <i className="icon-add" />, handleClick: handleWidgetDetailOpen },
-		{ name: "Move & Resize", icon: <i className="icon-expand" />, handleClick: handleEditMode },
-	];
-
-	if (tabs.length > 1) {
-		actions.push({ name: "Edit tabs", icon: <i className="icon-tabs" />, handleClick: handleTabEditMode });
-	}
-
 	return (
 		<>
 			{renderTabs()}
@@ -419,24 +438,6 @@ function Widgets() {
 				widgetRestrictions={widgetRestrictions}
 				onClose={handleWidgetDetailClose}
 			/>
-			<SpeedDial
-				ariaLabel="Options"
-				icon={<i className="icon-add" />}
-				onClose={handleCloseOptions}
-				onOpen={handleOpenOptions}
-				open={openOptions}
-				className={classes.speedDial}
-				FabProps={{ size: "small" }}
-			>
-				{actions.map(action => (
-					<SpeedDialAction
-						key={action.name}
-						icon={action.icon}
-						tooltipTitle={action.name}
-						onClick={action.handleClick}
-					/>
-				))}
-			</SpeedDial>
 		</>
 	);
 }

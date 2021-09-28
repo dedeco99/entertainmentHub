@@ -2,39 +2,20 @@ import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import Sidebar from "./Sidebar";
-import SubscriptionDetail from "./SubscriptionDetail";
 import DeleteConfirmation from "./DeleteConfirmation";
 
-import { RedditContext } from "../../contexts/RedditContext";
-import { YoutubeContext } from "../../contexts/YoutubeContext";
-import { TwitchContext } from "../../contexts/TwitchContext";
-import { TVContext } from "../../contexts/TVContext";
+import { SubscriptionContext } from "../../contexts/SubscriptionContext";
 
-import { getSubscriptions, editSubscription, deleteSubscription } from "../../api/subscriptions";
+import { getSubscriptions, deleteSubscription } from "../../api/subscriptions";
 
+import { chooseContext } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
-function chooseContext(platform) {
-	switch (platform) {
-		case "reddit":
-			return RedditContext;
-		case "youtube":
-			return YoutubeContext;
-		case "twitch":
-			return TwitchContext;
-		case "tv":
-			return TVContext;
-		default:
-			break;
-	}
-}
-
 function Subscriptions({ platform, selected, idField, countField, action }) {
+	const { dispatch: subscriptionDispatch } = useContext(SubscriptionContext);
 	const { state, dispatch } = useContext(chooseContext(platform));
 	const { follows, subscriptions } = state;
 	const [selectedSubscription, setSelectedSubscription] = useState(null);
-	const [groups, setGroups] = useState([]);
-	const [openModal, setOpenModal] = useState(false);
 	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
 	const [loading, setLoading] = useState(false);
 
@@ -69,18 +50,8 @@ function Subscriptions({ platform, selected, idField, countField, action }) {
 			}
 		}
 
-		setGroups(uniqueGroups);
+		subscriptionDispatch({ type: "SET_GROUPS", groups: uniqueGroups });
 	}, [subscriptions]);
-
-	async function handleEditSubscription(id, subscription) {
-		const response = await editSubscription(id, subscription);
-
-		if (response.status === 200) {
-			dispatch({ type: "EDIT_SUBSCRIPTION", subscription: response.data });
-
-			handleCloseModal();
-		}
-	}
 
 	async function handleDeleteSubscription() {
 		const response = await deleteSubscription(selectedSubscription._id);
@@ -93,19 +64,16 @@ function Subscriptions({ platform, selected, idField, countField, action }) {
 	}
 
 	function handleShowModal(e, type) {
-		if (type === "edit") {
-			setSelectedSubscription(subscriptions.find(s => s[idField] === e.target.id));
-		} else {
-			const found = follows.find(s => s.externalId.toString() === e.target.id);
+		const subscription =
+			type === "edit"
+				? subscriptions.find(s => s[idField] === e.target.id)
+				: follows.find(s => s.externalId.toString() === e.target.id);
 
-			setSelectedSubscription(found);
-		}
+		setSelectedSubscription(subscription);
 
-		setOpenModal(true);
-	}
-
-	function handleCloseModal() {
-		setOpenModal(false);
+		subscriptionDispatch({ type: "SET_SUBSCRIPTION", subscription });
+		subscriptionDispatch({ type: "SET_IS_NOTIFICATION", isNotification: false });
+		subscriptionDispatch({ type: "SET_OPEN", open: true });
 	}
 
 	function handleOpenDeleteConfirmation(e) {
@@ -135,13 +103,6 @@ function Subscriptions({ platform, selected, idField, countField, action }) {
 				menu={menuOptions}
 				loading={loading}
 				noResultsMessage={translate("noSubscriptions")}
-			/>
-			<SubscriptionDetail
-				open={openModal}
-				subscription={selectedSubscription}
-				subscriptionGroups={groups}
-				editSubscription={handleEditSubscription}
-				onClose={handleCloseModal}
 			/>
 			<DeleteConfirmation
 				open={openDeleteConfirmation}
