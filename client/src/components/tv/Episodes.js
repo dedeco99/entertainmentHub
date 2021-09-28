@@ -58,11 +58,12 @@ function Episodes() {
 	const [open, setOpen] = useState(false);
 	const [currentSeries, setCurrentSeries] = useState(null);
 	let isMounted = true;
-	const hasUnwatchedEpisodes = !!episodes.find(e => !e.watched);
+	const hasUnwatchedEpisodes = !!episodes.filter(e => e.date && diff(e.date) > 0).find(e => !e.watched);
 
 	async function handleGetAll() {
 		if (!loading) {
 			setLoading(true);
+
 			if (page === 0) setOpen(false);
 
 			const response = await getEpisodes("all", page, filter);
@@ -73,9 +74,11 @@ function Episodes() {
 				setEpisodes(newEpisodes);
 				setPage(page + 1);
 				setHasMore(!(response.data.length < 50));
-				setLoading(false);
+
 				if (page === 0) setOpen(true);
 			}
+
+			setLoading(false);
 		}
 	}
 
@@ -170,7 +173,7 @@ function Episodes() {
 	async function markAsWatched() {
 		const response = await patchSubscription(episodes[0].series._id, {
 			markAsWatched: hasUnwatchedEpisodes,
-			watched: episodes.map(e => `S${e.season}E${e.number}`),
+			watched: episodes.filter(e => e.date && diff(e.date) > 0).map(e => `S${e.season}E${e.number}`),
 		});
 
 		if (response.status === 200) {
@@ -251,6 +254,8 @@ function Episodes() {
 
 			if (!nextEpisodeToWatch && i === 0) {
 				nextEpisodeToWatch = seasons[seasons.length - 1].episodes.filter(e => diff(e.date) > 0)[0];
+
+				if (!nextEpisodeToWatch) nextEpisodeToWatch = latestEpisodes[0];
 			}
 		}
 

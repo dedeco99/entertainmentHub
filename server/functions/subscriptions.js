@@ -1,6 +1,6 @@
 const { response } = require("../utils/request");
 const errors = require("../utils/errors");
-const { toObjectId } = require("../utils/utils");
+const { toObjectId, diff } = require("../utils/utils");
 
 const tv = require("./tv");
 const twitch = require("./twitch");
@@ -136,7 +136,7 @@ async function patchSubscription(event) {
 		if (watched === "all") {
 			const episodes = await Episode.find({ seriesId: id });
 
-			watched = episodes.map(e => `S${e.season}E${e.number}`);
+			watched = episodes.filter(e => e.date && diff(e.date) > 0).map(e => `S${e.season}E${e.number}`);
 		}
 
 		try {

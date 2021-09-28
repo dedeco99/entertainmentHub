@@ -94,9 +94,23 @@ async function getEpisodeNumbers(series, user) {
 				_id: "$seriesId",
 				watched: { $sum: { $cond: [{ $eq: ["$watched", true] }, 1, 0] } },
 				toWatch: {
-					$sum: { $cond: [{ $and: [{ $eq: ["$watched", false] }, { $lte: ["$date", dayjs().toDate()] }] }, 1, 0] },
+					$sum: {
+						$cond: [
+							{
+								$and: [
+									{ $eq: ["$watched", false] },
+									{ $ne: ["$date", null] },
+									{ $lte: ["$date", dayjs().toDate()] },
+								],
+							},
+							1,
+							0,
+						],
+					},
 				},
-				total: { $sum: 1 },
+				total: {
+					$sum: { $cond: [{ $and: [{ $ne: ["$date", null] }, { $lte: ["$date", dayjs().toDate()] }] }, 1, 0] },
+				},
 			},
 		},
 	]);

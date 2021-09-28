@@ -128,10 +128,10 @@ function Series({ contentType, bannerWidth, useWindowScroll, listView, widget })
 
 	function handleSubmit(e) {
 		e.preventDefault();
-
-		setFilter("search");
-
-		handleGetSearch();
+		if (query !== "") {
+			setFilter("search");
+			handleGetSearch();
+		}
 	}
 
 	function handleFilterSeries(e, value) {
