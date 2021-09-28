@@ -108,7 +108,9 @@ async function getEpisodeNumbers(series, user) {
 						],
 					},
 				},
-				total: { $sum: 1 },
+				total: {
+					$sum: { $cond: [{ $and: [{ $ne: ["$date", null] }, { $lte: ["$date", dayjs().toDate()] }] }, 1, 0] },
+				},
 			},
 		},
 	]);

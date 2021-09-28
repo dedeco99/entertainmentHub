@@ -58,7 +58,7 @@ function Episodes() {
 	const [open, setOpen] = useState(false);
 	const [currentSeries, setCurrentSeries] = useState(null);
 	let isMounted = true;
-	const hasUnwatchedEpisodes = !!episodes.find(e => !e.watched);
+	const hasUnwatchedEpisodes = !!episodes.filter(e => e.date && diff(e.date) > 0).find(e => !e.watched);
 
 	async function handleGetAll() {
 		if (!loading) {
@@ -173,7 +173,7 @@ function Episodes() {
 	async function markAsWatched() {
 		const response = await patchSubscription(episodes[0].series._id, {
 			markAsWatched: hasUnwatchedEpisodes,
-			watched: episodes.map(e => `S${e.season}E${e.number}`),
+			watched: episodes.filter(e => e.date && diff(e.date) > 0).map(e => `S${e.season}E${e.number}`),
 		});
 
 		if (response.status === 200) {

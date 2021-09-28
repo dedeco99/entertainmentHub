@@ -1,5 +1,6 @@
 import React, { useContext } from "react";
 import PropTypes from "prop-types";
+import { toast } from "react-toastify";
 
 import { makeStyles, Card, CardMedia, CardActionArea } from "@material-ui/core";
 
@@ -10,7 +11,7 @@ import { TVContext } from "../../contexts/TVContext";
 
 import { patchSubscription } from "../../api/subscriptions";
 
-import { formatDate } from "../../utils/utils";
+import { formatDate, diff } from "../../utils/utils";
 
 import { episode as styles } from "../../styles/TV";
 
@@ -23,6 +24,8 @@ function Episode({ episode, height }) {
 	const { dispatch } = useContext(TVContext);
 
 	async function markAsWatched() {
+		if (!episode.date || diff(episode.date) < 0) return toast.error("Episode hasn't come out yet");
+
 		const response = await patchSubscription(episode.series._id, {
 			markAsWatched: !episode.watched,
 			watched: [`S${episode.season}E${episode.number}`],
@@ -37,6 +40,8 @@ function Episode({ episode, height }) {
 				increment: episode.watched ? -1 : 1,
 			});
 		}
+
+		return null;
 	}
 
 	const seasonLabel = episode.season > 9 ? `S${episode.season}` : `S0${episode.season}`;
