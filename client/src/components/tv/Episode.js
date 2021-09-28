@@ -47,7 +47,7 @@ function Episode({ episode, height }) {
 		<Card className={classes.root}>
 			<CardActionArea
 				onClick={markAsWatched}
-				style={episode.watched ? { border: "3px solid #32CD32" } : { border: "3px solid transparent" }}
+				style={episode.watched ? { border: "2px solid #ec6e4c" } : { border: "2px solid transparent" }}
 			>
 				{episode.image ? (
 					<CardMedia
