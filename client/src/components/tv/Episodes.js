@@ -63,6 +63,7 @@ function Episodes() {
 	async function handleGetAll() {
 		if (!loading) {
 			setLoading(true);
+
 			if (page === 0) setOpen(false);
 
 			const response = await getEpisodes("all", page, filter);
@@ -73,9 +74,11 @@ function Episodes() {
 				setEpisodes(newEpisodes);
 				setPage(page + 1);
 				setHasMore(!(response.data.length < 50));
-				setLoading(false);
+
 				if (page === 0) setOpen(true);
 			}
+
+			setLoading(false);
 		}
 	}
 
@@ -251,6 +254,8 @@ function Episodes() {
 
 			if (!nextEpisodeToWatch && i === 0) {
 				nextEpisodeToWatch = seasons[seasons.length - 1].episodes.filter(e => diff(e.date) > 0)[0];
+
+				if (!nextEpisodeToWatch) nextEpisodeToWatch = latestEpisodes[0];
 			}
 		}
 

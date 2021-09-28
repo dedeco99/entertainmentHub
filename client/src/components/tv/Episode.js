@@ -16,6 +16,7 @@ import { episode as styles } from "../../styles/TV";
 
 const useStyles = makeStyles(styles);
 
+// eslint-disable-next-line complexity
 function Episode({ episode, height }) {
 	const classes = useStyles();
 	const { user } = useContext(UserContext);
@@ -40,6 +41,7 @@ function Episode({ episode, height }) {
 
 	const seasonLabel = episode.season > 9 ? `S${episode.season}` : `S0${episode.season}`;
 	const episodeLabel = episode.number > 9 ? `E${episode.number}` : `E0${episode.number}`;
+	const date = formatDate(episode.date, "DD-MM-YYYY");
 
 	return (
 		<Card className={classes.root}>
@@ -74,7 +76,7 @@ function Episode({ episode, height }) {
 					{episode.finale && "Finale"}
 				</div>
 				<div className={`${classes.overlay} ${classes.season}`}>{seasonLabel + episodeLabel}</div>
-				<div className={`${classes.overlay} ${classes.date}`}>{formatDate(episode.date, "DD-MM-YYYY")}</div>
+				<div className={`${classes.overlay} ${classes.date}`}>{date === "Invalid Date" ? "TBA" : date}</div>
 			</CardActionArea>
 		</Card>
 	);
