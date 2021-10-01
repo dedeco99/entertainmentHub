@@ -1,4 +1,5 @@
 import React, { useContext, useState } from "react";
+import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
 import {
@@ -110,27 +111,42 @@ function Banners({ series, contentType, loading, bannerWidth }) {
 		return (
 			<Card component={Box} mb={1}>
 				<CardActionArea>
-					<a
-						href={
-							serie.imdbId
-								? `https://www.imdb.com/title/${serie.imdbId}`
-								: `https://www.themoviedb.org/tv/${serie.externalId}` // TODO: Change this onclick to our own series page
-						}
-						target="_blank"
-						rel="noreferrer"
-						style={{ textDecoration: "none" }}
-					>
-						{serie.image ? (
-							<CardMedia
-								component="img"
-								width="100%"
-								image={serie.image}
-								style={{ display: "block", width: "100%" }}
-							/>
-						) : (
-							<Placeholder height={270} />
-						)}
-					</a>
+					{isSubscribed(serie) ? (
+						<Link to={`/tv/${serie.externalId}`}>
+							{serie.image ? (
+								<CardMedia
+									component="img"
+									width="100%"
+									image={serie.image}
+									style={{ display: "block", width: "100%" }}
+								/>
+							) : (
+								<Placeholder height={270} />
+							)}
+						</Link>
+					) : (
+						<a
+							href={
+								serie.imdbId
+									? `https://www.imdb.com/title/${serie.imdbId}`
+									: `https://www.themoviedb.org/tv/${serie.externalId}`
+							}
+							target="_blank"
+							rel="noreferrer"
+							style={{ textDecoration: "none" }}
+						>
+							{serie.image ? (
+								<CardMedia
+									component="img"
+									width="100%"
+									image={serie.image}
+									style={{ display: "block", width: "100%" }}
+								/>
+							) : (
+								<Placeholder height={270} />
+							)}
+						</a>
+					)}
 					<Zoom in={!!providers[serie.externalId]}>
 						<Box
 							style={{
