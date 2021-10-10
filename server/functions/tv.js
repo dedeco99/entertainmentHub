@@ -7,6 +7,7 @@ const { toObjectId, formatDate, diff } = require("../utils/utils");
 
 const { addScheduledNotifications } = require("./scheduledNotifications");
 
+const Asset = require("../models/asset");
 const Subscription = require("../models/subscription");
 const Episode = require("../models/episode");
 const ScheduledNotification = require("../models/scheduledNotification");
@@ -606,14 +607,62 @@ async function getProviders(event) {
 	return response(200, "GET_PROVIDERS", providers);
 }
 
+async function addAsset(externalId) {
+	const res = await api({
+		method: "get",
+		url: `https://api.themoviedb.org/3/tv/${externalId}?append_to_response=external_ids,images&api_key=${process.env.tmdbKey}`,
+	});
+
+	const tmdbRes = res.data;
+
+	const extrasRes = await Promise.all([
+		api({
+			method: "get",
+			url: `https://www.imdb.com/title/${tmdbRes.external_ids.imdb_id}`,
+			headers: { "accept-language": "en-US" },
+		}),
+		getProviders({ query: { type: "tv", search: tmdbRes.name } }),
+	]);
+
+	const imdbRes = extrasRes[0].data;
+	const providers = extrasRes[1].body.data;
+
+	const $ = cheerio.load(imdbRes);
+
+	const rating = $(".AggregateRatingButton__RatingScore-sc-1ll29m0-1.iTLWoV")
+		.toArray()
+		.map(elem => $(elem).text())[0];
+
+	const asset = new Asset({
+		platform: "tv",
+		externalId,
+		displayName: tmdbRes.name,
+		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbRes.poster_path}`,
+		genres: tmdbRes.genres.map(g => ({ ...g, externalId: g.id })),
+		firstDate: tmdbRes.first_air_date,
+		lastDate: tmdbRes.last_air_date,
+		status: tmdbRes.status,
+		episodeRunTime: tmdbRes.episode_run_time[0],
+		tagline: tmdbRes.tagline,
+		overview: tmdbRes.overview,
+		rating,
+		languages: tmdbRes.spoken_languages.map(l => l.iso_639_1),
+		backdrops: tmdbRes.images.backdrops.map(b => `https://image.tmdb.org/t/p/w1280_and_h720_bestv2${b.file_path}`),
+		providers,
+	});
+
+	await asset.save();
+}
+
 module.exports = {
-	fetchEpisodes,
-	cronjob,
 	getEpisodeNumbers,
 	sendSocketUpdate,
+	fetchEpisodes,
+	cronjob,
 	getEpisodes,
 	getSearch,
 	getPopular,
 	getRecommendations,
 	getProviders,
+	addAsset,
 };

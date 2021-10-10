@@ -1,6 +1,4 @@
-const cheerio = require("cheerio");
-
-const { response, api } = require("../utils/request");
+const { response } = require("../utils/request");
 const errors = require("../utils/errors");
 const { toObjectId, diff } = require("../utils/utils");
 
@@ -85,50 +83,9 @@ async function addSubscriptions(event) {
 				const assetExists = await Asset.findOne({ platform, externalId }).lean();
 
 				if (!assetExists) {
-					let url = `https://api.themoviedb.org/3/tv/${externalId}?append_to_response=external_ids,images&api_key=${process.env.tmdbKey}`;
-
-					let res = await api({ method: "get", url });
-					const json = res.data;
-
-					url = `https://www.imdb.com/title/${json.external_ids.imdb_id}`;
-
-					res = await api({ method: "get", url, headers: { "accept-language": "en-US" } });
-					const $ = cheerio.load(res.data);
-
-					const rating = $(".AggregateRatingButton__RatingScore-sc-1ll29m0-1.iTLWoV")
-						.toArray()
-						.map(elem => $(elem).text())[0];
-
-					res = await tv.getProviders({ query: { type: "tv", search: displayName } });
-
-					const providers = res.body.data;
-
-					const asset = new Asset({
-						platform,
-						externalId,
-						displayName,
-						image,
-						genres: json.genres.map(g => ({ ...g, externalId: g.id })),
-						firstDate: json.first_air_date,
-						lastDate: json.last_air_date,
-						status: json.status,
-						episodeRunTime: json.episode_run_time[0],
-						tagline: json.tagline,
-						overview: json.overview,
-						rating,
-						languages: json.spoken_languages.map(l => l.iso_639_1),
-						backdrops: json.images.backdrops.map(
-							b => `https://image.tmdb.org/t/p/w1280_and_h720_bestv2${b.file_path}`,
-						),
-						providers,
-					});
-
-					await asset.save();
+					tv.addAsset(externalId);
+					tv.fetchEpisodes({ _id: externalId, displayName }, user);
 				}
-
-				const seriesPopulated = await Subscription.findOne({ active: true, platform, externalId }).lean();
-
-				if (!seriesPopulated) tv.fetchEpisodes({ _id: externalId, displayName }, user);
 			}
 		}
 	}
