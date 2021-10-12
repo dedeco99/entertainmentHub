@@ -10,6 +10,7 @@ import Episode from "./Episode";
 
 import { TVContext } from "../../contexts/TVContext";
 
+import { getAsset } from "../../api/assets";
 import { getEpisodes } from "../../api/tv";
 import { patchSubscription } from "../../api/subscriptions";
 
@@ -119,6 +120,10 @@ function Episodes() {
 		if (season && seasons.length && currentSeries === seriesId) {
 			handleGetEpisodes(season);
 		} else {
+			const res = await getAsset("tv", seriesId);
+
+			console.log(res);
+
 			await handleGetSeasons(seriesId);
 		}
 	}

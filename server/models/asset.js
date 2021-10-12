@@ -29,6 +29,7 @@ const AssetSchema = new Schema(
 				icon: { type: String },
 			},
 		],
+		imdbId: { type: String },
 	},
 	{ timestamps: { createdAt: "_created", updatedAt: "_modified" } },
 );

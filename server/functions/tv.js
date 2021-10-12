@@ -649,6 +649,7 @@ async function addAsset(externalId) {
 		languages: tmdbRes.spoken_languages.map(l => l.iso_639_1),
 		backdrops: tmdbRes.images.backdrops.map(b => `https://image.tmdb.org/t/p/w1280_and_h720_bestv2${b.file_path}`),
 		providers,
+		imdbId: tmdbRes.external_ids.imdb_id,
 	});
 
 	await asset.save();
