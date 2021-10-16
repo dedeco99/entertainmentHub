@@ -1,24 +1,22 @@
 import React, { useState, useEffect, useContext } from "react";
-import { Link, useRouteMatch } from "react-router-dom";
 import { toast } from "react-toastify";
 
 import {
-	makeStyles,
+	// makeStyles,
 	Grid,
-	List,
-	ListItem,
-	ListItemIcon,
-	ListItemText,
+	/* List,
+	// ListItem ,*/
 	FormControlLabel,
 	FormControl,
 	Checkbox,
 	Button,
 	Typography,
 	Box,
-	Paper,
-	Divider,
 	MenuItem,
 } from "@material-ui/core";
+
+import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
+import { Carousel } from "react-responsive-carousel";
 
 import Input from "../.partials/Input";
 import DeleteConfirmation from "../.partials/DeleteConfirmation";
@@ -31,15 +29,9 @@ import { editUser } from "../../api/users";
 
 import { translate } from "../../utils/translations";
 
-import { settings as styles } from "../../styles/Header";
-
-const useStyles = makeStyles(styles);
-
 function Settings() {
 	const REDIRECT = process.env.REACT_APP_REDIRECT_URL;
 
-	const match = useRouteMatch();
-	const classes = useStyles();
 	const { user, dispatch } = useContext(UserContext);
 	const { state } = useContext(YoutubeContext);
 	const { playlists } = state;
@@ -57,7 +49,7 @@ function Settings() {
 				&redirect_uri=${REDIRECT}/apps/reddit
 				&duration=permanent
 				&scope=read,mysubreddits`,
-			color: "#fd4500",
+			color: "#FB8063",
 		},
 		twitch: {
 			active: false,
@@ -69,7 +61,7 @@ function Settings() {
 				&response_type=code
 				&redirect_uri=${REDIRECT}/apps/twitch
 				&scope=user_read`,
-			color: "#6441a5",
+			color: "#A463FB",
 		},
 		youtube: {
 			active: false,
@@ -83,7 +75,7 @@ function Settings() {
 				&response_type=code
 				&client_id=539994951120-kabifq9ct2lbk92m9ef4hddc5f57nksl.apps.googleusercontent.com
 				&scope=https://www.googleapis.com/auth/youtube`,
-			color: "linear-gradient(0deg, rgba(226,43,40,1) 0%, rgba(191,31,19,1) 100%)",
+			color: "#FB4E4E",
 		},
 		tv: {
 			active: false,
@@ -91,7 +83,7 @@ function Settings() {
 			displayName: "TV",
 			icon: "icon-monitor",
 			link: "/apps/tv",
-			color: "linear-gradient(0deg, rgba(1,97,234,1) 0%, rgba(0,187,250,1) 100%)",
+			color: "#638EFB",
 		},
 		gmail: {
 			active: false,
@@ -105,10 +97,10 @@ function Settings() {
 				&response_type=code
 				&client_id=539994951120-kabifq9ct2lbk92m9ef4hddc5f57nksl.apps.googleusercontent.com
 				&scope=https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify`,
-			color: "linear-gradient(0deg, rgba(1,97,234,1) 0%, rgba(0,187,250,1) 100%)",
+			color: "#638EFB",
 		},
 	};
-	const [selectedMenu, setSelectedMenu] = useState(0);
+
 	const [settings, setSettings] = useState({});
 	const [selectedApp, setSelectedApp] = useState(null);
 	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
@@ -123,19 +115,8 @@ function Settings() {
 	}
 
 	useEffect(() => {
-		switch (match.path) {
-			case "/settings/apps":
-				setSelectedMenu(0);
-				break;
-			case "/settings":
-				setSelectedMenu(1);
-				break;
-			default:
-				break;
-		}
-
 		setSettings({ ...user.settings, browserNotifications: Notification.permission });
-	}, [match]);
+	}, []);
 
 	useEffect(() => {
 		setEmail(user.email);
@@ -253,24 +234,24 @@ function Settings() {
 
 	function renderApp(app) {
 		return (
-			<Box key={app.key}>
+			<Box key={app.key} style={{ backgroundColor: "#242731", borderRadius: "7px", width: "100%" }}>
 				<Box p={2} mb={1} display="flex">
 					<Box mr={2}>
-						<Box p={2} borderRadius="4px" style={{ background: app.color }}>
-							<i className={`${app.icon} icon-2x`} />
+						<Box p={2} padding="7px" borderRadius="7px" style={{ background: app.color }}>
+							<i className={`${app.icon} icon-2x`} style={{ fontSize: "50px" }} />
 						</Box>
 					</Box>
 					<Box flexGrow={1}>
 						<Box display="flex" alignItems="flex-start" mb={1}>
 							<Box flexGrow={1}>
-								<Typography> {app.displayName} </Typography>
+								<Typography style={{ fontSize: "20px" }}> {app.displayName} </Typography>
 								{app.active ? (
-									<Typography variant="body2">
-										<i className="icon-check-circled" /> {translate("appConnected", app.displayName)}
+									<Typography variant="body2" style={{ color: "#BFBFBF", fontWeight: "700", fontSize: "15px" }}>
+										{translate("appConnected", app.displayName)}
 									</Typography>
 								) : (
-									<Typography variant="body2">
-										<i className="icon-close-circled" /> {translate("appNotConnected", app.displayName)}
+									<Typography style={{ color: "#BFBFBF", fontWeight: "700", fontSize: "15px" }} variant="body2">
+										{translate("appNotConnected", app.displayName)}
 									</Typography>
 								)}
 							</Box>
@@ -280,229 +261,297 @@ function Settings() {
 									variant="contained"
 									size="small"
 									onClick={() => handleOpenDeleteConfirmation(app.key)}
+									style={{ backgroundColor: "#ff000000", marginTop: "20px", boxShadow: "none" }}
 								>
-									{translate("disconnect")}
+									<i className="icon-close-circled icon-2x" style={{ color: "#B7B7B8", fontSize: "22px" }} />
 								</Button>
 							) : (
-								<Button color="primary" variant="contained" size="small" href={app.link} target="_self">
-									{translate("connect")}
+								<Button
+									color="primary"
+									variant="contained"
+									size="small"
+									href={app.link}
+									target="_self"
+									style={{ backgroundColor: "#ff000000", marginTop: "20px", boxShadow: "none" }}
+								>
+									<i className="icon-circle-right icon-2x" style={{ color: "#B7B7B8", fontSize: "22px" }} />
 								</Button>
 							)}
 						</Box>
-						<Typography variant="caption">
-							{
-								"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut cursus tortor nec ex sodales, vitae malesuada metus mollis. Nullam consectetur egestas fringilla. Nullam turpis sapien, sodales et ex nec, mollis vestibulum odio. Vestibulum sed dui orci."
-							}
-						</Typography>
 					</Box>
 				</Box>
-				<Divider />
 			</Box>
 		);
 	}
 
 	function renderApps() {
-		return <Paper>{Object.keys(apps).map(app => renderApp(apps[app]))}</Paper>;
+		return (
+			<Grid item xs={12} lg={6}>
+				<Typography style={{ fontSize: "25px", marginLeft: "10px", marginBottom: "15px" }}>
+					{"Available Apps"}
+				</Typography>
+				{Object.keys(apps).map(app => renderApp(apps[app]))}
+			</Grid>
+		);
 	}
 
 	function renderSettings() {
 		return (
-			<div className={classes.settingsContainer}>
-				<Typography variant="h4">{translate("settings")}</Typography>
-				<form onSubmit={handleSubmitSettings} style={{ display: "contents" }}>
-					<FormControl margin="normal">
-						<Input
-							label="Currency"
-							value={settings.currency}
-							onChange={handleCurrencyChange}
-							variant="outlined"
-							select
-							fullWidth
-						>
-							{["EUR", "USD", "GBP"].map(c => (
-								<MenuItem key={c} value={c}>
-									{c}
-								</MenuItem>
-							))}
-						</Input>
-						<FormControlLabel
-							control={
-								<Checkbox
-									checked={settings.useCustomScrollbar || false}
-									color="primary"
-									onChange={() => handleCheckboxChange("useCustomScrollbar")}
-								/>
-							}
-							label={translate("customScrollbar")}
-						/>
-						<FormControlLabel
-							control={
-								<Checkbox
-									checked={settings.animations || false}
-									color="primary"
-									onChange={() => handleCheckboxChange("animations")}
-								/>
-							}
-							label={translate("animations")}
-						/>
-						<FormControlLabel
-							control={
-								<Checkbox
-									checked={settings.borderColor || false}
-									color="primary"
-									onChange={() => handleCheckboxChange("borderColor")}
-								/>
-							}
-							label={translate("borderColor")}
-						/>
-						<FormControlLabel
-							control={
-								<Checkbox
-									checked={settings.browserNotifications === "granted"}
-									disabled={settings.browserNotifications === "denied"}
-									color="primary"
-									onChange={handleBrowserNotifications}
-								/>
-							}
-							label={translate("browserNotifications")}
-						/>
-						<FormControlLabel
-							checked={settings.autoplayVideoPlayer || false}
-							color="primary"
-							control={<Checkbox color="primary" />}
-							label={translate("autoplayVideoPlayer")}
-							onChange={() => handleCheckboxChange("autoplayVideoPlayer")}
-						/>
-						<Divider style={{ marginTop: 20, marginBottom: 20 }} />
-						<Typography variant="h6" style={{ marginBottom: 10 }}>
-							{"Account"}
-						</Typography>
-						<Input
-							id="email"
-							type="email"
-							label="Email"
-							value={email}
-							onChange={handleEmail}
-							margin="normal"
-							variant="outlined"
-							fullWidth
-						/>
-						<br />
-						<Input
-							id="oldPassword"
-							type="password"
-							label="Old Password"
-							value={oldPassword}
-							onChange={handleOldPassword}
-							margin="normal"
-							variant="outlined"
-							fullWidth
-						/>
-						<Input
-							id="newPassword"
-							type="password"
-							label="New Password"
-							value={newPassword}
-							onChange={handleNewPassword}
-							margin="normal"
-							variant="outlined"
-							fullWidth
-						/>
-						<Input
-							id="repeatNewPassword"
-							type="password"
-							label="Repeat New Password"
-							value={repeatNewPassword}
-							onChange={handleRepeatNewPassword}
-							margin="normal"
-							variant="outlined"
-							fullWidth
-						/>
-						{apps.tv.active && (
-							<>
-								<Divider style={{ marginTop: 20, marginBottom: 20 }} />
-								<Typography variant="h6">{"TV"}</Typography>
-								<FormControlLabel
-									checked={settings.tv ? settings.tv.hideEpisodesThumbnails : false}
-									color="primary"
-									control={<Checkbox color="primary" />}
-									label={translate("hideEpisodesThumbnails")}
-									onChange={handleEpisodesThumbnailsChange}
-								/>
-								<FormControlLabel
-									checked={settings.tv ? settings.tv.hideEpisodesTitles : false}
-									color="primary"
-									control={<Checkbox color="primary" />}
-									label={translate("hideEpisodesTitles")}
-									onChange={handleEpisodesTitlesChange}
-								/>
-							</>
-						)}
-						{apps.youtube.active && (
-							<>
-								<Divider style={{ marginTop: 20, marginBottom: 20 }} />
-								<Typography variant="h6" style={{ marginBottom: 10 }}>
-									{"Youtube"}
-								</Typography>
-								<Input
-									label="Youtube Watch Later Default Playlist"
-									value={settings.youtube ? settings.youtube.watchLaterPlaylist : ""}
-									onChange={handleWatchLaterPlaylistChange}
-									variant="outlined"
-									select
-									fullWidth
-								>
-									{playlists.map(p => (
-										<MenuItem key={p.externalId} value={p.externalId}>
-											{p.displayName}
-										</MenuItem>
-									))}
-								</Input>
-							</>
-						)}
-					</FormControl>
-					<Button variant="contained" onClick={handleSubmitSettings}>
-						{translate("save")}
-					</Button>
-				</form>
-			</div>
+			<form onSubmit={handleSubmitSettings} style={{ display: "contents" }}>
+				<FormControl margin="normal">
+					<Grid container spacing={3}>
+						<Grid item xs={12} lg={6} style={{ marginTop: "20px" }}>
+							<Typography variant="h4">{translate("settings")}</Typography>
+							<Box style={{ backgroundColor: "#242731", borderRadius: "7px", marginTop: "20px" }}>
+								<Grid container lg={12} style={{ padding: "30px 20px" }}>
+									<Grid item xs={12} md={12} lg={12} style={{ paddingBottom: "15px" }}>
+										<Input
+											label="Currency"
+											value={settings.currency}
+											onChange={handleCurrencyChange}
+											variant="outlined"
+											select
+											fullWidth
+										>
+											{["EUR", "USD", "GBP"].map(c => (
+												<MenuItem key={c} value={c}>
+													{c}
+												</MenuItem>
+											))}
+										</Input>
+									</Grid>
+									<Grid item xs={12} md={5} lg={4}>
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={settings.animations || false}
+													color="primary"
+													onChange={() => handleCheckboxChange("animations")}
+												/>
+											}
+											label={translate("animations")}
+										/>
+									</Grid>
+									<Grid item xs={12} md={5} lg={4}>
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={settings.useCustomScrollbar || false}
+													color="primary"
+													onChange={() => handleCheckboxChange("useCustomScrollbar")}
+												/>
+											}
+											label={translate("customScrollbar")}
+										/>
+									</Grid>
+									<Grid item xs={12} md={5} lg={4}>
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={settings.borderColor || false}
+													color="primary"
+													onChange={() => handleCheckboxChange("borderColor")}
+												/>
+											}
+											label={translate("borderColor")}
+										/>
+									</Grid>
+									<Grid item xs={12} md={5} lg={4}>
+										<FormControlLabel
+											control={
+												<Checkbox
+													checked={settings.browserNotifications === "granted"}
+													disabled={settings.browserNotifications === "denied"}
+													color="primary"
+													onChange={handleBrowserNotifications}
+												/>
+											}
+											label={translate("browserNotifications")}
+										/>
+									</Grid>
+									<Grid item xs={12} md={5} lg={4}>
+										<FormControlLabel
+											checked={settings.autoplayVideoPlayer || false}
+											color="primary"
+											control={<Checkbox color="primary" />}
+											label={translate("autoplayVideoPlayer")}
+											onChange={() => handleCheckboxChange("autoplayVideoPlayer")}
+										/>
+									</Grid>
+								</Grid>
+							</Box>
+						</Grid>
+						<Grid item xs={12} lg={6} style={{ marginTop: "20px" }}>
+							<Typography variant="h4">{"Account"}</Typography>
+							<Box style={{ backgroundColor: "#242731", borderRadius: "7px", marginTop: "20px" }}>
+								<Grid container lg={12} style={{ padding: "30px 20px" }}>
+									<Grid item xs={12} md={12} lg={5}>
+										<Input
+											id="email"
+											type="email"
+											label="Email"
+											value={email}
+											onChange={handleEmail}
+											margin="normal"
+											variant="outlined"
+											fullWidth
+										/>
+									</Grid>
+									<Grid item lg={1} />
+									<Grid item xs={12} md={12} lg={5}>
+										<Input
+											id="oldPassword"
+											type="password"
+											label="Old Password"
+											value={oldPassword}
+											onChange={handleOldPassword}
+											margin="normal"
+											variant="outlined"
+											fullWidth
+										/>
+									</Grid>
+									<Grid item xs={12} md={12} lg={5}>
+										<Input
+											id="newPassword"
+											type="password"
+											label="New Password"
+											value={newPassword}
+											onChange={handleNewPassword}
+											margin="normal"
+											variant="outlined"
+											fullWidth
+										/>
+									</Grid>
+									<Grid item lg={1} />
+									<Grid item xs={12} md={12} lg={5}>
+										<Input
+											id="repeatNewPassword"
+											type="password"
+											label="Repeat New Password"
+											value={repeatNewPassword}
+											onChange={handleRepeatNewPassword}
+											margin="normal"
+											variant="outlined"
+											fullWidth
+										/>
+									</Grid>
+								</Grid>
+							</Box>
+						</Grid>
+						<Grid item xs={12} lg={6} style={{ marginTop: "20px" }}>
+							<Typography variant="h4">{"TV"}</Typography>
+							<Box style={{ backgroundColor: "#242731", borderRadius: "7px", marginTop: "20px", height: "163px" }}>
+								<Grid container lg={12} style={{ padding: "30px 20px" }}>
+									{apps.tv.active && (
+										<>
+											<Grid item xs={12} lg={6}>
+												<FormControlLabel
+													checked={settings.tv ? settings.tv.hideEpisodesThumbnails : false}
+													color="primary"
+													control={<Checkbox color="primary" />}
+													label={translate("hideEpisodesThumbnails")}
+													onChange={handleEpisodesThumbnailsChange}
+												/>
+											</Grid>
+											<Grid item xs={12} lg={6}>
+												<FormControlLabel
+													checked={settings.tv ? settings.tv.hideEpisodesTitles : false}
+													color="primary"
+													control={<Checkbox color="primary" />}
+													label={translate("hideEpisodesTitles")}
+													onChange={handleEpisodesTitlesChange}
+												/>
+											</Grid>
+										</>
+									)}
+								</Grid>
+							</Box>
+						</Grid>
+						<Grid item xs={12} lg={6} style={{ marginTop: "20px" }}>
+							<Typography variant="h4">{"Youtube"}</Typography>
+							<Box style={{ backgroundColor: "#242731", borderRadius: "7px", marginTop: "20px" }}>
+								<Grid container lg={12} style={{ padding: "30px 20px" }}>
+									{apps.youtube.active && (
+										<Grid item xs={12} md={12} lg={12}>
+											<Input
+												label="Youtube Watch Later Default Playlist"
+												value={settings.youtube ? settings.youtube.watchLaterPlaylist : ""}
+												onChange={handleWatchLaterPlaylistChange}
+												variant="outlined"
+												select
+												fullWidth
+											>
+												{playlists.map(p => (
+													<MenuItem key={p.externalId} value={p.externalId}>
+														{p.displayName}
+													</MenuItem>
+												))}
+											</Input>
+										</Grid>
+									)}
+
+									<Grid item xs={12} md={12} lg={12} style={{ textAlign: "end", marginTop: "10px" }}>
+										<Button
+											variant="contained"
+											style={{ backgroundColor: "#EC6E4C", color: "white", fontWeight: "bold" }}
+											onClick={handleSubmitSettings}
+										>
+											{translate("save")}
+										</Button>
+									</Grid>
+								</Grid>
+							</Box>
+						</Grid>
+					</Grid>
+				</FormControl>
+			</form>
 		);
 	}
 
-	function renderContent() {
-		switch (selectedMenu) {
-			case 0:
-				return renderApps();
-			case 1:
-				return renderSettings();
-			default:
-				return null;
-		}
+	function renderImagesSlider() {
+		return (
+			<Grid item xs={12} lg={6}>
+				<Box style={{ height: "100%" }}>
+					<Carousel
+						showArrows={false}
+						showStatus={false}
+						showThumbs={false}
+						autoPlay
+						infiniteLoop
+						interval={10000}
+					>
+						<div>
+							<img
+								style={{ borderRadius: "7px" }}
+								height="582px"
+								src="https://rockcontent.com/br/wp-content/uploads/sites/2/2021/01/Twitch-1024x538.png.webp"
+							/>
+						</div>
+						<div>
+							<img
+								style={{ borderRadius: "7px" }}
+								height="582px"
+								src="https://www.oficinadanet.com.br/imagens/post/37826/750xNxcapa-youtube-premium-oferece-3-meses-de-teste-no-discord-nitro-e-vice-versa.jpg.pagespeed.ic.5d718584c4.jpg"
+							/>
+						</div>
+					</Carousel>
+				</Box>
+			</Grid>
+		);
 	}
 
 	return (
 		<div>
-			<Grid container spacing={2}>
-				<Grid item xs={12} sm={4} md={3} lg={2}>
-					<List className={classes.listMenu}>
-						<ListItem button selected={selectedMenu === 0} component={Link} to="/settings/apps">
-							<ListItemIcon>
-								<i className={`icon-apps ${classes.appIcon}`} />
-							</ListItemIcon>
-							<ListItemText primary={translate("apps")} />
-						</ListItem>
-						<ListItem button selected={selectedMenu === 1} component={Link} to="/settings">
-							<ListItemIcon>
-								<i className={`icon-settings ${classes.appIcon}`} />
-							</ListItemIcon>
-							<ListItemText primary={translate("settings")} />
-						</ListItem>
-					</List>
+			<Grid container spacing={3} style={{ width: "100%", paddingLeft: "100px", paddingRight: "100px" }}>
+				<Grid item xs={12} lg={12}>
+					<Typography style={{ fontSize: "50px" }}> {"Create your Personal Hub"}</Typography>
 				</Grid>
-				<Grid item xs={12} sm={8} md={9} lg={10}>
-					{renderContent()}
-				</Grid>
+
+				{renderImagesSlider()}
+				{renderApps()}
+				{renderSettings()}
 			</Grid>
+
 			<DeleteConfirmation
 				open={openDeleteConfirmation}
 				onClose={handleCloseDeleteConfirmation}
