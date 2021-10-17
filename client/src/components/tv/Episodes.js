@@ -58,6 +58,7 @@ function Episodes() {
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [currentSeries, setCurrentSeries] = useState(null);
+	const [assets, setAssets] = useState(null);
 	let isMounted = true;
 	const hasUnwatchedEpisodes = !!episodes.filter(e => e.date && diff(e.date) > 0).find(e => !e.watched);
 
@@ -121,8 +122,19 @@ function Episodes() {
 			handleGetEpisodes(season);
 		} else {
 			const res = await getAsset("tv", seriesId);
-
-			console.log(res);
+			if (res.data) {
+				setAssets({
+					...res.data,
+					date:
+						res.data.firstDate.substring(0, 4) === res.data.lastDate.substring(0, 4)
+							? res.data.firstDate.substring(0, 4)
+							: `${res.data.firstDate.substring(0, 4)} - ${res.data.lastDate.substring(0, 4)}`,
+					genres: res.data.genres.map(genre => genre.name).join(", "),
+					backdrops: res.data.backdrops[Math.floor(Math.random() * res.data.backdrops.length)],
+				});
+			} else {
+				setAssets(null);
+			}
 
 			await handleGetSeasons(seriesId);
 		}
@@ -265,17 +277,91 @@ function Episodes() {
 		}
 
 		return (
-			<Box>
-				{nextEpisodeToWatch && (
-					<Box display="flex" flexDirection="row">
-						<Box flexGrow="1">
-							<Episode episode={nextEpisodeToWatch} height={"555px"} />
-						</Box>
+			<>
+				<Grid container spacing={2}>
+					<Grid item xs={12} sm={12} md>
+						{assets ? (
+							<Box
+								position="relative"
+								width="100%"
+								height="100%"
+								minHeight="450px"
+								borderRadius="5px"
+								style={{
+									backgroundImage: `url("${assets.backdrops}")`,
+									backgroundSize: "cover",
+									backgroundRepeat: "no-repeat",
+									backgroundPosition: "center",
+								}}
+							>
+								<Box
+									position="absolute"
+									bottom="0px"
+									left="0px"
+									width="100%"
+									padding={3}
+									borderRadius="4px"
+									style={{ background: "linear-gradient(0deg, black 0%, transparent 100%)" }}
+								>
+									<Box display="flex">
+										<Box flexGrow="1">
+											<Typography variant="h2" style={{ fontWeight: "bold" }}>
+												{assets.displayName}
+											</Typography>
+											<Typography variant="body1">{`${assets.date} (${assets.status})`}</Typography>
+											<Box display="flex">
+												<Typography variant="body1">{`${assets.genres} • ${assets.episodeRunTime}m`}</Typography>
+												<Box display="flex" alignItems="center" color="#fbc005">
+													<i className="icon-star" style={{ paddingLeft: "5px", paddingRight: "5px" }} />
+													<Typography variant="body1">{assets.rating}</Typography>
+												</Box>
+											</Box>
+											<Typography variant="body1"> {assets.overview} </Typography>
+										</Box>
+										<Box
+											display="flex"
+											justifyContent="flex-end"
+											alignContent="flex-end"
+											flexShrink="0"
+											flexWrap="wrap"
+											maxWidth="174px"
+										>
+											{assets.providers.map(provider => (
+												<a
+													href={provider.url}
+													target="_blank"
+													rel="noopener noreferrer"
+													key={provider._id}
+													style={{ paddingLeft: "8px" }}
+												>
+													<img src={provider.icon} width="50px" height="50px" />
+												</a>
+											))}
+										</Box>
+									</Box>
+								</Box>
+							</Box>
+						) : (
+							<Box
+								display="flex"
+								height="100%"
+								alignItems="center"
+								justifyContent="center"
+								borderRadius="5px"
+								minHeight="450px"
+								style={{ backgroundColor: "#212121" }}
+							>
+								<Typography variant="h2" align="center">
+									{"No info about this serie"}
+								</Typography>
+							</Box>
+						)}
+					</Grid>
+					<Grid item xs={12} sm={12} md="auto">
 						<Box
 							display="flex"
 							flexDirection="column"
 							p={2}
-							ml={2}
 							pb={0}
 							style={{ backgroundColor: "#222" }}
 							borderRadius={5}
@@ -284,37 +370,39 @@ function Episodes() {
 								{"Latest episodes"}
 							</Typography>
 							{latestEpisodes.map(episode => (
-								<Box key={episode._id} width="250px" height="150px" mb={2}>
+								<Box key={episode._id} mb={2}>
 									<Episode episode={episode} />
 								</Box>
 							))}
 						</Box>
-					</Box>
-				)}
-				<Box display="flex" flexDirection="row" alignItems="center" py={3}>
+					</Grid>
+				</Grid>
+				<Box display="flex" flexDirection="row" alignItems="center" py={2}>
 					<Box flex="1 0 0" px={1} style={{ overflowX: "hidden" }}>
-						<ChipTabs
-							value={Number(match.params.season)}
-							variant="scrollable"
-							scrollButtons="auto"
-							TabIndicatorProps={{
-								style: {
-									display: "none",
-								},
-							}}
-						>
-							{seasons.map(season => {
-								return (
-									<ChipTab
-										key={season._id}
-										value={season._id}
-										color="primary"
-										label={`Season ${season._id}`}
-										onClick={() => handleSeasonClick(season._id)}
-									/>
-								);
-							})}
-						</ChipTabs>
+						{match.params.season && (
+							<ChipTabs
+								value={Number(match.params.season)}
+								variant="scrollable"
+								scrollButtons="auto"
+								TabIndicatorProps={{
+									style: {
+										display: "none",
+									},
+								}}
+							>
+								{seasons.map(season => {
+									return (
+										<ChipTab
+											key={season._id}
+											value={season._id}
+											color="primary"
+											label={`Season ${season._id}`}
+											onClick={() => handleSeasonClick(season._id)}
+										/>
+									);
+								})}
+							</ChipTabs>
+						)}
 					</Box>
 					<Checkbox
 						color="secondary"
@@ -326,10 +414,10 @@ function Episodes() {
 						style={{ marginRight: "10px" }}
 					/>
 				</Box>
-				<Grid container spacing={2} className={classes.episodeListContainer}>
+				<Grid container spacing={2}>
 					{renderEpisodes()}
 				</Grid>
-			</Box>
+			</>
 		);
 	}
 
