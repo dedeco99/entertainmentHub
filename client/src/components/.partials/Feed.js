@@ -85,7 +85,7 @@ function Feed({ feed }) {
 
 	function renderVideos() {
 		return posts.map(post => (
-			<ListItem key={post.videoId} divider style={{ padding: 0, margin: 0 }}>
+			<ListItem key={post.videoId} divider style={{ padding: "16px 0" }}>
 				<Box display="flex" flexDirection="column" flex="auto" minWidth={0}>
 					<Box position="relative" className={classes.videoThumbnail}>
 						<img src={post.thumbnail} width="100%" alt="Video thumbnail" />
@@ -144,7 +144,7 @@ function Feed({ feed }) {
 
 	function renderPosts() {
 		return posts.map(post => (
-			<ListItem key={post.id} divider style={{ padding: 0, margin: 0 }}>
+			<ListItem key={post.id} divider style={{ padding: "16px 0" }}>
 				<Post post={post} multipleSubs={Boolean(feed.subscriptions.length)} inList />
 			</ListItem>
 		));
@@ -156,17 +156,11 @@ function Feed({ feed }) {
 		return (
 			<Zoom in={open}>
 				<Box display="flex" flexDirection="column" className={classes.root}>
-					<Box display="flex" alignItems="center" className={classes.header}>
+					<Box display="flex" justifyContent="center" className={classes.header}>
 						<Typography variant="subtitle1">{feed.displayName}</Typography>
 					</Box>
-					<Box
-						display="flex"
-						flexWrap="wrap"
-						justifyContent="center"
-						height="100%"
-						style={{ overflow: "auto", width: "inherit" }}
-					>
-						<List>{feed.platform === "youtube" ? renderVideos() : renderPosts()}</List>
+					<Box height="100%" p={2} pt={0} style={{ overflow: "auto", width: "100%" }}>
+						<List disablePadding>{feed.platform === "youtube" ? renderVideos() : renderPosts()}</List>
 					</Box>
 				</Box>
 			</Zoom>

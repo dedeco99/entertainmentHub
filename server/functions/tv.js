@@ -1,3 +1,4 @@
+/* eslint-disable max-lines */
 const cheerio = require("cheerio");
 const dayjs = require("dayjs");
 
@@ -83,8 +84,65 @@ const watchedQuery = user => [
 	},
 ];
 
+async function getEpisodeNumbers(series, user) {
+	const seriesIds = series.map(s => s.externalId.toString());
+	const seriesTotals = await Episode.aggregate([
+		{ $match: { seriesId: { $in: seriesIds } } },
+		...watchedQuery(user),
+		{
+			$group: {
+				_id: "$seriesId",
+				watched: { $sum: { $cond: [{ $eq: ["$watched", true] }, 1, 0] } },
+				toWatch: {
+					$sum: {
+						$cond: [
+							{
+								$and: [
+									{ $eq: ["$watched", false] },
+									{ $ne: ["$date", null] },
+									{ $lte: ["$date", dayjs().toDate()] },
+								],
+							},
+							1,
+							0,
+						],
+					},
+				},
+				total: {
+					$sum: { $cond: [{ $and: [{ $ne: ["$date", null] }, { $lte: ["$date", dayjs().toDate()] }] }, 1, 0] },
+				},
+			},
+		},
+	]);
+
+	for (const serie of series) {
+		const seriesFound = seriesTotals.find(s => s._id === serie.externalId.toString());
+
+		if (seriesFound) {
+			serie.numTotal = seriesFound.total;
+			serie.numWatched = seriesFound.watched;
+			serie.numToWatch = seriesFound.toWatch;
+		}
+	}
+
+	return series;
+}
+
+async function sendSocketUpdate(type, subscriptions, user) {
+	if (global.sockets[user._id]) {
+		const updatedSubscriptions = await getEpisodeNumbers(subscriptions, user);
+
+		for (const socket of global.sockets[user._id]) {
+			socket.emit(
+				type === "edit" ? "editSubscription" : "setSubscriptions",
+				type === "edit" ? updatedSubscriptions[0] : updatedSubscriptions,
+			);
+		}
+	}
+}
+
 // eslint-disable-next-line complexity, max-lines-per-function
-async function fetchEpisodes(series) {
+async function fetchEpisodes(series, user) {
 	const episodesToAdd = [];
 	const episodesToUpdate = [];
 	const notificationsToAdd = [];
@@ -98,7 +156,7 @@ async function fetchEpisodes(series) {
 
 	let seasons = [];
 	if (json.seasons) {
-		seasons = json.seasons.map(season => season.season_number);
+		seasons = json.seasons.map(season => season.season_number).filter(season => season);
 	}
 
 	const seasonsPromises = [];
@@ -110,16 +168,19 @@ async function fetchEpisodes(series) {
 
 	seasons = await Promise.all(seasonsPromises);
 
+	const episodes = await Episode.find({ seriesId: series._id }).lean();
+
+	const validEpisodes = [];
 	for (const season of seasons) {
 		json = season.data;
 
 		if (json.episodes && json.episodes.length) {
 			for (const episode of json.episodes) {
-				const episodeExists = await Episode.findOne({
-					seriesId: series._id,
-					season: episode.season_number,
-					number: episode.episode_number,
-				}).lean();
+				validEpisodes.push(`S${episode.season_number}E${episode.episode_number}`);
+
+				const episodeExists = episodes.find(
+					e => e.season === episode.season_number && e.number === episode.episode_number,
+				);
 
 				if (!episodeExists) {
 					const newEpisode = new Episode({
@@ -191,9 +252,29 @@ async function fetchEpisodes(series) {
 		}
 	}
 
+	const episodesToDelete = [];
+	for (const episode of episodes) {
+		if (!validEpisodes.includes(`S${episode.season}E${episode.number}`)) episodesToDelete.push(episode._id);
+	}
+
+	if (episodesToDelete.length) await Episode.deleteMany({ _id: { $in: episodesToDelete } });
 	if (episodesToAdd.length) await Episode.insertMany(episodesToAdd);
 	if (episodesToUpdate.length) await Promise.all(episodesToUpdate);
 	if (notificationsToAdd.length) await addScheduledNotifications(notificationsToAdd);
+
+	if (user) {
+		sendSocketUpdate(
+			"edit",
+			[
+				await Subscription.findOne({
+					user: user._id,
+					platform: "tv",
+					externalId: series._id,
+				}).lean(),
+			],
+			user,
+		);
+	}
 
 	console.log(`${series.displayName} finished`);
 
@@ -202,7 +283,7 @@ async function fetchEpisodes(series) {
 
 async function cronjob() {
 	const seriesList = await Subscription.aggregate([
-		{ $match: { platform: "tv" } },
+		{ $match: { active: true, platform: "tv" } },
 		{
 			$group: {
 				_id: "$externalId",
@@ -224,40 +305,15 @@ async function cronjob() {
 	return true;
 }
 
-async function getEpisodeNumbers(series, user) {
-	const promises = [];
-	for (const singleSeries of series) {
-		promises.push(
-			Episode.aggregate([
-				{ $match: { seriesId: singleSeries.externalId.toString() } },
-				...watchedQuery(user),
-				{
-					$facet: {
-						watched: [{ $match: { watched: true } }, { $count: "total" }],
-						total: [{ $count: "total" }],
-					},
-				},
-			]),
-		);
-	}
-
-	const episodes = await Promise.all(promises);
-	for (let i = 0; i < series.length; i++) {
-		series[i].numWatched = episodes[i][0].watched.length ? episodes[i][0].watched[0].total : 0;
-		series[i].numTotal = episodes[i][0].total.length ? episodes[i][0].total[0].total : 0;
-		series[i].numToWatch = series[i].numTotal - series[i].numWatched;
-	}
-
-	return series;
-}
-
 // eslint-disable-next-line max-lines-per-function
 async function getEpisodes(event) {
 	const { params, query, user } = event;
 	const { id } = params;
 	const { page, filter } = query;
 
-	const userSeries = await Subscription.find({ user: user._id, platform: "tv" }).sort({ displayName: 1 }).lean();
+	const userSeries = await Subscription.find({ active: true, user: user._id, platform: "tv" })
+		.sort({ displayName: 1 })
+		.lean();
 
 	const seriesIds = userSeries.map(s => s.externalId);
 
@@ -271,7 +327,7 @@ async function getEpisodes(event) {
 		sortQuery.date = 1;
 	} else if (filter === "watched") {
 		afterQuery.watched = true;
-	} else if (filter === "toWatch") {
+	} else if (filter === "toWatch" || filter === "queue") {
 		episodeQuery.date = { $lte: new Date() };
 		afterQuery.watched = false;
 	}
@@ -280,9 +336,9 @@ async function getEpisodes(event) {
 	if (id === "all") {
 		if (filter === "queue") {
 			episodes = await Episode.aggregate([
-				{ $match: { ...episodeQuery, season: { $ne: 0 } } },
+				{ $match: episodeQuery },
 				...watchedQuery(user),
-				{ $match: { watched: false } },
+				{ $match: afterQuery },
 				{ $sort: { season: 1, number: 1 } },
 				{ $group: { _id: "$seriesId", episodes: { $first: "$$ROOT" } } },
 				{ $replaceRoot: { newRoot: { $mergeObjects: ["$episodes", "$$ROOT"] } } },
@@ -350,12 +406,12 @@ async function getSearch(event) {
 	const tmdbSeries = await Promise.all(promises);
 
 	const series = json.results.map((s, i) => ({
-		externalId: s.id,
+		externalId: s.id.toString(),
 		displayName: s.name,
-		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}`,
+		image: s.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}` : "",
 		imdbId: tmdbSeries[i].data.imdb_id,
 		year: dayjs(s.first_air_date).get("year"),
-		rating: s.vote_average,
+		rating: s.vote_average.toFixed(1),
 	}));
 
 	return response(200, "GET_SERIES", series);
@@ -370,7 +426,7 @@ function getTrend(trend) {
 }
 
 async function getPopular(event) {
-	const { query, user } = event;
+	const { query } = event;
 	const { page, source, type } = query;
 
 	if (!page && page !== "0") return response(400, "Missing page in query");
@@ -421,19 +477,17 @@ async function getPopular(event) {
 			for (let i = 0; i < infos.length; i++) {
 				series.push({
 					externalId: tmdbSeries[i].data.tv_results.length
-						? tmdbSeries[i].data.tv_results[0].id
+						? tmdbSeries[i].data.tv_results[0].id.toString()
 						: tmdbSeries[i].data.movie_results.length
-						? tmdbSeries[i].data.movie_results[0].id
+						? tmdbSeries[i].data.movie_results[0].id.toString()
 						: null,
 					imdbId: infos[i].id,
 					displayName: infos[i].name,
-					image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${
-						tmdbSeries[i].data.tv_results.length
-							? tmdbSeries[i].data.tv_results[0].poster_path
-							: tmdbSeries[i].data.movie_results.length
-							? tmdbSeries[i].data.movie_results[0].poster_path
-							: null
-					}`,
+					image: tmdbSeries[i].data.tv_results.length
+						? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSeries[i].data.tv_results[0].poster_path}`
+						: tmdbSeries[i].data.movie_results.length
+						? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSeries[i].data.movie_results[0].poster_path}`
+						: "",
 					year: infos[i].year,
 					rank: infos[i].rank,
 					trend: infos[i].trend,
@@ -444,10 +498,7 @@ async function getPopular(event) {
 			global.cache[type].popular = series;
 		}
 
-		series = await getEpisodeNumbers(
-			global.cache[type].popular.slice(Number(page) * 20, Number(page) * 20 + 20),
-			user,
-		);
+		series = global.cache[type].popular.slice(Number(page) * 20, Number(page) * 20 + 20);
 	} else {
 		const url = `https://api.themoviedb.org/3/tv/popular?${`page=${Number(page) + 1}`}&api_key=${
 			process.env.tmdbKey
@@ -457,20 +508,112 @@ async function getPopular(event) {
 		const json = res.data;
 
 		series = json.results.map(s => ({
-			externalId: s.id,
+			externalId: s.id.toString(),
 			displayName: s.name,
-			image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}`,
+			image: s.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}` : "",
 		}));
 	}
 
-	return response(200, "GET_SERIES", series);
+	return response(200, "GET_POPULAR", series);
+}
+
+async function getRecommendations(event) {
+	const { user } = event;
+
+	const userSeries = await Subscription.aggregate([
+		{ $match: { active: true, user: user._id, platform: "tv" } },
+		{ $project: { displayName: 1, externalId: 1 } },
+	]);
+
+	const sample = userSeries.sort(() => 0.5 - Math.random()).slice(0, 5);
+
+	const promises = sample.map(series =>
+		api({
+			method: "get",
+			url: `https://api.themoviedb.org/3/tv/${series.externalId}/recommendations?api_key=${process.env.tmdbKey}`,
+		}),
+	);
+
+	const tmdbSeries = await Promise.all(promises);
+
+	const series = [];
+	for (let i = 0; i < sample.length; i++) {
+		for (const recommendation of tmdbSeries[i].data.results) {
+			if (
+				!userSeries.find(s => s.externalId === recommendation.id.toString()) &&
+				!series.find(s => s.externalId === recommendation.id.toString())
+			) {
+				series.push({
+					externalId: recommendation.id.toString(),
+					displayName: recommendation.name,
+					image: recommendation.poster_path
+						? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${recommendation.poster_path}`
+						: "",
+					year: dayjs(recommendation.first_air_date).get("year"),
+					rating: recommendation.vote_average.toFixed(1),
+					originalSeries: userSeries[i],
+				});
+			}
+		}
+	}
+
+	return response(200, "GET_RECOMMENDATIONS", series.sort(() => 0.5 - Math.random()).slice(0, 20));
+}
+
+async function getProviders(event) {
+	const { query } = event;
+	const { type, search } = query;
+
+	const providersRes = await api({
+		method: "get",
+		url: "https://apis.justwatch.com/content/providers/locale/pt_PT",
+	});
+
+	const justWatchRes = await api({
+		method: "get",
+		url: `https://apis.justwatch.com/content/titles/pt_PT/popular?body={"page_size":1,"page":1,"query":"${search}","content_types":["${
+			type === "tv" ? "show" : "movie"
+		}"]}`,
+	});
+
+	const providers = [];
+	if (justWatchRes.data.items.length) {
+		const offers = justWatchRes.data.items[0].offers;
+
+		if (offers) {
+			const existingLinks = [];
+			for (const offer of offers) {
+				if (!existingLinks.includes(offer.urls.standard_web)) {
+					offer.icon = `https://images.justwatch.com${providersRes.data
+						.find(p => p.id === offer.provider_id)
+						.icon_url.replace("/{profile}", "")}/s100`;
+
+					providers.push({ url: offer.urls.standard_web, icon: offer.icon });
+
+					existingLinks.push(offer.urls.standard_web);
+				}
+			}
+		}
+	}
+
+	/*
+	const justWatchDetailRes = await api({
+		method: "get",
+		url: `https://apis.justwatch.com/content/titles/show/${justWatchRes.data.items[0].id}/locale/pt_PT`,
+	});
+	*/
+
+	return response(200, "GET_PROVIDERS", providers);
 }
 
 module.exports = {
 	fetchEpisodes,
 	cronjob,
 	getEpisodeNumbers,
+	sendSocketUpdate,
 	getEpisodes,
 	getSearch,
 	getPopular,
+	getRecommendations,
+	getProviders,
 };

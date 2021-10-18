@@ -2,6 +2,7 @@ const { Schema, model } = require("mongoose");
 
 const SubscriptionSchema = new Schema(
 	{
+		active: { type: Boolean, default: true },
 		user: { type: Schema.ObjectId, ref: "User", required: true },
 		platform: { type: String, required: true },
 		group: {
@@ -13,6 +14,7 @@ const SubscriptionSchema = new Schema(
 		image: { type: String, default: "" },
 		notifications: {
 			active: { type: Boolean, default: true },
+			priority: { type: Number, default: 0 },
 
 			// youtube
 			autoAddToWatchLater: { type: Boolean, default: false },

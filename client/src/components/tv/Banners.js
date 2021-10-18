@@ -1,6 +1,5 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useContext, useState } from "react";
 import PropTypes from "prop-types";
-import InfiniteScroll from "react-infinite-scroller";
 
 import {
 	makeStyles,
@@ -9,69 +8,81 @@ import {
 	Grid,
 	LinearProgress,
 	Card,
+	CardMedia,
 	CardActionArea,
 	Checkbox,
 	Tooltip,
 	Chip,
+	IconButton,
+	Zoom,
+	Slide,
 } from "@material-ui/core";
 
-import Loading from "../.partials/Loading";
+import Placeholder from "../.partials/Placeholder";
 
 import { TVContext } from "../../contexts/TVContext";
 
-import {
-	getSubscriptions,
-	addSubscriptions,
-	patchSubscription,
-	deleteSubscription,
-} from "../../api/subscriptions";
+import { addSubscriptions, patchSubscription, deleteSubscription } from "../../api/subscriptions";
+import { getProviders } from "../../api/tv";
 
 import { banners as styles } from "../../styles/TV";
 
-import placeholder from "../../img/noimage.png";
 import { translate } from "../../utils/translations";
 
 const useStyles = makeStyles(styles);
 
-function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowScroll }) {
+function Banners({ series, contentType, loading, bannerWidth }) {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(TVContext);
 	const { subscriptions } = state;
-	const [rerender, setRerender] = useState(true);
+	const [providers, setProviders] = useState({});
+	const [originalSeriesVisible, setOriginalSeriesVisible] = useState(false);
 
-	useEffect(() => {
-		let isMounted = true;
+	async function handleSubscriptionChange(e, serie) {
+		if (e.target.checked) {
+			const seriesToAdd = series.find(s => s.externalId === serie.externalId);
+			seriesToAdd.group = { name: "Ungrouped", pos: 0 };
+			const response = await addSubscriptions("tv", [seriesToAdd]);
 
-		async function fetchData() {
-			const response = await getSubscriptions("tv");
-
-			if (response.status === 200 && isMounted) {
-				dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
+			if (response.status === 201) {
+				dispatch({ type: "ADD_SUBSCRIPTION", subscription: response.data });
 			}
-		}
+		} else {
+			const seriesToRemove = subscriptions.find(s => s.externalId === serie.externalId);
+			const response = await deleteSubscription(seriesToRemove._id);
 
-		if (!subscriptions.length) fetchData();
-
-		return () => (isMounted = false);
-	}, []);
-
-	async function handleAddSeries(serie) {
-		const seriesToAdd = series.find(s => s.externalId === serie.externalId);
-		seriesToAdd.externalId = seriesToAdd.externalId.toString();
-		seriesToAdd.group = { name: "Ungrouped" };
-		const response = await addSubscriptions("tv", [seriesToAdd]);
-
-		if (response.status === 201) {
-			dispatch({ type: "ADD_SUBSCRIPTION", subscription: response.data });
+			if (response.status === 200) {
+				dispatch({ type: "DELETE_SUBSCRIPTION", subscription: response.data });
+			}
 		}
 	}
 
-	async function handleDeleteSeries(serie) {
-		const seriesToRemove = subscriptions.find(s => s.externalId === serie.externalId.toString());
-		const response = await deleteSubscription(seriesToRemove._id);
+	async function handleMarkAsWatched(e, serie) {
+		const isWatched = serie.numWatched > 0 && serie.numTotal === serie.numWatched;
+		const response = await patchSubscription(serie.externalId, { markAsWatched: !isWatched, watched: "all" });
 
 		if (response.status === 200) {
-			dispatch({ type: "DELETE_SUBSCRIPTION", subscription: response.data });
+			dispatch({ type: "EDIT_SUBSCRIPTION", subscription: response.data });
+		}
+	}
+
+	async function handleGetProviders(serie) {
+		const response = await getProviders(contentType, serie.displayName);
+
+		if (response.status === 200) {
+			setProviders({ ...providers, [serie.externalId]: response.data });
+		}
+	}
+
+	function isSubscribed(serie) {
+		return subscriptions.map(us => us.externalId).includes(serie.externalId);
+	}
+
+	function handleNameClick() {
+		if (originalSeriesVisible) {
+			setOriginalSeriesVisible(false);
+		} else {
+			setOriginalSeriesVisible(true);
 		}
 	}
 
@@ -95,159 +106,167 @@ function Banners({ series, getMore, hasMore, hasActions, bannerWidth, useWindowS
 		</Box>
 	*/
 
-	function handleFavoriteChange(e, serie) {
-		if (e.target.checked) handleAddSeries(serie);
-		else handleDeleteSeries(serie);
-	}
-
-	function isSubscribed(serie) {
-		return subscriptions.map(us => us.externalId).includes(serie.externalId.toString());
-	}
-
-	async function handleMarkAsWatched(e, serie) {
-		const isWatched = serie.numWatched > 0 && serie.numTotal === serie.numWatched;
-		const response = await patchSubscription(serie.externalId, !isWatched, "all");
-
-		if (response.status === 200) {
-			// This looks like the inverse logic but because we are using the old isWatched it works
-			serie.numWatched = isWatched ? 0 : serie.numTotal;
-			serie.numToWatch = isWatched ? serie.numTotal : 0;
-
-			dispatch({ type: "EDIT_SUBSCRIPTION", subscription: { ...response.data, numToWatch: serie.numToWatch } });
-
-			setRerender(!rerender);
-		}
-	}
-
-	function renderSeriesBlock() {
-		if (!series || !series.length) return <div />;
-
+	function renderPosterCard(serie) {
 		return (
-			<Grid container justify="center">
-				{series.map(serie => (
-					<Grid item key={serie.externalId} style={{ padding: "8px" }}>
-						<Box display="flex" flexDirection="column" width={bannerWidth} height="100%">
-							<Card component={Box} mb={1}>
-								<CardActionArea
-									onClick={() => {
-										// TODO: Change this onclick to our own series page
-										const newWindow = window.open(
-											serie.imdbId
-												? `https://www.imdb.com/title/${serie.imdbId}`
-												: `https://www.themoviedb.org/tv/${serie.externalId}`,
-											"_blank",
-											"noopener,noreferrer",
-										);
-										if (newWindow) newWindow.opener = null;
-									}}
-								>
-									<Box>
-										<img
-											style={{ display: "block", width: "100%" }}
-											src={serie.image ? serie.image : placeholder}
-											alt="Serie poster"
-											draggable="false"
-										/>
-										{serie.numToWatch > 0 ? (
-											<Chip
-												color="secondary"
-												size="small"
-												label={serie.numToWatch}
-												style={{ position: "absolute", top: "5px", right: "5px", borderRadius: "2px" }}
-											/>
-										) : null}
-										{serie.numWatched > 0 ? (
-											<Tooltip title={`${serie.numWatched} watched`} placement="top">
-												<LinearProgress
-													color="secondary"
-													variant="determinate"
-													value={(serie.numWatched / serie.numTotal) * 100}
-													className={classes.watchedProgressBar}
-												/>
-											</Tooltip>
-										) : null}
-									</Box>
-								</CardActionArea>
-							</Card>
-							<Typography variant="body2" style={{ display: "flex", flexGrow: 1 }}>
-								{serie.displayName}
-							</Typography>
-							<Box display="flex" alignItems="center">
-								<Typography
-									variant="caption"
-									style={{
-										display: "flex",
-										flexGrow: 1,
-										color: "#aeaeae",
-									}}
-								>
-									{serie.year || null}
-								</Typography>
-								{hasActions && (
-									<>
-										<Tooltip
-											title={isSubscribed(serie) ? translate("removeFavorites") : translate("addFavorites")}
-											placement="top"
-										>
-											<Checkbox
-												color="secondary"
-												checked={isSubscribed(serie)}
-												icon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
-												checkedIcon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
-												onChange={e => handleFavoriteChange(e, serie)}
-												classes={{ root: classes.checkboxSize }}
-											/>
-										</Tooltip>
-										<Tooltip
-											title={
-												isSubscribed(serie) && serie.numWatched > 0 && serie.numTotal === serie.numWatched
-													? translate("removeWatched")
-													: translate("addWatched")
-											}
-											placement="top"
-										>
-											<Checkbox
-												color="secondary"
-												checked={
-													isSubscribed(serie) && serie.numWatched > 0 && serie.numTotal === serie.numWatched
-												}
-												disabled={!isSubscribed(serie)}
-												icon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
-												checkedIcon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
-												onChange={e => handleMarkAsWatched(e, serie)}
-												classes={{ root: classes.checkboxSize }}
-											/>
-										</Tooltip>
-									</>
-								)}
-								{serie.rating ? (
-									<Box display="flex" alignItems="center" color="#fbc005" height="100%">
-										<i className="icon-star" style={{ paddingLeft: "5px", paddingRight: "5px" }} />
-										<Typography variant="caption">{serie.rating}</Typography>
-									</Box>
-								) : null}
-							</Box>
+			<Card component={Box} mb={1}>
+				<CardActionArea>
+					<a
+						href={
+							serie.imdbId
+								? `https://www.imdb.com/title/${serie.imdbId}`
+								: `https://www.themoviedb.org/tv/${serie.externalId}` // TODO: Change this onclick to our own series page
+						}
+						target="_blank"
+						rel="noreferrer"
+						style={{ textDecoration: "none" }}
+					>
+						{serie.image ? (
+							<CardMedia
+								component="img"
+								width="100%"
+								image={serie.image}
+								style={{ display: "block", width: "100%" }}
+							/>
+						) : (
+							<Placeholder height={270} />
+						)}
+					</a>
+					<Zoom in={!!providers[serie.externalId]}>
+						<Box
+							style={{
+								position: "absolute",
+								bottom: "2px",
+								right: "1px",
+							}}
+						>
+							{providers[serie.externalId] && providers[serie.externalId].length ? (
+								providers[serie.externalId].map(provider => (
+									<a href={provider.url} target="_blank" rel="noreferrer" key={provider.url}>
+										<img src={provider.icon} height="35px" style={{ margin: "2px", borderRadius: "2px" }} />
+									</a>
+								))
+							) : (
+								<i className="icon-close-circled icon-3x" />
+							)}
 						</Box>
-					</Grid>
-				))}
-			</Grid>
+					</Zoom>
+					<Zoom in={serie.numToWatch > 0}>
+						<Chip
+							color="secondary"
+							size="small"
+							label={serie.numToWatch}
+							style={{ position: "absolute", top: "5px", right: "5px", borderRadius: "2px" }}
+						/>
+					</Zoom>
+					<Slide direction="right" timeout={750} in={serie.numWatched > 0}>
+						<Tooltip title={`${serie.numWatched} watched`} placement="top">
+							<LinearProgress
+								color="secondary"
+								variant="determinate"
+								value={(serie.numWatched / serie.numTotal) * 100}
+								className={classes.watchedProgressBar}
+							/>
+						</Tooltip>
+					</Slide>
+				</CardActionArea>
+			</Card>
+		);
+	}
+	function renderInfoAndActions(serie) {
+		return (
+			<>
+				<Typography variant="body2" align="left" onClick={handleNameClick}>
+					{serie.displayName}
+				</Typography>
+				{serie.originalSeries && originalSeriesVisible && (
+					<Typography variant="caption" align="left">
+						{`Because you watch ${serie.originalSeries.displayName}`}
+					</Typography>
+				)}
+				<Box display="flex" alignItems="center">
+					<Typography
+						variant="caption"
+						style={{
+							display: "flex",
+							flexGrow: 1,
+							color: "#aeaeae",
+						}}
+					>
+						{serie.year || null}
+					</Typography>
+					{contentType === "tv" && (
+						<>
+							<Tooltip
+								title={isSubscribed(serie) ? translate("removeFavorites") : translate("addFavorites")}
+								placement="top"
+							>
+								<Checkbox
+									color="secondary"
+									checked={isSubscribed(serie)}
+									disabled={loading}
+									icon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
+									checkedIcon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
+									onChange={e => handleSubscriptionChange(e, serie)}
+									classes={{ root: classes.checkboxSize }}
+								/>
+							</Tooltip>
+							<Tooltip
+								title={
+									isSubscribed(serie) && serie.numWatched > 0 && serie.numTotal === serie.numWatched
+										? translate("removeWatched")
+										: translate("addWatched")
+								}
+								placement="top"
+							>
+								<Checkbox
+									color="secondary"
+									checked={isSubscribed(serie) && serie.numWatched > 0 && serie.numTotal === serie.numWatched}
+									disabled={loading || !isSubscribed(serie) || !serie.numTotal}
+									icon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
+									checkedIcon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
+									onChange={e => handleMarkAsWatched(e, serie)}
+									classes={{ root: classes.checkboxSize }}
+								/>
+							</Tooltip>
+						</>
+					)}
+					{serie.rating ? (
+						<Box display="flex" alignItems="center" color="#fbc005" height="100%" style={{ paddingRight: "5px" }}>
+							<i className="icon-star" style={{ paddingLeft: "5px", paddingRight: "5px" }} />
+							<Typography variant="caption">{serie.rating}</Typography>
+						</Box>
+					) : null}
+					<Tooltip title={"Providers"} placement="top">
+						<IconButton onClick={() => handleGetProviders(serie)} classes={{ root: classes.checkboxSize }}>
+							<i className="icon-monitor" style={{ fontSize: "0.875rem" }} />
+						</IconButton>
+					</Tooltip>
+				</Box>
+			</>
 		);
 	}
 
+	if (!series || !series.length) return <div />;
+
 	return (
-		<InfiniteScroll loadMore={getMore} hasMore={hasMore} loader={<Loading key={0} />} useWindow={useWindowScroll}>
-			{renderSeriesBlock()}
-		</InfiniteScroll>
+		<Grid container justifyContent="center">
+			{series.map(serie => (
+				<Grid item key={serie.externalId} style={{ padding: "8px" }}>
+					<Box display="flex" flexDirection="column" width={bannerWidth} height="100%">
+						{renderPosterCard(serie)}
+						{renderInfoAndActions(serie)}
+					</Box>
+				</Grid>
+			))}
+		</Grid>
 	);
 }
 
 Banners.propTypes = {
 	series: PropTypes.array.isRequired,
-	getMore: PropTypes.func.isRequired,
-	hasMore: PropTypes.bool.isRequired,
-	hasActions: PropTypes.bool.isRequired,
+	contentType: PropTypes.string.isRequired,
+	loading: PropTypes.bool.isRequired,
 	bannerWidth: PropTypes.number.isRequired,
-	useWindowScroll: PropTypes.bool.isRequired,
 };
 
 export default Banners;

@@ -1,6 +1,8 @@
 const { response, api } = require("../utils/request");
 const errors = require("../utils/errors");
 
+const dayjs = require("dayjs");
+
 const App = require("../models/app");
 const Subscription = require("../models/subscription");
 
@@ -27,7 +29,7 @@ async function getStreams(event) {
 	const { query, user } = event;
 	const { after, skipGame } = query;
 
-	const subscriptions = await Subscription.find({ user: user._id, platform: "twitch" }).lean();
+	const subscriptions = await Subscription.find({ active: true, user: user._id, platform: "twitch" }).lean();
 
 	if (!subscriptions.length) return response(200, "No streams found", []);
 
@@ -165,6 +167,41 @@ async function getSearch(event) {
 	return response(200, "GET_CHANNELS", channels);
 }
 
+async function getClips(event) {
+	const { params, query, user } = event;
+	const { id } = params;
+	const { type, after } = query;
+
+	const accessToken = await getAccessToken(user, "client_credentials");
+
+	if (accessToken.status === 401) return errors.twitchRefreshToken;
+
+	let url = `https://api.twitch.tv/helix/${type}?${type === "clips" ? "broadcaster_id" : "user_id"}=${id}`;
+	if (after) url += `&after=${after}`;
+
+	const headers = {
+		"Client-ID": process.env.twitchClientId,
+		Authorization: `Bearer ${accessToken}`,
+	};
+
+	const res = await api({ method: "get", url, headers });
+	const json = res.data;
+
+	const clips = json.data.map(clip => ({
+		published: dayjs(clip.published_at || clip.created_at).toDate(),
+		displayName: clip.user_name || clip.broadcaster_name,
+		thumbnail: clip.thumbnail_url.replace("%{width}", "640").replace("%{height}", "360"),
+		videoTitle: clip.title,
+		videoId: clip.id,
+		channelId: clip.user_id || clip.broadcaster_id,
+		views: clip.view_count,
+		duration: isNaN(clip.duration) ? clip.duration : `${clip.duration.toFixed()}s`,
+		after: json.pagination.cursor,
+	}));
+
+	return response(200, "GET_CLIPS", clips);
+}
+
 async function testWebhooks(accessToken) {
 	let url = "https://api.twitch.tv/helix/webhooks/hub";
 
@@ -202,4 +239,5 @@ module.exports = {
 	getStreams,
 	getFollows,
 	getSearch,
+	getClips,
 };

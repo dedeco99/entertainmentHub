@@ -80,6 +80,8 @@ app.get("/api/apps", token, (req, res) => middleware(req, res, apps.getApps));
 
 app.post("/api/apps", token, (req, res) => middleware(req, res, apps.addApp));
 
+app.patch("/api/apps/:id", token, (req, res) => middleware(req, res, apps.patchApp));
+
 app.delete("/api/apps/:id", token, (req, res) => middleware(req, res, apps.deleteApp));
 
 app.put("/api/users", token, (req, res) => middleware(req, res, users.editUser));
@@ -170,6 +172,8 @@ app.get("/api/twitch/follows/mine", token, (req, res) => middleware(req, res, tw
 
 app.get("/api/twitch/follows/search", token, (req, res) => middleware(req, res, twitch.getSearch));
 
+app.get("/api/twitch/clips/:id", token, (req, res) => middleware(req, res, twitch.getClips));
+
 /*
 app.get("/api/twitch/games/", token, (req, res) => middleware(req, res, twitch.getGames));
 
@@ -181,6 +185,10 @@ app.get("/api/twitch/channels/", token, (req, res) => middleware(req, res, twitc
 app.get("/api/tv/search/:search", token, (req, res) => middleware(req, res, tv.getSearch));
 
 app.get("/api/tv/popular", token, (req, res) => middleware(req, res, tv.getPopular));
+
+app.get("/api/tv/recommendations", token, (req, res) => middleware(req, res, tv.getRecommendations));
+
+app.get("/api/tv/providers", token, (req, res) => middleware(req, res, tv.getProviders));
 
 app.get("/api/tv/:id", token, (req, res) => middleware(req, res, tv.getEpisodes));
 

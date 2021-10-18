@@ -5,6 +5,7 @@ async function editUser(user) {
 		method: "put",
 		url: "/api/users",
 		data: user,
+		message: true,
 	});
 
 	return res;

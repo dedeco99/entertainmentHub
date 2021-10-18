@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { useHistory, useRouteMatch } from "react-router-dom";
 
 import { makeStyles, Grid, Button } from "@material-ui/core";
-import { SpeedDial, SpeedDialAction } from "@material-ui/lab";
 
 import Follows from "../.partials/Follows";
 import Subscriptions from "../.partials/Subscriptions";
 import FeedDetail from "../.partials/FeedDetail";
 import Feeds from "../.partials/Feeds";
 import Videos from "./Videos";
+
+import { ActionContext } from "../../contexts/ActionContext";
 
 import styles from "../../styles/General";
 
@@ -18,21 +19,13 @@ function Youtube() {
 	const history = useHistory();
 	const match = useRouteMatch();
 	const classes = useStyles();
+	const { dispatch } = useContext(ActionContext);
 	const [blocks, setBlocks] = useState({
 		openFeeds: false,
 		openVideos: false,
 	});
-	const [openOptions, setOpenOptions] = useState(false);
 	const [openFeedDetail, setOpenFeedDetail] = useState(false);
 	const [openFollows, setOpenFollows] = useState(false);
-
-	function handleOpenOptions() {
-		setOpenOptions(true);
-	}
-
-	function handleCloseOptions() {
-		setOpenOptions(false);
-	}
 
 	function handleOpenFeedDetail() {
 		setOpenFeedDetail(true);
@@ -85,6 +78,26 @@ function Youtube() {
 		}
 	}, [match.url]);
 
+	useEffect(() => {
+		const actions = [
+			{
+				from: "youtube",
+				name: "Add Subscriptions",
+				icon: <i className="icon-user" />,
+				handleClick: handleOpenFollows,
+			},
+			{ from: "youtube", name: "Add Feed", icon: <i className="icon-feed" />, handleClick: handleOpenFeedDetail },
+		];
+
+		function setupActions() {
+			dispatch({ type: "ADD_ACTIONS", actions });
+		}
+
+		setupActions();
+
+		return () => dispatch({ type: "DELETE_ACTIONS", from: "youtube" });
+	}, []);
+
 	function renderButtons() {
 		return (
 			<div align="center">
@@ -105,16 +118,11 @@ function Youtube() {
 		if (blocks.openFeeds) {
 			return <Feeds platform="youtube" />;
 		} else if (blocks.openVideos) {
-			return <Videos />;
+			return <Videos platform="youtube" />;
 		}
 
 		return <div />;
 	}
-
-	const actions = [
-		{ name: "Add Subscriptions", icon: <i className="icon-user" />, handleClick: handleOpenFollows },
-		{ name: "Add Feed", icon: <i className="icon-feed" />, handleClick: handleOpenFeedDetail },
-	];
 
 	return (
 		<Grid container spacing={2}>
@@ -132,24 +140,6 @@ function Youtube() {
 			<Grid item xs={12} sm={10} md={9} lg={10}>
 				{renderContent()}
 			</Grid>
-			<SpeedDial
-				ariaLabel="Options"
-				icon={<i className="icon-add" />}
-				onClose={handleCloseOptions}
-				onOpen={handleOpenOptions}
-				open={openOptions}
-				className={classes.speedDial}
-				FabProps={{ size: "small" }}
-			>
-				{actions.map(action => (
-					<SpeedDialAction
-						key={action.name}
-						icon={action.icon}
-						tooltipTitle={action.name}
-						onClick={action.handleClick}
-					/>
-				))}
-			</SpeedDial>
 		</Grid>
 	);
 }

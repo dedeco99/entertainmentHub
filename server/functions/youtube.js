@@ -229,6 +229,7 @@ async function addToWatchLater(event) {
 	};
 
 	const subscriptions = await Subscription.find({
+		active: true,
 		user: user._id,
 		platform: "youtube",
 		externalId: { $in: videos.map(v => v.channelId) },
@@ -276,7 +277,7 @@ async function addToWatchLater(event) {
 
 async function cronjob() {
 	const subscriptions = await Subscription.aggregate([
-		{ $match: { platform: "youtube" } },
+		{ $match: { active: true, platform: "youtube" } },
 		{
 			$lookup: {
 				from: "users",
@@ -293,6 +294,7 @@ async function cronjob() {
 					$push: {
 						_id: "$user._id",
 						watchLaterPlaylist: "$user.settings.youtube.watchLaterPlaylist",
+						subscriptionId: "$_id",
 						subscriptionDisplayName: "$displayName",
 						notifications: "$notifications",
 					},
@@ -331,8 +333,11 @@ async function cronjob() {
 					dateToSend: video.published,
 					sent: true,
 					notificationId: `${user._id}${video.yt_videoId}`,
+					subscription: user.subscriptionId,
 					user: user._id,
 					type: "youtube",
+					topPriority: user.notifications.priority === 3,
+					priority: user.notifications.priority,
 					info: {
 						displayName: user.subscriptionDisplayName,
 						thumbnail: video.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),

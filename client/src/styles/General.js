@@ -42,16 +42,11 @@ const general = {
 		bottom: 0,
 		right: 0,
 		backgroundColor: "#212121dd",
-		padding: 2,
+		padding: "1px 3px",
 	},
 	outlinedBtn: {
 		marginTop: 10,
 		marginBottom: 10,
-	},
-	speedDial: {
-		bottom: 15,
-		left: -3,
-		position: "fixed",
 	},
 };
 

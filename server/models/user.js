@@ -16,6 +16,7 @@ const UserSchema = new Schema(
 			},
 			tv: {
 				hideEpisodesThumbnails: { type: Boolean, default: true },
+				hideEpisodesTitles: { type: Boolean, default: true },
 			},
 			appHints: { type: Boolean, default: true },
 		},

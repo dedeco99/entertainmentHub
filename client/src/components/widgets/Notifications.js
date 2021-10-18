@@ -5,6 +5,7 @@ import InfiniteScroll from "react-infinite-scroller";
 import { motion } from "framer-motion";
 
 import {
+	withStyles,
 	makeStyles,
 	Zoom,
 	IconButton,
@@ -27,28 +28,40 @@ import AnimatedList from "../.partials/AnimatedList";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 import { UserContext } from "../../contexts/UserContext";
+import { SubscriptionContext } from "../../contexts/SubscriptionContext";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 
 import { getNotifications, patchNotifications, deleteNotifications } from "../../api/notifications";
 import { getPlaylists, addToWatchLater } from "../../api/youtube";
 
-import { formatDate, diff, formatVideoDuration, formatNotification } from "../../utils/utils";
+import { formatDate, diff, formatNotification } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
 import { notifications as widgetStyles } from "../../styles/Widgets";
 import { videoPlayer as videoPlayerStyles } from "../../styles/VideoPlayer";
 import generalStyles from "../../styles/General";
 
+const PriorityBadge = withStyles({
+	badge: {
+		backgroundColor: props => props.background,
+		fontSize: "1.15em",
+		fontWeight: "bold",
+	},
+})(Badge);
+
 const useStyles = makeStyles({ ...widgetStyles, ...videoPlayerStyles, ...generalStyles });
 
 function Notifications({ height, wrapTitle }) {
 	const classes = useStyles();
 	const { user } = useContext(UserContext);
+	const { dispatch: subscriptionDispatch } = useContext(SubscriptionContext);
 	const { state, dispatch } = useContext(NotificationContext);
 	const { notifications, total } = state;
 	const videoPlayer = useContext(VideoPlayerContext);
-	const { state: youtubeState, dispatch: youtubeDispatch } = useContext(YoutubeContext);
-	const { playlists } = youtubeState;
+	const {
+		state: { playlists },
+		dispatch: youtubeDispatch,
+	} = useContext(YoutubeContext);
 	const [pagination, setPagination] = useState({
 		loading: false,
 		page: 0,
@@ -68,7 +81,6 @@ function Notifications({ height, wrapTitle }) {
 	const [loadingBatchWatchLater, setLoadingBatchWatchLater] = useState(false);
 	const [loadingBatchDelete, setLoadingBatchDelete] = useState(false);
 	const [loadingBatchRestore, setLoadingBatchRestore] = useState(false);
-	let isMounted = true;
 
 	async function handleGetNotifications() {
 		if (!pagination.loading) {
@@ -81,9 +93,13 @@ function Notifications({ height, wrapTitle }) {
 
 			const response = await getNotifications(after, pagination.history, filter);
 
-			if (response.status === 200 && isMounted) {
-				const newNotifications =
-					pagination.page === 0 ? response.data.notifications : notifications.concat(response.data.notifications);
+			if (response.status === 200) {
+				let newNotifications = response.data.notifications;
+				if (pagination.page !== 0) {
+					newNotifications = notifications.concat(
+						response.data.notifications.filter(n => !notifications.find(n2 => n2._id === n._id)),
+					);
+				}
 
 				dispatch({ type: "SET_NOTIFICATIONS", notifications: newNotifications, total: response.data.total });
 
@@ -101,7 +117,13 @@ function Notifications({ height, wrapTitle }) {
 	useEffect(() => {
 		async function fetchData() {
 			await handleGetNotifications();
+		}
 
+		fetchData();
+	}, [pagination.filter, pagination.history, user]);
+
+	useEffect(() => {
+		async function fetchData() {
 			if (!user.apps) return;
 
 			const hasYoutube = user.apps.find(app => app.platform === "youtube");
@@ -116,9 +138,7 @@ function Notifications({ height, wrapTitle }) {
 		}
 
 		fetchData();
-
-		return () => (isMounted = false);
-	}, [pagination.filter, pagination.history, user]);
+	}, [user]);
 
 	async function handleHideNotification(notificationsToHide = [selectedNotification._id]) {
 		setActionLoading(true);
@@ -293,6 +313,12 @@ function Notifications({ height, wrapTitle }) {
 		setLoadingBatchWatchLater(false);
 	}
 
+	function handleShowSubscriptionDetail() {
+		subscriptionDispatch({ type: "SET_SUBSCRIPTION", subscription: selectedNotification.subscription });
+		subscriptionDispatch({ type: "SET_IS_NOTIFICATION", isNotification: true });
+		subscriptionDispatch({ type: "SET_OPEN", open: true });
+	}
+
 	function renderBatchButtons() {
 		if (Object.keys(selectedNotifications).length) {
 			return pagination.history ? (
@@ -345,125 +371,162 @@ function Notifications({ height, wrapTitle }) {
 		);
 	}
 
-	function renderNotificationContent(notification) {
-		const { thumbnail, overlay, title, subtitle } = formatNotification(notification);
+	function renderNotificationText(notification) {
+		const { title, subtitle, overlay } = formatNotification(notification);
 
 		switch (notification.type) {
 			case "youtube":
 				return (
-					<>
-						{thumbnail ? (
-							<Box position="relative" flexShrink="0" width="100px" mr={2} className={classes.videoThumbnail}>
-								<img src={thumbnail} width="100%" alt="Video thumbnail" />
-								<Typography variant="caption" className={classes.bottomRightOverlay}>
-									{formatVideoDuration(overlay)}
-								</Typography>
-								<Box
-									className={classes.videoPlayOverlay}
-									display="flex"
-									alignItems="center"
-									justifyContent="center"
-									onClick={() => handleAddToVideoPlayer("youtube", notification)}
-								>
-									<i className="icon-play icon-2x" />
-								</Box>
-							</Box>
+					<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
+						<Typography variant="body1" title={subtitle} noWrap={!wrapTitle}>
+							<Link
+								href={`https://www.youtube.com/watch?v=${notification.info.videoId}`}
+								target="_blank"
+								rel="noreferrer"
+								color="inherit"
+							>
+								{subtitle}
+							</Link>
+						</Typography>
+						<Typography variant="body2" title={title} noWrap>
+							<Link
+								href={`https://www.youtube.com/channel/${notification.info.channelId}`}
+								target="_blank"
+								rel="noreferrer"
+								color="inherit"
+							>
+								{title}
+							</Link>
+						</Typography>
+						{notification.info.scheduled && diff(notification.info.scheduled, "minutes") <= 0 ? (
+							<Typography variant="caption">
+								{`Scheduled for ${formatDate(notification.info.scheduled, "DD-MM-YYYY HH:mm")}`}
+							</Typography>
 						) : (
-							<Box display="flex" justifyContent="center" flexShrink="0" width="100px" mr={2}>
-								<Avatar className={classes.avatar}>{renderNotificationType(notification.type)}</Avatar>
-							</Box>
+							<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
 						)}
-						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
-							<Typography variant="body1" title={subtitle} noWrap={!wrapTitle}>
-								<Link
-									href={`https://www.youtube.com/watch?v=${notification.info.videoId}`}
-									target="_blank"
-									rel="noreferrer"
-									color="inherit"
-								>
-									{subtitle}
-								</Link>
-							</Typography>
-							<Typography variant="body2" title={title} noWrap>
-								<Link
-									href={`https://www.youtube.com/channel/${notification.info.channelId}`}
-									target="_blank"
-									rel="noreferrer"
-									color="inherit"
-								>
-									{title}
-								</Link>
-							</Typography>
-
-							{notification.info.scheduled && diff(notification.info.scheduled, "minutes") <= 0 ? (
-								<Typography variant="caption">
-									{`Scheduled for ${formatDate(notification.info.scheduled, "DD-MM-YYYY HH:mm")}`}
-								</Typography>
-							) : (
-								<Typography variant="caption">
-									{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}
-								</Typography>
-							)}
-						</Box>
-					</>
+					</Box>
 				);
 			case "tv":
 				return (
-					<>
-						{thumbnail ? (
-							<Box position="relative" flexShrink="0" width="100px" mr={2} className={classes.videoThumbnail}>
-								<img src={thumbnail} width="100%" alt="Video thumbnail" />
-								<Box className={classes.bottomRightOverlay}>
-									<Typography variant="caption">{overlay}</Typography>
-								</Box>
-							</Box>
-						) : (
-							<Box
-								flexShrink="0"
-								width="100px"
-								mr={2}
-								align="center"
-								style={{ backgroundColor: "#444", height: "55px" }}
-							>
-								<Avatar className={classes.avatar} style={{ top: "5px" }}>
-									{renderNotificationType(notification.type)}
-								</Avatar>
-								<Box
-									className={classes.bottomRightOverlay}
-									style={{ bottom: "10px", left: "70px", right: "initial" }}
-								>
-									<Typography variant="caption">{overlay}</Typography>
-								</Box>
-							</Box>
-						)}
-						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
-							<Typography variant="body1" title={title} noWrap>
-								{title}
-							</Typography>
-							<Typography variant="body2" title={notification.info.episodeTitle || overlay} noWrap>
-								{notification.info.episodeTitle || overlay}
-							</Typography>
-							<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
-						</Box>
-					</>
+					<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
+						<Typography variant="body1" title={title} noWrap>
+							{user.settings.tv && user.settings.tv.hideEpisodesTitles
+								? `Episode ${notification.info.number}`
+								: title || overlay}
+						</Typography>
+						<Typography variant="body2" title={subtitle} noWrap>
+							{subtitle}
+						</Typography>
+						<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
+					</Box>
 				);
 			case "reminder":
 				return (
-					<>
-						<Box display="flex" justifyContent="center" flexShrink="0" width="100px" mr={2}>
-							<Avatar className={classes.avatar}>{renderNotificationType(notification.type)}</Avatar>
-						</Box>
-						<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
-							<Typography variant="body1" title={title} noWrap>
-								{title}
-							</Typography>
-							<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
-						</Box>
-					</>
+					<Box display="flex" flexDirection="column" flex="1 1 auto" minWidth={0}>
+						<Typography variant="body1" title={title} noWrap>
+							{title}
+						</Typography>
+						<Typography variant="caption">{formatDate(notification.dateToSend, "DD-MM-YYYY HH:mm")}</Typography>
+					</Box>
 				);
 			default:
 				return null;
 		}
+	}
+
+	function getPriorityColor(priority) {
+		return priority === 3 ? "#e13e39" : priority === 2 ? "#ffa617" : "#4772fa";
+	}
+
+	function renderNotificationContent(notification) {
+		const { thumbnail, overlay } = formatNotification(notification);
+
+		return (
+			<>
+				<Box
+					mr={2}
+					style={{
+						border: `2px solid ${notification.priority && getPriorityColor(notification.priority)}`,
+						borderRadius: "3px",
+					}}
+				>
+					<PriorityBadge
+						badgeContent={"!".repeat(notification.priority)}
+						invisible={!notification.priority}
+						background={getPriorityColor(notification.priority)}
+					>
+						<Box
+							flexShrink="0"
+							className={classes.videoThumbnail}
+							align="center"
+							style={{
+								backgroundColor: "#444",
+								position: "relative",
+								width: "128px",
+								height: "72px",
+							}}
+						>
+							{thumbnail ? (
+								<>
+									<img
+										src={thumbnail}
+										width="128px"
+										height="72px"
+										alt="Video thumbnail"
+										style={{
+											filter:
+												notification.type === "tv" && user.settings.tv && user.settings.tv.hideEpisodesThumbnails
+													? "blur(11px)"
+													: "blur(0px)",
+										}}
+									/>
+									{overlay && (
+										<Typography variant="caption" className={classes.bottomRightOverlay}>
+											{overlay}
+										</Typography>
+									)}
+									{notification.type === "youtube" && (
+										<Box
+											className={classes.videoPlayOverlay}
+											display="flex"
+											alignItems="center"
+											justifyContent="center"
+											onClick={() => handleAddToVideoPlayer("youtube", notification)}
+										>
+											<i className="icon-play icon-2x" />
+										</Box>
+									)}
+								</>
+							) : (
+								<>
+									<Avatar className={classes.avatar} style={{ top: "15px" }}>
+										{renderNotificationType(notification.type)}
+									</Avatar>
+									{overlay && (
+										<Typography variant="caption" className={classes.bottomRightOverlay}>
+											{overlay}
+										</Typography>
+									)}
+									{notification.type === "youtube" && (
+										<Box
+											className={classes.videoPlayOverlay}
+											display="flex"
+											alignItems="center"
+											justifyContent="center"
+											onClick={() => handleAddToVideoPlayer("youtube", notification)}
+										>
+											<i className="icon-play icon-2x" />
+										</Box>
+									)}
+								</>
+							)}
+						</Box>
+					</PriorityBadge>
+				</Box>
+				{renderNotificationText(notification)}
+			</>
+		);
 	}
 
 	function renderNotificationList() {
@@ -512,31 +575,35 @@ function Notifications({ height, wrapTitle }) {
 	}
 
 	function getNotificationActions() {
-		if (selectedNotification) {
-			if (pagination.history) {
-				return [
-					{ name: translate("restore"), onClick: handleRestoreNotification },
-					{ name: translate("delete"), onClick: handleHideNotification },
-				];
+		let options = [];
+
+		if (!selectedNotification) return options;
+
+		if (pagination.history) {
+			options = [
+				{ name: translate("restore"), onClick: handleRestoreNotification },
+				{ name: translate("delete"), onClick: handleHideNotification },
+			];
+
+			return options;
+		} else if (selectedNotification.type === "youtube") {
+			options = [
+				{ name: translate("markAsRead"), onClick: handleHideNotification },
+				{ name: translate("addToPlaylist"), onClick: handleOpenPlaylistsList },
+			];
+
+			if (user.settings.youtube && user.settings.youtube.watchLaterPlaylist) {
+				options.push({ name: translate("watchLater"), onClick: handleWatchLaterOption });
 			}
-
-			switch (selectedNotification.type) {
-				case "youtube":
-					const youtubeOptions = [
-						{ name: translate("markAsRead"), onClick: handleHideNotification },
-						{ name: translate("addToPlaylist"), onClick: handleOpenPlaylistsList },
-					];
-
-					if (user.settings.youtube && user.settings.youtube.watchLaterPlaylist) {
-						youtubeOptions.push({ name: translate("watchLater"), onClick: handleWatchLaterOption });
-					}
-
-					return youtubeOptions;
-				default:
-					return [{ name: translate("markAsRead"), onClick: handleHideNotification }];
-			}
+		} else {
+			options = [{ name: translate("markAsRead"), onClick: handleHideNotification }];
 		}
-		return [];
+
+		if (selectedNotification.subscription) {
+			options.push({ name: "Edit Subscription", onClick: handleShowSubscriptionDetail });
+		}
+
+		return options;
 	}
 
 	if (!open) return <Loading />;

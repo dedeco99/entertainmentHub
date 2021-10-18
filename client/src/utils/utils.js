@@ -5,6 +5,11 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(relativeTime);
 dayjs.extend(customParseFormat);
 
+import { RedditContext } from "../contexts/RedditContext";
+import { YoutubeContext } from "../contexts/YoutubeContext";
+import { TwitchContext } from "../contexts/TwitchContext";
+import { TVContext } from "../contexts/TVContext";
+
 function formatDate(date, format, relative, originalFormat) {
 	return relative ? dayjs(date).fromNow() : dayjs(date, originalFormat).format(format);
 }
@@ -30,16 +35,21 @@ function getCurrencySymbol(currency) {
 	}
 }
 
+// eslint-disable-next-line complexity
 function formatVideoDuration(duration) {
 	if (!duration || duration === "P0D") return "Live";
 
-	const hasHours = duration.includes("H");
-	const hasMinutes = duration.includes("M");
-	const hasSeconds = duration.includes("S");
+	const formattedDuration = duration.replace("PT", "").toLowerCase();
 
-	const values = duration.substring(2).slice(0, -1).split(/[HM]/g);
+	const hasHours = formattedDuration.includes("h");
+	const hasMinutes = formattedDuration.includes("m");
+	const hasSeconds = formattedDuration.includes("s");
 
-	if (!hasHours && !hasMinutes) values[0] = `0${values[0]}`;
+	const values = formattedDuration.split(/[hms]/g).filter(d => d);
+
+	if (values[0] === "60") return "1:00";
+
+	if (!hasHours && !hasMinutes && values[0].length < 2) values[0] = `0${values[0]}`;
 
 	for (let i = 1; i < values.length; i++) {
 		if (values[i].length < 2) values[i] = `0${values[i]}`;
@@ -65,7 +75,7 @@ function formatNotification(notification) {
 		case "youtube":
 			return {
 				thumbnail,
-				overlay: duration,
+				overlay: formatVideoDuration(duration),
 				title: displayName,
 				subtitle: videoTitle,
 			};
@@ -76,8 +86,8 @@ function formatNotification(notification) {
 			return {
 				thumbnail,
 				overlay: `${seasonLabel}${episodeLabel}`,
-				title: displayName,
-				subtitle: `${seasonLabel}${episodeLabel} - ${episodeTitle}`,
+				title: episodeTitle,
+				subtitle: displayName,
 			};
 		case "reminder":
 			return {
@@ -109,6 +119,36 @@ function groupOptions(array, key) {
 	}, {});
 }
 
+function groupOptionsArray(array) {
+	const grouped = [];
+	for (const elem of array) {
+		const groupExists = grouped.find(g => g.name === elem.group.name);
+
+		if (groupExists) {
+			groupExists.list.push(elem);
+		} else {
+			grouped.push({ name: elem.group.name, pos: elem.group.pos, list: [elem] });
+		}
+	}
+
+	return grouped;
+}
+
+function chooseContext(platform) {
+	switch (platform) {
+		case "reddit":
+			return RedditContext;
+		case "youtube":
+			return YoutubeContext;
+		case "twitch":
+			return TwitchContext;
+		case "tv":
+			return TVContext;
+		default:
+			return null;
+	}
+}
+
 export {
 	formatDate,
 	diff,
@@ -119,4 +159,6 @@ export {
 	htmlEscape,
 	getField,
 	groupOptions,
+	groupOptionsArray,
+	chooseContext,
 };

@@ -1,17 +1,9 @@
-const bcrypt = require("bcryptjs");
-
 const { response } = require("../utils/request");
+const { hashPassword, isPassword } = require("../utils/utils");
 const errors = require("../utils/errors");
 
 const User = require("../models/user");
 const Token = require("../models/token");
-
-async function hashPassword(password) {
-	const salt = await bcrypt.genSalt(10);
-	const hash = await bcrypt.hash(password, salt);
-
-	return hash;
-}
 
 function generateToken(length) {
 	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -46,9 +38,9 @@ async function login(event) {
 
 	if (!user) return errors.userNotRegistered;
 
-	const isPassword = await bcrypt.compare(password, user.password);
+	const correctPassword = await isPassword(password, user.password);
 
-	if (!isPassword) return errors.userPasswordWrong;
+	if (!correctPassword) return errors.userPasswordWrong;
 
 	const newToken = new Token({ user: user._id, token: generateToken(60) });
 	await newToken.save();

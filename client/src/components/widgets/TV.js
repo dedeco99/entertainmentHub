@@ -6,9 +6,9 @@ import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 
 import Loading from "../.partials/Loading";
 import CustomScrollbar from "../.partials/CustomScrollbar";
-import Popular from "../tv/Popular";
+import Series from "../tv/Series";
 
-import { getSeasons } from "../../api/tv";
+import { getEpisodes } from "../../api/tv";
 import { formatDate } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
@@ -29,24 +29,40 @@ function TV({ tabs, listView }) {
 		let isMounted = true;
 
 		async function fetchData() {
-			const response = await Promise.all([
-				getSeasons("all", 0, "queue"),
-				getSeasons("all", 0, "passed"),
-				getSeasons("all", 0, "future"),
-			]);
+			const apiMap = {
+				inQueue: {
+					before: () => getEpisodes("all", 0, "queue"),
+					after: response => setInQueueEpisodes(response.data),
+				},
+				all: {
+					before: () => getEpisodes("all", 0, "passed"),
+					after: response => setAllEpisodes(response.data),
+				},
+				future: { before: () => getEpisodes("all", 0, "future"), after: response => setFuture(response.data) },
+			};
 
-			if (isMounted) {
-				setInQueueEpisodes(response[0].data);
-				setAllEpisodes(response[1].data);
-				setFuture(response[2].data);
-				setOpen(true);
+			const promises = [];
+			for (const tab in apiMap) {
+				if (tabs.includes(tab)) promises.push(apiMap[tab]);
 			}
+
+			if (promises.length) {
+				const response = await Promise.all(promises.map(p => p.before()));
+
+				if (isMounted) {
+					for (let i = 0; i < promises.length; i++) {
+						promises[i].after(response[i]);
+					}
+				}
+			}
+
+			if (isMounted) setOpen(true);
 		}
 
 		fetchData();
 
 		return () => (isMounted = false);
-	}, []);
+	}, [tabs]);
 
 	function handleChange(event, newValue) {
 		setTabIndex(newValue);
@@ -75,7 +91,7 @@ function TV({ tabs, listView }) {
 						</ToggleButton>
 					</ToggleButtonGroup>
 				</Box>
-				<Popular type={popularFilter} bannerWidth={140} useWindowScroll={false} listView={listView} />
+				<Series contentType={popularFilter} bannerWidth={150} useWindowScroll={false} listView={listView} widget />
 			</>
 		);
 	}

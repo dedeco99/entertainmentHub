@@ -36,7 +36,7 @@ import { settings as styles } from "../../styles/Header";
 const useStyles = makeStyles(styles);
 
 function Settings() {
-	const REDIRECT = "https://ehub.rabbitsoftware.dev";
+	const REDIRECT = process.env.REACT_APP_REDIRECT_URL;
 
 	const match = useRouteMatch();
 	const classes = useStyles();
@@ -112,6 +112,10 @@ function Settings() {
 	const [settings, setSettings] = useState({});
 	const [selectedApp, setSelectedApp] = useState(null);
 	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
+	const [email, setEmail] = useState("");
+	const [oldPassword, setOldPassword] = useState("");
+	const [newPassword, setNewPassword] = useState("");
+	const [repeatNewPassword, setRepeatNewPassword] = useState("");
 
 	for (const userApp of user.apps) {
 		apps[userApp.platform].id = userApp._id;
@@ -134,6 +138,8 @@ function Settings() {
 	}, [match]);
 
 	useEffect(() => {
+		setEmail(user.email);
+
 		async function fetchData() {
 			const notificationPermission = await navigator.permissions.query({ name: "notifications" });
 
@@ -146,11 +152,29 @@ function Settings() {
 	}, []);
 
 	async function handleSubmitSettings() {
-		const response = await editUser({ settings });
+		const password = oldPassword;
+		const body = { settings };
+
+		const emailRegex =
+			/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+		if (email !== user.email) {
+			if (!emailRegex.test(email)) return toast.error("Email is incorrect");
+
+			body.email = email;
+		}
+
+		if (newPassword === repeatNewPassword && password) {
+			body.password = password;
+			body.newPassword = newPassword;
+		}
+
+		const response = await editUser(body);
 
 		if (response.status === 200) {
 			dispatch({ type: "SET_USER", user: { ...user, ...response.data } });
 		}
+
+		return null;
 	}
 
 	async function handleDeleteApp() {
@@ -182,6 +206,13 @@ function Settings() {
 		});
 	}
 
+	function handleEpisodesTitlesChange() {
+		setSettings({
+			...settings,
+			tv: { ...settings.tv, hideEpisodesTitles: settings.tv ? !settings.tv.hideEpisodesTitles : true },
+		});
+	}
+
 	function handleOpenDeleteConfirmation(key) {
 		setSelectedApp(apps[key]);
 
@@ -202,6 +233,22 @@ function Settings() {
 
 			setSettings({ ...settings, browserNotifications });
 		}
+	}
+
+	function handleEmail(e) {
+		setEmail(e.target.value);
+	}
+
+	function handleOldPassword(e) {
+		setOldPassword(e.target.value);
+	}
+
+	function handleNewPassword(e) {
+		setNewPassword(e.target.value);
+	}
+
+	function handleRepeatNewPassword(e) {
+		setRepeatNewPassword(e.target.value);
 	}
 
 	function renderApp(app) {
@@ -326,14 +373,70 @@ function Settings() {
 							label={translate("autoplayVideoPlayer")}
 							onChange={() => handleCheckboxChange("autoplayVideoPlayer")}
 						/>
+						<Divider style={{ marginTop: 20, marginBottom: 20 }} />
+						<Typography variant="h6" style={{ marginBottom: 10 }}>
+							{"Account"}
+						</Typography>
+						<Input
+							id="email"
+							type="email"
+							label="Email"
+							value={email}
+							onChange={handleEmail}
+							margin="normal"
+							variant="outlined"
+							fullWidth
+						/>
+						<br />
+						<Input
+							id="oldPassword"
+							type="password"
+							label="Old Password"
+							value={oldPassword}
+							onChange={handleOldPassword}
+							margin="normal"
+							variant="outlined"
+							fullWidth
+						/>
+						<Input
+							id="newPassword"
+							type="password"
+							label="New Password"
+							value={newPassword}
+							onChange={handleNewPassword}
+							margin="normal"
+							variant="outlined"
+							fullWidth
+						/>
+						<Input
+							id="repeatNewPassword"
+							type="password"
+							label="Repeat New Password"
+							value={repeatNewPassword}
+							onChange={handleRepeatNewPassword}
+							margin="normal"
+							variant="outlined"
+							fullWidth
+						/>
 						{apps.tv.active && (
-							<FormControlLabel
-								checked={settings.tv ? settings.tv.hideEpisodesThumbnails : false}
-								color="primary"
-								control={<Checkbox color="primary" />}
-								label={translate("hideEpisodesThumbnails")}
-								onChange={handleEpisodesThumbnailsChange}
-							/>
+							<>
+								<Divider style={{ marginTop: 20, marginBottom: 20 }} />
+								<Typography variant="h6">{"TV"}</Typography>
+								<FormControlLabel
+									checked={settings.tv ? settings.tv.hideEpisodesThumbnails : false}
+									color="primary"
+									control={<Checkbox color="primary" />}
+									label={translate("hideEpisodesThumbnails")}
+									onChange={handleEpisodesThumbnailsChange}
+								/>
+								<FormControlLabel
+									checked={settings.tv ? settings.tv.hideEpisodesTitles : false}
+									color="primary"
+									control={<Checkbox color="primary" />}
+									label={translate("hideEpisodesTitles")}
+									onChange={handleEpisodesTitlesChange}
+								/>
+							</>
 						)}
 						<FormControlLabel
 							checked={settings.appHints || false}

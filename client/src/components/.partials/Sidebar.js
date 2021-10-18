@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import GridLayout from "react-grid-layout";
 
 import {
 	makeStyles,
@@ -16,30 +17,36 @@ import {
 	Badge,
 	Collapse,
 	Divider,
+	Box,
+	Button,
 } from "@material-ui/core";
 
 import Loading from "./Loading";
 
-import { formatNumber, groupOptions } from "../../utils/utils";
+import { patchSubscription } from "../../api/subscriptions";
+
+import { formatNumber, groupOptionsArray, chooseContext } from "../../utils/utils";
 
 import styles from "../../styles/General";
 
 const useStyles = makeStyles(styles);
 
-function Sidebar({ options, selected, idField, countField, action, menu, loading, noResultsMessage }) {
+function Sidebar({ options, platform, selected, idField, countField, action, menu, loading, noResultsMessage }) {
 	const classes = useStyles();
+	const { dispatch } = useContext(chooseContext(platform));
 	const [anchorEl, setAnchorEl] = useState(null);
 	const [groups, setGroups] = useState([]);
 	const [expandedLists, setExpandedLists] = useState([]);
 	const [firstTime, setFirstTime] = useState(true);
+	const [sortMode, setSortMode] = useState(false);
 
 	useEffect(() => {
-		const updatedGroups = groupOptions(options, "group.name");
+		const updatedGroups = groupOptionsArray(options).sort((a, b) => (a.pos > b.pos ? 1 : -1));
 
 		setGroups(updatedGroups);
 
-		if (Object.keys(updatedGroups).length && firstTime) {
-			setExpandedLists([...Array(Object.keys(updatedGroups).length).keys()]);
+		if (updatedGroups.length && firstTime) {
+			setExpandedLists([...Array(updatedGroups.length).keys()]);
 			setFirstTime(false);
 		}
 	}, [options]);
@@ -67,39 +74,92 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 		}
 	}
 
+	function handleGroupSortMode() {
+		setSortMode(!sortMode);
+	}
+
+	async function handleOrderChange(layout, oldItem, newItem) {
+		const group = groups[oldItem.y];
+
+		const response = await patchSubscription(group.list[0]._id, { group: { name: group.name, pos: newItem.y } });
+
+		if (response.status === 200) {
+			dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
+		}
+	}
+
 	if (loading) return <Loading />;
 
 	if (!options || !options.length) return <div className={classes.center}>{noResultsMessage}</div>;
 
-	return (
+	const optionsList = sortMode ? (
+		<List className={classes.listMenu} style={{ overflow: "hidden" }}>
+			<GridLayout
+				className="layout"
+				cols={1}
+				rowHeight={55}
+				width={500}
+				margin={[0, 0]}
+				isResizable={false}
+				onDragStart={(layout, oldItem, newItem, placeholder, e) => {
+					e.stopPropagation();
+				}}
+				onDragStop={handleOrderChange}
+				draggableHandle=".handleListItem"
+			>
+				{groups.map(group => (
+					<div key={group.name} data-grid={{ x: 0, y: group.pos, w: 1, h: 1 }}>
+						<Box display="flex" height="100%" width="100%" position="relative" border="1px solid #222">
+							<Box
+								display="flex"
+								className="handleListItem"
+								width="55px"
+								height="100%"
+								alignItems="center"
+								justifyContent="center"
+								style={{ cursor: "grab" }}
+							>
+								<i className="icon-drag-handle" />
+							</Box>
+							<ListSubheader style={{ backgroundColor: "#333", width: "100%" }}>{group.name}</ListSubheader>
+						</Box>
+					</div>
+				))}
+			</GridLayout>
+		</List>
+	) : (
 		<List className={classes.listMenu}>
-			{Object.keys(groups).map((group, index) => (
+			{groups.map((group, index) => (
 				<List
+					key={index}
 					disablePadding
 					subheader={
 						<>
 							<ListSubheader style={{ backgroundColor: "#333", zIndex: 2 }}>
-								{group === "null" ? "Ungrouped" : group}
+								{group.name}
+								<Badge
+									color="secondary"
+									max={999}
+									badgeContent={group.list.length}
+									style={{ position: "absolute", top: "23px", right: "60px" }}
+								/>
 								<ListItemSecondaryAction onClick={() => handleExpand(index)}>
 									<IconButton color="primary" edge="end">
 										<i className={expandedLists.includes(index) ? "icon-caret-up" : "icon-caret-down"} />
 									</IconButton>
 								</ListItemSecondaryAction>
 							</ListSubheader>
-							{index !== Object.keys(groups).length - 1 && <Divider />}
+							{index !== groups.length - 1 && <Divider />}
 						</>
 					}
 				>
 					<Collapse in={expandedLists.includes(index)}>
-						{groups[group].map((option, index) => (
+						{group.list.map((option, index) => (
 							<ListItem
 								button
 								selected={selected === option[idField]}
-								onClick={() => {
-									option.viewers ? handleClick(option) : handleClick(option[idField]);
-								}}
-								key={option[idField]}
-								id={option[idField]}
+								onClick={() => handleClick(option[idField])}
+								key={index}
 								style={index === 0 ? { marginTop: "10px" } : null}
 							>
 								<ListItemAvatar>
@@ -143,7 +203,7 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 				>
 					{menu.map((option, index) => (
 						<MenuItem
-							key={option.displayName}
+							key={index}
 							id={anchorEl && anchorEl.id}
 							onClick={e => {
 								option.onClick(e);
@@ -157,10 +217,22 @@ function Sidebar({ options, selected, idField, countField, action, menu, loading
 			) : null}
 		</List>
 	);
+
+	return (
+		<Box style={{ position: "sticky", top: "16px" }}>
+			{groups.length > 1 && (
+				<Button onClick={handleGroupSortMode} style={{ width: "100%" }}>
+					<i className="icon-tabs" />
+				</Button>
+			)}
+			{optionsList}
+		</Box>
+	);
 }
 
 Sidebar.propTypes = {
 	options: PropTypes.array.isRequired,
+	platform: PropTypes.string.isRequired,
 	selected: PropTypes.string,
 	idField: PropTypes.string.isRequired,
 	action: PropTypes.func.isRequired,

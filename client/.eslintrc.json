@@ -171,7 +171,7 @@
 		"key-spacing": "error",
 		"keyword-spacing": "error",
 		// "line-comment-position": "error",
-		"linebreak-style": "warn",
+		// "linebreak-style": "warn",
 		// "lines-around-comment": "error",
 		"lines-between-class-members": "error",
 		// "max-depth": "warn",
@@ -225,7 +225,7 @@
 			}
 		],
 		"no-negated-condition": "error",
-		"no-nested-ternary": "error",
+		"no-nested-ternary": "warn",
 		"no-new-object": "error",
 		// "no-plusplus": "error",
 		"no-restricted-syntax": "error",

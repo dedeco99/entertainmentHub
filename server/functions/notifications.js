@@ -1,3 +1,5 @@
+const dayjs = require("dayjs");
+
 const { response } = require("../utils/request");
 const { toObjectId } = require("../utils/utils");
 
@@ -15,15 +17,29 @@ async function getNotifications(event) {
 
 	const total = await Notification.countDocuments(searchQuery);
 
-	if (after) searchQuery._id = { $lt: toObjectId(after) };
+	if (after) {
+		const lastNotification = await Notification.findOne({ _id: after }).lean();
+
+		searchQuery._id = { $ne: toObjectId(lastNotification._id) };
+		searchQuery.dateToSend = { $lte: dayjs(lastNotification.dateToSend).toDate() };
+	}
 	if (type) searchQuery.type = type;
 
-	const sortQuery = { dateToSend: -1, _id: -1 };
+	const sortQuery = { topPriority: -1, dateToSend: -1 };
 
 	const notifications = await Notification.aggregate([
 		{ $match: searchQuery },
 		{ $sort: sortQuery },
 		{ $limit: 25 },
+		{
+			$lookup: {
+				from: "subscriptions",
+				localField: "subscription",
+				foreignField: "_id",
+				as: "subscription",
+			},
+		},
+		{ $unwind: { path: "$subscription", preserveNullAndEmptyArrays: true } },
 	]);
 
 	return response(200, "GET_NOTIFICATIONS", { notifications, total });
@@ -53,7 +69,8 @@ async function deleteNotifications(event) {
 
 async function addNotifications(notifications) {
 	for (const notification of notifications) {
-		const { active, dateToSend, notificationId, user, type, info } = notification;
+		const { active, dateToSend, notificationId, subscription, user, type, topPriority, priority, info } =
+			notification;
 
 		const notificationExists = await Notification.findOne({ user, type, notificationId }).lean();
 
@@ -62,8 +79,11 @@ async function addNotifications(notifications) {
 				active,
 				dateToSend,
 				notificationId,
+				subscription,
 				user,
 				type,
+				topPriority,
+				priority,
 				info,
 			});
 

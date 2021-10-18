@@ -1,6 +1,6 @@
 import { api } from "../utils/request";
 
-async function getSeasons(series, page, filter) {
+async function getEpisodes(series, page, filter) {
 	let query = "";
 	query += page >= 0 ? `?page=${page}` : "";
 	query += filter ? `${query ? "&" : "?"}filter=${filter}` : "";
@@ -8,6 +8,15 @@ async function getSeasons(series, page, filter) {
 	const res = await api({
 		method: "get",
 		url: `/api/tv/${series}${query}`,
+	});
+
+	return res;
+}
+
+async function getSearch(search, page) {
+	const res = await api({
+		method: "get",
+		url: `/api/tv/search/${search}${page >= 0 ? `?page=${page}` : ""}`,
 	});
 
 	return res;
@@ -27,13 +36,25 @@ async function getPopular(page, source, type) {
 	return res;
 }
 
-async function getSearch(search, page) {
+async function getRecommendations(page) {
+	let query = "";
+	query += page >= 0 ? `?page=${page}` : "";
+
 	const res = await api({
 		method: "get",
-		url: `/api/tv/search/${search}${page >= 0 ? `?page=${page}` : ""}`,
+		url: `/api/tv/recommendations${query}`,
 	});
 
 	return res;
 }
 
-export { getSeasons, getPopular, getSearch };
+async function getProviders(type, search) {
+	const res = await api({
+		method: "get",
+		url: `/api/tv/providers?type=${type}&search=${search}`,
+	});
+
+	return res;
+}
+
+export { getEpisodes, getSearch, getPopular, getRecommendations, getProviders };

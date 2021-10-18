@@ -1,13 +1,15 @@
 import React, { useState, useContext, useEffect } from "react";
 import { Link, useHistory, useLocation } from "react-router-dom";
+import GridLayout from "react-grid-layout";
 
-import { makeStyles, List, ListItem, Typography } from "@material-ui/core";
+import { makeStyles, List, ListItem, Typography, Box } from "@material-ui/core";
 
 import Loading from "../.partials/Loading";
+import Actions from "./Actions";
 
 import { UserContext } from "../../contexts/UserContext";
 
-import { getApps } from "../../api/apps";
+import { getApps, patchApp } from "../../api/apps";
 
 import { appMenu as styles } from "../../styles/Header";
 
@@ -18,7 +20,6 @@ function AppMenu() {
 	const location = useLocation();
 	const classes = useStyles();
 	const { user, dispatch } = useContext(UserContext);
-	const [apps, setApps] = useState([]);
 	const [selectedMenu, setSelectedMenu] = useState(null);
 	const [loading, setLoading] = useState(false);
 
@@ -42,11 +43,11 @@ function AppMenu() {
 				const response = await getApps();
 
 				if (response.status === 200) {
-					const userApps = allApps.filter(app => response.data.find(appR => appR.platform === app.platform));
-					userApps.push(...fixedApps);
-					setApps(userApps);
+					const apps = response.data
+						.filter(app => allApps.find(a => a.platform === app.platform))
+						.map(app => ({ ...app, ...allApps.find(a => a.platform === app.platform) }));
 
-					dispatch({ type: "SET_APPS", apps: response.data });
+					dispatch({ type: "SET_APPS", apps });
 				} else if (!redirected) {
 					localStorage.setItem("redirected", true);
 
@@ -61,39 +62,82 @@ function AppMenu() {
 	}, []);
 
 	useEffect(() => {
-		if (!user.apps) return;
-
-		const userApps = allApps.filter(app => user.apps.find(appR => appR.platform === app.platform));
-		userApps.push(...fixedApps);
-		setApps(userApps);
-	}, [user]);
-
-	useEffect(() => {
 		const currentApp = allApps.find(app => location.pathname.includes(app.endpoint));
 		setSelectedMenu(currentApp ? currentApp.platform : null);
 	}, [allApps, location]);
 
+	async function handleOrderChange(layout, oldItem, newItem) {
+		const app = user.apps.find(a => a.platform === oldItem.i);
+
+		await patchApp(app._id, { pos: newItem.y });
+	}
+
 	function renderAppList() {
 		if (loading) return <Loading />;
 
-		return apps.map(app => (
-			<ListItem
-				key={app.platform}
-				button
-				selected={selectedMenu === app.platform}
-				className={classes.appItem}
-				component={Link}
-				to={app.endpoint}
-			>
-				<Typography>
-					<i className={app.icon} />
-				</Typography>
-			</ListItem>
-		));
+		return (
+			<Box display="flex" flexDirection="column" height="100%">
+				<Box flexGrow={1}>
+					<GridLayout
+						className="layout"
+						cols={1}
+						rowHeight={55}
+						width={50}
+						margin={[0, 0]}
+						isResizable={false}
+						onDragStart={(layout, oldItem, newItem, placeholder, e) => {
+							e.stopPropagation();
+						}}
+						onDragStop={handleOrderChange}
+						draggableHandle=".handleListItem"
+					>
+						{user.apps &&
+							user.apps.map((app, i) => (
+								<div
+									key={app.platform}
+									data-grid={{
+										x: 0,
+										y: isNaN(app.pos) ? i : app.pos,
+										w: 1,
+										h: 1,
+									}}
+								>
+									<ListItem
+										key={app.platform}
+										button
+										selected={selectedMenu === app.platform}
+										className={`${classes.appItem} handleListItem`}
+										component={Link}
+										to={app.endpoint}
+									>
+										<Typography>
+											<i className={app.icon} />
+										</Typography>
+									</ListItem>
+								</div>
+							))}
+					</GridLayout>
+					{fixedApps.map(app => (
+						<ListItem
+							key={app.platform}
+							button
+							selected={selectedMenu === app.platform}
+							className={`${classes.appItem} handleListItem`}
+							onClick={() => history.push(app.endpoint)}
+						>
+							<Typography>
+								<i className={app.icon} />
+							</Typography>
+						</ListItem>
+					))}
+				</Box>
+				<Actions />
+			</Box>
+		);
 	}
 
 	function renderAddMoreApps() {
-		if (apps.length === allApps.length + fixedApps.length) return null;
+		if (!user.apps || user.apps.length === allApps.length) return null;
 
 		return (
 			<ListItem button className={classes.appItem} component={Link} to="/settings/apps">
@@ -104,12 +148,7 @@ function AppMenu() {
 
 	return (
 		<div className={classes.root}>
-			<List>
-				<ListItem key="home" button component={Link} className={classes.appItem} to="/">
-					<Typography>
-						<i className="icon-home icon-2x" />
-					</Typography>
-				</ListItem>
+			<List style={{ height: "100%" }}>
 				{renderAppList()}
 				{renderAddMoreApps()}
 			</List>

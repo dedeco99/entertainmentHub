@@ -1,5 +1,4 @@
 import React, { useContext, useState, useEffect } from "react";
-import PropTypes from "prop-types";
 import { Subject } from "rxjs";
 import { debounceTime, filter } from "rxjs/operators";
 
@@ -22,7 +21,10 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import Input from "./Input";
 
 import { UserContext } from "../../contexts/UserContext";
+import { SubscriptionContext } from "../../contexts/SubscriptionContext";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
+
+import { editSubscription } from "../../api/subscriptions";
 
 import { translate } from "../../utils/translations";
 
@@ -30,17 +32,22 @@ import { widgetDetail as styles } from "../../styles/Widgets";
 
 const useStyles = makeStyles(styles);
 
-function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscription, onClose }) {
+function SubscriptionDetail() {
 	const classes = useStyles();
 	const { user } = useContext(UserContext);
+	const {
+		state: { open, isNotification, subscription, groups },
+		dispatch: subscriptionDispatch,
+	} = useContext(SubscriptionContext);
 	const { state } = useContext(YoutubeContext);
 	const { playlists } = state;
 	const [title, setTitle] = useState("");
 	const [group, setGroup] = useState({ name: "Ungrouped", pos: 0 });
 	const [notifications, setNotifications] = useState({
 		active: true,
+		priority: 0,
 		autoAddToWatchLater: false,
-		watchLaterPlaylist: user.settings.youtube && user.settings.youtube.watchLaterPlaylist,
+		watchLaterPlaylist: user.settings ? user.settings.youtube && user.settings.youtube.watchLaterPlaylist : null,
 		dontShowWithTheseWords: [],
 		onlyShowWithTheseWords: [],
 	});
@@ -54,7 +61,7 @@ function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscr
 				filter(name => name),
 			)
 			.subscribe(name => {
-				setGroup({ name });
+				setGroup({ name, pos: groups.length });
 			});
 		return () => subscription.unsubscribe();
 	});
@@ -98,12 +105,24 @@ function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscr
 		setNotifications({ ...notifications, active: !notifications.active });
 	}
 
+	function handleChangePriority(e) {
+		setNotifications({ ...notifications, priority: e.target.value });
+	}
+
+	function handleCloseModal() {
+		subscriptionDispatch({ type: "SET_OPEN", open: false });
+	}
+
 	async function handleSubmit(e) {
 		e.preventDefault();
 
-		await editSubscription(subscription._id, { displayName: title, group, notifications });
+		const response = await editSubscription(subscription._id, { displayName: title, group, notifications });
 
-		if (!subscriptionGroups.map(g => g.name).includes(group.name)) subscriptionGroups.push({ name: group.name });
+		if (response.status === 200) {
+			handleCloseModal();
+		}
+
+		if (groups && !groups.map(g => g.name).includes(group.name)) groups.push(group);
 	}
 
 	function renderTags(value, getTagProps) {
@@ -123,6 +142,8 @@ function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscr
 	}
 
 	const hasNotifications = ["youtube", "tv"];
+
+	if (!user.token) return null;
 
 	return (
 		<Dialog
@@ -146,18 +167,20 @@ function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscr
 						fullWidth
 						required
 					/>
-					<Autocomplete
-						freeSolo
-						value={group}
-						renderTags={renderTags}
-						options={subscriptionGroups || []}
-						onChange={handleChangeGroup}
-						onInputChange={handleAddGroup}
-						className={classes.autocomplete}
-						getOptionLabel={renderGroupOptionLabel}
-						renderInput={renderGroupInput}
-						fullWidth
-					/>
+					{!isNotification && groups && (
+						<Autocomplete
+							freeSolo
+							value={group}
+							renderTags={renderTags}
+							options={groups.sort((a, b) => (a.pos > b.pos ? 1 : -1)) || []}
+							onChange={handleChangeGroup}
+							onInputChange={handleAddGroup}
+							className={classes.autocomplete}
+							getOptionLabel={renderGroupOptionLabel}
+							renderInput={renderGroupInput}
+							fullWidth
+						/>
+					)}
 					{subscription && hasNotifications.includes(subscription.platform) && (
 						<>
 							<Divider style={{ marginTop: 20, marginBottom: 20 }} />
@@ -168,6 +191,25 @@ function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscr
 								control={<Checkbox checked={notifications.active} color="primary" onChange={handleChangeActive} />}
 								label={"Active"}
 							/>
+							<Input
+								label="Priority"
+								value={notifications.priority}
+								onChange={handleChangePriority}
+								variant="outlined"
+								select
+								fullWidth
+							>
+								{[
+									{ name: "High", value: 3 },
+									{ name: "Medium", value: 2 },
+									{ name: "Low", value: 1 },
+									{ name: "None", value: 0 },
+								].map(p => (
+									<MenuItem key={p.value} value={p.value}>
+										{p.name}
+									</MenuItem>
+								))}
+							</Input>
 						</>
 					)}
 					{subscription && subscription.platform === "youtube" && (
@@ -239,7 +281,7 @@ function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscr
 					)}
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={onClose} color="primary">
+					<Button onClick={handleCloseModal} color="primary">
 						{translate("close")}
 					</Button>
 					<Button type="submit" color="primary" autoFocus>
@@ -250,13 +292,5 @@ function SubscriptionDetail({ open, subscription, subscriptionGroups, editSubscr
 		</Dialog>
 	);
 }
-
-SubscriptionDetail.propTypes = {
-	open: PropTypes.bool.isRequired,
-	subscription: PropTypes.object,
-	subscriptionGroups: PropTypes.array,
-	editSubscription: PropTypes.func.isRequired,
-	onClose: PropTypes.func.isRequired,
-};
 
 export default SubscriptionDetail;
