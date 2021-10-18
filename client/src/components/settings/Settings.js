@@ -2,10 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { toast } from "react-toastify";
 
 import {
-	// makeStyles,
 	Grid,
-	/* List,
-	// ListItem ,*/
 	FormControlLabel,
 	FormControl,
 	Checkbox,
@@ -15,8 +12,7 @@ import {
 	MenuItem,
 } from "@material-ui/core";
 
-import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
-import { Carousel } from "react-responsive-carousel";
+import { Carousel } from "react-carousel-minimal";
 
 import Input from "../.partials/Input";
 import DeleteConfirmation from "../.partials/DeleteConfirmation";
@@ -35,6 +31,16 @@ function Settings() {
 	const { user, dispatch } = useContext(UserContext);
 	const { state } = useContext(YoutubeContext);
 	const { playlists } = state;
+
+	const images = [
+		{
+			image: "https://www.internetmatters.org/wp-content/uploads/2021/04/TwitchGuide-1200x630-1-600x315.jpg",
+		},
+		{
+			image:
+				"https://www.oficinadanet.com.br/imagens/post/37826/750xNxcapa-youtube-premium-oferece-3-meses-de-teste-no-discord-nitro-e-vice-versa.jpg.pagespeed.ic.5d718584c4.jpg",
+		},
+	];
 
 	const apps = {
 		reddit: {
@@ -513,28 +519,16 @@ function Settings() {
 			<Grid item xs={12} lg={6}>
 				<Box style={{ height: "100%" }}>
 					<Carousel
-						showArrows={false}
-						showStatus={false}
-						showThumbs={false}
-						autoPlay
-						infiniteLoop
-						interval={10000}
-					>
-						<div>
-							<img
-								style={{ borderRadius: "7px" }}
-								height="582px"
-								src="https://rockcontent.com/br/wp-content/uploads/sites/2/2021/01/Twitch-1024x538.png.webp"
-							/>
-						</div>
-						<div>
-							<img
-								style={{ borderRadius: "7px" }}
-								height="582px"
-								src="https://www.oficinadanet.com.br/imagens/post/37826/750xNxcapa-youtube-premium-oferece-3-meses-de-teste-no-discord-nitro-e-vice-versa.jpg.pagespeed.ic.5d718584c4.jpg"
-							/>
-						</div>
-					</Carousel>
+						data={images}
+						time={10000}
+						width="850px"
+						height="580px"
+						radius="7px"
+						automatic
+						showNavBtn={false}
+						dots
+						slideImageFit="cover"
+					/>
 				</Box>
 			</Grid>
 		);
