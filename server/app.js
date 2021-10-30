@@ -252,3 +252,45 @@ if (process.env.ENV === "prod") {
 
 	console.log("Cronjobs are running");
 }
+
+const Asset = require("./models/asset");
+const Subscription = require("./models/subscription");
+
+function createAsset(externalId) {
+	return new Promise(resolve => {
+		setTimeout(async () => {
+			const assetExists = await Asset.findOne({ platform: "tv", externalId }).lean();
+
+			if (!assetExists) {
+				await tv.addAsset(externalId);
+			}
+
+			resolve();
+		}, 5000);
+	});
+}
+
+async function addAssets() {
+	const subscriptions = await Subscription.find({ platform: "tv" });
+	const assets = await Asset.find({ platform: "tv" });
+
+	const assetsPopulated = assets.map(a => a.externalId);
+	const assetsLeft = [];
+	for (const subscription of subscriptions) {
+		if (!assetsLeft.includes(subscription.externalId) && !assetsPopulated.includes(subscription.externalId)) {
+			assetsLeft.push(subscription.externalId);
+		}
+	}
+
+	console.log(assetsLeft);
+
+	for (const externalId of assetsLeft) {
+		await createAsset(externalId);
+
+		console.log(externalId, "done");
+	}
+
+	console.log("end");
+}
+
+addAssets();

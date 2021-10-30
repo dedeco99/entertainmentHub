@@ -572,10 +572,12 @@ async function getProviders(event) {
 
 	const justWatchRes = await api({
 		method: "get",
-		url: `https://apis.justwatch.com/content/titles/pt_PT/popular?body={"page_size":1,"page":1,"query":"${search}","content_types":["${
-			type === "tv" ? "show" : "movie"
-		}"]}`,
+		url: `https://apis.justwatch.com/content/titles/pt_PT/popular?body={"page_size":1,"page":1,"query":"${encodeURIComponent(
+			search,
+		)}","content_types":["${type === "tv" ? "show" : "movie"}"]}`,
 	});
+
+	if (justWatchRes.status !== 200) return response(404, "PROVIDERS_NOT_FOUND", []);
 
 	const providers = [];
 	if (justWatchRes.data.items.length) {
