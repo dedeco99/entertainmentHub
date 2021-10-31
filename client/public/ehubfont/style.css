@@ -1,9 +1,9 @@
 @font-face {
 	font-family: "Ehub-icons";
-	src: url("fonts/Ehub-icons.eot?3f7ybw");
-	src: url("fonts/Ehub-icons.eot?3f7ybw#iefix") format("embedded-opentype"),
-		url("fonts/Ehub-icons.ttf?3f7ybw") format("truetype"), url("fonts/Ehub-icons.woff?3f7ybw") format("woff"),
-		url("fonts/Ehub-icons.svg?3f7ybw#Ehub-icons") format("svg");
+	src: url("fonts/Ehub-icons.eot?iyrenr");
+	src: url("fonts/Ehub-icons.eot?iyrenr#iefix") format("embedded-opentype"),
+		url("fonts/Ehub-icons.ttf?iyrenr") format("truetype"), url("fonts/Ehub-icons.woff?iyrenr") format("woff"),
+		url("fonts/Ehub-icons.svg?iyrenr#Ehub-icons") format("svg");
 	font-weight: normal;
 	font-style: normal;
 	font-display: block;
@@ -202,6 +202,13 @@
 }
 .icon-email:before {
 	content: "\e935";
+}
+.icon-home:before {
+	content: "\e936";
+}
+
+.icon-question:before {
+  content: "\ea09";
 }
 
 .icon-1x {

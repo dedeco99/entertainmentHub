@@ -3,10 +3,9 @@ import { fromEvent } from "rxjs";
 import { debounceTime } from "rxjs/operators";
 
 import { makeStyles } from "@material-ui/core";
+import { IconButton } from "@material-ui/core";
 
 import styles from "../../styles/General";
-
-import goBackUp from "../../img/go_back_up.png";
 
 const useStyles = makeStyles(styles);
 
@@ -38,9 +37,14 @@ function BackUpButton() {
 
 	if (open) {
 		return (
-			<div className={classes.goBackUp} onClick={handleGoBackUp}>
-				<img src={goBackUp} width="50px" alt="Go Back Up" />
-			</div>
+			<IconButton
+				className={classes.goBackUp}
+				color="primary"
+				style={{ backgroundColor: "#EC6E4C" }}
+				onClick={handleGoBackUp}
+			>
+				<i className="icon-caret-up icon-1x" style={{ fontSize: "1.5rem " }} />
+			</IconButton>
 		);
 	}
 
