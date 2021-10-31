@@ -308,7 +308,7 @@ async function cronjob() {
 	for (const subscription of subscriptions) {
 		const request = rssParser.toJson(`https://www.youtube.com/feeds/videos.xml?channel_id=${subscription._id}`);
 
-		requests.push(request);
+		requests.push(request.catch(err => console.log(err)));
 	}
 
 	const responses = await Promise.all(requests);

@@ -69,7 +69,9 @@ function Episode({ episode, height }) {
 					<Placeholder height={150} />
 				)}
 				<div className={`${classes.overlay} ${classes.title}`} title={episode.title}>
-					{user.settings.tv && user.settings.tv.hideEpisodesTitles ? `Episode ${episode.number}` : episode.title}
+					{user.settings.tv && user.settings.tv.hideEpisodesTitles && !episode.watched
+						? `Episode ${episode.number}`
+						: episode.title}
 				</div>
 				<div
 					className={episode.series ? `${classes.overlay} ${classes.seriesName}` : ""}
