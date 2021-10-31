@@ -9,9 +9,6 @@ const tv = {
 };
 
 const episodes = {
-	episodeListContainer: {
-		width: "100%",
-	},
 	episodeBtn: {
 		height: "40px",
 		marginBottom: 10,
