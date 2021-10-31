@@ -78,6 +78,11 @@ function AppMenu() {
 		return (
 			<Box display="flex" flexDirection="column" height="100%">
 				<Box flexGrow={1}>
+					<ListItem key="home" button component={Link} className={classes.appItem} to="/">
+						<Typography>
+							<i className="icon-home icon-2x" />
+						</Typography>
+					</ListItem>
 					<GridLayout
 						className="layout"
 						cols={1}
