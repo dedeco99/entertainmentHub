@@ -426,6 +426,7 @@ function getTrend(trend) {
 	return isNaN(formattedTrend) ? 0 : formattedTrend;
 }
 
+// eslint-disable-next-line max-lines-per-function,complexity
 async function getPopular(event) {
 	const { query } = event;
 	const { page, source, type } = query;
@@ -466,7 +467,11 @@ async function getPopular(event) {
 				.toArray()
 				.map(elem => $(elem).find("strong").text());
 
-			const promises = infos.map(i =>
+			const assets = await Asset.find({ imdbId: { $in: infos.map(i => i.id) } }).lean();
+
+			const nonAssetInfos = infos.filter(i => !assets.map(a => a.imdbId).includes(i.id));
+
+			const promises = nonAssetInfos.map(i =>
 				api({
 					method: "get",
 					url: `https://api.themoviedb.org/3/find/${i.id}?external_source=imdb_id&api_key=${process.env.tmdbKey}`,
@@ -475,20 +480,51 @@ async function getPopular(event) {
 
 			const tmdbSeries = await Promise.all(promises);
 
+			for (let i = 0; i < tmdbSeries.length; i++) {
+				if (tmdbSeries[i].data.tv_results.length) {
+					tmdbSeries[i].data.tv_results[0].imdbId = nonAssetInfos[i].id;
+				} else if (tmdbSeries[i].data.movie_results.length) {
+					tmdbSeries[i].data.movie_results[0].imdbId = nonAssetInfos[i].id;
+				}
+			}
+
 			for (let i = 0; i < infos.length; i++) {
+				const asset = assets.find(a => a.imdbId === infos[i].id);
+
+				let externalId = null;
+				let image = null;
+
+				if (asset) {
+					externalId = asset.externalId;
+					image = asset.image;
+				} else {
+					const tmdbSerie = tmdbSeries.find(s =>
+						s.data.tv_results.length
+							? s.data.tv_results[0].imdbId.toString() === infos[i].id
+							: s.data.movie_results.length
+							? s.data.movie_results[0].imdbId.toString() === infos[i].id
+							: null,
+					);
+
+					if (tmdbSerie) {
+						externalId = tmdbSerie.data.tv_results.length
+							? tmdbSerie.data.tv_results[0].id.toString()
+							: tmdbSerie.data.movie_results.length
+							? tmdbSerie.data.movie_results[0].id.toString()
+							: null;
+						image = tmdbSerie.data.tv_results.length
+							? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSerie.data.tv_results[0].poster_path}`
+							: tmdbSerie.data.movie_results.length
+							? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSerie.data.movie_results[0].poster_path}`
+							: "";
+					}
+				}
+
 				series.push({
-					externalId: tmdbSeries[i].data.tv_results.length
-						? tmdbSeries[i].data.tv_results[0].id.toString()
-						: tmdbSeries[i].data.movie_results.length
-						? tmdbSeries[i].data.movie_results[0].id.toString()
-						: null,
+					externalId,
 					imdbId: infos[i].id,
 					displayName: infos[i].name,
-					image: tmdbSeries[i].data.tv_results.length
-						? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSeries[i].data.tv_results[0].poster_path}`
-						: tmdbSeries[i].data.movie_results.length
-						? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSeries[i].data.movie_results[0].poster_path}`
-						: "",
+					image,
 					year: infos[i].year,
 					rank: infos[i].rank,
 					trend: infos[i].trend,
