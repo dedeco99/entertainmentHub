@@ -1,13 +1,13 @@
 import React, { useEffect, useContext } from "react";
 import { useHistory } from "react-router-dom";
 
-import { UserContext } from "../../contexts/UserContext";
+import { AppContext } from "../../contexts/AppContext";
 
 import { addApp } from "../../api/apps";
 
 function Apps() {
 	const history = useHistory();
-	const { dispatch } = useContext(UserContext);
+	const { dispatch } = useContext(AppContext);
 
 	useEffect(() => {
 		async function fetchData() {

@@ -63,19 +63,18 @@ async function addApp(event) {
 		}
 	}
 
+	let newApp = null;
 	if (json.refresh_token) {
-		const newApp = new App({ user: user._id, platform, refreshToken: json.refresh_token, pos: userApps.length });
+		newApp = new App({ user: user._id, platform, refreshToken: json.refresh_token, pos: userApps.length });
 		await newApp.save();
-
-		return response(201, "ADD_APP", newApp);
-	} else if (platform === "tv") {
-		const newApp = new App({ user: user._id, platform, pos: userApps.length });
+	} else if (["tv", "reminders"].includes(platform)) {
+		newApp = new App({ user: user._id, platform, pos: userApps.length });
 		await newApp.save();
-
-		return response(201, "ADD_APP", newApp);
+	} else {
+		return errors.badRequest;
 	}
 
-	return errors.badRequest;
+	return response(201, "ADD_APP", { ...JSON.parse(JSON.stringify(newApp)), refreshToken: null });
 }
 
 async function patchApp(event) {

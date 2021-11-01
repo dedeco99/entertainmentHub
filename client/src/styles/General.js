@@ -6,7 +6,7 @@ const general = {
 		textAlign: "center",
 	},
 	goBackUp: {
-		bottom: 65,
+		bottom: 70,
 		right: 15,
 		position: "fixed",
 		cursor: "pointer",

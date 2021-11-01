@@ -7,6 +7,7 @@ const { toObjectId, formatDate, diff } = require("../utils/utils");
 
 const { addScheduledNotifications } = require("./scheduledNotifications");
 
+const Asset = require("../models/asset");
 const Subscription = require("../models/subscription");
 const Episode = require("../models/episode");
 const ScheduledNotification = require("../models/scheduledNotification");
@@ -94,9 +95,23 @@ async function getEpisodeNumbers(series, user) {
 				_id: "$seriesId",
 				watched: { $sum: { $cond: [{ $eq: ["$watched", true] }, 1, 0] } },
 				toWatch: {
-					$sum: { $cond: [{ $and: [{ $eq: ["$watched", false] }, { $lte: ["$date", dayjs().toDate()] }] }, 1, 0] },
+					$sum: {
+						$cond: [
+							{
+								$and: [
+									{ $eq: ["$watched", false] },
+									{ $ne: ["$date", null] },
+									{ $lte: ["$date", dayjs().toDate()] },
+								],
+							},
+							1,
+							0,
+						],
+					},
 				},
-				total: { $sum: 1 },
+				total: {
+					$sum: { $cond: [{ $and: [{ $ne: ["$date", null] }, { $lte: ["$date", dayjs().toDate()] }] }, 1, 0] },
+				},
 			},
 		},
 	]);
@@ -411,6 +426,7 @@ function getTrend(trend) {
 	return isNaN(formattedTrend) ? 0 : formattedTrend;
 }
 
+// eslint-disable-next-line max-lines-per-function,complexity
 async function getPopular(event) {
 	const { query } = event;
 	const { page, source, type } = query;
@@ -451,7 +467,11 @@ async function getPopular(event) {
 				.toArray()
 				.map(elem => $(elem).find("strong").text());
 
-			const promises = infos.map(i =>
+			const assets = await Asset.find({ imdbId: { $in: infos.map(i => i.id) } }).lean();
+
+			const nonAssetInfos = infos.filter(i => !assets.map(a => a.imdbId).includes(i.id));
+
+			const promises = nonAssetInfos.map(i =>
 				api({
 					method: "get",
 					url: `https://api.themoviedb.org/3/find/${i.id}?external_source=imdb_id&api_key=${process.env.tmdbKey}`,
@@ -460,20 +480,51 @@ async function getPopular(event) {
 
 			const tmdbSeries = await Promise.all(promises);
 
+			for (let i = 0; i < tmdbSeries.length; i++) {
+				if (tmdbSeries[i].data.tv_results.length) {
+					tmdbSeries[i].data.tv_results[0].imdbId = nonAssetInfos[i].id;
+				} else if (tmdbSeries[i].data.movie_results.length) {
+					tmdbSeries[i].data.movie_results[0].imdbId = nonAssetInfos[i].id;
+				}
+			}
+
 			for (let i = 0; i < infos.length; i++) {
+				const asset = assets.find(a => a.imdbId === infos[i].id);
+
+				let externalId = null;
+				let image = null;
+
+				if (asset) {
+					externalId = asset.externalId;
+					image = asset.image;
+				} else {
+					const tmdbSerie = tmdbSeries.find(s =>
+						s.data.tv_results.length
+							? s.data.tv_results[0].imdbId.toString() === infos[i].id
+							: s.data.movie_results.length
+							? s.data.movie_results[0].imdbId.toString() === infos[i].id
+							: null,
+					);
+
+					if (tmdbSerie) {
+						externalId = tmdbSerie.data.tv_results.length
+							? tmdbSerie.data.tv_results[0].id.toString()
+							: tmdbSerie.data.movie_results.length
+							? tmdbSerie.data.movie_results[0].id.toString()
+							: null;
+						image = tmdbSerie.data.tv_results.length
+							? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSerie.data.tv_results[0].poster_path}`
+							: tmdbSerie.data.movie_results.length
+							? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSerie.data.movie_results[0].poster_path}`
+							: "";
+					}
+				}
+
 				series.push({
-					externalId: tmdbSeries[i].data.tv_results.length
-						? tmdbSeries[i].data.tv_results[0].id.toString()
-						: tmdbSeries[i].data.movie_results.length
-						? tmdbSeries[i].data.movie_results[0].id.toString()
-						: null,
+					externalId,
 					imdbId: infos[i].id,
 					displayName: infos[i].name,
-					image: tmdbSeries[i].data.tv_results.length
-						? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSeries[i].data.tv_results[0].poster_path}`
-						: tmdbSeries[i].data.movie_results.length
-						? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSeries[i].data.movie_results[0].poster_path}`
-						: "",
+					image,
 					year: infos[i].year,
 					rank: infos[i].rank,
 					trend: infos[i].trend,
@@ -557,10 +608,12 @@ async function getProviders(event) {
 
 	const justWatchRes = await api({
 		method: "get",
-		url: `https://apis.justwatch.com/content/titles/pt_PT/popular?body={"page_size":1,"page":1,"query":"${search}","content_types":["${
-			type === "tv" ? "show" : "movie"
-		}"]}`,
+		url: `https://apis.justwatch.com/content/titles/pt_PT/popular?body={"page_size":1,"page":1,"query":"${encodeURIComponent(
+			search,
+		)}","content_types":["${type === "tv" ? "show" : "movie"}"]}`,
 	});
+
+	if (justWatchRes.status !== 200) return response(404, "PROVIDERS_NOT_FOUND", []);
 
 	const providers = [];
 	if (justWatchRes.data.items.length) {
@@ -592,14 +645,63 @@ async function getProviders(event) {
 	return response(200, "GET_PROVIDERS", providers);
 }
 
+async function addAsset(externalId) {
+	const res = await api({
+		method: "get",
+		url: `https://api.themoviedb.org/3/tv/${externalId}?append_to_response=external_ids,images&api_key=${process.env.tmdbKey}`,
+	});
+
+	const tmdbRes = res.data;
+
+	const extrasRes = await Promise.all([
+		api({
+			method: "get",
+			url: `https://www.imdb.com/title/${tmdbRes.external_ids.imdb_id}`,
+			headers: { "accept-language": "en-US" },
+		}),
+		getProviders({ query: { type: "tv", search: tmdbRes.name } }),
+	]);
+
+	const imdbRes = extrasRes[0].data;
+	const providers = extrasRes[1].body.data;
+
+	const $ = cheerio.load(imdbRes);
+
+	const rating = $(".AggregateRatingButton__RatingScore-sc-1ll29m0-1.iTLWoV")
+		.toArray()
+		.map(elem => $(elem).text())[0];
+
+	const asset = new Asset({
+		platform: "tv",
+		externalId,
+		displayName: tmdbRes.name,
+		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbRes.poster_path}`,
+		genres: tmdbRes.genres.map(g => ({ ...g, externalId: g.id })),
+		firstDate: tmdbRes.first_air_date,
+		lastDate: tmdbRes.last_air_date,
+		status: tmdbRes.status,
+		episodeRunTime: tmdbRes.episode_run_time[0],
+		tagline: tmdbRes.tagline,
+		overview: tmdbRes.overview,
+		rating,
+		languages: tmdbRes.spoken_languages.map(l => l.iso_639_1),
+		backdrops: tmdbRes.images.backdrops.map(b => `https://image.tmdb.org/t/p/w1280_and_h720_bestv2${b.file_path}`),
+		providers,
+		imdbId: tmdbRes.external_ids.imdb_id,
+	});
+
+	await asset.save();
+}
+
 module.exports = {
-	fetchEpisodes,
-	cronjob,
 	getEpisodeNumbers,
 	sendSocketUpdate,
+	fetchEpisodes,
+	cronjob,
 	getEpisodes,
 	getSearch,
 	getPopular,
 	getRecommendations,
 	getProviders,
+	addAsset,
 };

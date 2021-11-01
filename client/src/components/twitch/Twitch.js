@@ -23,6 +23,12 @@ function Twitch() {
 	const [type, setType] = useState("videos");
 
 	useEffect(() => {
+		if (!match.params.channel && subscriptions.length) {
+			history.replace(`/twitch/${subscriptions[0].externalId}`);
+		}
+	}, []);
+
+	useEffect(() => {
 		const subscription = subscriptions.find(s => s.externalId === match.params.channel);
 
 		if (subscription) setActiveSubscription(subscription);
@@ -67,7 +73,7 @@ function Twitch() {
 
 	return (
 		<Grid container spacing={2}>
-			<Grid item xs={12} sm={2} md={4}>
+			<Grid item xs={12} sm={2} md={3} lg={2}>
 				<Follows open={openFollows} platform="twitch" onClose={handleCloseFollows} />
 				<Subscriptions
 					platform="twitch"
@@ -76,7 +82,7 @@ function Twitch() {
 					action={handleShowVideos}
 				/>
 			</Grid>
-			<Grid item xs={12} sm={10} md={8}>
+			<Grid item xs={12} sm={10} md={9} lg={10}>
 				{match.params.channel && (
 					<>
 						{activeSubscription && (

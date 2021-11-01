@@ -1,11 +1,12 @@
 const { response } = require("../utils/request");
 const errors = require("../utils/errors");
-const { toObjectId } = require("../utils/utils");
+const { toObjectId, diff } = require("../utils/utils");
 
 const tv = require("./tv");
 const twitch = require("./twitch");
 
 const Subscription = require("../models/subscription");
+const Asset = require("../models/asset");
 const Episode = require("../models/episode");
 
 async function getSubscriptions(event) {
@@ -40,6 +41,7 @@ async function getSubscriptions(event) {
 	return response(200, "GET_SUBSCRIPTIONS", subscriptions);
 }
 
+// eslint-disable-next-line max-lines-per-function
 async function addSubscriptions(event) {
 	const { params, body, user } = event;
 	const { platform } = params;
@@ -48,6 +50,7 @@ async function addSubscriptions(event) {
 	if (!subscriptions || !subscriptions.length) return errors.requiredFieldsMissing;
 
 	const subscriptionsToAdd = [];
+	const subscriptionsToReAdd = [];
 	for (const subscription of subscriptions) {
 		const { externalId, displayName, group, image, notifications } = subscription;
 
@@ -67,7 +70,7 @@ async function addSubscriptions(event) {
 					}),
 				);
 			} else if (!subscriptionExists.active) {
-				subscriptionsToAdd.push(
+				subscriptionsToReAdd.push(
 					await Subscription.findOneAndUpdate(
 						{ _id: subscriptionExists._id },
 						{ active: true },
@@ -77,9 +80,12 @@ async function addSubscriptions(event) {
 			}
 
 			if (platform === "tv") {
-				const seriesPopulated = await Subscription.findOne({ active: true, platform, externalId }).lean();
+				const assetExists = await Asset.findOne({ platform, externalId }).lean();
 
-				if (!seriesPopulated) tv.fetchEpisodes({ _id: externalId, displayName }, user);
+				if (!assetExists) {
+					tv.addAsset(externalId);
+					tv.fetchEpisodes({ _id: externalId, displayName }, user);
+				}
 			}
 		}
 	}
@@ -91,7 +97,7 @@ async function addSubscriptions(event) {
 	}
 
 	if (platform === "tv") {
-		tv.sendSocketUpdate("edit", JSON.parse(JSON.stringify(subscriptionsToAdd)), user);
+		tv.sendSocketUpdate("edit", JSON.parse(JSON.stringify(subscriptionsToAdd.concat(subscriptionsToReAdd))), user);
 	}
 
 	return response(201, "ADD_SUBSCRIPTIONS", subscriptionsToAdd);
@@ -136,7 +142,7 @@ async function patchSubscription(event) {
 		if (watched === "all") {
 			const episodes = await Episode.find({ seriesId: id });
 
-			watched = episodes.map(e => `S${e.season}E${e.number}`);
+			watched = episodes.filter(e => e.date && diff(e.date) > 0).map(e => `S${e.season}E${e.number}`);
 		}
 
 		try {

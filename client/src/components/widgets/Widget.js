@@ -9,6 +9,7 @@ import DeleteConfirmation from "../.partials/DeleteConfirmation";
 
 import { WidgetContext } from "../../contexts/WidgetContext";
 import { UserContext } from "../../contexts/UserContext";
+import { AppContext } from "../../contexts/AppContext";
 
 import { translate } from "../../utils/translations";
 
@@ -64,9 +65,13 @@ function Widget({
 	onEdit,
 	onDelete,
 }) {
-	const { state } = useContext(WidgetContext);
-	const { editMode } = state;
+	const {
+		state: { editMode },
+	} = useContext(WidgetContext);
 	const { user } = useContext(UserContext);
+	const {
+		state: { apps },
+	} = useContext(AppContext);
 	const classes = useStyles({ borderColor: user.settings && user.settings.borderColor ? borderColor : null });
 	const [refreshToken, setRefreshToken] = useState(new Date());
 	const [hovered, setHovered] = useState(false);
@@ -114,15 +119,15 @@ function Widget({
 	const groupedAppWidgets = { email: ["gmail"] };
 
 	const appFound =
-		user.apps &&
-		user.apps.length &&
-		user.apps.find(
+		apps &&
+		apps.length &&
+		apps.find(
 			app =>
 				app.platform === type ||
 				nonAppWidgets.includes(type) ||
 				(groupedAppWidgets[type] && groupedAppWidgets[type].includes(app.platform)),
 		);
-	const hasApp = user.apps && user.apps.length ? appFound : nonAppWidgets.includes(type);
+	const hasApp = apps && apps.length ? appFound : nonAppWidgets.includes(type);
 
 	return (
 		<Zoom in>
@@ -133,7 +138,7 @@ function Widget({
 						<Typography variant="subtitle2">{editText}</Typography>
 						{!hasApp && (
 							<Typography variant="subtitle2">
-								<NavLink className={classes.appLink} to="/settings">
+								<NavLink className={classes.appLink} to="/settings/apps">
 									{translate("missingApp")}
 								</NavLink>
 							</Typography>
