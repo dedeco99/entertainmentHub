@@ -28,6 +28,7 @@ import AnimatedList from "../.partials/AnimatedList";
 import { NotificationContext } from "../../contexts/NotificationContext";
 import { VideoPlayerContext } from "../../contexts/VideoPlayerContext";
 import { UserContext } from "../../contexts/UserContext";
+import { AppContext } from "../../contexts/AppContext";
 import { SubscriptionContext } from "../../contexts/SubscriptionContext";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 
@@ -54,6 +55,7 @@ const useStyles = makeStyles({ ...widgetStyles, ...videoPlayerStyles, ...general
 function Notifications({ height, wrapTitle }) {
 	const classes = useStyles();
 	const { user } = useContext(UserContext);
+	const { apps } = useContext(AppContext);
 	const { dispatch: subscriptionDispatch } = useContext(SubscriptionContext);
 	const { state, dispatch } = useContext(NotificationContext);
 	const { notifications, total } = state;
@@ -124,9 +126,9 @@ function Notifications({ height, wrapTitle }) {
 
 	useEffect(() => {
 		async function fetchData() {
-			if (!user.apps) return;
+			if (!apps) return;
 
-			const hasYoutube = user.apps.find(app => app.platform === "youtube");
+			const hasYoutube = apps.find(app => app.platform === "youtube");
 
 			if (hasYoutube && !playlists.length) {
 				const response = await getPlaylists();

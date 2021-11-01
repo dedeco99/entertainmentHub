@@ -21,7 +21,7 @@ import Autocomplete from "@material-ui/lab/Autocomplete";
 import Input from "../.partials/Input";
 
 import { WidgetContext } from "../../contexts/WidgetContext";
-import { UserContext } from "../../contexts/UserContext";
+import { AppContext } from "../../contexts/AppContext";
 
 import { getCities } from "../../api/weather";
 import { getCoins, getStocks } from "../../api/finance";
@@ -36,7 +36,9 @@ const useStyles = makeStyles(styles);
 function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose }) {
 	const classes = useStyles();
 	const { dispatch } = useContext(WidgetContext);
-	const { user } = useContext(UserContext);
+	const {
+		state: { apps },
+	} = useContext(AppContext);
 	const [type, setType] = useState("notifications");
 	const [group, setGroup] = useState({ name: "Ungrouped", pos: widgetGroups.length });
 	const [refreshRateMinutes, setRefreshRateMinutes] = useState(null);
@@ -496,18 +498,12 @@ function WidgetDetail({ open, widget, widgetGroups, widgetRestrictions, onClose 
 		const groupedApps = [];
 
 		for (const groupedType in groupedAppWidgets) {
-			if (
-				user.apps &&
-				user.apps.length &&
-				user.apps.find(app => groupedAppWidgets[groupedType].includes(app.platform))
-			) {
+			if (apps && apps.length && apps.find(app => groupedAppWidgets[groupedType].includes(app.platform))) {
 				groupedApps.push(groupedType);
 			}
 		}
 
-		const appTypes = user.apps
-			? user.apps.map(a => a.platform).concat([...nonAppWidgets, ...groupedApps])
-			: nonAppWidgets;
+		const appTypes = apps ? apps.map(a => a.platform).concat([...nonAppWidgets, ...groupedApps]) : nonAppWidgets;
 		types = types.filter(t => appTypes.includes(t.value));
 
 		return (
