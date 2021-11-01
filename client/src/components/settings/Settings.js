@@ -24,6 +24,7 @@ import Input from "../.partials/Input";
 import DeleteConfirmation from "../.partials/DeleteConfirmation";
 
 import { UserContext } from "../../contexts/UserContext";
+import { AppContext } from "../../contexts/AppContext";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 
 import { deleteApp } from "../../api/apps";
@@ -36,78 +37,16 @@ import { settings as styles } from "../../styles/Header";
 const useStyles = makeStyles(styles);
 
 function Settings() {
-	const REDIRECT = process.env.REACT_APP_REDIRECT_URL;
-
 	const match = useRouteMatch();
 	const classes = useStyles();
 	const { user, dispatch } = useContext(UserContext);
-	const { state } = useContext(YoutubeContext);
-	const { playlists } = state;
-
-	const apps = {
-		reddit: {
-			active: false,
-			key: "reddit",
-			displayName: "Reddit",
-			icon: "icon-reddit",
-			link: `https://www.reddit.com/api/v1/authorize
-				?client_id=VXMNKvXfKALA3A
-				&response_type=code
-				&state=some_state
-				&redirect_uri=${REDIRECT}/apps/reddit
-				&duration=permanent
-				&scope=read,mysubreddits`,
-			color: "#fd4500",
-		},
-		twitch: {
-			active: false,
-			key: "twitch",
-			displayName: "Twitch",
-			icon: "icon-twitch",
-			link: `https://api.twitch.tv/kraken/oauth2/authorize
-				?client_id=9haxv452ih4k8ewiml53vqetrbm0z9q
-				&response_type=code
-				&redirect_uri=${REDIRECT}/apps/twitch
-				&scope=user_read`,
-			color: "#6441a5",
-		},
-		youtube: {
-			active: false,
-			key: "youtube",
-			displayName: "Youtube",
-			icon: "icon-youtube-filled",
-			link: `https://accounts.google.com/o/oauth2/v2/auth
-				?redirect_uri=${REDIRECT}/apps/youtube
-				&prompt=consent
-				&access_type=offline
-				&response_type=code
-				&client_id=539994951120-kabifq9ct2lbk92m9ef4hddc5f57nksl.apps.googleusercontent.com
-				&scope=https://www.googleapis.com/auth/youtube`,
-			color: "linear-gradient(0deg, rgba(226,43,40,1) 0%, rgba(191,31,19,1) 100%)",
-		},
-		tv: {
-			active: false,
-			key: "tv",
-			displayName: "TV",
-			icon: "icon-monitor",
-			link: "/apps/tv",
-			color: "linear-gradient(0deg, rgba(1,97,234,1) 0%, rgba(0,187,250,1) 100%)",
-		},
-		gmail: {
-			active: false,
-			key: "gmail",
-			displayName: "Gmail",
-			icon: "icon-monitor",
-			link: `https://accounts.google.com/o/oauth2/v2/auth
-				?redirect_uri=${REDIRECT}/apps/gmail
-				&prompt=consent
-				&access_type=offline
-				&response_type=code
-				&client_id=539994951120-kabifq9ct2lbk92m9ef4hddc5f57nksl.apps.googleusercontent.com
-				&scope=https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify`,
-			color: "linear-gradient(0deg, rgba(1,97,234,1) 0%, rgba(0,187,250,1) 100%)",
-		},
-	};
+	const {
+		state: { allApps, apps },
+		dispatch: appDispatch,
+	} = useContext(AppContext);
+	const {
+		state: { playlists },
+	} = useContext(YoutubeContext);
 	const [selectedMenu, setSelectedMenu] = useState(0);
 	const [settings, setSettings] = useState({});
 	const [selectedApp, setSelectedApp] = useState(null);
@@ -116,11 +55,6 @@ function Settings() {
 	const [oldPassword, setOldPassword] = useState("");
 	const [newPassword, setNewPassword] = useState("");
 	const [repeatNewPassword, setRepeatNewPassword] = useState("");
-
-	for (const userApp of user.apps) {
-		apps[userApp.platform].id = userApp._id;
-		apps[userApp.platform].active = true;
-	}
 
 	useEffect(() => {
 		switch (match.path) {
@@ -178,10 +112,10 @@ function Settings() {
 	}
 
 	async function handleDeleteApp() {
-		const response = await deleteApp(selectedApp.id);
+		const response = await deleteApp(selectedApp._id);
 
 		if (response.status === 200) {
-			dispatch({ type: "DELETE_APP", app: response.data });
+			appDispatch({ type: "DELETE_APP", app: response.data });
 
 			setOpenDeleteConfirmation(false);
 		}
@@ -213,8 +147,8 @@ function Settings() {
 		});
 	}
 
-	function handleOpenDeleteConfirmation(key) {
-		setSelectedApp(apps[key]);
+	function handleOpenDeleteConfirmation(app) {
+		setSelectedApp(app);
 
 		setOpenDeleteConfirmation(true);
 	}
@@ -252,8 +186,10 @@ function Settings() {
 	}
 
 	function renderApp(app) {
+		const userApp = apps.find(a => a.platform === app.platform);
+
 		return (
-			<Box key={app.key}>
+			<Box key={app.platform}>
 				<Box p={2} mb={1} display="flex">
 					<Box mr={2}>
 						<Box p={2} borderRadius="4px" style={{ background: app.color }}>
@@ -264,7 +200,7 @@ function Settings() {
 						<Box display="flex" alignItems="flex-start" mb={1}>
 							<Box flexGrow={1}>
 								<Typography> {app.displayName} </Typography>
-								{app.active ? (
+								{userApp ? (
 									<Typography variant="body2">
 										<i className="icon-check-circled" /> {translate("appConnected", app.displayName)}
 									</Typography>
@@ -274,12 +210,12 @@ function Settings() {
 									</Typography>
 								)}
 							</Box>
-							{app.active ? (
+							{userApp ? (
 								<Button
 									color="primary"
 									variant="contained"
 									size="small"
-									onClick={() => handleOpenDeleteConfirmation(app.key)}
+									onClick={() => handleOpenDeleteConfirmation(userApp)}
 								>
 									{translate("disconnect")}
 								</Button>
@@ -302,7 +238,7 @@ function Settings() {
 	}
 
 	function renderApps() {
-		return <Paper>{Object.keys(apps).map(app => renderApp(apps[app]))}</Paper>;
+		return <Paper>{Object.keys(allApps).map(app => renderApp(allApps[app]))}</Paper>;
 	}
 
 	function renderSettings() {
@@ -418,7 +354,7 @@ function Settings() {
 							variant="outlined"
 							fullWidth
 						/>
-						{apps.tv.active && (
+						{apps.find(app => app.platform === "tv") && (
 							<>
 								<Divider style={{ marginTop: 20, marginBottom: 20 }} />
 								<Typography variant="h6">{"TV"}</Typography>
@@ -438,7 +374,7 @@ function Settings() {
 								/>
 							</>
 						)}
-						{apps.youtube.active && (
+						{apps.find(app => app.platform === "youtube") && (
 							<>
 								<Divider style={{ marginTop: 20, marginBottom: 20 }} />
 								<Typography variant="h6" style={{ marginBottom: 10 }}>

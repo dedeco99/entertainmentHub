@@ -30,10 +30,10 @@ async function patchApp(id, data) {
 	return res;
 }
 
-async function deleteApp(app) {
+async function deleteApp(id) {
 	const res = await api({
 		method: "delete",
-		url: `/api/apps/${app}`,
+		url: `/api/apps/${id}`,
 		message: true,
 	});
 
