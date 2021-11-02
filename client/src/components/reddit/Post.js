@@ -97,10 +97,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 				</Typography>
 			) : (
 				// eslint-disable-next-line react/no-danger
-				<Box
-					className={classes.textContent}
-					dangerouslySetInnerHTML={{ __html: htmlEscape(`${post.text}${post.text}`) }}
-				/>
+				<Box className={classes.textContent} dangerouslySetInnerHTML={{ __html: htmlEscape(`${post.text}`) }} />
 			);
 
 		return (
