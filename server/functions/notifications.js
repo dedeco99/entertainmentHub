@@ -25,7 +25,7 @@ async function getNotifications(event) {
 	}
 	if (type) searchQuery.type = type;
 
-	const sortQuery = { topPriority: -1, dateToSend: -1 };
+	const sortQuery = history ? { dateToSend: -1 } : { topPriority: -1, dateToSend: -1 };
 
 	const notifications = await Notification.aggregate([
 		{ $match: searchQuery },
