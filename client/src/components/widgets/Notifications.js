@@ -55,10 +55,14 @@ const useStyles = makeStyles({ ...widgetStyles, ...videoPlayerStyles, ...general
 function Notifications({ height, wrapTitle }) {
 	const classes = useStyles();
 	const { user } = useContext(UserContext);
-	const { apps } = useContext(AppContext);
+	const {
+		state: { apps },
+	} = useContext(AppContext);
 	const { dispatch: subscriptionDispatch } = useContext(SubscriptionContext);
-	const { state, dispatch } = useContext(NotificationContext);
-	const { notifications, total } = state;
+	const {
+		state: { notifications, total },
+		dispatch,
+	} = useContext(NotificationContext);
 	const videoPlayer = useContext(VideoPlayerContext);
 	const {
 		state: { playlists },
@@ -126,12 +130,15 @@ function Notifications({ height, wrapTitle }) {
 
 	useEffect(() => {
 		async function fetchData() {
+			console.log(apps);
 			if (!apps) return;
 
 			const hasYoutube = apps.find(app => app.platform === "youtube");
 
 			if (hasYoutube && !playlists.length) {
 				const response = await getPlaylists();
+
+				console.log(response);
 
 				if (response.status === 200) {
 					youtubeDispatch({ type: "SET_PLAYLISTS", playlists: response.data });

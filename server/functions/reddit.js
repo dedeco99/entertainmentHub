@@ -55,7 +55,7 @@ function formatResponse(json) {
 		} else if (data.preview && data.preview.images && data.preview.images[0].resolutions) {
 			const resolutions = data.preview.images[0].resolutions;
 			if (resolutions[resolutions.length - 1]) {
-				videoPreview = resolutions[resolutions.length - 1].url;
+				videoPreview = resolutions[resolutions.length - 1].url.replace(/amp;/g, "");
 			}
 		} else if (data.url.includes("https://www.reddit.com/gallery")) {
 			gallery = [];

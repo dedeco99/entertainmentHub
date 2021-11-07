@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import ReactPlayer from "react-player";
-
 import PrismaZoom from "react-prismazoom";
 
 import {
@@ -39,6 +38,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 	const [comments, setComments] = useState([]);
 	const [loading, setLoading] = useState(false);
 	const [galleryIndex, setGalleryIndex] = useState(0);
+	const [isHovered, setIsHovered] = useState(false);
 
 	async function handleGetComments() {
 		setLoading(true);
@@ -97,10 +97,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 				</Typography>
 			) : (
 				// eslint-disable-next-line react/no-danger
-				<Box
-					className={classes.textContent}
-					dangerouslySetInnerHTML={{ __html: htmlEscape(`${post.text}${post.text}`) }}
-				/>
+				<Box className={classes.textContent} dangerouslySetInnerHTML={{ __html: htmlEscape(`${post.text}`) }} />
 			);
 
 		return (
@@ -126,9 +123,17 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 		let expandedContent = null;
 		let isMedia = true;
 
-		if (imgTypes.includes(post.url.substr(post.url.lastIndexOf(".") + 1))) {
+		const imgType = post.url.substr(post.url.lastIndexOf(".") + 1);
+
+		if (imgTypes.includes(imgType)) {
 			content = (
-				<CardMedia component="img" src={post.url} className={classes.media} onClick={handleOpenExpandedView} />
+				<img
+					src={isHovered || imgType !== "gif" ? post.url : post.videoPreview}
+					className={classes.media}
+					onClick={handleOpenExpandedView}
+					onMouseEnter={() => setIsHovered(true)}
+					onMouseLeave={() => setIsHovered(false)}
+				/>
 			);
 			expandedContent = (
 				<PrismaZoom className={classes.zoomImage}>
@@ -144,22 +149,6 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 							display: "block",
 							position: "absolute",
 							objectFit: "contain",
-							cursor: "zoom-in",
-						}}
-					/>
-				</PrismaZoom>
-			);
-			expandedContent = (
-				<PrismaZoom className={classes.zoomImage}>
-					<img
-						src={post.url}
-						alt={post.url}
-						style={{
-							display: "block",
-							position: "absolute",
-							margin: "auto",
-							width: "100%",
-							height: "100%",
 							cursor: "zoom-in",
 						}}
 					/>
@@ -210,7 +199,18 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 					allowFullScreen
 					className={classes.media}
 					scrolling="no"
-					style={{ minHeight: 400 }}
+				/>
+			);
+			expandedContent = content;
+		} else if (post.domain === "thumbs.gfycat.com") {
+			content = (
+				<CardMedia
+					component="iframe"
+					src={`${post.url}?autoplay=0&hd=1`}
+					frameBorder={0}
+					allowFullScreen
+					className={classes.media}
+					scrolling="no"
 				/>
 			);
 			expandedContent = content;
