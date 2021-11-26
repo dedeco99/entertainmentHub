@@ -513,9 +513,13 @@ async function getPopular(event) {
 							? tmdbSerie.data.movie_results[0].id.toString()
 							: null;
 						image = tmdbSerie.data.tv_results.length
-							? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSerie.data.tv_results[0].poster_path}`
+							? tmdbSerie.data.tv_results[0].poster_path
+								? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSerie.data.tv_results[0].poster_path}`
+								: ""
 							: tmdbSerie.data.movie_results.length
-							? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSerie.data.movie_results[0].poster_path}`
+							? tmdbSerie.data.movie_results[0].poster_path
+								? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSerie.data.movie_results[0].poster_path}`
+								: ""
 							: "";
 					}
 				}
@@ -675,7 +679,7 @@ async function addAsset(externalId) {
 		platform: "tv",
 		externalId,
 		displayName: tmdbRes.name,
-		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbRes.poster_path}`,
+		image: tmdbRes.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbRes.poster_path}` : "",
 		genres: tmdbRes.genres.map(g => ({ ...g, externalId: g.id })),
 		firstDate: tmdbRes.first_air_date,
 		lastDate: tmdbRes.last_air_date,

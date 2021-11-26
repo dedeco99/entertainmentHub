@@ -130,15 +130,12 @@ function Notifications({ height, wrapTitle }) {
 
 	useEffect(() => {
 		async function fetchData() {
-			console.log(apps);
 			if (!apps) return;
 
 			const hasYoutube = apps.find(app => app.platform === "youtube");
 
 			if (hasYoutube && !playlists.length) {
 				const response = await getPlaylists();
-
-				console.log(response);
 
 				if (response.status === 200) {
 					youtubeDispatch({ type: "SET_PLAYLISTS", playlists: response.data });
