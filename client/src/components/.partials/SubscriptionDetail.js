@@ -53,6 +53,8 @@ function SubscriptionDetail() {
 		dontShowWithTheseWords: [],
 		onlyShowWithTheseWords: [],
 	});
+	const [newRule, setNewRule] = useState({ if: [], then: {} });
+	const [newRuleOptions, setNewRuleOptions] = useState({ condition: null, action: null });
 
 	const addGroupSubject = new Subject();
 
@@ -115,6 +117,38 @@ function SubscriptionDetail() {
 		setNotifications({ ...notifications, rules: notifications.rules.filter(rule => rule._id !== id) });
 	}
 
+	function handleChangeRuleCondition(e) {
+		setNewRuleOptions({ ...newRuleOptions, condition: e.target.value });
+
+		const defaults = {
+			hasTheseWords: [],
+			doesntHaveTheseWords: [],
+		};
+
+		const conditionExists = newRule.if.find(condition => e.target.value in condition);
+
+		if (!conditionExists) {
+			setNewRule({ ...newRule, if: [...newRule.if, { [e.target.value]: defaults[e.target.value] }] });
+		}
+	}
+
+	function handleChangeRuleAction(e) {
+		setNewRuleOptions({ ...newRuleOptions, action: e.target.value });
+
+		const defaults = {
+			active: notifications.active,
+			priority: notifications.priority,
+			autoAddToWatchLater: notifications.autoAddToWatchLater,
+			watchLaterPlaylist: notifications.watchLaterPlaylist,
+		};
+
+		const actionExists = e.target.value in newRule.then;
+
+		if (!actionExists) {
+			setNewRule({ ...newRule, then: { ...newRule.then, [e.target.value]: defaults[e.target.value] } });
+		}
+	}
+
 	function handleCloseModal() {
 		subscriptionDispatch({ type: "SET_OPEN", open: false });
 	}
@@ -168,6 +202,7 @@ function SubscriptionDetail() {
 					variant="outlined"
 					select
 					fullWidth
+					style={{ margin: "5px 0px" }}
 				>
 					{[
 						{ name: "High", value: 3 },
@@ -193,6 +228,7 @@ function SubscriptionDetail() {
 					renderInput={params => <Input {...params} label="Has these words" variant="outlined" />}
 					renderTags={renderTags}
 					fullWidth
+					style={{ margin: "10px 0px" }}
 				/>
 			);
 		} else if (key === "doesntHaveTheseWords") {
@@ -207,6 +243,7 @@ function SubscriptionDetail() {
 					renderInput={params => <Input {...params} label="Doesn't have these words" variant="outlined" />}
 					renderTags={renderTags}
 					fullWidth
+					style={{ margin: "10px 0px" }}
 				/>
 			);
 		} else if (key === "watchLaterPlaylist") {
@@ -221,6 +258,7 @@ function SubscriptionDetail() {
 					variant="outlined"
 					select
 					fullWidth
+					style={{ margin: "10px 0px" }}
 				>
 					{playlists.map(p => (
 						<MenuItem key={p.externalId} value={p.externalId}>
@@ -298,7 +336,6 @@ function SubscriptionDetail() {
 							<br />
 							<br />
 							{renderRuleField("watchLaterPlaylist", notifications.watchLaterPlaylist, true)}
-							<br />
 							{renderRuleField("autoAddToWatchLater", notifications.autoAddToWatchLater, true)}
 							<br />
 							<br />
@@ -338,6 +375,65 @@ function SubscriptionDetail() {
 									</div>
 								</div>
 							))}
+							<div
+								style={{
+									backgroundColor: "#333",
+									borderRadius: "3px",
+									margin: "5px 0px",
+									padding: "10px",
+									position: "relative",
+								}}
+							>
+								<Typography variant="body1">{"If"}</Typography>
+								<div style={{ marginLeft: "10px" }}>
+									<Input
+										label="Condition"
+										value={newRuleOptions.condition}
+										onChange={handleChangeRuleCondition}
+										variant="outlined"
+										select
+										fullWidth
+										style={{ margin: "5px 0px" }}
+									>
+										{[
+											{ name: "Has these words", value: "hasTheseWords" },
+											{ name: "Doesn't have these words", value: "doesntHaveTheseWords" },
+										].map(p => (
+											<MenuItem key={p.value} value={p.value}>
+												{p.name}
+											</MenuItem>
+										))}
+									</Input>
+									{newRule.if.map(condition =>
+										Object.entries(condition).map(([key, value]) => renderRuleField(key, value, true)),
+									)}
+								</div>
+								<Divider style={{ marginTop: 15, marginBottom: 15 }} />
+								<Typography variant="body1">{"Then"}</Typography>
+								<div style={{ marginLeft: "10px" }}>
+									<Input
+										label="Action"
+										value={newRuleOptions.action}
+										onChange={handleChangeRuleAction}
+										variant="outlined"
+										select
+										fullWidth
+										style={{ margin: "5px 0px" }}
+									>
+										{[
+											{ name: "Active", value: "active" },
+											{ name: "Priority", value: "priority" },
+											{ name: "Youtube Watch Later Playlist", value: "watchLaterPlaylist" },
+											{ name: "Add to watch later automatically", value: "autoAddToWatchLater" },
+										].map(p => (
+											<MenuItem key={p.value} value={p.value}>
+												{p.name}
+											</MenuItem>
+										))}
+									</Input>
+									{Object.entries(newRule.then).map(([key, value]) => renderRuleField(key, value, true))}
+								</div>
+							</div>
 						</>
 					)}
 				</DialogContent>
