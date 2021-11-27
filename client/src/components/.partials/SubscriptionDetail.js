@@ -15,6 +15,7 @@ import {
 	Divider,
 	Typography,
 	Chip,
+	IconButton,
 } from "@material-ui/core";
 import Autocomplete from "@material-ui/lab/Autocomplete";
 
@@ -48,6 +49,7 @@ function SubscriptionDetail() {
 		priority: 0,
 		autoAddToWatchLater: false,
 		watchLaterPlaylist: user.settings ? user.settings.youtube && user.settings.youtube.watchLaterPlaylist : null,
+		rules: [],
 		dontShowWithTheseWords: [],
 		onlyShowWithTheseWords: [],
 	});
@@ -109,6 +111,10 @@ function SubscriptionDetail() {
 		setNotifications({ ...notifications, priority: e.target.value });
 	}
 
+	function handleDeleteRule(id) {
+		setNotifications({ ...notifications, rules: notifications.rules.filter(rule => rule._id !== id) });
+	}
+
 	function handleCloseModal() {
 		subscriptionDispatch({ type: "SET_OPEN", open: false });
 	}
@@ -139,6 +145,102 @@ function SubscriptionDetail() {
 
 	function renderGroupInput(params) {
 		return <Input {...params} label="Subscriptions Group" variant="outlined" fullWidth margin="normal" />;
+	}
+
+	function renderRuleField(key, value, active) {
+		if (key === "active") {
+			return (
+				<FormControlLabel
+					key={key}
+					disabled={!active}
+					control={<Checkbox checked={value} color="primary" onChange={handleChangeActive} />}
+					label={"Active"}
+				/>
+			);
+		} else if (key === "priority") {
+			return (
+				<Input
+					key={key}
+					disabled={!active}
+					label="Priority"
+					value={value}
+					onChange={handleChangePriority}
+					variant="outlined"
+					select
+					fullWidth
+				>
+					{[
+						{ name: "High", value: 3 },
+						{ name: "Medium", value: 2 },
+						{ name: "Low", value: 1 },
+						{ name: "None", value: 0 },
+					].map(p => (
+						<MenuItem key={p.value} value={p.value}>
+							{p.name}
+						</MenuItem>
+					))}
+				</Input>
+			);
+		} else if (key === "hasTheseWords") {
+			return (
+				<Autocomplete
+					key={key}
+					disabled={!active}
+					value={value}
+					multiple
+					options={[]}
+					freeSolo
+					renderInput={params => <Input {...params} label="Has these words" variant="outlined" />}
+					renderTags={renderTags}
+					fullWidth
+				/>
+			);
+		} else if (key === "doesntHaveTheseWords") {
+			return (
+				<Autocomplete
+					key={key}
+					disabled={!active}
+					value={value}
+					multiple
+					options={[]}
+					freeSolo
+					renderInput={params => <Input {...params} label="Doesn't have these words" variant="outlined" />}
+					renderTags={renderTags}
+					fullWidth
+				/>
+			);
+		} else if (key === "watchLaterPlaylist") {
+			return (
+				<Input
+					key={key}
+					disabled={!active}
+					label="Youtube Watch Later Playlist"
+					id="watchLaterPlaylist"
+					value={value}
+					onChange={handleChangeWatchLaterPlaylist}
+					variant="outlined"
+					select
+					fullWidth
+				>
+					{playlists.map(p => (
+						<MenuItem key={p.externalId} value={p.externalId}>
+							{p.displayName}
+						</MenuItem>
+					))}
+				</Input>
+			);
+		} else if (key === "autoAddToWatchLater") {
+			return (
+				<FormControlLabel
+					key={key}
+					disabled={!active}
+					control={<Checkbox checked={value} color="primary" onChange={handleChangeAutoAddToWatchLater} />}
+					label={"Add to watch later automatically"}
+				/>
+			);
+		} else {
+			return <div key={key}>{`${key}: ${value}`}</div>;
+		}
 	}
 
 	const hasNotifications = ["youtube", "tv"];
@@ -187,96 +289,55 @@ function SubscriptionDetail() {
 							<Typography variant="h6" style={{ marginBottom: 10 }}>
 								{translate("notifications")}
 							</Typography>
-							<FormControlLabel
-								control={<Checkbox checked={notifications.active} color="primary" onChange={handleChangeActive} />}
-								label={"Active"}
-							/>
-							<Input
-								label="Priority"
-								value={notifications.priority}
-								onChange={handleChangePriority}
-								variant="outlined"
-								select
-								fullWidth
-							>
-								{[
-									{ name: "High", value: 3 },
-									{ name: "Medium", value: 2 },
-									{ name: "Low", value: 1 },
-									{ name: "None", value: 0 },
-								].map(p => (
-									<MenuItem key={p.value} value={p.value}>
-										{p.name}
-									</MenuItem>
-								))}
-							</Input>
+							{renderRuleField("active", notifications.active, true)}
+							{renderRuleField("priority", notifications.priority, true)}
 						</>
 					)}
 					{subscription && subscription.platform === "youtube" && (
 						<>
 							<br />
-							<FormControlLabel
-								control={
-									<Checkbox
-										checked={notifications.autoAddToWatchLater}
-										color="primary"
-										onChange={handleChangeAutoAddToWatchLater}
-									/>
-								}
-								label={"Add to watch later automatically"}
-							/>
+							<br />
+							{renderRuleField("watchLaterPlaylist", notifications.watchLaterPlaylist, true)}
+							<br />
+							{renderRuleField("autoAddToWatchLater", notifications.autoAddToWatchLater, true)}
 							<br />
 							<br />
-							<Input
-								label="Youtube Watch Later Playlist"
-								id="watchLaterPlaylist"
-								value={notifications.watchLaterPlaylist}
-								onChange={handleChangeWatchLaterPlaylist}
-								variant="outlined"
-								select
-								fullWidth
-							>
-								{playlists.map(p => (
-									<MenuItem key={p.externalId} value={p.externalId}>
-										{p.displayName}
-									</MenuItem>
-								))}
-							</Input>
-							<br />
-							<br />
-							<Autocomplete
-								value={notifications.dontShowWithTheseWords}
-								multiple
-								onChange={(event, newValue) => {
-									setNotifications({
-										...notifications,
-										dontShowWithTheseWords: newValue,
-									});
-								}}
-								options={[]}
-								freeSolo
-								renderInput={params => (
-									<Input {...params} label="Don't show with these words" variant="outlined" />
-								)}
-								renderTags={renderTags}
-								fullWidth
-							/>
-							<br />
-							<Autocomplete
-								value={notifications.onlyShowWithTheseWords}
-								multiple
-								onChange={(event, newValue) => {
-									setNotifications({
-										...notifications,
-										onlyShowWithTheseWords: newValue,
-									});
-								}}
-								options={[]}
-								freeSolo
-								renderInput={params => <Input {...params} label="Only show with these words" variant="outlined" />}
-								renderTags={renderTags}
-								fullWidth
-							/>
+							<Typography variant="subtitle1">
+								<b>{"Rules"}</b>
+							</Typography>
+							{notifications.rules.map(rule => (
+								<div
+									key={rule._id}
+									style={{
+										backgroundColor: "#333",
+										borderRadius: "3px",
+										margin: "5px 0px",
+										padding: "10px",
+										position: "relative",
+									}}
+								>
+									<IconButton
+										edge="end"
+										aria-label="delete"
+										size="small"
+										onClick={() => handleDeleteRule(rule._id)}
+										style={{ top: "5px", right: "5px", position: "absolute" }}
+									>
+										<i className="icon-delete" />
+									</IconButton>
+									<Typography variant="body1">{"If"}</Typography>
+									<div style={{ marginLeft: "10px" }}>
+										{rule.if.map(condition =>
+											Object.entries(condition).map(([key, value]) => renderRuleField(key, value)),
+										)}
+									</div>
+									<Divider style={{ marginTop: 15, marginBottom: 15 }} />
+									<Typography variant="body1">{"Then"}</Typography>
+									<div style={{ marginLeft: "10px" }}>
+										{Object.entries(rule.then).map(([key, value]) => renderRuleField(key, value))}
+									</div>
+								</div>
+							))}
 						</>
 					)}
 				</DialogContent>
