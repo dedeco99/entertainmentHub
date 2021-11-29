@@ -1,210 +1,216 @@
 @font-face {
-  font-family: 'Ehub-icons';
-  src:  url('fonts/Ehub-icons.eot?j5qis');
-  src:  url('fonts/Ehub-icons.eot?j5qis#iefix') format('embedded-opentype'),
-    url('fonts/Ehub-icons.ttf?j5qis') format('truetype'),
-    url('fonts/Ehub-icons.woff?j5qis') format('woff'),
-    url('fonts/Ehub-icons.svg?j5qis#Ehub-icons') format('svg');
-  font-weight: normal;
-  font-style: normal;
-  font-display: block;
+	font-family: "Ehub-icons";
+	src: url("fonts/Ehub-icons.eot?6e4hic");
+	src: url("fonts/Ehub-icons.eot?6e4hic#iefix") format("embedded-opentype"),
+		url("fonts/Ehub-icons.ttf?6e4hic") format("truetype"), url("fonts/Ehub-icons.woff?6e4hic") format("woff"),
+		url("fonts/Ehub-icons.svg?6e4hic#Ehub-icons") format("svg");
+	font-weight: normal;
+	font-style: normal;
+	font-display: block;
 }
 
-[class^="icon-"], [class*=" icon-"] {
-  /* use !important to prevent issues with browser extensions that change fonts */
-  font-family: 'Ehub-icons' !important;
-  speak: never;
-  font-style: normal;
-  font-weight: normal;
-  font-variant: normal;
-  text-transform: none;
-  line-height: 1;
-  
-  /* Enable Ligatures ================ */
-  letter-spacing: 0;
-  -webkit-font-feature-settings: "liga";
-  -moz-font-feature-settings: "liga=1";
-  -moz-font-feature-settings: "liga";
-  -ms-font-feature-settings: "liga" 1;
-  font-feature-settings: "liga";
-  -webkit-font-variant-ligatures: discretionary-ligatures;
-  font-variant-ligatures: discretionary-ligatures;
+[class^="icon-"],
+[class*=" icon-"] {
+	/* use !important to prevent issues with browser extensions that change fonts */
+	font-family: "Ehub-icons" !important;
+	speak: never;
+	font-style: normal;
+	font-weight: normal;
+	font-variant: normal;
+	text-transform: none;
+	line-height: 1;
 
-  /* Better Font Rendering =========== */
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+	/* Enable Ligatures ================ */
+	letter-spacing: 0;
+	-webkit-font-feature-settings: "liga";
+	-moz-font-feature-settings: "liga=1";
+	-moz-font-feature-settings: "liga";
+	-ms-font-feature-settings: "liga" 1;
+	font-feature-settings: "liga";
+	-webkit-font-variant-ligatures: discretionary-ligatures;
+	font-variant-ligatures: discretionary-ligatures;
+
+	/* Better Font Rendering =========== */
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 .icon-apps:before {
-  content: "\e900";
+	content: "\e900";
 }
 .icon-arrow-left:before {
-  content: "\e901";
+	content: "\e901";
 }
 .icon-arrow-right:before {
-  content: "\e902";
+	content: "\e902";
 }
 .icon-arrow-up:before {
-  content: "\e903";
+	content: "\e903";
 }
 .icon-caret-down:before {
-  content: "\e905";
+	content: "\e905";
 }
 .icon-caret-left:before {
-  content: "\e906";
+	content: "\e906";
 }
 .icon-caret-right:before {
-  content: "\e907";
+	content: "\e907";
 }
 .icon-caret-up:before {
-  content: "\e908";
+	content: "\e908";
 }
 .icon-check-circled:before {
-  content: "\e909";
+	content: "\e909";
 }
 .icon-close-circled:before {
-  content: "\e90a";
+	content: "\e90a";
 }
 .icon-filter:before {
-  content: "\e910";
+	content: "\e910";
 }
 .icon-history:before {
-  content: "\e911";
+	content: "\e911";
 }
 .icon-reddit:before {
-  content: "\e91a";
+	content: "\e91a";
 }
 .icon-reddit-filled:before {
-  content: "\e912";
+	content: "\e912";
 }
 .icon-twitch:before {
-  content: "\e924";
+	content: "\e924";
 }
 .icon-twitch-filled:before {
-  content: "\e923";
+	content: "\e923";
 }
 .icon-youtube-filled:before {
-  content: "\e929";
+	content: "\e929";
 }
 .icon-monitor:before {
-  content: "\e916";
+	content: "\e916";
 }
 .icon-monitor-filled:before {
-  content: "\e915";
+	content: "\e915";
 }
 .icon-cloud:before {
-  content: "\e90b";
+	content: "\e90b";
 }
 .icon-clouds:before {
-  content: "\e90c";
+	content: "\e90c";
 }
 .icon-sunrise:before {
-  content: "\e91e";
+	content: "\e91e";
 }
 .icon-sunset:before {
-  content: "\e91f";
+	content: "\e91f";
 }
 .icon-crypto:before {
-  content: "\e904";
+	content: "\e904";
 }
 .icon-money:before {
-  content: "\e914";
+	content: "\e914";
 }
 .icon-comment:before {
-  content: "\e90d";
+	content: "\e90d";
 }
 .icon-feed:before {
-  content: "\e913";
+	content: "\e913";
 }
 .icon-tabs:before {
-  content: "\e92c";
+	content: "\e92c";
 }
 .icon-add:before {
-  content: "\e925";
+	content: "\e925";
 }
 .icon-edit:before {
-  content: "\e927";
+	content: "\e927";
 }
 .icon-delete:before {
-  content: "\e926";
+	content: "\e926";
 }
 .icon-expand:before {
-  content: "\e90f";
+	content: "\e90f";
 }
 .icon-refresh:before {
-  content: "\e91b";
+	content: "\e91b";
 }
 .icon-notifications:before {
-  content: "\e918";
+	content: "\e918";
 }
 .icon-more:before {
-  content: "\e917";
+	content: "\e917";
 }
 .icon-drag-handle:before {
-  content: "\e92b";
+	content: "\e92b";
 }
 .icon-play:before {
-  content: "\e919";
+	content: "\e919";
 }
 .icon-thumbs-up:before {
-  content: "\e921";
+	content: "\e921";
 }
 .icon-thumbs-down:before {
-  content: "\e920";
+	content: "\e920";
 }
 .icon-search:before {
-  content: "\e91c";
+	content: "\e91c";
 }
 .icon-video-library:before {
-  content: "\e928";
+	content: "\e928";
 }
 .icon-playlist:before {
-  content: "\e92d";
+	content: "\e92d";
 }
 .icon-minimize:before {
-  content: "\e92e";
+	content: "\e92e";
 }
 .icon-user:before {
-  content: "\e92a";
+	content: "\e92a";
 }
 .icon-settings:before {
-  content: "\e91d";
+	content: "\e91d";
 }
 .icon-translate:before {
-  content: "\e922";
+	content: "\e922";
 }
 .icon-logout:before {
-  content: "\e90e";
+	content: "\e90e";
 }
 .icon-bubbles:before {
-  content: "\e96d";
+	content: "\e96d";
 }
 .icon-arrow-up-bold:before {
-  content: "\ea32";
+	content: "\ea32";
 }
 .icon-cross:before {
-  content: "\e932";
+	content: "\e932";
 }
 .icon-eye:before {
-  content: "\e92f";
+	content: "\e92f";
 }
 .icon-heart:before {
-  content: "\e930";
+	content: "\e930";
 }
 .icon-star:before {
-  content: "\e931";
+	content: "\e931";
 }
 .icon-finance:before {
-  content: "\e933";
+	content: "\e933";
 }
 .icon-converter:before {
-  content: "\e934";
+	content: "\e934";
 }
 .icon-email:before {
-  content: "\e935";
+	content: "\e935";
+}
+.icon-home:before {
+	content: "\e936";
+}
+.icon-question:before {
+	content: "\ea09";
 }
 .icon-circle-right:before {
-  content: "\ea42";
+	content: "\ea42";
 }
 
 .icon-1x {

@@ -46,6 +46,7 @@ async function cronjobScheduler(toSchedule) {
 							scheduledNotification: scheduledNotification._id,
 							dateToSend,
 							notificationId: `${series.user}${notificationId}`,
+							subscription: series._id,
 							user: series.user,
 							type,
 							topPriority: series.notifications.priority === 3,

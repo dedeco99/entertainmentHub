@@ -5,6 +5,7 @@ const NotificationSchema = new Schema(
 		active: { type: Boolean, default: true },
 		dateToSend: { type: Date, required: true },
 		notificationId: { type: String, unique: true, required: true },
+		subscription: { type: Schema.ObjectId, ref: "Subscription", required: true },
 		user: { type: Schema.ObjectId, ref: "User", required: true },
 		type: { type: String, required: true },
 		priority: { type: Number, default: 0 },

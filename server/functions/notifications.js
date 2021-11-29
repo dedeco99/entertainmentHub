@@ -31,6 +31,15 @@ async function getNotifications(event) {
 		{ $match: searchQuery },
 		{ $sort: sortQuery },
 		{ $limit: 25 },
+		{
+			$lookup: {
+				from: "subscriptions",
+				localField: "subscription",
+				foreignField: "_id",
+				as: "subscription",
+			},
+		},
+		{ $unwind: { path: "$subscription", preserveNullAndEmptyArrays: true } },
 	]);
 
 	return response(200, "GET_NOTIFICATIONS", { notifications, total });
@@ -60,7 +69,8 @@ async function deleteNotifications(event) {
 
 async function addNotifications(notifications) {
 	for (const notification of notifications) {
-		const { active, dateToSend, notificationId, user, type, topPriority, priority, info } = notification;
+		const { active, dateToSend, notificationId, subscription, user, type, topPriority, priority, info } =
+			notification;
 
 		const notificationExists = await Notification.findOne({ user, type, notificationId }).lean();
 
@@ -69,6 +79,7 @@ async function addNotifications(notifications) {
 				active,
 				dateToSend,
 				notificationId,
+				subscription,
 				user,
 				type,
 				topPriority,

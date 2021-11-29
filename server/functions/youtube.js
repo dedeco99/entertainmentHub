@@ -294,6 +294,7 @@ async function cronjob() {
 					$push: {
 						_id: "$user._id",
 						watchLaterPlaylist: "$user.settings.youtube.watchLaterPlaylist",
+						subscriptionId: "$_id",
 						subscriptionDisplayName: "$displayName",
 						notifications: "$notifications",
 					},
@@ -307,7 +308,7 @@ async function cronjob() {
 	for (const subscription of subscriptions) {
 		const request = rssParser.toJson(`https://www.youtube.com/feeds/videos.xml?channel_id=${subscription._id}`);
 
-		requests.push(request);
+		requests.push(request.catch(err => console.log(err)));
 	}
 
 	const responses = await Promise.all(requests);
@@ -332,6 +333,7 @@ async function cronjob() {
 					dateToSend: video.published,
 					sent: true,
 					notificationId: `${user._id}${video.yt_videoId}`,
+					subscription: user.subscriptionId,
 					user: user._id,
 					type: "youtube",
 					topPriority: user.notifications.priority === 3,

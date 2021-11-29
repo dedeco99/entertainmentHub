@@ -219,7 +219,7 @@ function Sidebar({ options, platform, selected, idField, countField, action, men
 	);
 
 	return (
-		<Box>
+		<Box style={{ position: "sticky", top: "16px" }}>
 			{groups.length > 1 && (
 				<Button onClick={handleGroupSortMode} style={{ width: "100%" }}>
 					<i className="icon-tabs" />

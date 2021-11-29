@@ -19,6 +19,7 @@ const finance = require("./functions/finance");
 const price = require("./functions/price");
 const reddit = require("./functions/reddit");
 const subs = require("./functions/subscriptions");
+const assets = require("./functions/assets");
 const feeds = require("./functions/feeds");
 const youtube = require("./functions/youtube");
 const twitch = require("./functions/twitch");
@@ -147,6 +148,8 @@ app.put("/api/subscriptions/:id", token, (req, res) => middleware(req, res, subs
 app.patch("/api/subscriptions/:id", token, (req, res) => middleware(req, res, subs.patchSubscription));
 
 app.delete("/api/subscriptions/:id", token, (req, res) => middleware(req, res, subs.deleteSubscription));
+
+app.get("/api/assets/:platform/:externalId", token, (req, res) => middleware(req, res, assets.getAsset));
 
 app.get("/api/feeds/:platform", token, (req, res) => middleware(req, res, feeds.getFeeds));
 

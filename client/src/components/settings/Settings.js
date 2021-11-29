@@ -18,6 +18,7 @@ import Input from "../.partials/Input";
 import DeleteConfirmation from "../.partials/DeleteConfirmation";
 
 import { UserContext } from "../../contexts/UserContext";
+import { AppContext } from "../../contexts/AppContext";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
 
 import { deleteApp } from "../../api/apps";
@@ -26,11 +27,22 @@ import { editUser } from "../../api/users";
 import { translate } from "../../utils/translations";
 
 function Settings() {
-	const REDIRECT = process.env.REACT_APP_REDIRECT_URL;
-
 	const { user, dispatch } = useContext(UserContext);
-	const { state } = useContext(YoutubeContext);
-	const { playlists } = state;
+	const {
+		state: { allApps, apps },
+		dispatch: appDispatch,
+	} = useContext(AppContext);
+	const {
+		state: { playlists },
+	} = useContext(YoutubeContext);
+	const [settings, setSettings] = useState({});
+	const [selectedApp, setSelectedApp] = useState(null);
+	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
+	const [email, setEmail] = useState("");
+	const [oldPassword, setOldPassword] = useState("");
+	const [newPassword, setNewPassword] = useState("");
+	const [repeatNewPassword, setRepeatNewPassword] = useState("");
+	const isMounted = useRef(false);
 
 	const images = [
 		{
@@ -41,85 +53,6 @@ function Settings() {
 				"https://www.oficinadanet.com.br/imagens/post/37826/750xNxcapa-youtube-premium-oferece-3-meses-de-teste-no-discord-nitro-e-vice-versa.jpg.pagespeed.ic.5d718584c4.jpg",
 		},
 	];
-
-	const apps = {
-		reddit: {
-			active: false,
-			key: "reddit",
-			displayName: "Reddit",
-			icon: "icon-reddit",
-			link: `https://www.reddit.com/api/v1/authorize
-				?client_id=VXMNKvXfKALA3A
-				&response_type=code
-				&state=some_state
-				&redirect_uri=${REDIRECT}/apps/reddit
-				&duration=permanent
-				&scope=read,mysubreddits`,
-			color: "#FB8063",
-		},
-		twitch: {
-			active: false,
-			key: "twitch",
-			displayName: "Twitch",
-			icon: "icon-twitch",
-			link: `https://api.twitch.tv/kraken/oauth2/authorize
-				?client_id=9haxv452ih4k8ewiml53vqetrbm0z9q
-				&response_type=code
-				&redirect_uri=${REDIRECT}/apps/twitch
-				&scope=user_read`,
-			color: "#A463FB",
-		},
-		youtube: {
-			active: false,
-			key: "youtube",
-			displayName: "Youtube",
-			icon: "icon-youtube-filled",
-			link: `https://accounts.google.com/o/oauth2/v2/auth
-				?redirect_uri=${REDIRECT}/apps/youtube
-				&prompt=consent
-				&access_type=offline
-				&response_type=code
-				&client_id=539994951120-kabifq9ct2lbk92m9ef4hddc5f57nksl.apps.googleusercontent.com
-				&scope=https://www.googleapis.com/auth/youtube`,
-			color: "#FB4E4E",
-		},
-		tv: {
-			active: false,
-			key: "tv",
-			displayName: "TV",
-			icon: "icon-monitor",
-			link: "/apps/tv",
-			color: "#638EFB",
-		},
-		gmail: {
-			active: false,
-			key: "gmail",
-			displayName: "Gmail",
-			icon: "icon-monitor",
-			link: `https://accounts.google.com/o/oauth2/v2/auth
-				?redirect_uri=${REDIRECT}/apps/gmail
-				&prompt=consent
-				&access_type=offline
-				&response_type=code
-				&client_id=539994951120-kabifq9ct2lbk92m9ef4hddc5f57nksl.apps.googleusercontent.com
-				&scope=https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify`,
-			color: "#638EFB",
-		},
-	};
-
-	const [settings, setSettings] = useState({});
-	const [selectedApp, setSelectedApp] = useState(null);
-	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
-	const [email, setEmail] = useState("");
-	const [oldPassword, setOldPassword] = useState("");
-	const [newPassword, setNewPassword] = useState("");
-	const [repeatNewPassword, setRepeatNewPassword] = useState("");
-	const isMounted = useRef(false);
-
-	for (const userApp of user.apps) {
-		apps[userApp.platform].id = userApp._id;
-		apps[userApp.platform].active = true;
-	}
 
 	async function handleSubmitSettings() {
 		const password = oldPassword;
@@ -174,10 +107,10 @@ function Settings() {
 	}, []);
 
 	async function handleDeleteApp() {
-		const response = await deleteApp(selectedApp.id);
+		const response = await deleteApp(selectedApp._id);
 
 		if (response.status === 200) {
-			dispatch({ type: "DELETE_APP", app: response.data });
+			appDispatch({ type: "DELETE_APP", app: response.data });
 
 			setOpenDeleteConfirmation(false);
 		}
@@ -209,8 +142,8 @@ function Settings() {
 		});
 	}
 
-	function handleOpenDeleteConfirmation(key) {
-		setSelectedApp(apps[key]);
+	function handleOpenDeleteConfirmation(app) {
+		setSelectedApp(app);
 
 		setOpenDeleteConfirmation(true);
 	}
@@ -248,6 +181,8 @@ function Settings() {
 	}
 
 	function renderApp(app) {
+		const userApp = apps.find(a => a.platform === app.platform);
+
 		return (
 			<Box key={app.key} style={{ backgroundColor: "#333333", borderRadius: "7px", width: "100%" }}>
 				<Box p={2} mb={1} display="flex">
@@ -260,7 +195,7 @@ function Settings() {
 						<Box display="flex" alignItems="flex-start" mb={1}>
 							<Box flexGrow={1}>
 								<Typography style={{ fontSize: "20px" }}> {app.displayName} </Typography>
-								{app.active ? (
+								{userApp ? (
 									<Typography variant="body2" style={{ color: "#BFBFBF", fontWeight: "700", fontSize: "15px" }}>
 										{translate("appConnected", app.displayName)}
 									</Typography>
@@ -270,13 +205,13 @@ function Settings() {
 									</Typography>
 								)}
 							</Box>
-							{app.active ? (
+							{userApp ? (
 								<Button
 									color="primary"
 									variant="contained"
 									size="small"
-									onClick={() => handleOpenDeleteConfirmation(app.key)}
 									style={{ backgroundColor: "#ff000000", marginTop: "20px", boxShadow: "none" }}
+									onClick={() => handleOpenDeleteConfirmation(userApp)}
 								>
 									<i className="icon-close-circled icon-2x" style={{ color: "#B7B7B8", fontSize: "22px" }} />
 								</Button>
@@ -305,7 +240,7 @@ function Settings() {
 				<Typography style={{ fontSize: "25px", marginLeft: "10px", marginBottom: "15px" }}>
 					{translate("availableApps")}
 				</Typography>
-				{Object.keys(apps).map(app => renderApp(apps[app]))}
+				{Object.keys(allApps).map(app => renderApp(allApps[app]))}
 			</Grid>
 		);
 	}
@@ -468,40 +403,38 @@ function Settings() {
 							</Box>
 						</form>
 					</Grid>
-					<Grid item xs={12} lg={6} style={{ marginTop: "20px" }}>
-						<Typography variant="h4">{"TV"}</Typography>
-						<Box style={{ backgroundColor: "#333333", borderRadius: "7px", marginTop: "20px", height: "116px" }}>
-							<Grid container lg={12} style={{ padding: "30px 20px" }}>
-								{apps.tv.active && (
-									<>
-										<Grid item xs={12} lg={6}>
-											<FormControlLabel
-												checked={settings.tv ? settings.tv.hideEpisodesThumbnails : false}
-												color="primary"
-												control={<Checkbox color="primary" />}
-												label={translate("hideEpisodesThumbnails")}
-												onChange={handleEpisodesThumbnailsChange}
-											/>
-										</Grid>
-										<Grid item xs={12} lg={6}>
-											<FormControlLabel
-												checked={settings.tv ? settings.tv.hideEpisodesTitles : false}
-												color="primary"
-												control={<Checkbox color="primary" />}
-												label={translate("hideEpisodesTitles")}
-												onChange={handleEpisodesTitlesChange}
-											/>
-										</Grid>
-									</>
-								)}
-							</Grid>
-						</Box>
-					</Grid>
-					<Grid item xs={12} lg={6} style={{ marginTop: "20px" }}>
-						<Typography variant="h4">{"Youtube"}</Typography>
-						<Box style={{ backgroundColor: "#333333", borderRadius: "7px", marginTop: "20px" }}>
-							<Grid container lg={12} style={{ padding: "30px 20px" }}>
-								{apps.youtube.active && (
+					{apps.find(app => app.platform === "tv") && (
+						<Grid item xs={12} lg={6} style={{ marginTop: "20px" }}>
+							<Typography variant="h4">{"TV"}</Typography>
+							<Box style={{ backgroundColor: "#333333", borderRadius: "7px", marginTop: "20px", height: "116px" }}>
+								<Grid container lg={12} style={{ padding: "30px 20px" }}>
+									<Grid item xs={12} lg={6}>
+										<FormControlLabel
+											checked={settings.tv ? settings.tv.hideEpisodesThumbnails : false}
+											color="primary"
+											control={<Checkbox color="primary" />}
+											label={translate("hideEpisodesThumbnails")}
+											onChange={handleEpisodesThumbnailsChange}
+										/>
+									</Grid>
+									<Grid item xs={12} lg={6}>
+										<FormControlLabel
+											checked={settings.tv ? settings.tv.hideEpisodesTitles : false}
+											color="primary"
+											control={<Checkbox color="primary" />}
+											label={translate("hideEpisodesTitles")}
+											onChange={handleEpisodesTitlesChange}
+										/>
+									</Grid>
+								</Grid>
+							</Box>
+						</Grid>
+					)}
+					{apps.find(app => app.platform === "youtube") && (
+						<Grid item xs={12} lg={6} style={{ marginTop: "20px" }}>
+							<Typography variant="h4">{"Youtube"}</Typography>
+							<Box style={{ backgroundColor: "#333333", borderRadius: "7px", marginTop: "20px" }}>
+								<Grid container lg={12} style={{ padding: "30px 20px" }}>
 									<Grid item xs={12} md={12} lg={12}>
 										<Input
 											label="Youtube Watch Later Default Playlist"
@@ -518,10 +451,10 @@ function Settings() {
 											))}
 										</Input>
 									</Grid>
-								)}
-							</Grid>
-						</Box>
-					</Grid>
+								</Grid>
+							</Box>
+						</Grid>
+					)}
 				</Grid>
 			</FormControl>
 		);
@@ -535,7 +468,7 @@ function Settings() {
 						data={images}
 						time={10000}
 						width="850px"
-						height="580px"
+						height="680px"
 						radius="7px"
 						automatic
 						showNavBtn={false}
