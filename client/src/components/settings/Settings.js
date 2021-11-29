@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext } from "react";
+import React, { useState, useEffect, useContext, useRef } from "react";
 import { toast } from "react-toastify";
 
 import {
@@ -114,29 +114,12 @@ function Settings() {
 	const [oldPassword, setOldPassword] = useState("");
 	const [newPassword, setNewPassword] = useState("");
 	const [repeatNewPassword, setRepeatNewPassword] = useState("");
+	const isMounted = useRef(false);
 
 	for (const userApp of user.apps) {
 		apps[userApp.platform].id = userApp._id;
 		apps[userApp.platform].active = true;
 	}
-
-	useEffect(() => {
-		setSettings({ ...user.settings, browserNotifications: Notification.permission });
-	}, []);
-
-	useEffect(() => {
-		setEmail(user.email);
-
-		async function fetchData() {
-			const notificationPermission = await navigator.permissions.query({ name: "notifications" });
-
-			notificationPermission.onchange = () => {
-				setSettings({ ...settings, browserNotifications: Notification.permission });
-			};
-		}
-
-		fetchData();
-	}, []);
 
 	async function handleSubmitSettings() {
 		const password = oldPassword;
@@ -163,6 +146,32 @@ function Settings() {
 
 		return null;
 	}
+
+	useEffect(() => {
+		if (isMounted.current) {
+			handleSubmitSettings();
+		} else {
+			isMounted.current = true;
+		}
+	}, [settings]);
+
+	useEffect(() => {
+		setSettings({ ...user.settings, browserNotifications: Notification.permission });
+	}, []);
+
+	useEffect(() => {
+		setEmail(user.email);
+
+		async function fetchData() {
+			const notificationPermission = await navigator.permissions.query({ name: "notifications" });
+
+			notificationPermission.onchange = () => {
+				setSettings({ ...settings, browserNotifications: Notification.permission });
+			};
+		}
+
+		fetchData();
+	}, []);
 
 	async function handleDeleteApp() {
 		const response = await deleteApp(selectedApp.id);
@@ -240,7 +249,7 @@ function Settings() {
 
 	function renderApp(app) {
 		return (
-			<Box key={app.key} style={{ backgroundColor: "#242731", borderRadius: "7px", width: "100%" }}>
+			<Box key={app.key} style={{ backgroundColor: "#333333", borderRadius: "7px", width: "100%" }}>
 				<Box p={2} mb={1} display="flex">
 					<Box mr={2}>
 						<Box p={2} padding="7px" borderRadius="7px" style={{ background: app.color }}>
@@ -294,7 +303,7 @@ function Settings() {
 		return (
 			<Grid item xs={12} lg={6}>
 				<Typography style={{ fontSize: "25px", marginLeft: "10px", marginBottom: "15px" }}>
-					{"Available Apps"}
+					{translate("availableApps")}
 				</Typography>
 				{Object.keys(apps).map(app => renderApp(apps[app]))}
 			</Grid>
@@ -303,95 +312,95 @@ function Settings() {
 
 	function renderSettings() {
 		return (
-			<form onSubmit={handleSubmitSettings} style={{ display: "contents" }}>
-				<FormControl margin="normal">
-					<Grid container spacing={3}>
-						<Grid item xs={12} lg={6} style={{ marginTop: "20px" }}>
-							<Typography variant="h4">{translate("settings")}</Typography>
-							<Box style={{ backgroundColor: "#242731", borderRadius: "7px", marginTop: "20px" }}>
-								<Grid container lg={12} style={{ padding: "30px 20px" }}>
-									<Grid item xs={12} md={12} lg={12} style={{ paddingBottom: "15px" }}>
-										<Input
-											label="Currency"
-											value={settings.currency}
-											onChange={handleCurrencyChange}
-											variant="outlined"
-											select
-											fullWidth
-										>
-											{["EUR", "USD", "GBP"].map(c => (
-												<MenuItem key={c} value={c}>
-													{c}
-												</MenuItem>
-											))}
-										</Input>
-									</Grid>
-									<Grid item xs={12} md={5} lg={4}>
-										<FormControlLabel
-											control={
-												<Checkbox
-													checked={settings.animations || false}
-													color="primary"
-													onChange={() => handleCheckboxChange("animations")}
-												/>
-											}
-											label={translate("animations")}
-										/>
-									</Grid>
-									<Grid item xs={12} md={5} lg={4}>
-										<FormControlLabel
-											control={
-												<Checkbox
-													checked={settings.useCustomScrollbar || false}
-													color="primary"
-													onChange={() => handleCheckboxChange("useCustomScrollbar")}
-												/>
-											}
-											label={translate("customScrollbar")}
-										/>
-									</Grid>
-									<Grid item xs={12} md={5} lg={4}>
-										<FormControlLabel
-											control={
-												<Checkbox
-													checked={settings.borderColor || false}
-													color="primary"
-													onChange={() => handleCheckboxChange("borderColor")}
-												/>
-											}
-											label={translate("borderColor")}
-										/>
-									</Grid>
-									<Grid item xs={12} md={5} lg={4}>
-										<FormControlLabel
-											control={
-												<Checkbox
-													checked={settings.browserNotifications === "granted"}
-													disabled={settings.browserNotifications === "denied"}
-													color="primary"
-													onChange={handleBrowserNotifications}
-												/>
-											}
-											label={translate("browserNotifications")}
-										/>
-									</Grid>
-									<Grid item xs={12} md={5} lg={4}>
-										<FormControlLabel
-											checked={settings.autoplayVideoPlayer || false}
-											color="primary"
-											control={<Checkbox color="primary" />}
-											label={translate("autoplayVideoPlayer")}
-											onChange={() => handleCheckboxChange("autoplayVideoPlayer")}
-										/>
-									</Grid>
+			<FormControl margin="normal">
+				<Grid container spacing={3}>
+					<Grid item xs={12} lg={6} style={{ marginTop: "20px" }}>
+						<Typography variant="h4">{translate("settings")}</Typography>
+						<Box style={{ backgroundColor: "#333333", borderRadius: "7px", marginTop: "20px", height: "276px" }}>
+							<Grid container lg={12} style={{ padding: "30px 20px" }}>
+								<Grid item xs={12} md={12} lg={12} style={{ paddingBottom: "15px" }}>
+									<Input
+										label="Currency"
+										value={settings.currency}
+										onChange={handleCurrencyChange}
+										variant="outlined"
+										select
+										fullWidth
+									>
+										{["EUR", "USD", "GBP"].map(c => (
+											<MenuItem key={c} value={c}>
+												{c}
+											</MenuItem>
+										))}
+									</Input>
 								</Grid>
-							</Box>
-						</Grid>
-						<Grid item xs={12} lg={6} style={{ marginTop: "20px" }}>
-							<Typography variant="h4">{"Account"}</Typography>
-							<Box style={{ backgroundColor: "#242731", borderRadius: "7px", marginTop: "20px" }}>
-								<Grid container lg={12} style={{ padding: "30px 20px" }}>
-									<Grid item xs={12} md={12} lg={5}>
+								<Grid item xs={12} md={5} lg={4}>
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={settings.animations || false}
+												color="primary"
+												onChange={() => handleCheckboxChange("animations")}
+											/>
+										}
+										label={translate("animations")}
+									/>
+								</Grid>
+								<Grid item xs={12} md={5} lg={4}>
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={settings.useCustomScrollbar || false}
+												color="primary"
+												onChange={() => handleCheckboxChange("useCustomScrollbar")}
+											/>
+										}
+										label={translate("customScrollbar")}
+									/>
+								</Grid>
+								<Grid item xs={12} md={5} lg={4}>
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={settings.borderColor || false}
+												color="primary"
+												onChange={() => handleCheckboxChange("borderColor")}
+											/>
+										}
+										label={translate("borderColor")}
+									/>
+								</Grid>
+								<Grid item xs={12} md={5} lg={4}>
+									<FormControlLabel
+										control={
+											<Checkbox
+												checked={settings.browserNotifications === "granted"}
+												disabled={settings.browserNotifications === "denied"}
+												color="primary"
+												onChange={handleBrowserNotifications}
+											/>
+										}
+										label={translate("browserNotifications")}
+									/>
+								</Grid>
+								<Grid item xs={12} md={5} lg={4}>
+									<FormControlLabel
+										checked={settings.autoplayVideoPlayer || false}
+										color="primary"
+										control={<Checkbox color="primary" />}
+										label={translate("autoplayVideoPlayer")}
+										onChange={() => handleCheckboxChange("autoplayVideoPlayer")}
+									/>
+								</Grid>
+							</Grid>
+						</Box>
+					</Grid>
+					<Grid item xs={12} lg={6} style={{ marginTop: "20px" }}>
+						<Typography variant="h4">{translate("account")}</Typography>
+						<form onSubmit={handleSubmitSettings}>
+							<Box style={{ backgroundColor: "#333333", borderRadius: "7px", marginTop: "20px" }}>
+								<Grid container lg={12} style={{ padding: "30px 20px" }} spacing={1}>
+									<Grid item xs={12} md={12} lg={6}>
 										<Input
 											id="email"
 											type="email"
@@ -403,8 +412,8 @@ function Settings() {
 											fullWidth
 										/>
 									</Grid>
-									<Grid item lg={1} />
-									<Grid item xs={12} md={12} lg={5}>
+
+									<Grid item xs={12} md={12} lg={6}>
 										<Input
 											id="oldPassword"
 											type="password"
@@ -416,7 +425,7 @@ function Settings() {
 											fullWidth
 										/>
 									</Grid>
-									<Grid item xs={12} md={12} lg={5}>
+									<Grid item xs={12} md={12} lg={6}>
 										<Input
 											id="newPassword"
 											type="password"
@@ -428,8 +437,8 @@ function Settings() {
 											fullWidth
 										/>
 									</Grid>
-									<Grid item lg={1} />
-									<Grid item xs={12} md={12} lg={5}>
+
+									<Grid item xs={12} md={12} lg={6}>
 										<Input
 											id="repeatNewPassword"
 											type="password"
@@ -441,76 +450,80 @@ function Settings() {
 											fullWidth
 										/>
 									</Grid>
-								</Grid>
-							</Box>
-						</Grid>
-						<Grid item xs={12} lg={6} style={{ marginTop: "20px" }}>
-							<Typography variant="h4">{"TV"}</Typography>
-							<Box style={{ backgroundColor: "#242731", borderRadius: "7px", marginTop: "20px", height: "163px" }}>
-								<Grid container lg={12} style={{ padding: "30px 20px" }}>
-									{apps.tv.active && (
-										<>
-											<Grid item xs={12} lg={6}>
-												<FormControlLabel
-													checked={settings.tv ? settings.tv.hideEpisodesThumbnails : false}
-													color="primary"
-													control={<Checkbox color="primary" />}
-													label={translate("hideEpisodesThumbnails")}
-													onChange={handleEpisodesThumbnailsChange}
-												/>
-											</Grid>
-											<Grid item xs={12} lg={6}>
-												<FormControlLabel
-													checked={settings.tv ? settings.tv.hideEpisodesTitles : false}
-													color="primary"
-													control={<Checkbox color="primary" />}
-													label={translate("hideEpisodesTitles")}
-													onChange={handleEpisodesTitlesChange}
-												/>
-											</Grid>
-										</>
-									)}
-								</Grid>
-							</Box>
-						</Grid>
-						<Grid item xs={12} lg={6} style={{ marginTop: "20px" }}>
-							<Typography variant="h4">{"Youtube"}</Typography>
-							<Box style={{ backgroundColor: "#242731", borderRadius: "7px", marginTop: "20px" }}>
-								<Grid container lg={12} style={{ padding: "30px 20px" }}>
-									{apps.youtube.active && (
-										<Grid item xs={12} md={12} lg={12}>
-											<Input
-												label="Youtube Watch Later Default Playlist"
-												value={settings.youtube ? settings.youtube.watchLaterPlaylist : ""}
-												onChange={handleWatchLaterPlaylistChange}
-												variant="outlined"
-												select
-												fullWidth
-											>
-												{playlists.map(p => (
-													<MenuItem key={p.externalId} value={p.externalId}>
-														{p.displayName}
-													</MenuItem>
-												))}
-											</Input>
-										</Grid>
-									)}
-
-									<Grid item xs={12} md={12} lg={12} style={{ textAlign: "end", marginTop: "10px" }}>
+									<Grid item xs={11} md={11} lg={12}>
 										<Button
 											variant="contained"
-											style={{ backgroundColor: "#EC6E4C", color: "white", fontWeight: "bold" }}
-											onClick={handleSubmitSettings}
+											type="submit"
+											style={{
+												color: "#fff",
+												backgroundColor: "#F37555",
+												float: "right",
+												fontWeight: 600,
+											}}
 										>
 											{translate("save")}
 										</Button>
 									</Grid>
 								</Grid>
 							</Box>
-						</Grid>
+						</form>
 					</Grid>
-				</FormControl>
-			</form>
+					<Grid item xs={12} lg={6} style={{ marginTop: "20px" }}>
+						<Typography variant="h4">{"TV"}</Typography>
+						<Box style={{ backgroundColor: "#333333", borderRadius: "7px", marginTop: "20px", height: "116px" }}>
+							<Grid container lg={12} style={{ padding: "30px 20px" }}>
+								{apps.tv.active && (
+									<>
+										<Grid item xs={12} lg={6}>
+											<FormControlLabel
+												checked={settings.tv ? settings.tv.hideEpisodesThumbnails : false}
+												color="primary"
+												control={<Checkbox color="primary" />}
+												label={translate("hideEpisodesThumbnails")}
+												onChange={handleEpisodesThumbnailsChange}
+											/>
+										</Grid>
+										<Grid item xs={12} lg={6}>
+											<FormControlLabel
+												checked={settings.tv ? settings.tv.hideEpisodesTitles : false}
+												color="primary"
+												control={<Checkbox color="primary" />}
+												label={translate("hideEpisodesTitles")}
+												onChange={handleEpisodesTitlesChange}
+											/>
+										</Grid>
+									</>
+								)}
+							</Grid>
+						</Box>
+					</Grid>
+					<Grid item xs={12} lg={6} style={{ marginTop: "20px" }}>
+						<Typography variant="h4">{"Youtube"}</Typography>
+						<Box style={{ backgroundColor: "#333333", borderRadius: "7px", marginTop: "20px" }}>
+							<Grid container lg={12} style={{ padding: "30px 20px" }}>
+								{apps.youtube.active && (
+									<Grid item xs={12} md={12} lg={12}>
+										<Input
+											label="Youtube Watch Later Default Playlist"
+											value={settings.youtube ? settings.youtube.watchLaterPlaylist : ""}
+											onChange={handleWatchLaterPlaylistChange}
+											variant="outlined"
+											select
+											fullWidth
+										>
+											{playlists.map(p => (
+												<MenuItem key={p.externalId} value={p.externalId}>
+													{p.displayName}
+												</MenuItem>
+											))}
+										</Input>
+									</Grid>
+								)}
+							</Grid>
+						</Box>
+					</Grid>
+				</Grid>
+			</FormControl>
 		);
 	}
 
@@ -538,7 +551,7 @@ function Settings() {
 		<div>
 			<Grid container spacing={3} style={{ width: "100%", paddingLeft: "100px", paddingRight: "100px" }}>
 				<Grid item xs={12} lg={12}>
-					<Typography style={{ fontSize: "50px" }}> {"Create your Personal Hub"}</Typography>
+					<Typography style={{ fontSize: "50px" }}> {translate("createYourPersonalHub")}</Typography>
 				</Grid>
 
 				{renderImagesSlider()}

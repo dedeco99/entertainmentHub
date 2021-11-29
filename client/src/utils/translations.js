@@ -264,6 +264,18 @@ const translations = {
 		en: "Move to folder",
 		pt: "Mover para uma pasta",
 	},
+	createYourPersonalHub: {
+		en: "Create your Personal Hub",
+		pt: "Crie o seu Hub Pessoal",
+	},
+	account: {
+		en: "Account",
+		pt: "Conta",
+	},
+	availableApps: {
+		en: "Available Apps",
+		pt: "Aplicações Disponiveis",
+	},
 	multipleParamExample: (...params) => ({
 		en: `Hello ${params[0]}, my name is ${params[1]}`,
 		pt: `Boas ${params[0]}, o meu nome é ${params[1]}`,
