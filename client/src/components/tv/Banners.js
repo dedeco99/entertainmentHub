@@ -50,7 +50,7 @@ function Banners({ series, contentType, loading, bannerWidth }) {
 			}
 		} else {
 			const seriesToRemove = subscriptions.find(s => s.externalId === serie.externalId);
-			const response = await deleteSubscription(seriesToRemove._id);
+			const response = await deleteSubscription(seriesToRemove._id, true);
 
 			if (response.status === 200) {
 				dispatch({ type: "DELETE_SUBSCRIPTION", subscription: response.data });
