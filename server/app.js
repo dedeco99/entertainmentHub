@@ -248,6 +248,10 @@ if (process.env.ENV === "prod") {
 		tv.cronjob();
 	});
 
+	cron.schedule("0 2 * * *", () => {
+		assets.cronjob();
+	});
+
 	scheduledNotifications.cronjobScheduler();
 
 	console.log("Cronjobs are running");
