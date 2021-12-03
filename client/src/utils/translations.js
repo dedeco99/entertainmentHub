@@ -58,6 +58,10 @@ const translations = {
 		en: "Delete",
 		pt: "Apagar",
 	},
+	archive: {
+		en: "Archive",
+		pt: "Arquivar",
+	},
 	deleteConfirmation: {
 		en: "Delete Confirmation",
 		pt: "Confirmação para Apagar",

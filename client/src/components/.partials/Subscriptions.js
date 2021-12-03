@@ -17,6 +17,7 @@ function Subscriptions({ platform, selected, idField, countField, action }) {
 	const { follows, subscriptions } = state;
 	const [selectedSubscription, setSelectedSubscription] = useState(null);
 	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
+	const [archive, setArchive] = useState(true);
 	const [loading, setLoading] = useState(false);
 
 	useEffect(() => {
@@ -54,7 +55,7 @@ function Subscriptions({ platform, selected, idField, countField, action }) {
 	}, [subscriptions]);
 
 	async function handleDeleteSubscription() {
-		const response = await deleteSubscription(selectedSubscription._id);
+		const response = await deleteSubscription(selectedSubscription._id, archive);
 
 		if (response.status === 200) {
 			dispatch({ type: "DELETE_SUBSCRIPTION", subscription: response.data });
@@ -76,9 +77,10 @@ function Subscriptions({ platform, selected, idField, countField, action }) {
 		subscriptionDispatch({ type: "SET_OPEN", open: true });
 	}
 
-	function handleOpenDeleteConfirmation(e) {
+	function handleOpenDeleteConfirmation(e, archive) {
 		setSelectedSubscription(subscriptions.find(s => s[idField] === e.target.id));
 
+		setArchive(archive);
 		setOpenDeleteConfirmation(true);
 	}
 
@@ -88,7 +90,8 @@ function Subscriptions({ platform, selected, idField, countField, action }) {
 
 	const menuOptions = [
 		{ displayName: translate("edit"), onClick: e => handleShowModal(e, "edit") },
-		{ displayName: translate("delete"), onClick: handleOpenDeleteConfirmation },
+		{ displayName: translate("delete"), onClick: e => handleOpenDeleteConfirmation(e, false) },
+		{ displayName: translate("archive"), onClick: e => handleOpenDeleteConfirmation(e, true) },
 	];
 
 	return (

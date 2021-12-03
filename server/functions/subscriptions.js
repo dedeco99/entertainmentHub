@@ -100,7 +100,7 @@ async function addSubscriptions(event) {
 		tv.sendSocketUpdate("edit", JSON.parse(JSON.stringify(subscriptionsToAdd.concat(subscriptionsToReAdd))), user);
 	}
 
-	return response(201, "ADD_SUBSCRIPTIONS", subscriptionsToAdd);
+	return response(201, "ADD_SUBSCRIPTIONS", subscriptionsToAdd.concat(subscriptionsToReAdd));
 }
 
 async function editSubscription(event) {
@@ -198,12 +198,16 @@ async function patchSubscription(event) {
 }
 
 async function deleteSubscription(event) {
-	const { params } = event;
+	const { params, query } = event;
 	const { id } = params;
+	const { archive } = query;
 
 	let subscription = null;
 	try {
-		subscription = await Subscription.findOneAndUpdate({ _id: id }, { active: false });
+		subscription =
+			archive === "true"
+				? await Subscription.findOneAndUpdate({ _id: id }, { active: false })
+				: await Subscription.findOneAndDelete({ _id: id });
 	} catch (e) {
 		return errors.notFound;
 	}
