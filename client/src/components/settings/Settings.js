@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { toast } from "react-toastify";
 
 import {
@@ -42,7 +42,7 @@ function Settings() {
 	const [oldPassword, setOldPassword] = useState("");
 	const [newPassword, setNewPassword] = useState("");
 	const [repeatNewPassword, setRepeatNewPassword] = useState("");
-	const isMounted = useRef(false);
+	const [isMounted, setIsMounted] = useState(false);
 
 	const images = [
 		{
@@ -81,11 +81,7 @@ function Settings() {
 	}
 
 	useEffect(() => {
-		if (isMounted.current) {
-			handleSubmitSettings();
-		} else {
-			isMounted.current = true;
-		}
+		if (isMounted) handleSubmitSettings();
 	}, [settings]);
 
 	useEffect(() => {
@@ -101,6 +97,8 @@ function Settings() {
 			notificationPermission.onchange = () => {
 				setSettings({ ...settings, browserNotifications: Notification.permission });
 			};
+
+			setIsMounted(true);
 		}
 
 		fetchData();
