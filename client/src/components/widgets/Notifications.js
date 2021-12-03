@@ -55,7 +55,9 @@ const useStyles = makeStyles({ ...widgetStyles, ...videoPlayerStyles, ...general
 function Notifications({ height, wrapTitle }) {
 	const classes = useStyles();
 	const { user } = useContext(UserContext);
-	const { apps } = useContext(AppContext);
+	const {
+		state: { apps },
+	} = useContext(AppContext);
 	const { dispatch: subscriptionDispatch } = useContext(SubscriptionContext);
 	const { state, dispatch } = useContext(NotificationContext);
 	const { notifications, total } = state;
@@ -140,7 +142,7 @@ function Notifications({ height, wrapTitle }) {
 		}
 
 		fetchData();
-	}, [user]);
+	}, [user, apps]);
 
 	async function handleHideNotification(notificationsToHide = [selectedNotification._id]) {
 		setActionLoading(true);
