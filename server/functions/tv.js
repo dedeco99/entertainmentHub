@@ -513,9 +513,13 @@ async function getPopular(event) {
 							? tmdbSerie.data.movie_results[0].id.toString()
 							: null;
 						image = tmdbSerie.data.tv_results.length
-							? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSerie.data.tv_results[0].poster_path}`
+							? tmdbSerie.data.tv_results[0].poster_path
+								? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSerie.data.tv_results[0].poster_path}`
+								: ""
 							: tmdbSerie.data.movie_results.length
-							? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSerie.data.movie_results[0].poster_path}`
+							? tmdbSerie.data.movie_results[0].poster_path
+								? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSerie.data.movie_results[0].poster_path}`
+								: ""
 							: "";
 					}
 				}
@@ -675,7 +679,7 @@ async function addAsset(externalId) {
 		platform: "tv",
 		externalId,
 		displayName: tmdbRes.name,
-		image: `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbRes.poster_path}`,
+		image: tmdbRes.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbRes.poster_path}` : "",
 		genres: tmdbRes.genres.map(g => ({ ...g, externalId: g.id })),
 		firstDate: tmdbRes.first_air_date,
 		lastDate: tmdbRes.last_air_date,
@@ -693,6 +697,59 @@ async function addAsset(externalId) {
 	await asset.save();
 }
 
+async function updateAsset(asset) {
+	const res = await api({
+		method: "get",
+		url: `https://api.themoviedb.org/3/tv/${asset.externalId}?append_to_response=external_ids,images&api_key=${process.env.tmdbKey}`,
+	});
+
+	const tmdbRes = res.data;
+
+	const needsUpdate =
+		dayjs(tmdbRes.last_air_date).diff(dayjs(asset.lastDate), "days") || tmdbRes.status !== asset.status;
+	if (needsUpdate) {
+		const extrasRes = await Promise.all([
+			api({
+				method: "get",
+				url: `https://www.imdb.com/title/${tmdbRes.external_ids.imdb_id}`,
+				headers: { "accept-language": "en-US" },
+			}),
+			getProviders({ query: { type: "tv", search: tmdbRes.name } }),
+		]);
+
+		const imdbRes = extrasRes[0].data;
+		const providers = extrasRes[1].body.data;
+
+		const $ = cheerio.load(imdbRes);
+
+		const rating = $(".AggregateRatingButton__RatingScore-sc-1ll29m0-1.iTLWoV")
+			.toArray()
+			.map(elem => $(elem).text())[0];
+
+		await Asset.updateOne(
+			{ externalId: asset.externalId },
+			{
+				displayName: tmdbRes.name,
+				image: tmdbRes.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbRes.poster_path}` : "",
+				genres: tmdbRes.genres.map(g => ({ ...g, externalId: g.id })),
+				firstDate: tmdbRes.first_air_date,
+				lastDate: tmdbRes.last_air_date,
+				status: tmdbRes.status,
+				episodeRunTime: tmdbRes.episode_run_time[0],
+				tagline: tmdbRes.tagline,
+				overview: tmdbRes.overview,
+				rating,
+				languages: tmdbRes.spoken_languages.map(l => l.iso_639_1),
+				backdrops: tmdbRes.images.backdrops.map(
+					b => `https://image.tmdb.org/t/p/w1280_and_h720_bestv2${b.file_path}`,
+				),
+				providers,
+				imdbId: tmdbRes.external_ids.imdb_id,
+			},
+		);
+	}
+}
+
 module.exports = {
 	getEpisodeNumbers,
 	sendSocketUpdate,
@@ -704,4 +761,5 @@ module.exports = {
 	getRecommendations,
 	getProviders,
 	addAsset,
+	updateAsset,
 };
