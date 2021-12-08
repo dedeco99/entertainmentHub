@@ -88,37 +88,35 @@ async function addNotifications(notifications) {
 			};
 
 			for (const rule of info.notifications.rules) {
-				for (const condition of rule.if) {
-					if (
-						(condition.hasTheseWords &&
-							condition.hasTheseWords.length &&
-							condition.doesntHaveTheseWords &&
-							condition.doesntHaveTheseWords.length &&
-							condition.hasTheseWords.some(v => info.videoTitle.includes(v)) &&
-							condition.doesntHaveTheseWords.some(v => info.videoTitle.includes(v))) ||
-						(condition.hasTheseWords &&
-							condition.hasTheseWords.length &&
-							condition.hasTheseWords.some(v => info.videoTitle.includes(v))) ||
-						(condition.doesntHaveTheseWords &&
-							condition.doesntHaveTheseWords.length &&
-							condition.doesntHaveTheseWords.some(v => info.videoTitle.includes(v)))
-					) {
-						if ("active" in rule.then) {
-							notificationBody.active = rule.then.active;
-						}
+				if (
+					(rule.if.hasTheseWords &&
+						rule.if.hasTheseWords.length &&
+						rule.if.doesntHaveTheseWords &&
+						rule.if.doesntHaveTheseWords.length &&
+						rule.if.hasTheseWords.some(v => info.videoTitle.includes(v)) &&
+						!rule.if.doesntHaveTheseWords.some(v => info.videoTitle.includes(v))) ||
+					(rule.if.hasTheseWords &&
+						rule.if.hasTheseWords.length &&
+						rule.if.hasTheseWords.some(v => info.videoTitle.includes(v))) ||
+					(rule.if.doesntHaveTheseWords &&
+						rule.if.doesntHaveTheseWords.length &&
+						!rule.if.doesntHaveTheseWords.some(v => info.videoTitle.includes(v)))
+				) {
+					if ("active" in rule.then) {
+						notificationBody.active = rule.then.active;
+					}
 
-						if ("priority" in rule.then) {
-							notificationBody.topPriority = rule.then.priority === 3;
-							notificationBody.priority = rule.then.priority;
-						}
+					if ("priority" in rule.then) {
+						notificationBody.topPriority = rule.then.priority === 3;
+						notificationBody.priority = rule.then.priority;
+					}
 
-						if ("autoAddToWatchLater" in rule.then) {
-							notificationBody.autoAddToWatchLater = rule.then.autoAddToWatchLater;
-						}
+					if ("autoAddToWatchLater" in rule.then) {
+						notificationBody.autoAddToWatchLater = rule.then.autoAddToWatchLater;
+					}
 
-						if ("watchLaterPlaylist" in rule.then) {
-							notificationBody.watchLaterPlaylist = rule.then.watchLaterPlaylist;
-						}
+					if ("watchLaterPlaylist" in rule.then) {
+						notificationBody.watchLaterPlaylist = rule.then.watchLaterPlaylist;
 					}
 				}
 			}

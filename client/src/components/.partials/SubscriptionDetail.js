@@ -53,7 +53,9 @@ function SubscriptionDetail() {
 		dontShowWithTheseWords: [],
 		onlyShowWithTheseWords: [],
 	});
-	const [newRule, setNewRule] = useState({ if: [], then: {} });
+	const [showAddNewRule, setShowAddNewRule] = useState(false);
+	const [newRule, setNewRule] = useState({ if: {}, then: {} });
+	const [newRuleValues, setNewRuleValues] = useState({});
 	const [newRuleOptions, setNewRuleOptions] = useState({ condition: null, action: null });
 
 	const addGroupSubject = new Subject();
@@ -117,6 +119,10 @@ function SubscriptionDetail() {
 		setNotifications({ ...notifications, rules: notifications.rules.filter(rule => rule._id !== id) });
 	}
 
+	function toggleShowAddNewRule() {
+		setShowAddNewRule(!showAddNewRule);
+	}
+
 	function handleChangeRuleCondition(e) {
 		setNewRuleOptions({ ...newRuleOptions, condition: e.target.value });
 
@@ -125,10 +131,11 @@ function SubscriptionDetail() {
 			doesntHaveTheseWords: [],
 		};
 
-		const conditionExists = newRule.if.find(condition => e.target.value in condition);
+		const conditionExists = e.target.value in newRule.if;
 
 		if (!conditionExists) {
-			setNewRule({ ...newRule, if: [...newRule.if, { [e.target.value]: defaults[e.target.value] }] });
+			setNewRule({ ...newRule, if: { ...newRule.if, [e.target.value]: defaults[e.target.value] } });
+			setNewRuleValues({ ...newRuleValues, [e.target.value]: defaults[e.target.value] });
 		}
 	}
 
@@ -146,7 +153,20 @@ function SubscriptionDetail() {
 
 		if (!actionExists) {
 			setNewRule({ ...newRule, then: { ...newRule.then, [e.target.value]: defaults[e.target.value] } });
+			setNewRuleValues({ ...newRuleValues, [e.target.value]: defaults[e.target.value] });
 		}
+	}
+
+	function handleAddNewRule() {
+		for (const field in newRule.if) {
+			newRule.if[field] = newRuleValues[field];
+		}
+
+		for (const field in newRule.then) {
+			newRule.then[field] = newRuleValues[field];
+		}
+
+		setNotifications({ ...notifications, rules: [...notifications.rules, newRule] });
 	}
 
 	function handleCloseModal() {
@@ -181,13 +201,25 @@ function SubscriptionDetail() {
 		return <Input {...params} label="Subscriptions Group" variant="outlined" fullWidth margin="normal" />;
 	}
 
-	function renderRuleField(key, value, active) {
+	function renderRuleField(key, value, active, newRule) {
 		if (key === "active") {
 			return (
 				<FormControlLabel
 					key={key}
 					disabled={!active}
-					control={<Checkbox checked={value} color="primary" onChange={handleChangeActive} />}
+					control={
+						<Checkbox
+							checked={value}
+							color="primary"
+							onChange={
+								newRule
+									? e => {
+											setNewRuleValues({ ...newRuleValues, active: e.target.checked });
+									  }
+									: handleChangeActive
+							}
+						/>
+					}
 					label={"Active"}
 				/>
 			);
@@ -198,7 +230,13 @@ function SubscriptionDetail() {
 					disabled={!active}
 					label="Priority"
 					value={value}
-					onChange={handleChangePriority}
+					onChange={
+						newRule
+							? e => {
+									setNewRuleValues({ ...newRuleValues, priority: e.target.value });
+							  }
+							: handleChangePriority
+					}
 					variant="outlined"
 					select
 					fullWidth
@@ -222,6 +260,9 @@ function SubscriptionDetail() {
 					key={key}
 					disabled={!active}
 					value={value}
+					onChange={(event, newValue) => {
+						setNewRuleValues({ ...newRuleValues, hasTheseWords: newValue });
+					}}
 					multiple
 					options={[]}
 					freeSolo
@@ -237,6 +278,9 @@ function SubscriptionDetail() {
 					key={key}
 					disabled={!active}
 					value={value}
+					onChange={(event, newValue) => {
+						setNewRuleValues({ ...newRuleValues, doesntHaveTheseWords: newValue });
+					}}
 					multiple
 					options={[]}
 					freeSolo
@@ -254,7 +298,13 @@ function SubscriptionDetail() {
 					label="Youtube Watch Later Playlist"
 					id="watchLaterPlaylist"
 					value={value}
-					onChange={handleChangeWatchLaterPlaylist}
+					onChange={
+						newRule
+							? e => {
+									setNewRuleValues({ ...newRuleValues, watchLaterPlaylist: e.target.value });
+							  }
+							: handleChangeWatchLaterPlaylist
+					}
 					variant="outlined"
 					select
 					fullWidth
@@ -272,7 +322,19 @@ function SubscriptionDetail() {
 				<FormControlLabel
 					key={key}
 					disabled={!active}
-					control={<Checkbox checked={value} color="primary" onChange={handleChangeAutoAddToWatchLater} />}
+					control={
+						<Checkbox
+							checked={value}
+							color="primary"
+							onChange={
+								newRule
+									? e => {
+											setNewRuleValues({ ...newRuleValues, autoAddToWatchLater: e.target.checked });
+									  }
+									: handleChangeAutoAddToWatchLater
+							}
+						/>
+					}
 					label={"Add to watch later automatically"}
 				/>
 			);
@@ -364,9 +426,7 @@ function SubscriptionDetail() {
 									</IconButton>
 									<Typography variant="body1">{"If"}</Typography>
 									<div style={{ marginLeft: "10px" }}>
-										{rule.if.map(condition =>
-											Object.entries(condition).map(([key, value]) => renderRuleField(key, value)),
-										)}
+										{Object.entries(rule.if).map(([key, value]) => renderRuleField(key, value))}
 									</div>
 									<Divider style={{ marginTop: 15, marginBottom: 15 }} />
 									<Typography variant="body1">{"Then"}</Typography>
@@ -375,65 +435,78 @@ function SubscriptionDetail() {
 									</div>
 								</div>
 							))}
-							<div
-								style={{
-									backgroundColor: "#333",
-									borderRadius: "3px",
-									margin: "5px 0px",
-									padding: "10px",
-									position: "relative",
-								}}
-							>
-								<Typography variant="body1">{"If"}</Typography>
-								<div style={{ marginLeft: "10px" }}>
-									<Input
-										label="Condition"
-										value={newRuleOptions.condition}
-										onChange={handleChangeRuleCondition}
-										variant="outlined"
-										select
-										fullWidth
-										style={{ margin: "5px 0px" }}
-									>
-										{[
-											{ name: "Has these words", value: "hasTheseWords" },
-											{ name: "Doesn't have these words", value: "doesntHaveTheseWords" },
-										].map(p => (
-											<MenuItem key={p.value} value={p.value}>
-												{p.name}
-											</MenuItem>
-										))}
-									</Input>
-									{newRule.if.map(condition =>
-										Object.entries(condition).map(([key, value]) => renderRuleField(key, value, true)),
-									)}
+							{showAddNewRule ? (
+								<div
+									style={{
+										backgroundColor: "#333",
+										borderRadius: "3px",
+										margin: "5px 0px",
+										padding: "10px",
+										position: "relative",
+									}}
+								>
+									<Typography variant="body1">{"If"}</Typography>
+									<div style={{ marginLeft: "10px" }}>
+										<Input
+											label="Condition"
+											value={newRuleOptions.condition}
+											onChange={handleChangeRuleCondition}
+											variant="outlined"
+											select
+											fullWidth
+											style={{ margin: "5px 0px" }}
+										>
+											{[
+												{ name: "Has these words", value: "hasTheseWords" },
+												{ name: "Doesn't have these words", value: "doesntHaveTheseWords" },
+											].map(p => (
+												<MenuItem key={p.value} value={p.value}>
+													{p.name}
+												</MenuItem>
+											))}
+										</Input>
+										{Object.entries(newRule.if).map(([key, value]) =>
+											renderRuleField(key, newRuleValues[key], true, true),
+										)}
+									</div>
+									<Divider style={{ marginTop: 15, marginBottom: 15 }} />
+									<Typography variant="body1">{"Then"}</Typography>
+									<div style={{ marginLeft: "10px" }}>
+										<Input
+											label="Action"
+											value={newRuleOptions.action}
+											onChange={handleChangeRuleAction}
+											variant="outlined"
+											select
+											fullWidth
+											style={{ margin: "5px 0px" }}
+										>
+											{[
+												{ name: "Active", value: "active" },
+												{ name: "Priority", value: "priority" },
+												{ name: "Youtube Watch Later Playlist", value: "watchLaterPlaylist" },
+												{ name: "Add to watch later automatically", value: "autoAddToWatchLater" },
+											].map(p => (
+												<MenuItem key={p.value} value={p.value}>
+													{p.name}
+												</MenuItem>
+											))}
+										</Input>
+										{Object.entries(newRule.then).map(([key, value]) =>
+											renderRuleField(key, newRuleValues[key], true, true),
+										)}
+										<div align="right">
+											<Button onClick={handleAddNewRule} color="primary">
+												{translate("add")}
+											</Button>
+										</div>
+									</div>
 								</div>
-								<Divider style={{ marginTop: 15, marginBottom: 15 }} />
-								<Typography variant="body1">{"Then"}</Typography>
-								<div style={{ marginLeft: "10px" }}>
-									<Input
-										label="Action"
-										value={newRuleOptions.action}
-										onChange={handleChangeRuleAction}
-										variant="outlined"
-										select
-										fullWidth
-										style={{ margin: "5px 0px" }}
-									>
-										{[
-											{ name: "Active", value: "active" },
-											{ name: "Priority", value: "priority" },
-											{ name: "Youtube Watch Later Playlist", value: "watchLaterPlaylist" },
-											{ name: "Add to watch later automatically", value: "autoAddToWatchLater" },
-										].map(p => (
-											<MenuItem key={p.value} value={p.value}>
-												{p.name}
-											</MenuItem>
-										))}
-									</Input>
-									{Object.entries(newRule.then).map(([key, value]) => renderRuleField(key, value, true))}
-								</div>
-							</div>
+							) : (
+								<center>
+									<i className="icon-add icon-2x" onClick={toggleShowAddNewRule} />
+								</center>
+							)}
 						</>
 					)}
 				</DialogContent>

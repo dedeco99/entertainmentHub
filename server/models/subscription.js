@@ -16,16 +16,9 @@ const SubscriptionSchema = new Schema(
 			active: { type: Boolean, default: true },
 			priority: { type: Number, default: 0 },
 
-			/*
-				Examples:
-					- rules: [{ if: [{ hasTheseWords: ["Live"] }], then: { active: false, priority: 0 } }]
-					- rules: [{ if: [{ doesntHaveTheseWords: ["Live"] }], then: { active: false, autoAddToWatchLater: true, watchLaterPlaylist: "News" } }]
-					- rules: [{ if: [{ hasTheseWords: ["Tech News"] },{ doesntHaveTheseWords: ["Live"] }], then: [{ priority: 2 }] }]
-					- rules: [{ if: [{ hasTheseWords: ["Tech News"], isScheduled: true }], then: [{ setReminder: true }] }]
-			*/
 			rules: [
 				{
-					if: [{ type: Object }],
+					if: { type: Object },
 					then: { type: Object },
 				},
 			],
