@@ -167,6 +167,11 @@ function SubscriptionDetail() {
 		}
 
 		setNotifications({ ...notifications, rules: [...notifications.rules, newRule] });
+
+		toggleShowAddNewRule();
+		setNewRule({ if: {}, then: {} });
+		setNewRuleValues({});
+		setNewRuleOptions({ condition: null, action: null });
 	}
 
 	function handleCloseModal() {
