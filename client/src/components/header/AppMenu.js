@@ -70,6 +70,7 @@ function AppMenu() {
 						component={Link}
 						className={classes.appItem}
 						to="/"
+						style={{ marginBottom: "3px" }}
 					>
 						<Typography>
 							<i className="icon-home icon-2x" />
@@ -116,28 +117,20 @@ function AppMenu() {
 									</div>
 								))}
 					</GridLayout>
+					{apps && apps.length < Object.values(allApps).filter(a => a.endpoint).length && (
+						<ListItem button className={classes.appItem} component={Link} to="/settings/apps">
+							<i className="icon-add icon-2x" />
+						</ListItem>
+					)}
 				</Box>
 				<Actions />
 			</Box>
 		);
 	}
 
-	function renderAddMoreApps() {
-		if (!apps || apps.length === allApps.length) return null;
-
-		return (
-			<ListItem button className={classes.appItem} component={Link} to="/settings/apps">
-				<i className="icon-add icon-2x" />
-			</ListItem>
-		);
-	}
-
 	return (
 		<div className={classes.root}>
-			<List style={{ height: "100%" }}>
-				{renderAppList()}
-				{renderAddMoreApps()}
-			</List>
+			<List style={{ height: "100%" }}>{renderAppList()}</List>
 		</div>
 	);
 }

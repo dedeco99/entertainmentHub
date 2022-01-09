@@ -23,7 +23,7 @@ const AppContextProvider = ({ children }) => {
 			&duration=permanent
 			&scope=read,mysubreddits`,
 				endpoint: "/reddit",
-				color: "#fd4500",
+				color: "#FB8063",
 			},
 			twitch: {
 				platform: "twitch",
@@ -36,7 +36,7 @@ const AppContextProvider = ({ children }) => {
 			&redirect_uri=${REDIRECT}/apps/twitch
 			&scope=user_read`,
 				endpoint: "/twitch",
-				color: "#6441a5",
+				color: "#A463FB",
 			},
 			youtube: {
 				platform: "youtube",
@@ -51,7 +51,7 @@ const AppContextProvider = ({ children }) => {
 			&client_id=539994951120-kabifq9ct2lbk92m9ef4hddc5f57nksl.apps.googleusercontent.com
 			&scope=https://www.googleapis.com/auth/youtube`,
 				endpoint: "/youtube",
-				color: "linear-gradient(0deg, rgba(226,43,40,1) 0%, rgba(191,31,19,1) 100%)",
+				color: "#FB4E4E",
 			},
 			gmail: {
 				platform: "gmail",
@@ -65,7 +65,7 @@ const AppContextProvider = ({ children }) => {
 			&response_type=code
 			&client_id=539994951120-kabifq9ct2lbk92m9ef4hddc5f57nksl.apps.googleusercontent.com
 			&scope=https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.modify`,
-				color: "linear-gradient(0deg, rgba(1,97,234,1) 0%, rgba(0,187,250,1) 100%)",
+				color: "#638EFB",
 			},
 			tv: {
 				platform: "tv",
@@ -74,7 +74,7 @@ const AppContextProvider = ({ children }) => {
 				menuIcon: "icon-monitor-filled icon-2x",
 				link: "/apps/tv",
 				endpoint: "/tv",
-				color: "linear-gradient(0deg, rgba(1,97,234,1) 0%, rgba(0,187,250,1) 100%)",
+				color: "#638EFB",
 			},
 			reminders: {
 				platform: "reminders",
@@ -83,7 +83,7 @@ const AppContextProvider = ({ children }) => {
 				menuIcon: "icon-notifications icon-2x",
 				link: "/apps/reminders",
 				endpoint: "/reminders",
-				color: "linear-gradient(0deg, rgba(1,97,234,1) 0%, rgba(0,187,250,1) 100%)",
+				color: "#638EFB",
 			},
 		},
 		apps: [],

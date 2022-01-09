@@ -144,7 +144,7 @@ function Notifications({ height, wrapTitle }) {
 		}
 
 		fetchData();
-	}, [user]);
+	}, [user, apps]);
 
 	async function handleHideNotification(notificationsToHide = [selectedNotification._id]) {
 		setActionLoading(true);
