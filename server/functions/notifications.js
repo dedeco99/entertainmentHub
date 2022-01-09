@@ -67,55 +67,81 @@ async function deleteNotifications(event) {
 	return response(200, "DELETE_NOTIFICATION", updatedNotifications);
 }
 
+// eslint-disable-next-line complexity
 async function addNotifications(notifications) {
 	for (const notification of notifications) {
-		const { active, dateToSend, notificationId, subscription, user, type, topPriority, priority, info } =
-			notification;
+		const { dateToSend, notificationId, subscription, user, type, info } = notification;
 
 		const notificationExists = await Notification.findOne({ user, type, notificationId }).lean();
 
 		if (!notificationExists) {
-			const newNotification = new Notification({
-				active,
+			const notificationBody = {
+				active: info.notifications.active,
 				dateToSend,
 				notificationId,
 				subscription,
 				user,
 				type,
-				topPriority,
-				priority,
+				topPriority: info.notifications.priority === 3,
+				priority: info.notifications.priority,
 				info,
-			});
+			};
 
-			if (active) {
-				const doesNotHaveWords =
-					info.dontShowWithTheseWords && info.dontShowWithTheseWords.length
-						? !info.dontShowWithTheseWords.some(v => info.videoTitle.includes(v))
-						: true;
-				const hasWords =
-					info.onlyShowWithTheseWords && info.onlyShowWithTheseWords.length
-						? info.onlyShowWithTheseWords.some(v => info.videoTitle.includes(v))
-						: true;
-
-				if (doesNotHaveWords && hasWords) {
-					if (global.sockets[user]) {
-						for (const socket of global.sockets[user]) {
-							socket.emit("notification", newNotification);
-						}
+			for (const rule of info.notifications.rules) {
+				if (
+					(rule.if.hasTheseWords &&
+						rule.if.hasTheseWords.length &&
+						rule.if.doesntHaveTheseWords &&
+						rule.if.doesntHaveTheseWords.length &&
+						rule.if.hasTheseWords.some(v => info.videoTitle.includes(v)) &&
+						!rule.if.doesntHaveTheseWords.some(v => info.videoTitle.includes(v))) ||
+					(rule.if.hasTheseWords &&
+						rule.if.hasTheseWords.length &&
+						rule.if.hasTheseWords.some(v => info.videoTitle.includes(v))) ||
+					(rule.if.doesntHaveTheseWords &&
+						rule.if.doesntHaveTheseWords.length &&
+						!rule.if.doesntHaveTheseWords.some(v => info.videoTitle.includes(v)))
+				) {
+					if ("active" in rule.then) {
+						notificationBody.active = rule.then.active;
 					}
-				} else {
-					newNotification.active = false;
+
+					if ("priority" in rule.then) {
+						notificationBody.topPriority = rule.then.priority === 3;
+						notificationBody.priority = rule.then.priority;
+					}
+
+					if ("autoAddToWatchLater" in rule.then) {
+						notificationBody.autoAddToWatchLater = rule.then.autoAddToWatchLater;
+					}
+
+					if ("watchLaterPlaylist" in rule.then) {
+						notificationBody.watchLaterPlaylist = rule.then.watchLaterPlaylist;
+					}
+				}
+			}
+
+			const newNotification = new Notification(notificationBody);
+
+			if (newNotification.active) {
+				if (global.sockets[user]) {
+					for (const socket of global.sockets[user]) {
+						socket.emit("notification", newNotification);
+					}
 				}
 			}
 
 			await newNotification.save();
 
-			if (info.autoAddToWatchLater) {
+			if (notificationBody.autoAddToWatchLater) {
 				const { addToWatchLater } = require("./youtube"); //eslint-disable-line
 
 				addToWatchLater({
-					user: { _id: user, settings: { youtube: { watchLaterPlaylist: info.watchLaterPlaylist } } },
-					body: { videos: [{ videoId: info.videoId, channelId: info.channelId }] },
+					user: { _id: user, settings: { youtube: { watchLaterPlaylist: info.defaultWatchLaterPlaylist } } },
+					body: {
+						videos: [{ videoId: info.videoId, channelId: info.channelId }],
+						playlist: notificationBody.watchLaterPlaylist,
+					},
 				});
 			}
 		}

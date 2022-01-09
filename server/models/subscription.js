@@ -16,11 +16,16 @@ const SubscriptionSchema = new Schema(
 			active: { type: Boolean, default: true },
 			priority: { type: Number, default: 0 },
 
+			rules: [
+				{
+					if: { type: Object },
+					then: { type: Object },
+				},
+			],
+
 			// youtube
 			autoAddToWatchLater: { type: Boolean, default: false },
 			watchLaterPlaylist: { type: String },
-			dontShowWithTheseWords: [{ type: String }],
-			onlyShowWithTheseWords: [{ type: String }],
 		},
 		watched: [
 			{

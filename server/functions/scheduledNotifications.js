@@ -42,20 +42,18 @@ async function cronjobScheduler(toSchedule) {
 				if (episode) {
 					for (const series of userSeries) {
 						notifications.push({
-							active: true,
 							scheduledNotification: scheduledNotification._id,
 							dateToSend,
 							notificationId: `${series.user}${notificationId}`,
 							subscription: series._id,
 							user: series.user,
 							type,
-							topPriority: series.notifications.priority === 3,
-							priority: series.notifications.priority,
 							info: {
 								...info,
 								displayName: series.displayName,
 								thumbnail: episode.image,
 								episodeTitle: episode.title,
+								notifications: series.notifications,
 							},
 						});
 					}

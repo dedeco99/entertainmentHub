@@ -329,15 +329,12 @@ async function cronjob() {
 		if (subscription) {
 			for (const user of subscription.users) {
 				notifications.push({
-					active: user.notifications.active,
 					dateToSend: video.published,
 					sent: true,
 					notificationId: `${user._id}${video.yt_videoId}`,
 					subscription: user.subscriptionId,
 					user: user._id,
 					type: "youtube",
-					topPriority: user.notifications.priority === 3,
-					priority: user.notifications.priority,
 					info: {
 						displayName: user.subscriptionDisplayName,
 						thumbnail: video.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),
@@ -348,10 +345,8 @@ async function cronjob() {
 						videoTitle: video.title,
 						videoId: video.yt_videoId,
 						channelId: video.yt_channelId,
-						watchLaterPlaylist: user.watchLaterPlaylist,
-						autoAddToWatchLater: user.notifications.autoAddToWatchLater,
-						dontShowWithTheseWords: user.notifications.dontShowWithTheseWords,
-						onlyShowWithTheseWords: user.notifications.onlyShowWithTheseWords,
+						defaultWatchLaterPlaylist: user.watchLaterPlaylist,
+						notifications: user.notifications,
 					},
 				});
 			}
