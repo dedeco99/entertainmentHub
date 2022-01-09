@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from "react";
 import InfiniteScroll from "react-infinite-scroller";
 import { useHistory, useRouteMatch } from "react-router-dom";
+import dayjs from "dayjs";
 
 import { makeStyles, withStyles, Grid, Box, Typography, Tabs, Tab, Checkbox } from "@material-ui/core";
 import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
@@ -121,22 +122,26 @@ function Episodes() {
 		if (season && seasons.length && currentSeries === seriesId) {
 			handleGetEpisodes(season);
 		} else {
+			handleGetSeasons(seriesId);
+
 			const res = await getAsset("tv", seriesId);
-			if (res.data) {
+
+			if (res.status === 200) {
+				const firstDate = dayjs(res.data.firstDate);
+				const lastDate = dayjs(res.data.lastDate);
+
 				setAssets({
 					...res.data,
 					date:
-						res.data.firstDate.substring(0, 4) === res.data.lastDate.substring(0, 4)
-							? res.data.firstDate.substring(0, 4)
-							: `${res.data.firstDate.substring(0, 4)} - ${res.data.lastDate.substring(0, 4)}`,
+						firstDate.diff(lastDate, "years") === 0 || isNaN(firstDate.diff(lastDate, "years"))
+							? firstDate.get("year")
+							: `${firstDate.get("year")} - ${lastDate.get("year")}`,
 					genres: res.data.genres.map(genre => genre.name).join(", "),
 					backdrops: res.data.backdrops[Math.floor(Math.random() * res.data.backdrops.length)],
 				});
 			} else {
 				setAssets(null);
 			}
-
-			await handleGetSeasons(seriesId);
 		}
 	}
 
@@ -310,13 +315,19 @@ function Episodes() {
 											</Typography>
 											<Typography variant="body1">{`${assets.date} (${assets.status})`}</Typography>
 											<Box display="flex">
-												<Typography variant="body1">{`${assets.genres} • ${assets.episodeRunTime}m`}</Typography>
+												<Typography variant="body1">
+													{`${assets.genres} • ${assets.episodeRunTime ? `${assets.episodeRunTime}m` : ""}`}
+												</Typography>
 												<Box display="flex" alignItems="center" color="#fbc005">
-													<i className="icon-star" style={{ paddingLeft: "5px", paddingRight: "5px" }} />
-													<Typography variant="body1">{assets.rating}</Typography>
+													{assets.rating && (
+														<>
+															<i className="icon-star" style={{ paddingLeft: "5px", paddingRight: "5px" }} />
+															<Typography variant="body1">{assets.rating}</Typography>
+														</>
+													)}
 												</Box>
 											</Box>
-											<Typography variant="body1"> {assets.overview} </Typography>
+											<Typography variant="body1">{assets.overview}</Typography>
 										</Box>
 										<Box
 											display="flex"

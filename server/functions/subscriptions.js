@@ -1,3 +1,5 @@
+const dayjs = require("dayjs");
+
 const { response } = require("../utils/request");
 const errors = require("../utils/errors");
 const { toObjectId, diff } = require("../utils/utils");
@@ -35,7 +37,20 @@ async function getSubscriptions(event) {
 			return subscription;
 		});
 	} else if (platform === "tv") {
-		tv.sendSocketUpdate("set", subscriptions, user);
+		const assets = await Asset.find(
+			{ externalId: { $in: subscriptions.map(i => i.externalId) } },
+			"externalId firstDate rating",
+		).lean();
+
+		tv.sendSocketUpdate(
+			"set",
+			subscriptions.map(s => {
+				const asset = assets.find(a => a.externalId === s.externalId);
+
+				return asset ? { ...s, year: dayjs(asset.firstDate).get("year"), rating: asset.rating } : s;
+			}),
+			user,
+		);
 	}
 
 	return response(200, "GET_SUBSCRIPTIONS", subscriptions);
@@ -100,7 +115,7 @@ async function addSubscriptions(event) {
 		tv.sendSocketUpdate("edit", JSON.parse(JSON.stringify(subscriptionsToAdd.concat(subscriptionsToReAdd))), user);
 	}
 
-	return response(201, "ADD_SUBSCRIPTIONS", subscriptionsToAdd);
+	return response(201, "ADD_SUBSCRIPTIONS", subscriptionsToAdd.concat(subscriptionsToReAdd));
 }
 
 async function editSubscription(event) {
@@ -198,12 +213,16 @@ async function patchSubscription(event) {
 }
 
 async function deleteSubscription(event) {
-	const { params } = event;
+	const { params, query } = event;
 	const { id } = params;
+	const { archive } = query;
 
 	let subscription = null;
 	try {
-		subscription = await Subscription.findOneAndUpdate({ _id: id }, { active: false });
+		subscription =
+			archive === "true"
+				? await Subscription.findOneAndUpdate({ _id: id }, { active: false })
+				: await Subscription.findOneAndDelete({ _id: id });
 	} catch (e) {
 		return errors.notFound;
 	}

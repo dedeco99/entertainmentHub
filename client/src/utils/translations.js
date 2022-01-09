@@ -23,12 +23,12 @@ const translations = {
 		pt: "Desconectar",
 	},
 	appConnected: app => ({
-		en: `Your ${app} account is connected`,
-		pt: `A sua conta ${app} está conectada`,
+		en: `Your ${app} is connected`,
+		pt: `${app} está conectada`,
 	}),
 	appNotConnected: app => ({
-		en: `Your ${app} account is not currently connected`,
-		pt: `A sua conta ${app} não está conectada`,
+		en: `Your ${app} is not currently connected`,
+		pt: `${app} não está conectada`,
 	}),
 	settings: {
 		en: "Settings",
@@ -57,6 +57,10 @@ const translations = {
 	delete: {
 		en: "Delete",
 		pt: "Apagar",
+	},
+	archive: {
+		en: "Archive",
+		pt: "Arquivar",
 	},
 	deleteConfirmation: {
 		en: "Delete Confirmation",
@@ -263,6 +267,18 @@ const translations = {
 	moveToFolder: {
 		en: "Move to folder",
 		pt: "Mover para uma pasta",
+	},
+	createYourPersonalHub: {
+		en: "Create your Personal Hub",
+		pt: "Crie o seu Hub Pessoal",
+	},
+	account: {
+		en: "Account",
+		pt: "Conta",
+	},
+	availableApps: {
+		en: "Available Apps",
+		pt: "Aplicações Disponiveis",
 	},
 	multipleParamExample: (...params) => ({
 		en: `Hello ${params[0]}, my name is ${params[1]}`,

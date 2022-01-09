@@ -57,10 +57,6 @@ function UserDropdown() {
 		history.push("/settings");
 	}
 
-	function handleConnectionsClick() {
-		history.push("/settings/apps");
-	}
-
 	function handleLogoutClick() {
 		logout();
 	}
@@ -74,7 +70,7 @@ function UserDropdown() {
 		{
 			title: translate("apps"),
 			icon: "icon-apps icon-2x",
-			handleClick: handleConnectionsClick,
+			handleClick: handleSettingsClick,
 		},
 		{
 			title: translate("logout"),

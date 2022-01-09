@@ -41,10 +41,10 @@ async function patchSubscription(id, data) {
 	return res;
 }
 
-async function deleteSubscription(id) {
+async function deleteSubscription(id, archive) {
 	const res = await api({
 		method: "delete",
-		url: `/api/subscriptions/${id}`,
+		url: `/api/subscriptions/${id}?archive=${archive}`,
 		message: true,
 	});
 
