@@ -242,7 +242,7 @@ function Finance({ coins, stocks, widgetDimensions }) {
 				<Table>
 					<TableBody>
 						{crypto.map((c, index) => (
-							<TableRow key={c.rank} onClick={() => handleCheckTicker(index)}>
+							<TableRow key={c.id} onClick={() => handleCheckTicker(index)}>
 								<TableCell className={classes.cell}>
 									{c.image ? (
 										<img
