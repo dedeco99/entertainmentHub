@@ -57,7 +57,9 @@ async function getCryptoPrices(event) {
 		if (!coin || diff(coin.lastUpdate, "minutes") > 10) useCache = false;
 	}
 
-	if (!useCache) {
+	if (useCache) {
+		data = data[user.settings.currency];
+	} else {
 		const headers = { "X-CMC_PRO_API_KEY": process.env.coinmarketcapKey };
 
 		const url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${coins}&convert=${user.settings.currency}`;
@@ -130,9 +132,9 @@ async function getStocks(event) {
 	const { query } = event;
 	const { filter } = query;
 
-	const res = await yahooFinance.autoc(filter);
+	const res = await yahooFinance.search(filter);
 
-	const stocks = res.Result.slice(0, 50).map(stock => ({ symbol: stock.symbol, name: stock.name }));
+	const stocks = res.quotes.slice(0, 50).map(stock => ({ symbol: stock.symbol, name: stock.shortname }));
 
 	return response(200, "GET_STOCKS", stocks);
 }

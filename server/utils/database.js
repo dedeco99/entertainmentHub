@@ -2,12 +2,7 @@ const mongoose = require("mongoose");
 
 function connect(connectionString) {
 	return new Promise(resolve => {
-		mongoose.set("useFindAndModify", false);
-		mongoose.connect(connectionString, {
-			useNewUrlParser: true,
-			useUnifiedTopology: true,
-			useCreateIndex: true,
-		});
+		mongoose.connect(connectionString);
 
 		mongoose.connection.once("open", () => {
 			console.log("Connected to database");

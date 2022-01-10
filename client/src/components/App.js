@@ -137,7 +137,7 @@ function App() {
 															<SubscriptionDetail />
 															<BackUpButton />
 															<VideoPlayer />
-															<ToastContainer position="bottom-right" newestOnTop />
+															<ToastContainer position="bottom-right" newestOnTop colored theme="colored" />
 															<SocketClient />
 														</BrowserRouter>
 													</ActionContextProvider>
