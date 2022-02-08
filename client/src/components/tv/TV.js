@@ -80,6 +80,15 @@ function TV() {
 		<Grid container spacing={2}>
 			<Grid item xs={12} sm={2} md={3} lg={2}>
 				<Button
+					onClick={handleShowAll}
+					className={classes.outlinedBtn}
+					color={blocks.openEpisodes ? "secondary" : "primary"}
+					variant={blocks.openEpisodes ? "contained" : "outlined"}
+					fullWidth
+				>
+					{"Feed"}
+				</Button>
+				<Button
 					onClick={handleShowSeries}
 					className={classes.outlinedBtn}
 					color={blocks.openSeries ? "secondary" : "primary"}
@@ -87,15 +96,6 @@ function TV() {
 					fullWidth
 				>
 					{translate("series")}
-				</Button>
-				<Button
-					onClick={handleShowAll}
-					className={classes.outlinedBtn}
-					color={blocks.openEpisodes ? "secondary" : "primary"}
-					variant={blocks.openEpisodes ? "contained" : "outlined"}
-					fullWidth
-				>
-					{translate("episodes")}
 				</Button>
 				<Subscriptions
 					platform="tv"
