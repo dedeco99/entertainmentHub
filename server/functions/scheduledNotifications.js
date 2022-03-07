@@ -7,8 +7,6 @@ const errors = require("../utils/errors");
 const { sendNotification } = require("./notifications");
 
 const ScheduledNotification = require("../models/scheduledNotification");
-const Subscription = require("../models/subscription");
-const Episode = require("../models/episode");
 
 async function cronjobScheduler(toSchedule) {
 	let scheduledNotifications = toSchedule;
@@ -27,44 +25,17 @@ async function cronjobScheduler(toSchedule) {
 
 		switch (type) {
 			case "tv":
-				const userSeries = await Subscription.find({
-					active: true,
-					platform: "tv",
-					externalId: info.seriesId,
-					"notifications.active": true,
-				}).lean();
-				const episode = await Episode.findOne({
-					seriesId: info.seriesId,
-					season: info.season,
-					number: info.number,
-				}).lean();
-
-				if (episode) {
-					for (const series of userSeries) {
-						notifications.push({
-							scheduledNotification: scheduledNotification._id,
-							dateToSend,
-							notificationId: `${series.user}${notificationId}`,
-							subscription: series._id,
-							user: series.user,
-							type,
-							info: {
-								...info,
-								displayName: series.displayName,
-								thumbnail: episode.image,
-								episodeTitle: episode.title,
-								notifications: series.notifications,
-							},
-						});
-					}
-				} else {
-					await ScheduledNotification.findOneAndDelete({ _id });
-				}
+				notifications.push({
+					scheduledNotification: _id,
+					dateToSend,
+					notificationId,
+					type,
+					info,
+				});
 
 				break;
 			case "reminder":
 				notifications.push({
-					active: true,
 					scheduledNotification: scheduledNotification._id,
 					dateToSend,
 					notificationId: scheduledNotification._id,
