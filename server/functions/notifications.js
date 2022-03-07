@@ -76,18 +76,18 @@ async function addNotifications(notifications) {
 
 		if (!notificationExists) {
 			const notificationBody = {
-				active: info.notifications.active,
+				active: subscription.notifications.active,
 				dateToSend,
 				notificationId,
 				subscription,
 				user,
 				type,
-				topPriority: info.notifications.priority === 3,
-				priority: info.notifications.priority,
+				priority: subscription.notifications.priority,
+				topPriority: subscription.notifications.priority === 3,
 				info,
 			};
 
-			for (const rule of info.notifications.rules) {
+			for (const rule of subscription.notifications.rules) {
 				if (
 					(rule.if.hasTheseWords &&
 						rule.if.hasTheseWords.length &&
@@ -107,40 +107,47 @@ async function addNotifications(notifications) {
 					}
 
 					if ("priority" in rule.then) {
-						notificationBody.topPriority = rule.then.priority === 3;
 						notificationBody.priority = rule.then.priority;
+						notificationBody.topPriority = rule.then.priority === 3;
 					}
 
 					if ("autoAddToWatchLater" in rule.then) {
-						notificationBody.autoAddToWatchLater = rule.then.autoAddToWatchLater;
+						notificationBody.subscription.notifications.autoAddToWatchLater = rule.then.autoAddToWatchLater;
 					}
 
 					if ("watchLaterPlaylist" in rule.then) {
-						notificationBody.watchLaterPlaylist = rule.then.watchLaterPlaylist;
+						notificationBody.subscription.notifications.watchLaterPlaylist = rule.then.watchLaterPlaylist;
 					}
 				}
 			}
 
 			const newNotification = new Notification(notificationBody);
 
-			if (newNotification.active) {
+			await newNotification.save();
+
+			if (notificationBody.active) {
 				if (global.sockets[user]) {
 					for (const socket of global.sockets[user]) {
-						socket.emit("notification", newNotification);
+						socket.emit("notification", notificationBody);
 					}
 				}
 			}
 
-			await newNotification.save();
-
-			if (notificationBody.autoAddToWatchLater) {
+			if (notificationBody.subscription.notifications.autoAddToWatchLater) {
 				const { addToWatchLater } = require("./youtube"); //eslint-disable-line
 
 				addToWatchLater({
-					user: { _id: user, settings: { youtube: { watchLaterPlaylist: info.defaultWatchLaterPlaylist } } },
+					user: {
+						_id: user,
+						settings: {
+							youtube: {
+								watchLaterPlaylist: notificationBody.subscription.notifications.defaultWatchLaterPlaylist,
+							},
+						},
+					},
 					body: {
-						videos: [{ videoId: info.videoId, channelId: info.channelId }],
-						playlist: notificationBody.watchLaterPlaylist,
+						videos: [{ videoId: notificationBody.info.videoId, channelId: notificationBody.info.channelId }],
+						playlist: notificationBody.subscription.notifications.watchLaterPlaylist,
 					},
 				});
 			}

@@ -635,10 +635,10 @@ function Notifications({ height, wrapTitle }) {
 								className={classes.badge}
 								color="secondary"
 								badgeContent={Object.keys(selectedNotifications).length}
-								max={999}
+								max={9999}
 							/>
 						) : (
-							<Badge className={classes.badge} color="secondary" badgeContent={total} max={999} />
+							<Badge className={classes.badge} color="secondary" badgeContent={total} max={9999} />
 						)}
 					</Box>
 					<Box display="flex" justifyContent="flex-end">
