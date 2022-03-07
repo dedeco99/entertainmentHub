@@ -197,7 +197,7 @@ async function fetchEpisodes(series, user) {
 					});
 					episodesToAdd.push(newEpisode);
 
-					if (diff(newEpisode.date, "days") <= 5) {
+					if (diff(newEpisode.date, "days") >= 0) {
 						notificationsToAdd.push({
 							dateToSend: newEpisode.date,
 							notificationId: episode.id,

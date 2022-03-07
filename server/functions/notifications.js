@@ -5,6 +5,8 @@ const { toObjectId } = require("../utils/utils");
 
 const Notification = require("../models/notification");
 const ScheduledNotification = require("../models/scheduledNotification");
+const Subscription = require("../models/subscription");
+const Episode = require("../models/episode");
 
 async function getNotifications(event) {
 	const { query, user } = event;
@@ -156,8 +158,52 @@ async function addNotifications(notifications) {
 }
 
 async function sendNotification(notification) {
-	await addNotifications([notification]);
-	await ScheduledNotification.updateOne({ _id: notification.scheduledNotification }, { sent: true }).lean();
+	const { scheduledNotification, dateToSend, notificationId, type, info } = notification;
+
+	const notifications = [];
+	if (type === "tv") {
+		const episode = await Episode.findOne({
+			seriesId: info.seriesId,
+			season: info.season,
+			number: info.number,
+		}).lean();
+		const userSeries = await Subscription.find({
+			active: true,
+			platform: "tv",
+			externalId: info.seriesId,
+			"notifications.active": true,
+		}).lean();
+
+		if (episode) {
+			for (const series of userSeries) {
+				notifications.push({
+					dateToSend,
+					notificationId: `${series.user}${notificationId}`,
+					subscription: series,
+					user: series.user,
+					type,
+					info: {
+						displayName: series.displayName,
+						thumbnail: episode.image,
+
+						season: episode.season,
+						number: episode.number,
+						episodeTitle: episode.title,
+					},
+				});
+			}
+		} else {
+			await ScheduledNotification.deleteOne({ _id: scheduledNotification });
+
+			return;
+		}
+	} else {
+		notifications.push(notification);
+	}
+
+	await addNotifications(notifications);
+
+	await ScheduledNotification.updateOne({ _id: scheduledNotification }, { sent: true }).lean();
 }
 
 module.exports = {
