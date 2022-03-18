@@ -127,6 +127,8 @@ async function addNotifications(notifications) {
 
 			await newNotification.save();
 
+			notificationBody._id = newNotification._id;
+
 			if (notificationBody.active) {
 				if (global.sockets[user]) {
 					for (const socket of global.sockets[user]) {
