@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import Loading from "../../.partials/Loading";
@@ -19,6 +19,8 @@ function Reddit({ subreddit, search, listView }) {
 	const [open, setOpen] = useState(false);
 	const [showListView, setShowListView] = useState(true);
 	const [num, setNum] = useState(0);
+	const [scrollTop, setScrollTop] = useState(0);
+	const postListRef = useRef(0);
 	let isMounted = true;
 
 	async function handleGetPosts() {
@@ -71,11 +73,16 @@ function Reddit({ subreddit, search, listView }) {
 
 	function handleShowListView() {
 		setShowListView(true);
+
+		setTimeout(() => {
+			postListRef.current.scrollTo({ top: scrollTop });
+		}, 100);
 	}
 
 	function handleShowSingleView(position) {
 		setShowListView(false);
 		setNum(position);
+		setScrollTop(postListRef.current.scrollTop);
 	}
 
 	function renderListView() {
@@ -84,6 +91,7 @@ function Reddit({ subreddit, search, listView }) {
 				open={open}
 				subreddit={subreddit}
 				posts={posts}
+				postListRef={postListRef}
 				multipleSubs={subreddit.includes("+") || subreddit === "all"}
 				getPosts={handleGetPosts}
 				hasMorePosts={pagination.hasMore}
