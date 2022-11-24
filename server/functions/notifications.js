@@ -27,9 +27,11 @@ async function getNotifications(event) {
 	}
 	if (type) searchQuery.type = type;
 
-	const sortQuery = history ? { dateToSend: -1 } : { topPriority: -1, dateToSend: -1 };
+	const sortQuery = { dateToSend: -1 };
 
-	const notifications = await Notification.aggregate([
+	if (!history) searchQuery.topPriority = false;
+
+	let notifications = await Notification.aggregate([
 		{ $match: searchQuery },
 		{ $sort: sortQuery },
 		{ $limit: 25 },
@@ -43,6 +45,24 @@ async function getNotifications(event) {
 		},
 		{ $unwind: { path: "$subscription", preserveNullAndEmptyArrays: true } },
 	]);
+
+	if (!history) {
+		const topPriorityNotifications = await Notification.aggregate([
+			{ $match: { ...searchQuery, topPriority: true } },
+			{ $sort: sortQuery },
+			{
+				$lookup: {
+					from: "subscriptions",
+					localField: "subscription",
+					foreignField: "_id",
+					as: "subscription",
+				},
+			},
+			{ $unwind: { path: "$subscription", preserveNullAndEmptyArrays: true } },
+		]);
+
+		notifications = topPriorityNotifications.concat(notifications);
+	}
 
 	return response(200, "GET_NOTIFICATIONS", { notifications, total });
 }
