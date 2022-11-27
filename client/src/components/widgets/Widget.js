@@ -76,16 +76,23 @@ function Widget({
 	const [refreshToken, setRefreshToken] = useState(new Date());
 	const [hovered, setHovered] = useState(false);
 	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
+	const [refreshInterval, setRefreshInterval] = useState(null);
 
 	function handleRefresh() {
 		setRefreshToken(new Date());
+	}
+
+	function createRefreshInterval() {
+		const interval = setInterval(handleRefresh, refreshRateMinutes * 60 * 1000);
+
+		setRefreshInterval(interval);
 	}
 
 	useEffect(() => {
 		let isMounted = true;
 
 		if (isMounted && refreshRateMinutes) {
-			setInterval(handleRefresh, refreshRateMinutes * 60 * 1000);
+			createRefreshInterval();
 		}
 
 		return () => (isMounted = false);
@@ -101,10 +108,14 @@ function Widget({
 
 	function handleShowActions() {
 		setHovered(true);
+
+		if (refreshInterval) clearInterval(refreshInterval);
 	}
 
 	function handleHideActions() {
 		setHovered(false);
+
+		if (refreshRateMinutes) createRefreshInterval();
 	}
 
 	function handleOpenDeleteConfirmation() {
