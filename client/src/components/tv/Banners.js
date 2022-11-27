@@ -18,8 +18,10 @@ import {
 	Zoom,
 	Slide,
 } from "@material-ui/core";
+import InfiniteScroll from "react-infinite-scroller";
 
 import Placeholder from "../.partials/Placeholder";
+import Loading from "../.partials/Loading";
 
 import { TVContext } from "../../contexts/TVContext";
 
@@ -32,12 +34,27 @@ import { translate } from "../../utils/translations";
 
 const useStyles = makeStyles(styles);
 
+const SERIES_PER_LOAD = 12;
 function Banners({ series, contentType, loading, bannerWidth }) {
 	const classes = useStyles();
 	const { state, dispatch } = useContext(TVContext);
 	const { subscriptions } = state;
 	const [providers, setProviders] = useState({});
 	const [originalSeriesVisible, setOriginalSeriesVisible] = useState(false);
+	const [seriesLoaded, setSeriesLoaded] = useState(0);
+	const [hasMore, setHasMore] = useState(true);
+	const [seriesLoading, setSeriesLoading] = useState(false);
+
+	function loadMoreSeries() {
+		if (!seriesLoading) {
+			setSeriesLoading(true);
+			console.log("Loading more series");
+			setSeriesLoaded(prev => prev + SERIES_PER_LOAD);
+			console.log(seriesLoaded, series);
+			setHasMore(seriesLoaded < series.length);
+			setSeriesLoading(false);
+		}
+	}
 
 	async function handleSubscriptionChange(e, serie) {
 		if (e.target.checked) {
@@ -265,16 +282,18 @@ function Banners({ series, contentType, loading, bannerWidth }) {
 	if (!series || !series.length) return <div />;
 
 	return (
-		<Grid container justifyContent="center">
-			{series.map(serie => (
-				<Grid item key={serie.externalId} style={{ padding: "8px" }}>
-					<Box display="flex" flexDirection="column" width={bannerWidth} height="100%">
-						{renderPosterCard(serie)}
-						{renderInfoAndActions(serie)}
-					</Box>
-				</Grid>
-			))}
-		</Grid>
+		<InfiniteScroll loadMore={loadMoreSeries} hasMore={hasMore} loader={<Loading key={0} />}>
+			<Grid container justifyContent="center">
+				{series.slice(0, seriesLoaded).map(serie => (
+					<Grid item key={serie.externalId} style={{ padding: "8px" }}>
+						<Box display="flex" flexDirection="column" width={bannerWidth} height="100%">
+							{renderPosterCard(serie)}
+							{renderInfoAndActions(serie)}
+						</Box>
+					</Grid>
+				))}
+			</Grid>
+		</InfiniteScroll>
 	);
 }
 

@@ -40,6 +40,12 @@ const episode = {
 		overflow: "hidden",
 		maxWidth: "95%",
 	},
+	seriesNameClickable: {
+		"&:hover": {
+			color: "black",
+			backgroundColor: "white",
+		},
+	},
 	date: {
 		bottom: "5px",
 		right: "5px",

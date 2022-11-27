@@ -1,6 +1,7 @@
 import React, { useContext } from "react";
 import PropTypes from "prop-types";
 import { toast } from "react-toastify";
+import { useHistory } from "react-router-dom";
 
 import { makeStyles, Card, CardMedia, CardActionArea } from "@material-ui/core";
 
@@ -18,8 +19,9 @@ import { episode as styles } from "../../styles/TV";
 const useStyles = makeStyles(styles);
 
 // eslint-disable-next-line complexity
-function Episode({ episode, height }) {
+function Episode({ location, episode, height }) {
 	const classes = useStyles();
+	const history = useHistory();
 	const { user } = useContext(UserContext);
 	const { dispatch } = useContext(TVContext);
 
@@ -74,8 +76,18 @@ function Episode({ episode, height }) {
 						: episode.title}
 				</div>
 				<div
-					className={episode.series ? `${classes.overlay} ${classes.seriesName}` : ""}
+					className={
+						episode.series
+							? `${classes.overlay} ${classes.seriesName} ${location === "all" ? classes.seriesNameClickable : ""}`
+							: ""
+					}
 					title={episode.series && episode.series.displayName}
+					onClick={e => {
+						if (location === "all") {
+							history.push(`/tv/${episode.series.externalId}`);
+							e.stopPropagation();
+						}
+					}}
 				>
 					{episode.series && episode.series.displayName}
 				</div>
@@ -90,6 +102,7 @@ function Episode({ episode, height }) {
 }
 
 Episode.propTypes = {
+	location: PropTypes.string,
 	episode: PropTypes.object.isRequired,
 	height: PropTypes.string,
 };

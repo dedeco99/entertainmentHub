@@ -179,11 +179,11 @@ function Episodes() {
 		}
 	}
 
-	function renderEpisodes() {
+	function renderEpisodes(location) {
 		if (episodes && episodes.length) {
 			return episodes.map(episode => (
 				<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={episode._id}>
-					<Episode episode={episode} />
+					<Episode location={location} episode={episode} />
 				</Grid>
 			));
 		}
@@ -218,7 +218,7 @@ function Episodes() {
 				{open ? (
 					<InfiniteScroll loadMore={handleGetAll} hasMore={hasMore} loader={<Loading key={0} />}>
 						<Grid container spacing={2}>
-							{renderEpisodes()}
+							{renderEpisodes("all")}
 						</Grid>
 					</InfiniteScroll>
 				) : (
@@ -373,7 +373,7 @@ function Episodes() {
 				</Box>
 				{open ? (
 					<Grid container spacing={2}>
-						{renderEpisodes()}
+						{renderEpisodes("all")}
 					</Grid>
 				) : (
 					<Loading />
