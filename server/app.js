@@ -193,7 +193,7 @@ app.get("/api/tv/recommendations", token, (req, res) => middleware(req, res, tv.
 
 app.get("/api/tv/providers", token, (req, res) => middleware(req, res, tv.getProviders));
 
-app.get("/api/tv/:id", token, (req, res) => middleware(req, res, tv.getEpisodes));
+app.get("/api/tv/:id/:season?", token, (req, res) => middleware(req, res, tv.getEpisodes));
 
 app.get("/api/emails", token, (req, res) => middleware(req, res, emails.getEmails));
 

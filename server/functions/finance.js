@@ -65,9 +65,10 @@ async function getCryptoPrices(event) {
 		const url = `https://pro-api.coinmarketcap.com/v1/cryptocurrency/quotes/latest?symbol=${coins}&convert=${user.settings.currency}`;
 
 		const res = await api({ method: "get", url, headers });
-		const json = res.data;
 
-		if (json.error) return errors.coinmarketcapForbidden;
+		if (res.status === 400) return errors.coinmarketcapForbidden;
+
+		const json = res.data;
 
 		data = json.data;
 	}
@@ -77,7 +78,7 @@ async function getCryptoPrices(event) {
 		const coin = data[symbol];
 
 		coin.lastUpdate = Date.now();
-		global.cache.crypto.data[user.settings.currency] = {};
+		if (!global.cache.crypto.data[user.settings.currency]) global.cache.crypto.data[user.settings.currency] = {};
 		global.cache.crypto.data[user.settings.currency][symbol] = coin;
 
 		coinsInfo.push({
@@ -109,6 +110,7 @@ async function getExchangeRates(event) {
 	const { query, user } = event;
 	const { base } = query;
 
+	// FIXME: base not taken into account
 	let useCache = true;
 	let exchangeRates = global.cache.exchangeRates.data;
 

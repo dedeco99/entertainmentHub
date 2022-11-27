@@ -14,7 +14,16 @@ import redditGold from "../../../img/gold_reddit.png";
 
 const useStyles = makeStyles(styles);
 
-function ListView({ open, subreddit, posts, multipleSubs, getPosts, hasMorePosts, onShowSingleView }) {
+function ListView({
+	open,
+	subreddit,
+	posts,
+	postListRef,
+	multipleSubs,
+	getPosts,
+	hasMorePosts,
+	onShowSingleView,
+}) {
 	const classes = useStyles();
 
 	const postsList = posts.map((post, index) => (
@@ -77,7 +86,7 @@ function ListView({ open, subreddit, posts, multipleSubs, getPosts, hasMorePosts
 						</Link>
 					</Typography>
 				</Box>
-				<Box display="flex" flexGrow={1} className={classes.singleContent}>
+				<Box ref={postListRef} display="flex" flexGrow={1} className={classes.singleContent}>
 					<InfiniteScroll
 						initialLoad={false}
 						loadMore={getPosts}
@@ -98,6 +107,7 @@ ListView.propTypes = {
 	open: PropTypes.bool.isRequired,
 	subreddit: PropTypes.string.isRequired,
 	posts: PropTypes.array.isRequired,
+	postListRef: PropTypes.any.isRequired,
 	multipleSubs: PropTypes.bool.isRequired,
 	getPosts: PropTypes.func.isRequired,
 	hasMorePosts: PropTypes.bool.isRequired,

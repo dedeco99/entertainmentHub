@@ -5,6 +5,8 @@ const { toObjectId } = require("../utils/utils");
 
 const Notification = require("../models/notification");
 const ScheduledNotification = require("../models/scheduledNotification");
+const Subscription = require("../models/subscription");
+const Episode = require("../models/episode");
 
 async function getNotifications(event) {
 	const { query, user } = event;
@@ -25,9 +27,11 @@ async function getNotifications(event) {
 	}
 	if (type) searchQuery.type = type;
 
-	const sortQuery = history ? { dateToSend: -1 } : { topPriority: -1, dateToSend: -1 };
+	const sortQuery = { dateToSend: -1 };
 
-	const notifications = await Notification.aggregate([
+	if (!history) searchQuery.topPriority = false;
+
+	let notifications = await Notification.aggregate([
 		{ $match: searchQuery },
 		{ $sort: sortQuery },
 		{ $limit: 25 },
@@ -41,6 +45,24 @@ async function getNotifications(event) {
 		},
 		{ $unwind: { path: "$subscription", preserveNullAndEmptyArrays: true } },
 	]);
+
+	if (!history) {
+		const topPriorityNotifications = await Notification.aggregate([
+			{ $match: { ...searchQuery, topPriority: true } },
+			{ $sort: sortQuery },
+			{
+				$lookup: {
+					from: "subscriptions",
+					localField: "subscription",
+					foreignField: "_id",
+					as: "subscription",
+				},
+			},
+			{ $unwind: { path: "$subscription", preserveNullAndEmptyArrays: true } },
+		]);
+
+		notifications = topPriorityNotifications.concat(notifications);
+	}
 
 	return response(200, "GET_NOTIFICATIONS", { notifications, total });
 }
@@ -76,18 +98,18 @@ async function addNotifications(notifications) {
 
 		if (!notificationExists) {
 			const notificationBody = {
-				active: info.notifications.active,
+				active: subscription.notifications.active,
 				dateToSend,
 				notificationId,
 				subscription,
 				user,
 				type,
-				topPriority: info.notifications.priority === 3,
-				priority: info.notifications.priority,
+				priority: subscription.notifications.priority,
+				topPriority: subscription.notifications.priority === 3,
 				info,
 			};
 
-			for (const rule of info.notifications.rules) {
+			for (const rule of subscription.notifications.rules) {
 				if (
 					(rule.if.hasTheseWords &&
 						rule.if.hasTheseWords.length &&
@@ -107,40 +129,49 @@ async function addNotifications(notifications) {
 					}
 
 					if ("priority" in rule.then) {
-						notificationBody.topPriority = rule.then.priority === 3;
 						notificationBody.priority = rule.then.priority;
+						notificationBody.topPriority = rule.then.priority === 3;
 					}
 
 					if ("autoAddToWatchLater" in rule.then) {
-						notificationBody.autoAddToWatchLater = rule.then.autoAddToWatchLater;
+						notificationBody.subscription.notifications.autoAddToWatchLater = rule.then.autoAddToWatchLater;
 					}
 
 					if ("watchLaterPlaylist" in rule.then) {
-						notificationBody.watchLaterPlaylist = rule.then.watchLaterPlaylist;
+						notificationBody.subscription.notifications.watchLaterPlaylist = rule.then.watchLaterPlaylist;
 					}
 				}
 			}
 
 			const newNotification = new Notification(notificationBody);
 
-			if (newNotification.active) {
+			await newNotification.save();
+
+			notificationBody._id = newNotification._id;
+
+			if (notificationBody.active) {
 				if (global.sockets[user]) {
 					for (const socket of global.sockets[user]) {
-						socket.emit("notification", newNotification);
+						socket.emit("notification", notificationBody);
 					}
 				}
 			}
 
-			await newNotification.save();
-
-			if (notificationBody.autoAddToWatchLater) {
+			if (notificationBody.subscription.notifications.autoAddToWatchLater) {
 				const { addToWatchLater } = require("./youtube"); //eslint-disable-line
 
 				addToWatchLater({
-					user: { _id: user, settings: { youtube: { watchLaterPlaylist: info.defaultWatchLaterPlaylist } } },
+					user: {
+						_id: user,
+						settings: {
+							youtube: {
+								watchLaterPlaylist: notificationBody.subscription.notifications.defaultWatchLaterPlaylist,
+							},
+						},
+					},
 					body: {
-						videos: [{ videoId: info.videoId, channelId: info.channelId }],
-						playlist: notificationBody.watchLaterPlaylist,
+						videos: [{ videoId: notificationBody.info.videoId, channelId: notificationBody.info.channelId }],
+						playlist: notificationBody.subscription.notifications.watchLaterPlaylist,
 					},
 				});
 			}
@@ -149,8 +180,52 @@ async function addNotifications(notifications) {
 }
 
 async function sendNotification(notification) {
-	await addNotifications([notification]);
-	await ScheduledNotification.updateOne({ _id: notification.scheduledNotification }, { sent: true }).lean();
+	const { scheduledNotification, dateToSend, notificationId, type, info } = notification;
+
+	const notifications = [];
+	if (type === "tv") {
+		const episode = await Episode.findOne({
+			seriesId: info.seriesId,
+			season: info.season,
+			number: info.number,
+		}).lean();
+		const userSeries = await Subscription.find({
+			active: true,
+			platform: "tv",
+			externalId: info.seriesId,
+			"notifications.active": true,
+		}).lean();
+
+		if (episode) {
+			for (const series of userSeries) {
+				notifications.push({
+					dateToSend,
+					notificationId: `${series.user}${notificationId}`,
+					subscription: series,
+					user: series.user,
+					type,
+					info: {
+						displayName: series.displayName,
+						thumbnail: episode.image,
+
+						season: episode.season,
+						number: episode.number,
+						episodeTitle: episode.title,
+					},
+				});
+			}
+		} else {
+			await ScheduledNotification.deleteOne({ _id: scheduledNotification });
+
+			return;
+		}
+	} else {
+		notifications.push(notification);
+	}
+
+	await addNotifications(notifications);
+
+	await ScheduledNotification.updateOne({ _id: scheduledNotification }, { sent: true }).lean();
 }
 
 module.exports = {

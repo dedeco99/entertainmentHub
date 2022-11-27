@@ -290,13 +290,11 @@ async function cronjob() {
 		{
 			$group: {
 				_id: "$externalId",
-				users: {
+				userSubscriptions: {
 					$push: {
-						_id: "$user._id",
-						watchLaterPlaylist: "$user.settings.youtube.watchLaterPlaylist",
-						subscriptionId: "$_id",
-						subscriptionDisplayName: "$displayName",
-						notifications: "$notifications",
+						user: "$user._id",
+						defaultWatchLaterPlaylist: "$user.settings.youtube.watchLaterPlaylist",
+						subscription: "$$ROOT",
 					},
 				},
 			},
@@ -327,26 +325,30 @@ async function cronjob() {
 		const videoDurationItem = videoDurationItems.find(v => v.id === video.yt_videoId);
 
 		if (subscription) {
-			for (const user of subscription.users) {
+			for (const userSubscription of subscription.userSubscriptions) {
 				notifications.push({
 					dateToSend: video.published,
-					sent: true,
-					notificationId: `${user._id}${video.yt_videoId}`,
-					subscription: user.subscriptionId,
-					user: user._id,
+					notificationId: `${userSubscription.user}${video.yt_videoId}`,
+					subscription: {
+						...userSubscription.subscription,
+						notifications: {
+							...userSubscription.subscription.notifications,
+							defaultWatchLaterPlaylist: userSubscription.defaultWatchLaterPlaylist,
+						},
+					},
+					user: userSubscription.user,
 					type: "youtube",
 					info: {
-						displayName: user.subscriptionDisplayName,
+						displayName: userSubscription.subscription.displayName,
 						thumbnail: video.media_group.media_thumbnail_url.replace("hqdefault", "mqdefault"),
 						duration: videoDurationItem.contentDetails.duration,
-						scheduled: videoDurationItem.liveStreamingDetails
-							? videoDurationItem.liveStreamingDetails.scheduledStartTime
-							: null,
+
 						videoTitle: video.title,
 						videoId: video.yt_videoId,
 						channelId: video.yt_channelId,
-						defaultWatchLaterPlaylist: user.watchLaterPlaylist,
-						notifications: user.notifications,
+						scheduled: videoDurationItem.liveStreamingDetails
+							? videoDurationItem.liveStreamingDetails.scheduledStartTime
+							: null,
 					},
 				});
 			}
