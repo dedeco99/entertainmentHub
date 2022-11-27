@@ -51,13 +51,12 @@ function Episodes() {
 	const match = useRouteMatch();
 	const classes = useStyles();
 	const { dispatch } = useContext(TVContext);
-	const [seasons, setSeasons] = useState([]);
 	const [episodes, setEpisodes] = useState([]);
 	const [page, setPage] = useState(0);
 	const [hasMore, setHasMore] = useState(false);
 	const [filter, setFilter] = useState("passed");
 	const [loading, setLoading] = useState(false);
-	const [open, setOpen] = useState(false);
+	const [open, setOpen] = useState(true);
 	const [currentSeries, setCurrentSeries] = useState(null);
 	const [assets, setAssets] = useState(null);
 	let isMounted = true;
@@ -69,10 +68,10 @@ function Episodes() {
 
 			if (page === 0) setOpen(false);
 
-			const response = await getEpisodes("all", page, filter);
+			const response = await getEpisodes("all", null, page, filter);
 
 			if (response.status === 200 && isMounted) {
-				const newEpisodes = page === 0 ? response.data : episodes.concat(response.data);
+				const newEpisodes = page === 0 ? response.data : episodes.concat(response.data, episodes);
 
 				setEpisodes(newEpisodes);
 				setPage(page + 1);
@@ -85,44 +84,15 @@ function Episodes() {
 		}
 	}
 
-	function updateUrlFilter(seriesId, season) {
-		history.push(`/tv/${seriesId}/${season}`);
-	}
-
 	function handleSeasonClick(season) {
-		if (Number(match.params.season) !== season) updateUrlFilter(match.params.seriesId, season);
-	}
-
-	function handleGetEpisodes(season) {
-		const foundSeason = seasons.find(s => s._id === Number(season));
-
-		if (foundSeason) setEpisodes(foundSeason.episodes);
-	}
-
-	async function handleGetSeasons(seriesId) {
-		setOpen(false);
-
-		const response = await getEpisodes(seriesId);
-
-		if (response.status === 200 && isMounted) {
-			response.data = response.data.map(season => ({
-				...season,
-				toWatch: season.episodes.filter(episode => !episode.watched).length,
-			}));
-
-			setCurrentSeries(seriesId);
-			setSeasons(response.data);
-			setPage(0);
-
-			setOpen(true);
-		}
+		if (Number(match.params.season) !== season) history.push(`/tv/${match.params.seriesId}/${season}`);
 	}
 
 	async function handleGetInfo(seriesId, season) {
-		if (season && seasons.length && currentSeries === seriesId) {
-			handleGetEpisodes(season);
-		} else {
-			handleGetSeasons(seriesId);
+		setOpen(false);
+
+		if (seriesId !== currentSeries) {
+			setCurrentSeries(seriesId);
 
 			const res = await getAsset("tv", seriesId);
 
@@ -143,11 +113,18 @@ function Episodes() {
 				setAssets(null);
 			}
 		}
+
+		const response = await getEpisodes(seriesId, season);
+
+		if (response.status === 200 && isMounted) {
+			setEpisodes(response.data);
+		}
+
+		setOpen(true);
 	}
 
 	function handleFilterEpisodes(e, value) {
 		if (value && value !== filter) {
-			setSeasons([]);
 			setEpisodes([]);
 			setPage(0);
 			setFilter(value);
@@ -161,10 +138,10 @@ function Episodes() {
 					await handleGetAll();
 					break;
 				case "/tv/:seriesId":
-					await handleGetInfo(match.params.seriesId);
+					history.replace(`/tv/${match.params.seriesId}/1`);
 					break;
 				case "/tv/:seriesId/:season":
-					await handleGetInfo(match.params.seriesId, Number(match.params.season));
+					await handleGetInfo(match.params.seriesId, match.params.season);
 					break;
 				default:
 					break;
@@ -172,25 +149,9 @@ function Episodes() {
 		}
 
 		fetchData();
-	}, [match.url]);
-
-	useEffect(() => {
-		async function fetchData() {
-			if (seasons.length) {
-				if (match.params.season) {
-					handleGetEpisodes(Number(match.params.season));
-				} else {
-					history.replace(`/tv/${match.params.seriesId}/${seasons[0]._id}`);
-				}
-			} else {
-				await handleGetAll();
-			}
-		}
-
-		fetchData();
 
 		return () => (isMounted = false);
-	}, [seasons, filter]);
+	}, [match.url]);
 
 	async function markAsWatched() {
 		const response = await patchSubscription(episodes[0].series._id, {
@@ -254,38 +215,25 @@ function Episodes() {
 						{translate("inQueueEpisodes")}
 					</ToggleButton>
 				</ToggleButtonGroup>
-				<InfiniteScroll loadMore={handleGetAll} hasMore={hasMore} loader={<Loading key={0} />}>
-					<Grid container spacing={2}>
-						{renderEpisodes()}
-					</Grid>
-				</InfiniteScroll>
+				{open ? (
+					<InfiniteScroll loadMore={handleGetAll} hasMore={hasMore} loader={<Loading key={0} />}>
+						<Grid container spacing={2}>
+							{renderEpisodes()}
+						</Grid>
+					</InfiniteScroll>
+				) : (
+					<Loading />
+				)}
 			</div>
 		);
 	}
 
 	function renderSeasons() {
-		let latestEpisodes = [];
-		let nextEpisodeToWatch = null;
-		for (let i = seasons.length - 1; i >= 0; i--) {
-			const releasedEpisodes = seasons[i].episodes.filter(e => diff(e.date) > 0);
-			if (latestEpisodes.length < 3) latestEpisodes = latestEpisodes.concat(releasedEpisodes.slice(0, 3));
-
-			const episodesToWatch = releasedEpisodes.filter(e => !e.watched);
-
-			if (episodesToWatch.length) nextEpisodeToWatch = episodesToWatch[episodesToWatch.length - 1];
-
-			if (!nextEpisodeToWatch && i === 0) {
-				nextEpisodeToWatch = seasons[seasons.length - 1].episodes.filter(e => diff(e.date) > 0)[0];
-
-				if (!nextEpisodeToWatch) nextEpisodeToWatch = latestEpisodes[0];
-			}
-		}
-
 		return (
 			<>
 				<Grid container spacing={2}>
 					<Grid item xs={12} sm={12} md>
-						{assets ? (
+						{assets && assets.displayName ? (
 							<Box
 								position="relative"
 								width="100%"
@@ -380,40 +328,38 @@ function Episodes() {
 							<Typography variant="body1" style={{ paddingBottom: "8px" }}>
 								{"Latest episodes"}
 							</Typography>
-							{latestEpisodes.map(episode => (
-								<Box key={episode._id} mb={2}>
-									<Episode episode={episode} />
-								</Box>
-							))}
+							{assets &&
+								assets.latestEpisodes.map(episode => (
+									<Box key={episode._id} mb={2}>
+										<Episode episode={episode} />
+									</Box>
+								))}
 						</Box>
 					</Grid>
 				</Grid>
 				<Box display="flex" flexDirection="row" alignItems="center" py={2}>
 					<Box flex="1 0 0" px={1} style={{ overflowX: "hidden" }}>
-						{match.params.season && (
-							<ChipTabs
-								value={Number(match.params.season)}
-								variant="scrollable"
-								scrollButtons="auto"
-								TabIndicatorProps={{
-									style: {
-										display: "none",
-									},
-								}}
-							>
-								{seasons.map(season => {
-									return (
-										<ChipTab
-											key={season._id}
-											value={season._id}
-											color="primary"
-											label={`Season ${season._id}`}
-											onClick={() => handleSeasonClick(season._id)}
-										/>
-									);
-								})}
-							</ChipTabs>
-						)}
+						<ChipTabs
+							value={Number(match.params.season)}
+							variant="scrollable"
+							scrollButtons="auto"
+							TabIndicatorProps={{
+								style: {
+									display: "none",
+								},
+							}}
+						>
+							{assets &&
+								assets.seasons.map(season => (
+									<ChipTab
+										key={season}
+										value={season}
+										color="primary"
+										label={`Season ${season}`}
+										onClick={() => handleSeasonClick(season)}
+									/>
+								))}
+						</ChipTabs>
 					</Box>
 					<Checkbox
 						color="secondary"
@@ -425,14 +371,16 @@ function Episodes() {
 						style={{ marginRight: "10px" }}
 					/>
 				</Box>
-				<Grid container spacing={2}>
-					{renderEpisodes()}
-				</Grid>
+				{open ? (
+					<Grid container spacing={2}>
+						{renderEpisodes()}
+					</Grid>
+				) : (
+					<Loading />
+				)}
 			</>
 		);
 	}
-
-	if (!open) return <Loading />;
 
 	if (match.path === "/tv/all") return renderAllEpisodes();
 

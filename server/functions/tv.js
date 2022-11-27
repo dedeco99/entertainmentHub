@@ -309,7 +309,7 @@ async function cronjob() {
 // eslint-disable-next-line max-lines-per-function
 async function getEpisodes(event) {
 	const { params, query, user } = event;
-	const { id } = params;
+	const { id, season } = params;
 	const { page, filter } = query;
 
 	const userSeries = await Subscription.find({ active: true, user: user._id, platform: "tv" })
@@ -370,13 +370,15 @@ async function getEpisodes(event) {
 			]);
 		}
 	} else {
+		const searchQuery = { seriesId: id };
+
+		if (season) searchQuery.season = Number(season);
+
 		episodes = await Episode.aggregate([
-			{ $match: { seriesId: id } },
+			{ $match: searchQuery },
 			{ $sort: { number: -1 } },
 			...watchedQuery(user),
 			...finaleQuery,
-			{ $group: { _id: "$season", episodes: { $push: "$$ROOT" } } },
-			{ $sort: { _id: 1 } },
 		]);
 	}
 
@@ -751,6 +753,8 @@ async function updateAsset(asset) {
 }
 
 module.exports = {
+	finaleQuery,
+	watchedQuery,
 	getEpisodeNumbers,
 	sendSocketUpdate,
 	fetchEpisodes,
