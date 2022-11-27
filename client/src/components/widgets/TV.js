@@ -31,14 +31,17 @@ function TV({ tabs, listView }) {
 		async function fetchData() {
 			const apiMap = {
 				inQueue: {
-					before: () => getEpisodes("all", 0, "queue"),
+					before: () => getEpisodes("all", null, 0, "queue"),
 					after: response => setInQueueEpisodes(response.data),
 				},
 				all: {
-					before: () => getEpisodes("all", 0, "passed"),
+					before: () => getEpisodes("all", null, 0, "passed"),
 					after: response => setAllEpisodes(response.data),
 				},
-				future: { before: () => getEpisodes("all", 0, "future"), after: response => setFuture(response.data) },
+				future: {
+					before: () => getEpisodes("all", null, 0, "future"),
+					after: response => setFuture(response.data),
+				},
 			};
 
 			const promises = [];

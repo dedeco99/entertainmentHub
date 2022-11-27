@@ -1,13 +1,13 @@
 import { api } from "../utils/request";
 
-async function getEpisodes(series, page, filter) {
+async function getEpisodes(series, season, page, filter) {
 	let query = "";
 	query += page >= 0 ? `?page=${page}` : "";
 	query += filter ? `${query ? "&" : "?"}filter=${filter}` : "";
 
 	const res = await api({
 		method: "get",
-		url: `/api/tv/${series}${query}`,
+		url: `/api/tv/${series}${season ? `/${season}` : ""}${query}`,
 	});
 
 	return res;
