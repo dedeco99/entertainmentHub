@@ -68,12 +68,17 @@ async function getNotifications(event) {
 }
 
 async function patchNotifications(event) {
-	const { body } = event;
+	const { body, user } = event;
 	const { notifications, active } = body;
 
-	await Notification.updateMany({ _id: { $in: notifications } }, { active });
+	let updatedNotifications = [];
+	if (notifications === "all") {
+		await Notification.updateMany({ user }, { active: false });
+	} else {
+		await Notification.updateMany({ _id: { $in: notifications } }, { active });
 
-	const updatedNotifications = await Notification.find({ _id: { $in: notifications } }).lean();
+		updatedNotifications = await Notification.find({ _id: { $in: notifications } }).lean();
+	}
 
 	return response(200, "EDIT_NOTIFICATIONS", updatedNotifications);
 }

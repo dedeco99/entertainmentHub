@@ -154,7 +154,10 @@ function Notifications({ height, wrapTitle }) {
 			: await patchNotifications(notificationsToHide, false);
 
 		if (response.status === 200) {
-			dispatch({ type: "DELETE_NOTIFICATION", notifications: response.data });
+			dispatch({
+				type: notificationsToHide === "all" ? "DELETE_ALL_NOTIFICATIONS" : "DELETE_NOTIFICATION",
+				notifications: response.data,
+			});
 			setSelectedNotifications({});
 		}
 
@@ -289,9 +292,9 @@ function Notifications({ height, wrapTitle }) {
 		setSelectedNotifications(newSelected);
 	}
 
-	async function handleHideBatch() {
+	async function handleHideBatch(all) {
 		setLoadingBatchDelete(true);
-		await handleHideNotification(Object.keys(selectedNotifications));
+		await handleHideNotification(all ? "all" : Object.keys(selectedNotifications));
 		setLoadingBatchDelete(false);
 	}
 
@@ -349,6 +352,15 @@ function Notifications({ height, wrapTitle }) {
 				</>
 			);
 		}
+
+		if (!pagination.history) {
+			return loadingBatchDelete ? (
+				<Loading />
+			) : (
+				<Button onClick={() => handleHideBatch(true)}>{translate("markAllAsRead")}</Button>
+			);
+		}
+
 		return null;
 	}
 
