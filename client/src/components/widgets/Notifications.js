@@ -337,11 +337,19 @@ function Notifications({ height, wrapTitle }) {
 					) : (
 						<Button onClick={handleRestoreBatch}>{translate("restore")}</Button>
 					)}
-					{loadingBatchDelete ? <Loading /> : <Button onClick={handleHideBatch}>{translate("delete")}</Button>}
+					{loadingBatchDelete ? (
+						<Loading />
+					) : (
+						<Button onClick={() => handleHideBatch()}>{translate("delete")}</Button>
+					)}
 				</>
 			) : (
 				<>
-					{loadingBatchDelete ? <Loading /> : <Button onClick={handleHideBatch}>{translate("markAsRead")}</Button>}
+					{loadingBatchDelete ? (
+						<Loading />
+					) : (
+						<Button onClick={() => handleHideBatch()}>{translate("markAsRead")}</Button>
+					)}
 					{loadingBatchWatchLater ? (
 						<Loading />
 					) : (
