@@ -100,6 +100,10 @@ const translations = {
 		en: "Mark as Read",
 		pt: "Marcar como Lido",
 	},
+	markAllAsRead: {
+		en: "Mark All as Read",
+		pt: "Marcar Todas como Lido",
+	},
 	submit: {
 		en: "Submit",
 		pt: "Submeter",

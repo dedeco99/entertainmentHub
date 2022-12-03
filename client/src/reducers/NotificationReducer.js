@@ -16,6 +16,8 @@ export const notificationReducer = (state, action) => {
 			notifications = notifications.filter(n => !notificationIds.includes(n._id));
 
 			return { ...state, notifications, total: state.total - action.notifications.length };
+		case "DELETE_ALL_NOTIFICATIONS":
+			return { ...state, notifications: [], total: 0 };
 		case "SET_SCHEDULED_NOTIFICATIONS":
 			return { ...state, scheduledNotifications: action.scheduledNotifications };
 		case "ADD_SCHEDULED_NOTIFICATION":
