@@ -104,10 +104,12 @@ function App() {
 				<PrivateRoute exact path="/twitch/:channel" component={Twitch} />
 
 				<PrivateRoute exact path="/tv" component={TV} />
-				<PrivateRoute exact path="/tv/all" component={TV} />
-				<PrivateRoute exact path="/tv/series" component={TV} />
-				<PrivateRoute exact path="/tv/:seriesId" component={TV} />
-				<PrivateRoute exact path="/tv/:seriesId/:season" component={TV} />
+				<PrivateRoute exact path="/tv/feed" component={TV} />
+				<PrivateRoute exact path="/tv/explore" component={TV} />
+				<PrivateRoute exact path="/tv/search/:search" component={TV} />
+				<PrivateRoute exact path="/tv/group/:groupId" component={TV} />
+				<PrivateRoute exact path="/tv/series/:seriesId" component={TV} />
+				<PrivateRoute exact path="/tv/series/:seriesId/:season" component={TV} />
 
 				<PrivateRoute exact path="/reminders" component={Reminders} />
 

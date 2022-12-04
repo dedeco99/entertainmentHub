@@ -76,6 +76,20 @@ const banners = {
 	checkboxSize: {
 		padding: "5px",
 	},
+	bannerOptions: {
+		display: "none",
+	},
+	bannerEpCount: {},
+	banner: {
+		"&:hover": {
+			"& $bannerOptions": {
+				display: "block",
+			},
+			"& $bannerEpCount": {
+				display: "none",
+			},
+		},
+	},
 };
 
 export { tv, episodes, episode, banners };

@@ -136,9 +136,9 @@ const translations = {
 		en: "Edit Reddit",
 		pt: "Editar Reddit",
 	},
-	series: {
-		en: "Series",
-		pt: "Séries",
+	explore: {
+		en: "Explore",
+		pt: "Explorar",
 	},
 	episodes: {
 		en: "Episodes",
