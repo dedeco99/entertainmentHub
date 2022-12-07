@@ -55,6 +55,7 @@ function UserDropdown() {
 
 	function handleSettingsClick() {
 		history.push("/settings");
+		setOpen(false);
 	}
 
 	function handleLogoutClick() {
@@ -65,11 +66,6 @@ function UserDropdown() {
 		{
 			title: translate("settings"),
 			icon: "icon-settings icon-2x",
-			handleClick: handleSettingsClick,
-		},
-		{
-			title: translate("apps"),
-			icon: "icon-apps icon-2x",
 			handleClick: handleSettingsClick,
 		},
 		{

@@ -3,7 +3,6 @@ const header = {
 		backgroundColor: "#222",
 		marginBottom: 20,
 		position: "absolute",
-		zIndex: 0,
 	},
 	brand: {
 		flexGrow: 1,
