@@ -8,7 +8,7 @@ import Banner from "./Banner";
 import Loading from "../.partials/Loading";
 
 const SERIES_PER_LOAD = 12;
-function GroupBlock({ groupId }) {
+function Group({ groupId }) {
 	const { state } = useContext(TVContext);
 	const { subscriptions } = state;
 	const activeSubs = groupId === "all" ? subscriptions : subscriptions.filter(sub => sub.group.name === groupId);
@@ -54,8 +54,8 @@ function GroupBlock({ groupId }) {
 	);
 }
 
-GroupBlock.propTypes = {
+Group.propTypes = {
 	groupId: PropTypes.string,
 };
 
-export default GroupBlock;
+export default Group;

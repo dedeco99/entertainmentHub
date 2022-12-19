@@ -14,7 +14,7 @@ import { episodes as styles } from "../../styles/TV";
 
 const useStyles = makeStyles(styles);
 
-function FeedBlock() {
+function Feed() {
 	const classes = useStyles();
 	const [data, setData] = useState({
 		episodes: [],
@@ -88,4 +88,4 @@ function FeedBlock() {
 	);
 }
 
-export default FeedBlock;
+export default Feed;

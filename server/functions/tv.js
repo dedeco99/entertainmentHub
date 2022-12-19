@@ -510,7 +510,7 @@ async function getPopular(event) {
 
 					if (tmdbSerie) {
 						externalId = tmdbSerie.data.tv_results.length
-							? tmdbSerie.data.tv_results[0].id.toString()
+							? tmdb.data.tv_results[0].id.toString()
 							: tmdbSerie.data.movie_results.length
 							? tmdbSerie.data.movie_results[0].id.toString()
 							: null;

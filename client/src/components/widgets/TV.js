@@ -6,7 +6,7 @@ import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 
 import Loading from "../.partials/Loading";
 import CustomScrollbar from "../.partials/CustomScrollbar";
-import ExploreBlock from "../tv/ExploreBlock";
+import Explore from "../tv/Explore";
 
 import { getEpisodes } from "../../api/tv";
 import { formatDate } from "../../utils/utils";
@@ -94,7 +94,7 @@ function TV({ tabs, listView }) {
 						</ToggleButton>
 					</ToggleButtonGroup>
 				</Box>
-				<ExploreBlock
+				<Explore
 					contentType={popularFilter}
 					bannerWidth={150}
 					useWindowScroll={false}

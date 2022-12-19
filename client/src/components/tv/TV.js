@@ -4,11 +4,11 @@ import { useHistory, useRouteMatch } from "react-router-dom";
 import { makeStyles, Grid, Button } from "@material-ui/core";
 
 import TVSidebar from "./TVSidebar";
-import FeedBlock from "./FeedBlock";
-import ExploreBlock from "./ExploreBlock";
-import SearchBlock from "./SearchBlock";
-import GroupBlock from "./GroupBlock";
-import SerieBlock from "./SerieBlock";
+import Feed from "./Feed";
+import Explore from "./Explore";
+import Search from "./Search";
+import Group from "./Group";
+import Series from "./Series";
 
 import { translate } from "../../utils/translations";
 
@@ -69,19 +69,19 @@ function TV() {
 	let currentBlock = null;
 	switch (block) {
 		case "feed":
-			currentBlock = <FeedBlock />;
+			currentBlock = <Feed />;
 			break;
 		case "explore":
-			currentBlock = <ExploreBlock contentType="tv" bannerWidth={180} useWindowScroll />;
+			currentBlock = <Explore contentType="tv" bannerWidth={180} useWindowScroll />;
 			break;
 		case "group":
-			currentBlock = <GroupBlock groupId={match.params.groupId} />;
+			currentBlock = <Group groupId={match.params.groupId} />;
 			break;
 		case "search":
-			currentBlock = <SearchBlock query={match.params.search} />;
+			currentBlock = <Search query={match.params.search} />;
 			break;
 		case "series":
-			currentBlock = <SerieBlock seriesId={match.params.seriesId} season={match.params.season} />;
+			currentBlock = <Series seriesId={match.params.seriesId} season={match.params.season} />;
 			break;
 		default:
 			break;

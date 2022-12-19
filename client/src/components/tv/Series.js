@@ -46,7 +46,7 @@ const ChipTab = withStyles(() => ({
 	selected: { backgroundColor: "#ec6e4c", color: "white", borderColor: "#ec6e4c" },
 }))(props => <Tab {...props} />);
 
-function SerieBlock({ seriesId, season }) {
+function Series({ seriesId, season }) {
 	const classes = useStyles();
 	const history = useHistory();
 	const { dispatch } = useContext(TVContext);
@@ -259,13 +259,13 @@ function SerieBlock({ seriesId, season }) {
 							}}
 						>
 							{assets &&
-								assets.seasons.map(serieSeason => (
+								assets.seasons.map(seriesSeason => (
 									<ChipTab
-										key={serieSeason}
-										value={serieSeason}
+										key={seriesSeason}
+										value={seriesSeason}
 										color="primary"
-										label={`Season ${serieSeason}`}
-										onClick={() => handleSeasonClick(serieSeason)}
+										label={`Season ${seriesSeason}`}
+										onClick={() => handleSeasonClick(seriesSeason)}
 									/>
 								))}
 						</ChipTabs>
@@ -301,9 +301,9 @@ function SerieBlock({ seriesId, season }) {
 	);
 }
 
-SerieBlock.propTypes = {
+Series.propTypes = {
 	seriesId: PropTypes.string,
 	season: PropTypes.string,
 };
 
-export default SerieBlock;
+export default Series;

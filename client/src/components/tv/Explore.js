@@ -16,7 +16,7 @@ import { tv as styles } from "../../styles/Widgets";
 
 const useStyles = makeStyles(styles);
 
-function ExploreBlock({ contentType, bannerWidth, useWindowScroll, listView, widget }) {
+function Explore({ contentType, bannerWidth, useWindowScroll, listView, widget }) {
 	const classes = useStyles();
 	const { state } = useContext(TVContext);
 	const { subscriptions } = state;
@@ -149,7 +149,7 @@ function ExploreBlock({ contentType, bannerWidth, useWindowScroll, listView, wid
 	);
 }
 
-ExploreBlock.propTypes = {
+Explore.propTypes = {
 	contentType: PropTypes.string.isRequired,
 	bannerWidth: PropTypes.number.isRequired,
 	useWindowScroll: PropTypes.bool.isRequired,
@@ -157,4 +157,4 @@ ExploreBlock.propTypes = {
 	widget: PropTypes.bool,
 };
 
-export default ExploreBlock;
+export default Explore;

@@ -9,7 +9,7 @@ import Loading from "../.partials/Loading";
 import { getSearch } from "../../api/tv";
 import Banner from "./Banner";
 
-function SearchBlock({ query }) {
+function Search({ query }) {
 	const { state } = useContext(TVContext);
 	const { subscriptions } = state;
 	const [data, setData] = useState({
@@ -77,8 +77,8 @@ function SearchBlock({ query }) {
 	);
 }
 
-SearchBlock.propTypes = {
+Search.propTypes = {
 	query: PropTypes.string,
 };
 
-export default SearchBlock;
+export default Search;
