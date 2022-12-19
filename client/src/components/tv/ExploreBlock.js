@@ -29,17 +29,17 @@ function ExploreBlock({ contentType, bannerWidth, useWindowScroll, listView, wid
 	const loading = useRef(false);
 
 	function populateSeries(series) {
-		for (const serie of series) {
-			const subscriptionFound = subscriptions.find(s => s.externalId === serie.externalId);
+		for (const s of series) {
+			const subscriptionFound = subscriptions.find(subscription => subscription.externalId === s.externalId);
 
 			if (subscriptionFound) {
-				serie.numTotal = subscriptionFound.numTotal;
-				serie.numWatched = subscriptionFound.numWatched;
-				serie.numToWatch = subscriptionFound.numToWatch;
+				s.numTotal = subscriptionFound.numTotal;
+				s.numWatched = subscriptionFound.numWatched;
+				s.numToWatch = subscriptionFound.numToWatch;
 			} else {
-				serie.numTotal = 0;
-				serie.numWatched = 0;
-				serie.numToWatch = 0;
+				s.numTotal = 0;
+				s.numWatched = 0;
+				s.numToWatch = 0;
 			}
 		}
 
@@ -99,8 +99,6 @@ function ExploreBlock({ contentType, bannerWidth, useWindowScroll, listView, wid
 		});
 	}, [filter]);
 
-	console.log("render", filter);
-
 	return (
 		<div align="center">
 			{!widget && (
@@ -141,7 +139,7 @@ function ExploreBlock({ contentType, bannerWidth, useWindowScroll, listView, wid
 					<div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
 						{populateSeries(data.items).map(item => (
 							<div key={item.externalId} style={{ padding: "8px" }}>
-								<Banner serie={item} contentType={contentType} bannerWidth={bannerWidth} />
+								<Banner series={item} contentType={contentType} bannerWidth={bannerWidth} />
 							</div>
 						))}
 					</div>

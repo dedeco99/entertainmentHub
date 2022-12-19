@@ -19,7 +19,7 @@ import { episode as styles } from "../../styles/TV";
 const useStyles = makeStyles(styles);
 
 // eslint-disable-next-line complexity
-function Episode({ clickableSerie, episode, height }) {
+function Episode({ clickableSeries, episode, height }) {
 	const classes = useStyles();
 	const history = useHistory();
 	const { user } = useContext(UserContext);
@@ -78,12 +78,12 @@ function Episode({ clickableSerie, episode, height }) {
 				<div
 					className={
 						episode.series
-							? `${classes.overlay} ${classes.seriesName} ${clickableSerie ? classes.seriesNameClickable : ""}`
+							? `${classes.overlay} ${classes.seriesName} ${clickableSeries ? classes.seriesNameClickable : ""}`
 							: ""
 					}
 					title={episode.series && episode.series.displayName}
 					onClick={e => {
-						if (clickableSerie) {
+						if (clickableSeries) {
 							history.push(`/tv/series/${episode.series.externalId}`);
 							e.stopPropagation();
 						}
@@ -102,7 +102,7 @@ function Episode({ clickableSerie, episode, height }) {
 }
 
 Episode.propTypes = {
-	clickableSerie: PropTypes.bool,
+	clickableSeries: PropTypes.bool,
 	episode: PropTypes.object.isRequired,
 	height: PropTypes.string,
 };

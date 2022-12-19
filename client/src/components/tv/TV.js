@@ -53,7 +53,7 @@ function TV() {
 				setBlock("feed");
 				break;
 			case "/tv/series/:seriesId/:season":
-				setBlock("serie");
+				setBlock("series");
 				break;
 			case "/tv/group/:groupId":
 				setBlock("group");
@@ -80,7 +80,7 @@ function TV() {
 		case "search":
 			currentBlock = <SearchBlock query={match.params.search} />;
 			break;
-		case "serie":
+		case "series":
 			currentBlock = <SerieBlock seriesId={match.params.seriesId} season={match.params.season} />;
 			break;
 		default:

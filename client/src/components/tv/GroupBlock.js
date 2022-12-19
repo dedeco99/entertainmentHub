@@ -44,9 +44,9 @@ function GroupBlock({ groupId }) {
 	return (
 		<InfiniteScroll loadMore={loadMore} hasMore={data.hasMore} loader={<Loading key={0} />}>
 			<div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
-				{activeSubs.slice(0, data.itemsLoaded).map(serie => (
-					<div key={serie.externalId} style={{ padding: "8px" }}>
-						<Banner serie={serie} contentType="tv" bannerWidth={180} actions />
+				{activeSubs.slice(0, data.itemsLoaded).map(series => (
+					<div key={series.externalId} style={{ padding: "8px" }}>
+						<Banner series={series} contentType="tv" bannerWidth={180} actions />
 					</div>
 				))}
 			</div>

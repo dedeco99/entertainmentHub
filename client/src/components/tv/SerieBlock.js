@@ -64,7 +64,7 @@ function SerieBlock({ seriesId, season }) {
 	async function handleGetInfo() {
 		setLoading(false);
 
-		if (seriesId !== currentSeries) {
+		if (seriesId && seriesId !== currentSeries) {
 			setCurrentSeries(seriesId);
 
 			const res = await getAsset("tv", seriesId);
@@ -237,7 +237,7 @@ function SerieBlock({ seriesId, season }) {
 						style={{ backgroundColor: "#212121" }}
 					>
 						<Typography variant="h2" align="center">
-							{"No info about this serie"}
+							{"No info about this series"}
 						</Typography>
 					</Box>
 				)}

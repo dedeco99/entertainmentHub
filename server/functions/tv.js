@@ -116,13 +116,13 @@ async function getEpisodeNumbers(series, user) {
 		},
 	]);
 
-	for (const serie of series) {
-		const seriesFound = seriesTotals.find(s => s._id === serie.externalId.toString());
+	for (const s of series) {
+		const seriesFound = seriesTotals.find(s2 => s2._id === s.externalId.toString());
 
 		if (seriesFound) {
-			serie.numTotal = seriesFound.total;
-			serie.numWatched = seriesFound.watched;
-			serie.numToWatch = seriesFound.toWatch;
+			s.numTotal = seriesFound.total;
+			s.numWatched = seriesFound.watched;
+			s.numToWatch = seriesFound.toWatch;
 		}
 	}
 

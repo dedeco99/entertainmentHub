@@ -20,17 +20,17 @@ function SearchBlock({ query }) {
 	const loading = useRef(false);
 
 	function populateSeries(series) {
-		for (const serie of series) {
-			const subscriptionFound = subscriptions.find(s => s.externalId === serie.externalId);
+		for (const s of series) {
+			const subscriptionFound = subscriptions.find(subscription => subscription.externalId === s.externalId);
 
 			if (subscriptionFound) {
-				serie.numTotal = subscriptionFound.numTotal;
-				serie.numWatched = subscriptionFound.numWatched;
-				serie.numToWatch = subscriptionFound.numToWatch;
+				s.numTotal = subscriptionFound.numTotal;
+				s.numWatched = subscriptionFound.numWatched;
+				s.numToWatch = subscriptionFound.numToWatch;
 			} else {
-				serie.numTotal = 0;
-				serie.numWatched = 0;
-				serie.numToWatch = 0;
+				s.numTotal = 0;
+				s.numWatched = 0;
+				s.numToWatch = 0;
 			}
 		}
 
@@ -67,9 +67,9 @@ function SearchBlock({ query }) {
 	return (
 		<InfiniteScroll loadMore={handleGetSearch} hasMore={data.hasMore} loader={<Loading key={0} />}>
 			<div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
-				{populateSeries(data.items).map(serie => (
-					<div key={serie.externalId} style={{ padding: "8px" }}>
-						<Banner serie={serie} contentType="tv" bannerWidth={180} />
+				{populateSeries(data.items).map(series => (
+					<div key={series.externalId} style={{ padding: "8px" }}>
+						<Banner series={series} contentType="tv" bannerWidth={180} />
 					</div>
 				))}
 			</div>
