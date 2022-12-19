@@ -500,7 +500,7 @@ async function getPopular(event) {
 					externalId = asset.externalId;
 					image = asset.image;
 				} else {
-					const tmdbSerie = tmdbSeries.find(s =>
+					const seriesFound = tmdbSeries.find(s =>
 						s.data.tv_results.length
 							? s.data.tv_results[0].imdbId.toString() === infos[i].id
 							: s.data.movie_results.length
@@ -508,19 +508,19 @@ async function getPopular(event) {
 							: null,
 					);
 
-					if (tmdbSerie) {
-						externalId = tmdbSerie.data.tv_results.length
-							? tmdb.data.tv_results[0].id.toString()
-							: tmdbSerie.data.movie_results.length
-							? tmdbSerie.data.movie_results[0].id.toString()
+					if (seriesFound) {
+						externalId = seriesFound.data.tv_results.length
+							? seriesFound.data.tv_results[0].id.toString()
+							: seriesFound.data.movie_results.length
+							? seriesFound.data.movie_results[0].id.toString()
 							: null;
-						image = tmdbSerie.data.tv_results.length
-							? tmdbSerie.data.tv_results[0].poster_path
-								? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSerie.data.tv_results[0].poster_path}`
+						image = seriesFound.data.tv_results.length
+							? seriesFound.data.tv_results[0].poster_path
+								? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${seriesFound.data.tv_results[0].poster_path}`
 								: ""
-							: tmdbSerie.data.movie_results.length
-							? tmdbSerie.data.movie_results[0].poster_path
-								? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbSerie.data.movie_results[0].poster_path}`
+							: seriesFound.data.movie_results.length
+							? seriesFound.data.movie_results[0].poster_path
+								? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${seriesFound.data.movie_results[0].poster_path}`
 								: ""
 							: "";
 					}
