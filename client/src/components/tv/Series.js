@@ -1,259 +1,309 @@
 import React, { useContext, useState, useEffect } from "react";
+import { useHistory } from "react-router-dom";
 import PropTypes from "prop-types";
-import InfiniteScroll from "react-infinite-scroller";
+import dayjs from "dayjs";
 
-import { makeStyles, List, ListItem, Typography, InputAdornment, Box } from "@material-ui/core";
-import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
+import { makeStyles, withStyles, Grid, Box, Typography, Tabs, Tab, Checkbox } from "@material-ui/core";
 
-import Banners from "./Banners";
-import Input from "../.partials/Input";
 import Loading from "../.partials/Loading";
+import Episode from "./Episode";
 
 import { TVContext } from "../../contexts/TVContext";
 
-import { getSubscriptions } from "../../api/subscriptions";
-import { getSearch, getPopular, getRecommendations } from "../../api/tv";
+import { getAsset } from "../../api/assets";
+import { getEpisodes } from "../../api/tv";
+import { patchSubscription } from "../../api/subscriptions";
 
+import { diff } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
-import { tv as styles } from "../../styles/Widgets";
+import { episodes as styles } from "../../styles/TV";
 
 const useStyles = makeStyles(styles);
 
-function Series({ contentType, bannerWidth, useWindowScroll, listView, widget }) {
+const ChipTabs = withStyles({
+	root: {
+		alignItems: "center",
+		minHeight: "0px",
+		maxWidth: "850px",
+	},
+})(Tabs);
+
+const ChipTab = withStyles(() => ({
+	root: {
+		textTransform: "none",
+		backgroundColor: "transparent",
+		borderRadius: "16px",
+		border: "1px solid white",
+		color: "white",
+		minWidth: 0,
+		minHeight: 0,
+		height: "32px",
+		whiteSpace: "nowrap",
+		marginRight: "10px",
+		fontFamily: "Roboto",
+	},
+	selected: { backgroundColor: "#ec6e4c", color: "white", borderColor: "#ec6e4c" },
+}))(props => <Tab {...props} />);
+
+function Series({ seriesId, season }) {
 	const classes = useStyles();
-	const { state, dispatch } = useContext(TVContext);
-	const { subscriptions } = state;
-	const [filter, setFilter] = useState(widget ? "popular" : "subscriptions");
-	const [popular, setPopular] = useState([]);
-	const [popularHasMore, setPopularHasMore] = useState(true);
-	const [popularPage, setPopularPage] = useState(0);
-	const [popularLoading, setPopularLoading] = useState(false);
-	const [recommendations, setRecommendations] = useState([]);
-	const [recommendationsHasMore, setRecommendationsHasMore] = useState(true);
-	const [recommendationsPage, setRecommendationsPage] = useState(0);
-	const [recommendationsLoading, setRecommendationsLoading] = useState(false);
-	const [search, setSearch] = useState([]);
-	const [query, setQuery] = useState("");
-	const [searchHasMore, setSearchHasMore] = useState(true);
-	const [searchPage, setSearchPage] = useState(0);
-	const [searchLoading, setSearchLoading] = useState(false);
-	const [loading, setLoading] = useState(false);
+	const history = useHistory();
+	const { dispatch } = useContext(TVContext);
+	const [episodes, setEpisodes] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const [currentSeries, setCurrentSeries] = useState(null);
+	const [assets, setAssets] = useState(null);
+	let isMounted = true;
+	const hasUnwatchedEpisodes = !!episodes.filter(e => e.date && diff(e.date) > 0).find(e => !e.watched);
 
-	useEffect(() => {
-		let isMounted = true;
+	function handleSeasonClick(newSeason) {
+		if (Number(season) !== newSeason) history.push(`/tv/series/${seriesId}/${newSeason}`);
+	}
 
-		async function fetchData() {
-			if (!loading) {
-				setLoading(true);
+	async function handleGetInfo() {
+		setLoading(false);
 
-				const response = await getSubscriptions("tv");
+		if (seriesId && seriesId !== currentSeries) {
+			setCurrentSeries(seriesId);
 
-				if (response.status === 200 && isMounted) {
-					dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
-				}
+			const res = await getAsset("tv", seriesId);
 
-				setLoading(false);
+			if (res.status === 200) {
+				const firstDate = dayjs(res.data.firstDate);
+				const lastDate = dayjs(res.data.lastDate);
+
+				setAssets({
+					...res.data,
+					date:
+						firstDate.diff(lastDate, "years") === 0 || isNaN(firstDate.diff(lastDate, "years"))
+							? firstDate.get("year")
+							: `${firstDate.get("year")} - ${lastDate.get("year")}`,
+					genres: res.data.genres.map(genre => genre.name).join(", "),
+					backdrops: res.data.backdrops[Math.floor(Math.random() * res.data.backdrops.length)],
+				});
+			} else {
+				setAssets(null);
 			}
 		}
 
-		if (!subscriptions.length) fetchData();
+		const response = await getEpisodes(seriesId, season);
+
+		if (response.status === 200 && isMounted) {
+			setEpisodes(response.data);
+		}
+
+		setLoading(true);
+	}
+
+	useEffect(() => {
+		async function fetchData() {
+			await handleGetInfo();
+		}
+
+		fetchData();
 
 		return () => (isMounted = false);
-	}, []);
+	}, [seriesId, season]);
 
-	useEffect(() => {
-		setPopularPage(0);
-		setPopular([]);
-		setPopularHasMore(true);
-	}, [contentType]);
+	async function markAsWatched() {
+		const response = await patchSubscription(episodes[0].series._id, {
+			markAsWatched: hasUnwatchedEpisodes,
+			watched: episodes.filter(e => e.date && diff(e.date) > 0).map(e => `S${e.season}E${e.number}`),
+		});
 
-	async function handleGetPopular() {
-		if (!popularLoading) {
-			setPopularLoading(true);
+		if (response.status === 200) {
+			let increment = 0;
+			for (const episode of episodes) {
+				const newWatched = Boolean(
+					response.data.watched.find(w => w.key === `S${episode.season}E${episode.number}`),
+				);
 
-			const response = await getPopular(popularPage, "imdb", contentType);
+				if (newWatched && !episode.watched) {
+					increment--;
+				} else if (!newWatched && episode.watched) {
+					increment++;
+				}
 
-			if (response.status === 200) {
-				setPopular(prev => [...prev, ...response.data]);
-				setPopularPage(prev => prev + 1);
-				setPopularHasMore(!(response.data.length < 20));
+				episode.watched = newWatched;
 			}
 
-			setPopularLoading(false);
+			dispatch({ type: "EDIT_EPISODES_TO_WATCH", subscription: response.data, increment });
 		}
-	}
-
-	async function handleGetRecommendations() {
-		if (!recommendationsLoading) {
-			setRecommendationsLoading(true);
-
-			const response = await getRecommendations(recommendationsPage);
-
-			if (response.status === 200) {
-				setRecommendations(prev => [
-					...prev,
-					...response.data.filter(s => !prev.map(p => p.externalId).includes(s.externalId)),
-				]);
-				setRecommendationsPage(prev => prev + 1);
-				setRecommendationsHasMore(!!response.data.length);
-			}
-
-			setRecommendationsLoading(false);
-		}
-	}
-
-	async function handleGetSearch() {
-		if (!searchLoading) {
-			setSearchLoading(true);
-
-			const response = await getSearch(query, searchPage);
-
-			if (response.status === 200) {
-				const newSearch = searchPage === 0 ? response.data : search.concat(response.data);
-
-				setSearch(newSearch);
-				setSearchPage(prev => prev + 1);
-				setSearchHasMore(!(response.data.length < 20));
-			}
-
-			setSearchLoading(false);
-		}
-	}
-
-	function handleSearch(e) {
-		setQuery(e.target.value);
-		setSearchPage(0);
-	}
-
-	function handleSubmit(e) {
-		e.preventDefault();
-		if (query !== "") {
-			setFilter("search");
-			handleGetSearch();
-		}
-	}
-
-	function handleFilterSeries(e, value) {
-		if (value && value !== filter) {
-			setFilter(value);
-		}
-	}
-
-	function getFilterVariables() {
-		const functionsMap = {
-			popular: { series: popular, loadMore: handleGetPopular, hasMore: popularHasMore },
-			recommendations: {
-				series: recommendations,
-				loadMore: handleGetRecommendations,
-				hasMore: recommendationsHasMore,
-			},
-			search: { series: search, loadMore: handleGetSearch, hasMore: searchHasMore },
-		};
-
-		return functionsMap[filter];
-	}
-
-	function populateSeries(series) {
-		for (const serie of series) {
-			const subscriptionFound = subscriptions.find(s => s.externalId === serie.externalId);
-
-			if (subscriptionFound) {
-				serie.numTotal = subscriptionFound.numTotal;
-				serie.numWatched = subscriptionFound.numWatched;
-				serie.numToWatch = subscriptionFound.numToWatch;
-			} else {
-				serie.numTotal = 0;
-				serie.numWatched = 0;
-				serie.numToWatch = 0;
-			}
-		}
-
-		return series;
-	}
-
-	function renderSeries() {
-		return listView ? (
-			<List>
-				{(filter === "subscriptions" ? subscriptions : populateSeries(getFilterVariables().series)).map(serie => (
-					<ListItem key={serie.externalId} button divider>
-						<img src={serie.image} height="100x" alt="Series" />
-						<Typography variant="body1" className={classes.popularText}>
-							{serie.displayName}
-						</Typography>
-					</ListItem>
-				))}
-			</List>
-		) : (
-			<Banners
-				series={filter === "subscriptions" ? subscriptions : populateSeries(getFilterVariables().series)}
-				contentType={contentType}
-				loading={popularLoading || recommendationsLoading || searchLoading}
-				bannerWidth={bannerWidth}
-			/>
-		);
 	}
 
 	return (
-		<div align="center">
-			{!widget && (
-				<Box display="flex" justifyContent="space-between" padding="0% 5%">
-					<ToggleButtonGroup value={filter} onChange={handleFilterSeries} color="primary" size="small" exclusive>
-						<ToggleButton value="subscriptions" className={classes.episodeBtn} color="primary" variant="outlined">
-							{translate("subscriptions")}
-						</ToggleButton>
-						<ToggleButton value="popular" className={classes.episodeBtn} color="primary" variant="outlined">
-							{"Popular"}
-						</ToggleButton>
-						<ToggleButton
-							value="recommendations"
-							className={classes.episodeBtn}
-							color="primary"
-							variant="outlined"
+		<>
+			<div>
+				{assets && assets.displayName ? (
+					<Box
+						position="relative"
+						width="100%"
+						height="100%"
+						minHeight="450px"
+						borderRadius="5px"
+						style={{
+							backgroundImage: `url("${assets.backdrops}")`,
+							backgroundSize: "cover",
+							backgroundRepeat: "no-repeat",
+							backgroundPosition: "center",
+						}}
+					>
+						<Box
+							position="absolute"
+							bottom="0px"
+							left="0px"
+							width="100%"
+							height="100%"
+							padding={3}
+							borderRadius="4px"
+							style={{ background: "linear-gradient(0deg, black 0%, transparent 50%, black 100%)" }}
 						>
-							{"Recommendations"}
-						</ToggleButton>
-					</ToggleButtonGroup>
-					<form onSubmit={handleSubmit}>
-						<Input
-							id="search"
-							label={translate("search")}
-							value={query}
-							onChange={handleSearch}
-							InputProps={{
-								endAdornment: (
-									<InputAdornment position="end">{searchLoading && <Loading size={25} />}</InputAdornment>
-								),
+							<Grid container alignItems="stretch" style={{ height: "100%" }}>
+								<Grid item xs={12} md={6}>
+									<Box display="flex" flexDirection="column" px={5} py={3} height="100%">
+										<Typography variant="h2" style={{ fontWeight: "bold" }}>
+											{assets.displayName}
+										</Typography>
+										<Typography variant="body1" style={{ flex: "1 0 0", overflow: "hidden" }}>
+											{assets.overview}
+										</Typography>
+										<div style={{ display: "flex", paddingTop: "10px" }}>
+											<div style={{ flex: "1 0 0", padding: "4px" }}>
+												<Typography variant="body1">{"Rating"}</Typography>
+												<Box display="flex" alignItems="center" color="#fbc005">
+													{assets.rating && (
+														<>
+															<i className="icon-star" style={{ paddingLeft: "5px", paddingRight: "5px" }} />
+															<Typography variant="body1">{assets.rating}</Typography>
+														</>
+													)}
+												</Box>
+											</div>
+											<div style={{ flex: "2 0 0", padding: "4px" }}>
+												<Typography variant="body1">{"Genres"}</Typography>
+												<Typography variant="body1">
+													{`${assets.genres}`}
+													{/* ${assets.episodeRunTime ? `${assets.episodeRunTime}m` : ""} */}
+												</Typography>
+											</div>
+											<div style={{ flex: "1 0 0", padding: "4px" }}>
+												<Typography variant="body1">{"Status"}</Typography>
+												{/* <Typography variant="body1">{assets.date}</Typography> */}
+												<Typography variant="body1">{assets.status}</Typography>
+											</div>
+										</div>
+									</Box>
+								</Grid>
+								<Box component={Grid} item md={6} display={{ sm: "none", md: "block" }}>
+									<Box display="flex" flexDirection="column" height="100%">
+										<Box display="flex" flexGrow="1" justifyContent="flex-end">
+											{assets.providers.map(provider => (
+												<a
+													href={provider.url}
+													target="_blank"
+													rel="noopener noreferrer"
+													key={provider._id}
+													style={{ width: "50px", height: "50px" }}
+												>
+													<img src={provider.icon} width="50px" height="50px" />
+												</a>
+											))}
+										</Box>
+										<Typography variant="body1" style={{ padding: "0 0 8px 16px" }}>
+											{"Watch next"}
+										</Typography>
+										<Box display="flex">
+											{assets &&
+												assets.latestEpisodes.map(episode => (
+													<div key={episode._id} style={{ paddingLeft: "16px" }}>
+														<Episode episode={episode} />
+													</div>
+												))}
+										</Box>
+									</Box>
+								</Box>
+							</Grid>
+						</Box>
+					</Box>
+				) : (
+					<Box
+						display="flex"
+						height="100%"
+						alignItems="center"
+						justifyContent="center"
+						borderRadius="5px"
+						minHeight="450px"
+						style={{ backgroundColor: "#212121" }}
+					>
+						<Typography variant="h2" align="center">
+							{"No info about this series"}
+						</Typography>
+					</Box>
+				)}
+			</div>
+			<div style={{ padding: "0px 80px" }}>
+				<Box display="flex" flexDirection="row" alignItems="center" py={2}>
+					<Typography variant="h2" style={{ flex: "1 0 0" }}>
+						{"Seasons"}
+					</Typography>
+					<div style={{ overflowX: "hidden" }}>
+						<ChipTabs
+							value={Number(season)}
+							variant="scrollable"
+							scrollButtons="auto"
+							TabIndicatorProps={{
+								style: {
+									display: "none",
+								},
 							}}
-							size="small"
-							variant="outlined"
-							style={{ maxWidth: "200px" }}
-						/>
-					</form>
+						>
+							{assets &&
+								assets.seasons.map(seriesSeason => (
+									<ChipTab
+										key={seriesSeason}
+										value={seriesSeason}
+										color="primary"
+										label={`Season ${seriesSeason}`}
+										onClick={() => handleSeasonClick(seriesSeason)}
+									/>
+								))}
+						</ChipTabs>
+					</div>
+					<Checkbox
+						color="secondary"
+						checked={!hasUnwatchedEpisodes}
+						icon={<i className="icon-eye" />}
+						checkedIcon={<i className="icon-eye" />}
+						onChange={markAsWatched}
+						style={{ marginRight: "10px" }}
+					/>
 				</Box>
-			)}
-			{filter === "subscriptions" ? (
-				renderSeries()
-			) : (
-				<InfiniteScroll
-					loadMore={getFilterVariables().loadMore}
-					hasMore={getFilterVariables().hasMore}
-					loader={<Loading key={0} />}
-					useWindow={useWindowScroll}
-				>
-					{renderSeries()}
-				</InfiniteScroll>
-			)}
-		</div>
+				{loading ? (
+					<Grid container spacing={2}>
+						{episodes && episodes.length ? (
+							episodes.map(episode => (
+								<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={episode._id}>
+									<Episode episode={episode} />
+								</Grid>
+							))
+						) : (
+							<Grid item xs={12} key={1}>
+								<div className={classes.noEpisodes}>{translate("noEpisodes")}</div>
+							</Grid>
+						)}
+					</Grid>
+				) : (
+					<Loading />
+				)}
+			</div>
+		</>
 	);
 }
 
 Series.propTypes = {
-	contentType: PropTypes.string.isRequired,
-	bannerWidth: PropTypes.number.isRequired,
-	useWindowScroll: PropTypes.bool.isRequired,
-	listView: PropTypes.bool,
-	widget: PropTypes.bool,
+	seriesId: PropTypes.string,
+	season: PropTypes.string,
 };
 
 export default Series;

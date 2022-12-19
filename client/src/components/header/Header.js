@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext } from "react";
 import { Link } from "react-router-dom";
 
 import { makeStyles, AppBar, Toolbar } from "@material-ui/core";
@@ -18,15 +18,6 @@ const useStyles = makeStyles(styles);
 function Header() {
 	const classes = useStyles();
 	const { user } = useContext(UserContext);
-	const [hovered, setHovered] = useState(false);
-
-	function handleHovered() {
-		setHovered(true);
-	}
-
-	function handleNotHovered() {
-		setHovered(false);
-	}
 
 	const links = user && user.token ? <LoggedInLinks /> : <LoggedOutLinks />;
 
@@ -34,12 +25,7 @@ function Header() {
 		return (
 			<div>
 				<AppMenu />
-				<AppBar
-					className={classes.appBar}
-					style={hovered ? { zIndex: 1 } : {}}
-					onMouseEnter={handleHovered}
-					onMouseLeave={handleNotHovered}
-				>
+				<AppBar className={classes.appBar}>
 					<Toolbar>
 						<div className={classes.brand}>
 							<Link to="/">

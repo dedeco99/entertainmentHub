@@ -3,8 +3,11 @@ import { useHistory, useRouteMatch } from "react-router-dom";
 
 import { makeStyles, Grid, Button } from "@material-ui/core";
 
-import Subscriptions from "../.partials/Subscriptions";
-import Episodes from "./Episodes";
+import TVSidebar from "./TVSidebar";
+import Feed from "./Feed";
+import Explore from "./Explore";
+import Search from "./Search";
+import Group from "./Group";
 import Series from "./Series";
 
 import { translate } from "../../utils/translations";
@@ -17,96 +20,102 @@ function TV() {
 	const history = useHistory();
 	const match = useRouteMatch();
 	const classes = useStyles();
-	const [blocks, setBlocks] = useState({
-		openSeries: false,
-		openEpisodes: false,
-	});
+	const [block, setBlock] = useState("");
 
-	function handleShowSeriesBlock() {
-		setBlocks({ openSeries: true, openEpisodes: false });
-	}
+	const handleShowGroup = id => {
+		if (match.params.groupId !== id) history.push(`/tv/group/${id}`);
+	};
 
-	function handleShowEpisodesBlock() {
-		setBlocks({ openSeries: false, openEpisodes: true });
-	}
+	const handleShowFeed = () => {
+		history.push("/tv/feed");
+	};
 
-	function handleShowEpisodes(id) {
-		if (match.params.seriesId !== id) {
-			history.push(`/tv/${id}`);
+	const handleShowExplore = () => {
+		history.push("/tv/explore");
+	};
 
-			handleShowEpisodesBlock();
-		}
-	}
-
-	function handleShowAll() {
-		handleShowEpisodes("all");
-	}
-
-	function handleShowSeries() {
-		history.push("/tv/series");
-
-		handleShowSeriesBlock();
-	}
+	const handleShowSearch = query => {
+		if (query !== "") history.push(`/tv/search/${query}`);
+	};
 
 	useEffect(() => {
 		switch (match.path) {
 			case "/tv":
-				history.replace("tv/all");
+				history.replace("tv/feed");
 				break;
-			case "/tv/series":
-				handleShowSeriesBlock();
+			case "/tv/series/:seriesId":
+				history.replace(`/tv/series/${match.params.seriesId}/1`);
 				break;
-			case "/tv/all":
-			case "/tv/:seriesId":
-			case "/tv/:seriesId/:season":
-				handleShowEpisodesBlock();
+			case "/tv/explore":
+				setBlock("explore");
+				break;
+			case "/tv/feed":
+				setBlock("feed");
+				break;
+			case "/tv/series/:seriesId/:season":
+				setBlock("series");
+				break;
+			case "/tv/group/:groupId":
+				setBlock("group");
+				break;
+			case "/tv/search/:search":
+				setBlock("search");
 				break;
 			default:
 				break;
 		}
-	}, [match.url]);
+	}, [match.path]);
 
-	function renderContent() {
-		if (blocks.openSeries) {
-			return <Series contentType="tv" bannerWidth={180} useWindowScroll />;
-		} else if (blocks.openEpisodes) {
-			return <Episodes />;
-		}
-
-		return <div />;
+	let currentBlock = null;
+	switch (block) {
+		case "feed":
+			currentBlock = <Feed />;
+			break;
+		case "explore":
+			currentBlock = <Explore contentType="tv" bannerWidth={180} useWindowScroll />;
+			break;
+		case "group":
+			currentBlock = <Group groupId={match.params.groupId} />;
+			break;
+		case "search":
+			currentBlock = <Search query={match.params.search} />;
+			break;
+		case "series":
+			currentBlock = <Series seriesId={match.params.seriesId} season={match.params.season} />;
+			break;
+		default:
+			break;
 	}
 
 	return (
 		<Grid container spacing={2}>
 			<Grid item xs={12} sm={2} md={3} lg={2}>
 				<Button
-					onClick={handleShowAll}
+					onClick={handleShowFeed}
 					className={classes.outlinedBtn}
-					color={blocks.openEpisodes ? "secondary" : "primary"}
-					variant={blocks.openEpisodes ? "contained" : "outlined"}
+					color={block === "feed" ? "secondary" : "primary"}
+					variant={block === "feed" ? "contained" : "outlined"}
 					fullWidth
 				>
 					{"Feed"}
 				</Button>
 				<Button
-					onClick={handleShowSeries}
+					onClick={handleShowExplore}
 					className={classes.outlinedBtn}
-					color={blocks.openSeries ? "secondary" : "primary"}
-					variant={blocks.openSeries ? "contained" : "outlined"}
+					color={block === "explore" ? "secondary" : "primary"}
+					variant={block === "explore" ? "contained" : "outlined"}
 					fullWidth
 				>
-					{translate("series")}
+					{translate("explore")}
 				</Button>
-				<Subscriptions
-					platform="tv"
-					selected={match.params.seriesId}
-					idField="externalId"
-					countField="numToWatch"
-					action={handleShowEpisodes}
+				<TVSidebar
+					currentGroup={match.params.groupId}
+					onGroupClick={handleShowGroup}
+					onSearch={handleShowSearch}
 				/>
 			</Grid>
 			<Grid item xs={12} sm={10} md={9} lg={10}>
-				{renderContent()}
+				{currentBlock}
 			</Grid>
 		</Grid>
 	);

@@ -376,7 +376,7 @@
 		"react/jsx-key": "error", // recommended
 		// "react/jsx-max-depth": "warn",
 		// "react/jsx-max-props-per-line": "error",
-		"react/jsx-no-bind": "warn",
+		// "react/jsx-no-bind": "warn",
 		"react/jsx-no-comment-textnodes": "error", // recommended
 		"react/jsx-no-duplicate-props": "error", // recommended
 		"react/jsx-no-literals": "error",
