@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useCallback } from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
@@ -39,12 +39,13 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 	const { dispatch: subscriptionDispatch } = useContext(SubscriptionContext);
 	const { state, dispatch } = useContext(TVContext);
 	const { follows, subscriptions } = state;
-	const [providers, setProviders] = useState({});
 	const [originalSeriesVisible, setOriginalSeriesVisible] = useState(false);
 	const [selectedSubscription, setSelectedSubscription] = useState(null);
 	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
 	const [archive, setArchive] = useState(true);
 	const [anchorEl, setAnchorEl] = useState(null);
+	const [, updateState] = useState();
+	const forceUpdate = useCallback(() => updateState({}), []);
 
 	function handleSetAnchorEl(e) {
 		e.stopPropagation();
@@ -153,7 +154,9 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 		const response = await getProviders(contentType, selectedSeries.displayName);
 
 		if (response.status === 200) {
-			setProviders({ ...providers, [selectedSeries.externalId]: response.data });
+			series.providers = response.data;
+
+			forceUpdate();
 		}
 	}
 
@@ -205,7 +208,7 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 							)}
 						</a>
 					)}
-					<Zoom in={!!providers[series.externalId]}>
+					<Zoom in={series.providers && series.providers.length}>
 						<Box
 							style={{
 								position: "absolute",
@@ -213,8 +216,8 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 								right: "1px",
 							}}
 						>
-							{providers[series.externalId] && providers[series.externalId].length ? (
-								providers[series.externalId].map(provider => (
+							{series.providers && series.providers.length ? (
+								series.providers.map(provider => (
 									<a href={provider.url} target="_blank" rel="noreferrer" key={provider.url}>
 										<img src={provider.icon} height="35px" style={{ margin: "2px", borderRadius: "2px" }} />
 									</a>
@@ -346,11 +349,13 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 						<Typography variant="caption">{series.rating}</Typography>
 					</Box>
 				) : null}
-				<Tooltip title={"Providers"} placement="top">
-					<IconButton onClick={() => handleGetProviders(series)} classes={{ root: classes.checkboxSize }}>
-						<i className="icon-monitor" style={{ fontSize: "0.875rem" }} />
-					</IconButton>
-				</Tooltip>
+				{series.providers && series.providers.length ? null : (
+					<Tooltip title={"Providers"} placement="top">
+						<IconButton onClick={() => handleGetProviders(series)} classes={{ root: classes.checkboxSize }}>
+							<i className="icon-monitor" style={{ fontSize: "0.875rem" }} />
+						</IconButton>
+					</Tooltip>
+				)}
 			</Box>
 			<DeleteConfirmation
 				open={openDeleteConfirmation}

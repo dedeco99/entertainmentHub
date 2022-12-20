@@ -39,7 +39,7 @@ async function getSubscriptions(event) {
 	} else if (platform === "tv") {
 		const assets = await Asset.find(
 			{ externalId: { $in: subscriptions.map(i => i.externalId) } },
-			"externalId firstDate rating",
+			"externalId firstDate rating providers",
 		).lean();
 
 		tv.sendSocketUpdate(
@@ -47,9 +47,15 @@ async function getSubscriptions(event) {
 			subscriptions.map(s => {
 				const asset = assets.find(a => a.externalId === s.externalId);
 
-				return asset
-					? { ...s, hasAsset: true, year: dayjs(asset.firstDate).get("year"), rating: asset.rating }
-					: s;
+				if (!asset) return s;
+
+				return {
+					...s,
+					hasAsset: true,
+					year: dayjs(asset.firstDate).get("year"),
+					rating: asset.rating,
+					providers: asset.providers,
+				};
 			}),
 			user,
 		);

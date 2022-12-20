@@ -413,7 +413,7 @@ async function getSearch(event) {
 
 	const tmdbSeries = await Promise.all(promises);
 
-	const series = json.results.map((s, i) => ({
+	let series = json.results.map((s, i) => ({
 		externalId: s.id.toString(),
 		displayName: s.name,
 		image: s.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}` : "",
@@ -421,6 +421,17 @@ async function getSearch(event) {
 		year: dayjs(s.first_air_date).get("year"),
 		rating: s.vote_average.toFixed(1),
 	}));
+
+	const assets = await Asset.find(
+		{ externalId: { $in: series.map(i => i.externalId) } },
+		"externalId providers",
+	).lean();
+
+	series = series.map(s => {
+		const asset = assets.find(a => a.externalId === s.externalId);
+
+		return asset ? { ...s, hasAsset: true, providers: asset.providers } : s;
+	});
 
 	return response(200, "GET_SERIES", series);
 }
@@ -562,12 +573,15 @@ async function getPopular(event) {
 		}));
 	}
 
-	const assets = await Asset.find({ externalId: { $in: series.map(i => i.externalId) } }, "externalId").lean();
+	const assets = await Asset.find(
+		{ externalId: { $in: series.map(i => i.externalId) } },
+		"externalId providers",
+	).lean();
 
 	series = series.map(s => {
 		const asset = assets.find(a => a.externalId === s.externalId);
 
-		return asset ? { ...s, hasAsset: true } : s;
+		return asset ? { ...s, hasAsset: true, providers: asset.providers } : s;
 	});
 
 	return response(200, "GET_POPULAR", series);
@@ -613,12 +627,15 @@ async function getRecommendations(event) {
 		}
 	}
 
-	const assets = await Asset.find({ externalId: { $in: series.map(i => i.externalId) } }, "externalId").lean();
+	const assets = await Asset.find(
+		{ externalId: { $in: series.map(i => i.externalId) } },
+		"externalId providers",
+	).lean();
 
 	series = series.map(s => {
 		const asset = assets.find(a => a.externalId === s.externalId);
 
-		return asset ? { ...s, hasAsset: true } : s;
+		return asset ? { ...s, hasAsset: true, providers: asset.providers } : s;
 	});
 
 	return response(200, "GET_RECOMMENDATIONS", series.sort(() => 0.5 - Math.random()).slice(0, 20));
