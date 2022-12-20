@@ -169,7 +169,7 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 		<Box display="flex" flexDirection="column" width={bannerWidth} height="100%" className={classes.banner}>
 			<Card component={Box} mb={1}>
 				<CardActionArea>
-					{isSubscribed(series) ? (
+					{series.hasAsset ? (
 						<Link to={`/tv/series/${series.externalId}`}>
 							{series.image ? (
 								<CardMedia

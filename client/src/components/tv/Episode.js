@@ -55,6 +55,7 @@ function Episode({ clickableSeries, episode, height }) {
 			<CardActionArea
 				onClick={markAsWatched}
 				style={episode.watched ? { border: "2px solid #ec6e4c" } : { border: "2px solid transparent" }}
+				disabled={!episode.series._id}
 			>
 				{episode.image ? (
 					<CardMedia

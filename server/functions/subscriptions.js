@@ -47,7 +47,9 @@ async function getSubscriptions(event) {
 			subscriptions.map(s => {
 				const asset = assets.find(a => a.externalId === s.externalId);
 
-				return asset ? { ...s, year: dayjs(asset.firstDate).get("year"), rating: asset.rating } : s;
+				return asset
+					? { ...s, hasAsset: true, year: dayjs(asset.firstDate).get("year"), rating: asset.rating }
+					: s;
 			}),
 			user,
 		);

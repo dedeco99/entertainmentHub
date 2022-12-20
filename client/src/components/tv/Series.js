@@ -215,11 +215,17 @@ function Series({ seriesId, season }) {
 										</Typography>
 										<Box display="flex">
 											{assets &&
-												assets.latestEpisodes.map(episode => (
-													<div key={episode._id} style={{ paddingLeft: "16px" }}>
-														<Episode episode={episode} />
-													</div>
-												))}
+												assets.latestEpisodes.map(episode => {
+													episode.series.displayName = episode.series.displayName
+														? episode.series.displayName
+														: assets.displayName;
+
+													return (
+														<div key={episode._id} style={{ paddingLeft: "16px" }}>
+															<Episode episode={episode} />
+														</div>
+													);
+												})}
 										</Box>
 									</Box>
 								</Box>
@@ -277,16 +283,23 @@ function Series({ seriesId, season }) {
 						checkedIcon={<i className="icon-eye" />}
 						onChange={markAsWatched}
 						style={{ marginRight: "10px" }}
+						disabled={!episodes.length || !episodes[0].series._id}
 					/>
 				</Box>
 				{loading ? (
 					<Grid container spacing={2}>
 						{episodes && episodes.length ? (
-							episodes.map(episode => (
-								<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={episode._id}>
-									<Episode episode={episode} />
-								</Grid>
-							))
+							episodes.map(episode => {
+								episode.series.displayName = episode.series.displayName
+									? episode.series.displayName
+									: assets.displayName;
+
+								return (
+									<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={episode._id}>
+										<Episode episode={episode} />
+									</Grid>
+								);
+							})
 						) : (
 							<Grid item xs={12} key={1}>
 								<div className={classes.noEpisodes}>{translate("noEpisodes")}</div>

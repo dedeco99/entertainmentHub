@@ -66,7 +66,12 @@ const watchedQuery = user => [
 			as: "series",
 		},
 	},
-	{ $unwind: "$series" },
+	{ $unwind: { path: "$series", preserveNullAndEmptyArrays: true } },
+	{
+		$addFields: {
+			series: { $cond: [{ $ne: [{ $ifNull: ["$series", null] }, null] }, "$series", { watched: [] }] },
+		},
+	},
 	{
 		$addFields: {
 			watched: {
@@ -557,6 +562,14 @@ async function getPopular(event) {
 		}));
 	}
 
+	const assets = await Asset.find({ externalId: { $in: series.map(i => i.externalId) } }, "externalId").lean();
+
+	series = series.map(s => {
+		const asset = assets.find(a => a.externalId === s.externalId);
+
+		return asset ? { ...s, hasAsset: true } : s;
+	});
+
 	return response(200, "GET_POPULAR", series);
 }
 
@@ -579,7 +592,7 @@ async function getRecommendations(event) {
 
 	const tmdbSeries = await Promise.all(promises);
 
-	const series = [];
+	let series = [];
 	for (let i = 0; i < sample.length; i++) {
 		for (const recommendation of tmdbSeries[i].data.results) {
 			if (
@@ -599,6 +612,14 @@ async function getRecommendations(event) {
 			}
 		}
 	}
+
+	const assets = await Asset.find({ externalId: { $in: series.map(i => i.externalId) } }, "externalId").lean();
+
+	series = series.map(s => {
+		const asset = assets.find(a => a.externalId === s.externalId);
+
+		return asset ? { ...s, hasAsset: true } : s;
+	});
 
 	return response(200, "GET_RECOMMENDATIONS", series.sort(() => 0.5 - Math.random()).slice(0, 20));
 }
