@@ -154,7 +154,12 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 		<Box display="flex" flexDirection="column" width={bannerWidth} height="100%" className={classes.banner}>
 			<Card component={Box} mb={1}>
 				<CardActionArea>
-					<Link to={getLink()} target={series.hasAsset ? "" : "_blank"} rel="noreferrer">
+					<Link
+						to={getLink()}
+						target={series.hasAsset ? "" : "_blank"}
+						rel="noreferrer"
+						style={{ textDecoration: "none" }}
+					>
 						{series.image ? (
 							<CardMedia
 								component="img"

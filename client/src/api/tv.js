@@ -13,10 +13,14 @@ async function getEpisodes(series, season, page, filter) {
 	return res;
 }
 
-async function getSearch(search, page) {
+async function getSearch(search, page, contentType) {
+	let query = "";
+	query += page >= 0 ? `?page=${page}` : "";
+	query += contentType ? `${query ? "&" : "?"}contentType=${contentType}` : "";
+
 	const res = await api({
 		method: "get",
-		url: `/api/tv/search/${search}${page >= 0 ? `?page=${page}` : ""}`,
+		url: `/api/tv/search/${search}${query}`,
 	});
 
 	return res;

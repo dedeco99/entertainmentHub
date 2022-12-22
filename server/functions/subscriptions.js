@@ -118,7 +118,11 @@ async function addSubscriptions(event) {
 		console.log(err);
 	}
 
-	let updatedSubscriptions = subscriptionsToAdd.concat(subscriptionsToReAdd);
+	const newSubscriptions = await Subscription.find({
+		externalId: { $in: subscriptionsToAdd.map(s => s.externalId) },
+		user,
+	}).lean();
+	let updatedSubscriptions = newSubscriptions.concat(subscriptionsToReAdd);
 
 	if (platform === "tv") {
 		updatedSubscriptions = await tv.getEpisodeNumbers(updatedSubscriptions, user);

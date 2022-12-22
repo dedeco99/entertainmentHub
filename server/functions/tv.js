@@ -399,13 +399,13 @@ async function getEpisodes(event) {
 async function getSearch(event) {
 	const { params, query, user } = event;
 	const { search } = params;
-	const { page } = query;
+	const { page, contentType } = query;
 
 	if (!page && page !== "0") return response(400, "Missing page in query");
 
-	const url = `https://api.themoviedb.org/3/search/tv?query=${search}${`&page=${Number(page) + 1}`}&api_key=${
-		process.env.tmdbKey
-	}`;
+	const url = `https://api.themoviedb.org/3/search/${contentType}?query=${search}${`&page=${
+		Number(page) + 1
+	}`}&api_key=${process.env.tmdbKey}`;
 
 	const res = await api({ method: "get", url });
 	const json = res.data;
@@ -413,7 +413,7 @@ async function getSearch(event) {
 	const promises = json.results.map(s =>
 		api({
 			method: "get",
-			url: `https://api.themoviedb.org/3/tv/${s.id}/external_ids?api_key=${process.env.tmdbKey}`,
+			url: `https://api.themoviedb.org/3/${contentType}/${s.id}/external_ids?api_key=${process.env.tmdbKey}`,
 		}),
 	);
 
@@ -421,10 +421,11 @@ async function getSearch(event) {
 
 	let series = json.results.map((s, i) => ({
 		externalId: s.id.toString(),
-		displayName: s.name,
+		contentType,
+		displayName: contentType === "tv" ? s.name : s.title,
 		image: s.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}` : "",
 		imdbId: tmdbSeries[i].data.imdb_id,
-		year: dayjs(s.first_air_date).get("year"),
+		year: dayjs(contentType === "tv" ? s.first_air_date : s.release_date).get("year"),
 		rating: s.vote_average.toFixed(1),
 	}));
 
@@ -434,6 +435,7 @@ async function getSearch(event) {
 			active: true,
 			user: user._id,
 			platform: "tv",
+			contentType,
 			externalId: { $in: series.map(i => i.externalId) },
 		}).lean(),
 	]);
@@ -642,6 +644,7 @@ async function getRecommendations(event) {
 			) {
 				series.push({
 					externalId: rec.id.toString(),
+					contentType,
 					displayName: contentType === "tv" ? rec.name : rec.title,
 					image: rec.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${rec.poster_path}` : "",
 					year: dayjs(contentType === "tv" ? rec.first_air_date : rec.release_date).get("year"),
