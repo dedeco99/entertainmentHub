@@ -5,6 +5,7 @@ const SubscriptionSchema = new Schema(
 		active: { type: Boolean, default: true },
 		user: { type: Schema.ObjectId, ref: "User", required: true },
 		platform: { type: String, required: true },
+		contentType: { type: String },
 		group: {
 			name: { type: String },
 			pos: { type: Number },

@@ -3,6 +3,7 @@ const { Schema, model } = require("mongoose");
 const AssetSchema = new Schema(
 	{
 		platform: { type: String, required: true },
+		contentType: { type: String },
 		externalId: { type: String, default: "", required: true },
 		displayName: { type: String, default: "", required: true },
 		image: { type: String, default: "" },

@@ -203,7 +203,7 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 						<Chip
 							color="secondary"
 							size="small"
-							label={series.numToWatch}
+							label={series.contentType === "tv" ? series.numToWatch : "•"}
 							style={{ position: "absolute", top: "5px", right: "5px", borderRadius: "2px" }}
 						/>
 					</Zoom>
@@ -280,41 +280,34 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 				>
 					{series.year || null}
 				</Typography>
-				{contentType === "tv" && (
-					<>
-						<Tooltip
-							title={isSubscribed ? translate("removeFavorites") : translate("addFavorites")}
-							placement="top"
-						>
-							<Checkbox
-								color="secondary"
-								checked={isSubscribed}
-								icon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
-								checkedIcon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
-								onChange={e => handleSubscriptionChange(e, series)}
-								classes={{ root: classes.checkboxSize }}
-							/>
-						</Tooltip>
-						<Tooltip
-							title={
-								isSubscribed && series.numWatched > 0 && series.numTotal === series.numWatched
-									? translate("removeWatched")
-									: translate("addWatched")
-							}
-							placement="top"
-						>
-							<Checkbox
-								color="secondary"
-								checked={isSubscribed && series.numWatched > 0 && series.numTotal === series.numWatched}
-								disabled={!isSubscribed || !series.numTotal}
-								icon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
-								checkedIcon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
-								onChange={e => handleMarkAsWatched(e, series)}
-								classes={{ root: classes.checkboxSize }}
-							/>
-						</Tooltip>
-					</>
-				)}
+				<Tooltip title={isSubscribed ? translate("removeFavorites") : translate("addFavorites")} placement="top">
+					<Checkbox
+						color="secondary"
+						checked={isSubscribed}
+						icon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
+						checkedIcon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
+						onChange={e => handleSubscriptionChange(e, series)}
+						classes={{ root: classes.checkboxSize }}
+					/>
+				</Tooltip>
+				<Tooltip
+					title={
+						isSubscribed && series.numWatched > 0 && series.numTotal === series.numWatched
+							? translate("removeWatched")
+							: translate("addWatched")
+					}
+					placement="top"
+				>
+					<Checkbox
+						color="secondary"
+						checked={isSubscribed && series.numWatched > 0 && series.numTotal === series.numWatched}
+						disabled={!isSubscribed || !series.numTotal}
+						icon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
+						checkedIcon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
+						onChange={e => handleMarkAsWatched(e, series)}
+						classes={{ root: classes.checkboxSize }}
+					/>
+				</Tooltip>
 				{series.rating ? (
 					<Box display="flex" alignItems="center" color="#fbc005" height="100%" style={{ paddingRight: "5px" }}>
 						<i className="icon-star" style={{ paddingLeft: "5px", paddingRight: "5px" }} />

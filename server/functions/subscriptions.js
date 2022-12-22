@@ -39,7 +39,7 @@ async function getSubscriptions(event) {
 	} else if (platform === "tv") {
 		const assets = await Asset.find(
 			{ externalId: { $in: subscriptions.map(i => i.externalId) } },
-			"externalId firstDate rating providers",
+			"externalId contentType firstDate rating providers",
 		).lean();
 
 		subscriptions = subscriptions.map(s => {
@@ -73,7 +73,7 @@ async function addSubscriptions(event) {
 	const subscriptionsToAdd = [];
 	const subscriptionsToReAdd = [];
 	for (const subscription of subscriptions) {
-		const { externalId, displayName, group, image, notifications } = subscription;
+		const { externalId, contentType, displayName, group, image, notifications } = subscription;
 
 		if (externalId && displayName) {
 			const subscriptionExists = await Subscription.findOne({ user: user._id, platform, externalId }).lean();
@@ -83,6 +83,7 @@ async function addSubscriptions(event) {
 					new Subscription({
 						user: user._id,
 						platform,
+						contentType,
 						externalId,
 						displayName,
 						group,
@@ -104,8 +105,8 @@ async function addSubscriptions(event) {
 				const assetExists = await Asset.findOne({ platform, externalId }).lean();
 
 				if (!assetExists) {
-					tv.addAsset(externalId);
-					tv.fetchEpisodes({ _id: externalId, displayName }, user);
+					tv.addAsset(contentType, externalId);
+					if (contentType === "tv") tv.fetchEpisodes({ _id: externalId, displayName }, user);
 				}
 			}
 		}
@@ -127,7 +128,7 @@ async function addSubscriptions(event) {
 }
 
 async function editSubscription(event) {
-	const { params, body, user } = event;
+	const { params, body } = event;
 	const { id } = params;
 	const { displayName, group, notifications } = body;
 
@@ -161,7 +162,10 @@ async function patchSubscription(event) {
 		if (watched === "all") {
 			const episodes = await Episode.find({ seriesId: id });
 
-			watched = episodes.filter(e => e.date && diff(e.date) > 0).map(e => `S${e.season}E${e.number}`);
+			watched =
+				subscription.contentType === "tv"
+					? episodes.filter(e => e.date && diff(e.date) > 0).map(e => `S${e.season}E${e.number}`)
+					: [true];
 		}
 
 		try {

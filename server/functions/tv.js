@@ -122,12 +122,18 @@ async function getEpisodeNumbers(series, user) {
 	]);
 
 	for (const s of series) {
-		const seriesFound = seriesTotals.find(s2 => s2._id === s.externalId.toString());
+		if (s.contentType === "tv") {
+			const seriesFound = seriesTotals.find(s2 => s2._id === s.externalId.toString());
 
-		if (seriesFound) {
-			s.numTotal = seriesFound.total;
-			s.numWatched = seriesFound.watched;
-			s.numToWatch = seriesFound.toWatch;
+			if (seriesFound) {
+				s.numTotal = seriesFound.total;
+				s.numWatched = seriesFound.watched;
+				s.numToWatch = seriesFound.toWatch;
+			}
+		} else {
+			s.numTotal = 1;
+			s.numWatched = s.watched.length;
+			s.numToWatch = s.numTotal - s.numWatched;
 		}
 	}
 
@@ -553,6 +559,7 @@ async function getPopular(event) {
 
 				series.push({
 					externalId,
+					contentType: type === "movies" ? "movie" : "tv",
 					imdbId: infos[i].id,
 					displayName: infos[i].name,
 					image,
@@ -577,6 +584,7 @@ async function getPopular(event) {
 
 		series = json.results.map(s => ({
 			externalId: s.id.toString(),
+			contentType: "tv",
 			displayName: s.name,
 			image: s.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}` : "",
 		}));
@@ -709,10 +717,10 @@ async function getProviders(event) {
 	return response(200, "GET_PROVIDERS", providers);
 }
 
-async function addAsset(externalId) {
+async function addAsset(contentType, externalId) {
 	const res = await api({
 		method: "get",
-		url: `https://api.themoviedb.org/3/tv/${externalId}?append_to_response=external_ids,images&api_key=${process.env.tmdbKey}`,
+		url: `https://api.themoviedb.org/3/${contentType}/${externalId}?append_to_response=external_ids,images&api_key=${process.env.tmdbKey}`,
 	});
 
 	const tmdbRes = res.data;
@@ -723,7 +731,7 @@ async function addAsset(externalId) {
 			url: `https://imdb-api.tprojects.workers.dev/title/${tmdbRes.external_ids.imdb_id}`,
 			headers: { "accept-language": "en-US" },
 		}),
-		getProviders({ query: { type: "tv", search: tmdbRes.name } }),
+		getProviders({ query: { type: contentType, search: contentType === "tv" ? tmdbRes.name : tmdbRes.title } }),
 	]);
 
 	const imdbRes = extrasRes[0].data;
@@ -731,14 +739,15 @@ async function addAsset(externalId) {
 
 	const asset = new Asset({
 		platform: "tv",
+		contentType,
 		externalId,
-		displayName: tmdbRes.name,
+		displayName: contentType === "tv" ? tmdbRes.name : tmdbRes.title,
 		image: tmdbRes.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbRes.poster_path}` : "",
 		genres: tmdbRes.genres.map(g => ({ ...g, externalId: g.id })),
-		firstDate: tmdbRes.first_air_date,
-		lastDate: tmdbRes.last_air_date,
+		firstDate: contentType === "tv" ? tmdbRes.first_air_date : tmdbRes.release_date,
+		lastDate: contentType === "tv" ? tmdbRes.last_air_date : tmdbRes.release_date,
 		status: tmdbRes.status,
-		episodeRunTime: tmdbRes.episode_run_time[0],
+		episodeRunTime: contentType === "tv" ? tmdbRes.episode_run_time[0] : tmdbRes.runtime,
 		tagline: tmdbRes.tagline,
 		overview: tmdbRes.overview,
 		rating: imdbRes.rating ? imdbRes.rating.star : null,

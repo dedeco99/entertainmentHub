@@ -64,33 +64,35 @@ function Series({ seriesId, season }) {
 	async function handleGetInfo() {
 		setLoading(false);
 
-		if (seriesId && seriesId !== currentSeries) {
-			setCurrentSeries(seriesId);
+		if (seriesId) {
+			if (seriesId !== currentSeries) {
+				setCurrentSeries(seriesId);
 
-			const res = await getAsset("tv", seriesId);
+				const res = await getAsset("tv", seriesId);
 
-			if (res.status === 200) {
-				const firstDate = dayjs(res.data.firstDate);
-				const lastDate = dayjs(res.data.lastDate);
+				if (res.status === 200) {
+					const firstDate = dayjs(res.data.firstDate);
+					const lastDate = dayjs(res.data.lastDate);
 
-				setAssets({
-					...res.data,
-					date:
-						firstDate.diff(lastDate, "years") === 0 || isNaN(firstDate.diff(lastDate, "years"))
-							? firstDate.get("year")
-							: `${firstDate.get("year")} - ${lastDate.get("year")}`,
-					genres: res.data.genres.map(genre => genre.name).join(", "),
-					backdrops: res.data.backdrops[Math.floor(Math.random() * res.data.backdrops.length)],
-				});
-			} else {
-				setAssets(null);
+					setAssets({
+						...res.data,
+						date:
+							firstDate.diff(lastDate, "years") === 0 || isNaN(firstDate.diff(lastDate, "years"))
+								? firstDate.get("year")
+								: `${firstDate.get("year")} - ${lastDate.get("year")}`,
+						genres: res.data.genres.map(genre => genre.name).join(", "),
+						backdrops: res.data.backdrops[Math.floor(Math.random() * res.data.backdrops.length)],
+					});
+				} else {
+					setAssets(null);
+				}
 			}
-		}
 
-		const response = await getEpisodes(seriesId, season);
+			const response = await getEpisodes(seriesId, season);
 
-		if (response.status === 200 && isMounted) {
-			setEpisodes(response.data);
+			if (response.status === 200 && isMounted) {
+				setEpisodes(response.data);
+			}
 		}
 
 		setLoading(true);
