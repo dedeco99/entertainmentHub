@@ -685,13 +685,15 @@ async function getProviders(event) {
 			const existingLinks = [];
 			for (const offer of offers) {
 				if (!existingLinks.includes(offer.urls.standard_web)) {
-					offer.icon = `https://images.justwatch.com${providersRes.data
-						.find(p => p.id === offer.provider_id)
-						.icon_url.replace("/{profile}", "")}/s100`;
+					const provider = providersRes.data.find(p => p.id === offer.provider_id);
 
-					providers.push({ url: offer.urls.standard_web, icon: offer.icon });
+					if (provider) {
+						offer.icon = `https://images.justwatch.com${provider.icon_url.replace("/{profile}", "")}/s100`;
 
-					existingLinks.push(offer.urls.standard_web);
+						providers.push({ url: offer.urls.standard_web, icon: offer.icon });
+
+						existingLinks.push(offer.urls.standard_web);
+					}
 				}
 			}
 		}
@@ -718,7 +720,7 @@ async function addAsset(externalId) {
 	const extrasRes = await Promise.all([
 		api({
 			method: "get",
-			url: `https://www.imdb.com/title/${tmdbRes.external_ids.imdb_id}`,
+			url: `https://imdb-api.tprojects.workers.dev/title/${tmdbRes.external_ids.imdb_id}`,
 			headers: { "accept-language": "en-US" },
 		}),
 		getProviders({ query: { type: "tv", search: tmdbRes.name } }),
@@ -726,12 +728,6 @@ async function addAsset(externalId) {
 
 	const imdbRes = extrasRes[0].data;
 	const providers = extrasRes[1].body.data;
-
-	const $ = cheerio.load(imdbRes);
-
-	const rating = $(".AggregateRatingButton__RatingScore-sc-1ll29m0-1.iTLWoV")
-		.toArray()
-		.map(elem => $(elem).text())[0];
 
 	const asset = new Asset({
 		platform: "tv",
@@ -745,7 +741,7 @@ async function addAsset(externalId) {
 		episodeRunTime: tmdbRes.episode_run_time[0],
 		tagline: tmdbRes.tagline,
 		overview: tmdbRes.overview,
-		rating,
+		rating: imdbRes.rating ? imdbRes.rating.star : null,
 		languages: tmdbRes.spoken_languages.map(l => l.iso_639_1),
 		backdrops: tmdbRes.images.backdrops.map(b => `https://image.tmdb.org/t/p/w1280_and_h720_bestv2${b.file_path}`),
 		providers,
@@ -756,20 +752,18 @@ async function addAsset(externalId) {
 }
 
 async function updateAsset(asset) {
-	const res = await api({
-		method: "get",
-		url: `https://api.themoviedb.org/3/tv/${asset.externalId}?append_to_response=external_ids,images&api_key=${process.env.tmdbKey}`,
-	});
+	try {
+		const res = await api({
+			method: "get",
+			url: `https://api.themoviedb.org/3/tv/${asset.externalId}?append_to_response=external_ids,images&api_key=${process.env.tmdbKey}`,
+		});
 
-	const tmdbRes = res.data;
+		const tmdbRes = res.data;
 
-	const needsUpdate =
-		dayjs(tmdbRes.last_air_date).diff(dayjs(asset.lastDate), "days") || tmdbRes.status !== asset.status;
-	if (needsUpdate) {
 		const extrasRes = await Promise.all([
 			api({
 				method: "get",
-				url: `https://www.imdb.com/title/${tmdbRes.external_ids.imdb_id}`,
+				url: `https://imdb-api.tprojects.workers.dev/title/${tmdbRes.external_ids.imdb_id}`,
 				headers: { "accept-language": "en-US" },
 			}),
 			getProviders({ query: { type: "tv", search: tmdbRes.name } }),
@@ -777,12 +771,6 @@ async function updateAsset(asset) {
 
 		const imdbRes = extrasRes[0].data;
 		const providers = extrasRes[1].body.data;
-
-		const $ = cheerio.load(imdbRes);
-
-		const rating = $(".AggregateRatingButton__RatingScore-sc-1ll29m0-1.iTLWoV")
-			.toArray()
-			.map(elem => $(elem).text())[0];
 
 		await Asset.updateOne(
 			{ externalId: asset.externalId },
@@ -796,15 +784,18 @@ async function updateAsset(asset) {
 				episodeRunTime: tmdbRes.episode_run_time[0],
 				tagline: tmdbRes.tagline,
 				overview: tmdbRes.overview,
-				rating,
+				rating: imdbRes.rating ? imdbRes.rating.star : null,
 				languages: tmdbRes.spoken_languages.map(l => l.iso_639_1),
 				backdrops: tmdbRes.images.backdrops.map(
 					b => `https://image.tmdb.org/t/p/w1280_and_h720_bestv2${b.file_path}`,
 				),
 				providers,
 				imdbId: tmdbRes.external_ids.imdb_id,
+				lastUpdate: Date.now(),
 			},
 		);
+	} catch (err) {
+		console.log(err);
 	}
 }
 

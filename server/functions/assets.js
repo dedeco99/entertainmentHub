@@ -44,7 +44,12 @@ async function getAsset(event) {
 }
 
 async function cronjob() {
-	const assets = await Asset.find({ platform: "tv" }).lean();
+	const assets = await Asset.find({
+		platform: "tv",
+		$or: [{ lastUpdate: null }, { lastUpdate: { $lte: dayjs().subtract(3, "days") } }],
+	})
+		.sort({ displayName: 1 })
+		.lean();
 
 	for (const asset of assets) {
 		await new Promise(resolve => {

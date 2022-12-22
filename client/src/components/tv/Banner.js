@@ -40,7 +40,9 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 	const [originalSeriesVisible, setOriginalSeriesVisible] = useState(false);
 	const [, setSelectedSubscription] = useState(null);
 	const [isSubscribed, setIsSubscribed] = useState(!!series._id);
-	const [providers, setProviders] = useState(series.providers);
+	const [providers, setProviders] = useState(
+		series.providers && series.providers.length ? series.providers : null,
+	);
 	const [anchorEl, setAnchorEl] = useState(null);
 
 	function handleSetAnchorEl(e) {
@@ -178,7 +180,7 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 							)}
 						</a>
 					)}
-					<Zoom in={providers && providers.length}>
+					<Zoom in={providers}>
 						<Box
 							style={{
 								position: "absolute",
@@ -319,7 +321,7 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 						<Typography variant="caption">{series.rating}</Typography>
 					</Box>
 				) : null}
-				{providers && providers.length ? null : (
+				{providers ? null : (
 					<Tooltip title={"Providers"} placement="top">
 						<IconButton onClick={() => handleGetProviders(series)} classes={{ root: classes.checkboxSize }}>
 							<i className="icon-monitor" style={{ fontSize: "0.875rem" }} />

@@ -6,6 +6,7 @@ const AssetSchema = new Schema(
 		externalId: { type: String, default: "", required: true },
 		displayName: { type: String, default: "", required: true },
 		image: { type: String, default: "" },
+		lastUpdate: { type: Date },
 
 		// tv
 		genres: [
