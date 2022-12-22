@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
 import { makeStyles, Zoom, Tabs, Tab, List, ListItem, Paper, Typography, Box } from "@material-ui/core";
-import { ToggleButtonGroup, ToggleButton } from "@material-ui/lab";
 
 import Loading from "../.partials/Loading";
 import CustomScrollbar from "../.partials/CustomScrollbar";
@@ -21,7 +20,6 @@ function TV({ tabs, listView }) {
 	const [tabIndex, setTabIndex] = useState(0);
 	const [inQueueEpisodes, setInQueueEpisodes] = useState([]);
 	const [allEpisodes, setAllEpisodes] = useState([]);
-	const [popularFilter, setPopularFilter] = useState("tv");
 	const [future, setFuture] = useState([]);
 	const [open, setOpen] = useState(false);
 
@@ -71,37 +69,11 @@ function TV({ tabs, listView }) {
 		setTabIndex(newValue);
 	}
 
-	function handlePopularFilter(e, value) {
-		if (value && value !== popularFilter) setPopularFilter(value);
-	}
-
 	function renderPopularList() {
 		return (
-			<>
-				<Box display="flex" alignItems="center" justifyContent="center" pt={1}>
-					<ToggleButtonGroup
-						value={popularFilter}
-						onChange={handlePopularFilter}
-						color="primary"
-						size="small"
-						exclusive
-					>
-						<ToggleButton value="tv" color="primary" variant="outlined">
-							{translate("tv")}
-						</ToggleButton>
-						<ToggleButton value="movies" color="primary" variant="outlined">
-							{translate("movies")}
-						</ToggleButton>
-					</ToggleButtonGroup>
-				</Box>
-				<Explore
-					contentType={popularFilter}
-					bannerWidth={150}
-					useWindowScroll={false}
-					listView={listView}
-					widget
-				/>
-			</>
+			<Box marginTop="10px">
+				<Explore bannerWidth={150} useWindowScroll={false} listView={listView} widget />
+			</Box>
 		);
 	}
 

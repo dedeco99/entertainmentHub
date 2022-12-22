@@ -240,6 +240,14 @@ const translations = {
 		en: "Movies",
 		pt: "Filmes",
 	},
+	popular: {
+		en: "Popular",
+		pt: "Popular",
+	},
+	recommendations: {
+		en: "Recommendations",
+		pt: "Recomendações",
+	},
 	removeFavorites: {
 		en: "Remove from favorites",
 		pt: "Remover dos favoritos",

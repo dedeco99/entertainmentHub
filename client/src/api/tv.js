@@ -36,9 +36,10 @@ async function getPopular(page, source, type) {
 	return res;
 }
 
-async function getRecommendations(page) {
+async function getRecommendations(page, contentType) {
 	let query = "";
 	query += page >= 0 ? `?page=${page}` : "";
+	query += contentType ? `${query ? "&" : "?"}contentType=${contentType}` : "";
 
 	const res = await api({
 		method: "get",

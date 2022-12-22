@@ -10,13 +10,16 @@ import Loading from "../.partials/Loading";
 
 import { getPopular, getRecommendations } from "../../api/tv";
 
+import { translate } from "../../utils/translations";
+
 import { tv as styles } from "../../styles/Widgets";
 
 const useStyles = makeStyles(styles);
 
-function Explore({ contentType, bannerWidth, useWindowScroll, listView, widget }) {
+function Explore({ bannerWidth, useWindowScroll, listView }) {
 	const classes = useStyles();
-	const [filter, setFilter] = useState("popular");
+	const [type, setType] = useState("popular");
+	const [contentType, setContentType] = useState("tv");
 	const [data, setData] = useState({
 		items: [],
 		page: 0,
@@ -43,7 +46,7 @@ function Explore({ contentType, bannerWidth, useWindowScroll, listView, widget }
 	async function fetchRecommendations() {
 		if (!loading.current) {
 			loading.current = true;
-			const response = await getRecommendations(data.page);
+			const response = await getRecommendations(data.page, contentType);
 
 			if (response.status === 200) {
 				setData(prev => ({
@@ -62,10 +65,14 @@ function Explore({ contentType, bannerWidth, useWindowScroll, listView, widget }
 	const currentLoadFunc = {
 		popular: fetchPopular,
 		recommendations: fetchRecommendations,
-	}[filter];
+	}[type];
 
-	function handleFilterSeries(e, value) {
-		if (value && value !== filter) setFilter(value);
+	function handleChangeType(e, value) {
+		if (value && value !== type) setType(value);
+	}
+
+	function handleChangeContentType(e, value) {
+		if (value && value !== contentType) setContentType(value);
 	}
 
 	useEffect(() => {
@@ -75,27 +82,34 @@ function Explore({ contentType, bannerWidth, useWindowScroll, listView, widget }
 			page: 0,
 			hasMore: true,
 		});
-	}, [filter, contentType]);
+	}, [type, contentType]);
 
 	return (
 		<div align="center">
-			{!widget && (
-				<Box display="flex" justifyContent="space-between" padding="0% 5%">
-					<ToggleButtonGroup value={filter} onChange={handleFilterSeries} color="primary" size="small" exclusive>
-						<ToggleButton value="popular" className={classes.episodeBtn} color="primary" variant="outlined">
-							{"Popular"}
-						</ToggleButton>
-						<ToggleButton
-							value="recommendations"
-							className={classes.episodeBtn}
-							color="primary"
-							variant="outlined"
-						>
-							{"Recommendations"}
-						</ToggleButton>
-					</ToggleButtonGroup>
-				</Box>
-			)}
+			<Box style={{ display: "flex", gap: "20px" }} padding="0% 5%">
+				<ToggleButtonGroup value={type} onChange={handleChangeType} color="primary" size="small" exclusive>
+					<ToggleButton value="popular" className={classes.episodeBtn} color="primary" variant="outlined">
+						{translate("popular")}
+					</ToggleButton>
+					<ToggleButton value="recommendations" className={classes.episodeBtn} color="primary" variant="outlined">
+						{translate("recommendations")}
+					</ToggleButton>
+				</ToggleButtonGroup>
+				<ToggleButtonGroup
+					value={contentType}
+					onChange={handleChangeContentType}
+					color="primary"
+					size="small"
+					exclusive
+				>
+					<ToggleButton value="tv" color="primary" variant="outlined">
+						{translate("tv")}
+					</ToggleButton>
+					<ToggleButton value="movie" color="primary" variant="outlined">
+						{translate("movies")}
+					</ToggleButton>
+				</ToggleButtonGroup>
+			</Box>
 			<InfiniteScroll
 				loadMore={currentLoadFunc}
 				hasMore={data.hasMore}
@@ -128,11 +142,9 @@ function Explore({ contentType, bannerWidth, useWindowScroll, listView, widget }
 }
 
 Explore.propTypes = {
-	contentType: PropTypes.string.isRequired,
 	bannerWidth: PropTypes.number.isRequired,
 	useWindowScroll: PropTypes.bool.isRequired,
 	listView: PropTypes.bool,
-	widget: PropTypes.bool,
 };
 
 export default Explore;

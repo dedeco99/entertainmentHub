@@ -475,7 +475,7 @@ async function getPopular(event) {
 		}
 
 		if (!useCache) {
-			const url = `https://www.imdb.com/chart/${type === "movies" ? "moviemeter" : "tvmeter"}`;
+			const url = `https://www.imdb.com/chart/${type === "movie" ? "moviemeter" : "tvmeter"}`;
 
 			const res = await api({ method: "get", url, headers: { "accept-language": "en-US" } });
 			const $ = cheerio.load(res.data);
@@ -559,7 +559,7 @@ async function getPopular(event) {
 
 				series.push({
 					externalId,
-					contentType: type === "movies" ? "movie" : "tv",
+					contentType: type,
 					imdbId: infos[i].id,
 					displayName: infos[i].name,
 					image,
@@ -614,10 +614,11 @@ async function getPopular(event) {
 }
 
 async function getRecommendations(event) {
-	const { user } = event;
+	const { query, user } = event;
+	const { contentType } = query;
 
 	const userSeries = await Subscription.aggregate([
-		{ $match: { active: true, user: user._id, platform: "tv" } },
+		{ $match: { active: true, user: user._id, platform: "tv", contentType } },
 		{ $project: { displayName: 1, externalId: 1 } },
 	]);
 
@@ -626,7 +627,7 @@ async function getRecommendations(event) {
 	const promises = sample.map(series =>
 		api({
 			method: "get",
-			url: `https://api.themoviedb.org/3/tv/${series.externalId}/recommendations?api_key=${process.env.tmdbKey}`,
+			url: `https://api.themoviedb.org/3/${contentType}/${series.externalId}/recommendations?api_key=${process.env.tmdbKey}`,
 		}),
 	);
 
@@ -634,19 +635,17 @@ async function getRecommendations(event) {
 
 	let series = [];
 	for (let i = 0; i < sample.length; i++) {
-		for (const recommendation of tmdbSeries[i].data.results) {
+		for (const rec of tmdbSeries[i].data.results) {
 			if (
-				!userSeries.find(s => s.externalId === recommendation.id.toString()) &&
-				!series.find(s => s.externalId === recommendation.id.toString())
+				!userSeries.find(s => s.externalId === rec.id.toString()) &&
+				!series.find(s => s.externalId === rec.id.toString())
 			) {
 				series.push({
-					externalId: recommendation.id.toString(),
-					displayName: recommendation.name,
-					image: recommendation.poster_path
-						? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${recommendation.poster_path}`
-						: "",
-					year: dayjs(recommendation.first_air_date).get("year"),
-					rating: recommendation.vote_average.toFixed(1),
+					externalId: rec.id.toString(),
+					displayName: contentType === "tv" ? rec.name : rec.title,
+					image: rec.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${rec.poster_path}` : "",
+					year: dayjs(contentType === "tv" ? rec.first_air_date : rec.release_date).get("year"),
+					rating: rec.vote_average.toFixed(1),
 					originalSeries: userSeries[i],
 				});
 			}

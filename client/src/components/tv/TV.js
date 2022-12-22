@@ -72,7 +72,7 @@ function TV() {
 			currentBlock = <Feed />;
 			break;
 		case "explore":
-			currentBlock = <Explore contentType="tv" bannerWidth={180} useWindowScroll />;
+			currentBlock = <Explore bannerWidth={180} useWindowScroll />;
 			break;
 		case "group":
 			currentBlock = <Group groupId={match.params.groupId} />;

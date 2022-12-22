@@ -140,46 +140,32 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 		}
 	}
 
+	function getLink() {
+		if (series.hasAsset) return `/tv/series/${series.externalId}`;
+
+		return {
+			pathname: series.imdbId
+				? `https://www.imdb.com/title/${series.imdbId}`
+				: `https://www.themoviedb.org/${series.contentType}/${series.externalId}`,
+		};
+	}
+
 	return (
 		<Box display="flex" flexDirection="column" width={bannerWidth} height="100%" className={classes.banner}>
 			<Card component={Box} mb={1}>
 				<CardActionArea>
-					{series.hasAsset ? (
-						<Link to={`/tv/series/${series.externalId}`}>
-							{series.image ? (
-								<CardMedia
-									component="img"
-									width="100%"
-									image={series.image}
-									style={{ display: "block", width: "100%", minHeight: "270px" }}
-								/>
-							) : (
-								<Placeholder height={270} />
-							)}
-						</Link>
-					) : (
-						<a
-							href={
-								series.imdbId
-									? `https://www.imdb.com/title/${series.imdbId}`
-									: `https://www.themoviedb.org/${series.contentType}/${series.externalId}`
-							}
-							target="_blank"
-							rel="noreferrer"
-							style={{ textDecoration: "none" }}
-						>
-							{series.image ? (
-								<CardMedia
-									component="img"
-									width="100%"
-									image={series.image}
-									style={{ display: "block", width: "100%" }}
-								/>
-							) : (
-								<Placeholder height={270} />
-							)}
-						</a>
-					)}
+					<Link to={getLink()} target={series.hasAsset ? "" : "_blank"} rel="noreferrer">
+						{series.image ? (
+							<CardMedia
+								component="img"
+								width="100%"
+								image={series.image}
+								style={{ display: "block", width: "100%", minHeight: "270px" }}
+							/>
+						) : (
+							<Placeholder height={270} />
+						)}
+					</Link>
 					<Zoom in={providers}>
 						<Box
 							style={{

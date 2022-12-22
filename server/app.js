@@ -45,7 +45,7 @@ global.cache = {
 		popular: [],
 		lastUpdate: Date.now(),
 	},
-	movies: {
+	movie: {
 		popular: [],
 		lastUpdate: Date.now(),
 	},
