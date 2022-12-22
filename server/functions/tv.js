@@ -391,7 +391,7 @@ async function getEpisodes(event) {
 }
 
 async function getSearch(event) {
-	const { params, query } = event;
+	const { params, query, user } = event;
 	const { search } = params;
 	const { page } = query;
 
@@ -422,15 +422,24 @@ async function getSearch(event) {
 		rating: s.vote_average.toFixed(1),
 	}));
 
-	const assets = await Asset.find(
-		{ externalId: { $in: series.map(i => i.externalId) } },
-		"externalId providers",
-	).lean();
+	const promises2 = await Promise.all([
+		Asset.find({ externalId: { $in: series.map(i => i.externalId) } }, "externalId providers").lean(),
+		Subscription.find({
+			active: true,
+			user: user._id,
+			platform: "tv",
+			externalId: { $in: series.map(i => i.externalId) },
+		}).lean(),
+	]);
+
+	const assets = promises2[0];
+	const subscriptions = await getEpisodeNumbers(promises2[1], user);
 
 	series = series.map(s => {
 		const asset = assets.find(a => a.externalId === s.externalId);
+		const subscription = subscriptions.find(a => a.externalId === s.externalId);
 
-		return asset ? { ...s, hasAsset: true, providers: asset.providers } : s;
+		return asset ? { ...s, ...subscription, hasAsset: true, providers: asset.providers } : s;
 	});
 
 	return response(200, "GET_SERIES", series);
@@ -446,7 +455,7 @@ function getTrend(trend) {
 
 // eslint-disable-next-line max-lines-per-function,complexity
 async function getPopular(event) {
-	const { query } = event;
+	const { query, user } = event;
 	const { page, source, type } = query;
 
 	if (!page && page !== "0") return response(400, "Missing page in query");
@@ -573,15 +582,24 @@ async function getPopular(event) {
 		}));
 	}
 
-	const assets = await Asset.find(
-		{ externalId: { $in: series.map(i => i.externalId) } },
-		"externalId providers",
-	).lean();
+	const promises = await Promise.all([
+		Asset.find({ externalId: { $in: series.map(i => i.externalId) } }, "externalId providers").lean(),
+		Subscription.find({
+			active: true,
+			user: user._id,
+			platform: "tv",
+			externalId: { $in: series.map(i => i.externalId) },
+		}).lean(),
+	]);
+
+	const assets = promises[0];
+	const subscriptions = await getEpisodeNumbers(promises[1], user);
 
 	series = series.map(s => {
 		const asset = assets.find(a => a.externalId === s.externalId);
+		const subscription = subscriptions.find(a => a.externalId === s.externalId);
 
-		return asset ? { ...s, hasAsset: true, providers: asset.providers } : s;
+		return asset ? { ...s, ...subscription, hasAsset: true, providers: asset.providers } : s;
 	});
 
 	return response(200, "GET_POPULAR", series);

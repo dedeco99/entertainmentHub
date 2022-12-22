@@ -1,4 +1,4 @@
-import React, { useContext, useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import InfiniteScroll from "react-infinite-scroller";
 
@@ -8,8 +8,6 @@ import { ToggleButton, ToggleButtonGroup } from "@material-ui/lab";
 import Banner from "./Banner";
 import Loading from "../.partials/Loading";
 
-import { TVContext } from "../../contexts/TVContext";
-
 import { getPopular, getRecommendations } from "../../api/tv";
 
 import { tv as styles } from "../../styles/Widgets";
@@ -18,8 +16,6 @@ const useStyles = makeStyles(styles);
 
 function Explore({ contentType, bannerWidth, useWindowScroll, listView, widget }) {
 	const classes = useStyles();
-	const { state } = useContext(TVContext);
-	const { subscriptions } = state;
 	const [filter, setFilter] = useState("popular");
 	const [data, setData] = useState({
 		items: [],
@@ -27,24 +23,6 @@ function Explore({ contentType, bannerWidth, useWindowScroll, listView, widget }
 		hasMore: false,
 	});
 	const loading = useRef(false);
-
-	function populateSeries(series) {
-		for (const s of series) {
-			const subscriptionFound = subscriptions.find(subscription => subscription.externalId === s.externalId);
-
-			if (subscriptionFound) {
-				s.numTotal = subscriptionFound.numTotal;
-				s.numWatched = subscriptionFound.numWatched;
-				s.numToWatch = subscriptionFound.numToWatch;
-			} else {
-				s.numTotal = 0;
-				s.numWatched = 0;
-				s.numToWatch = 0;
-			}
-		}
-
-		return series;
-	}
 
 	async function fetchPopular() {
 		if (!loading.current) {
@@ -97,7 +75,7 @@ function Explore({ contentType, bannerWidth, useWindowScroll, listView, widget }
 			page: 0,
 			hasMore: true,
 		});
-	}, [filter]);
+	}, [filter, contentType]);
 
 	return (
 		<div align="center">
@@ -126,7 +104,7 @@ function Explore({ contentType, bannerWidth, useWindowScroll, listView, widget }
 			>
 				{listView ? (
 					<List>
-						{populateSeries(data.items).map(item => (
+						{data.items.map(item => (
 							<ListItem key={item.externalId} button divider>
 								<img src={item.image} height="100x" alt="Series" />
 								<Typography variant="body1" className={classes.popularText}>
@@ -137,7 +115,7 @@ function Explore({ contentType, bannerWidth, useWindowScroll, listView, widget }
 					</List>
 				) : (
 					<div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
-						{populateSeries(data.items).map(item => (
+						{data.items.map(item => (
 							<div key={item.externalId} style={{ padding: "8px" }}>
 								<Banner series={item} contentType={contentType} bannerWidth={bannerWidth} />
 							</div>

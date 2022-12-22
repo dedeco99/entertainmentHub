@@ -1,4 +1,4 @@
-import React, { useContext, useState, useCallback } from "react";
+import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
 
@@ -20,7 +20,6 @@ import {
 	MenuItem,
 } from "@material-ui/core";
 import Placeholder from "../.partials/Placeholder";
-import DeleteConfirmation from "../.partials/DeleteConfirmation";
 
 import { TVContext } from "../../contexts/TVContext";
 import { SubscriptionContext } from "../../contexts/SubscriptionContext";
@@ -37,15 +36,12 @@ const useStyles = makeStyles(styles);
 function Banner({ series, contentType, bannerWidth, actions }) {
 	const classes = useStyles();
 	const { dispatch: subscriptionDispatch } = useContext(SubscriptionContext);
-	const { state, dispatch } = useContext(TVContext);
-	const { follows, subscriptions } = state;
+	const { dispatch } = useContext(TVContext);
 	const [originalSeriesVisible, setOriginalSeriesVisible] = useState(false);
-	const [selectedSubscription, setSelectedSubscription] = useState(null);
-	const [openDeleteConfirmation, setOpenDeleteConfirmation] = useState(false);
-	const [archive, setArchive] = useState(true);
+	const [, setSelectedSubscription] = useState(null);
+	const [isSubscribed, setIsSubscribed] = useState(!!series._id);
+	const [providers, setProviders] = useState(series.providers);
 	const [anchorEl, setAnchorEl] = useState(null);
-	const [, updateState] = useState();
-	const forceUpdate = useCallback(() => updateState({}), []);
 
 	function handleSetAnchorEl(e) {
 		e.stopPropagation();
@@ -56,26 +52,7 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 		setAnchorEl(null);
 	}
 
-	function handleCloseDeleteConfirmation() {
-		setOpenDeleteConfirmation(false);
-	}
-
-	async function handleDeleteSubscription() {
-		const response = await deleteSubscription(selectedSubscription._id, archive);
-
-		if (response.status === 200) {
-			dispatch({ type: "DELETE_SUBSCRIPTION", subscription: response.data });
-
-			handleCloseDeleteConfirmation();
-		}
-	}
-
-	function handleShowModal(e, type) {
-		const subscription =
-			type === "edit"
-				? subscriptions.find(s => s.externalId === e.target.id)
-				: follows.find(s => s.externalId.toString() === e.target.id);
-
+	function handleShowModal(subscription) {
 		setSelectedSubscription(subscription);
 
 		subscriptionDispatch({ type: "SET_SUBSCRIPTION", subscription });
@@ -83,17 +60,7 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 		subscriptionDispatch({ type: "SET_OPEN", open: true });
 	}
 
-	function handleOpenDeleteConfirmation(e, isArchive) {
-		setSelectedSubscription(subscriptions.find(s => s.externalId === e.target.id));
-
-		setArchive(isArchive);
-		setOpenDeleteConfirmation(true);
-	}
-
-	const menuOptions = [
-		{ displayName: translate("edit"), onClick: e => handleShowModal(e, "edit") },
-		{ displayName: translate("archive"), onClick: e => handleOpenDeleteConfirmation(e, true) },
-	];
+	const menuOptions = [{ displayName: translate("edit"), onClick: subscription => handleShowModal(subscription) }];
 
 	/*
 		function getTrendIcon(trend) {
@@ -122,20 +89,21 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 			const response = await addSubscriptions("tv", [seriesToAdd]);
 
 			if (response.status === 201) {
+				selectedSeries._id = response.data[0]._id;
+				selectedSeries.numToWatch = response.data[0].numToWatch;
+				selectedSeries.numTotal = response.data[0].numTotal;
+				selectedSeries.numWatched = response.data[0].numWatched;
+				setIsSubscribed(true);
 				dispatch({ type: "ADD_SUBSCRIPTION", subscription: response.data });
 			}
 		} else {
-			const seriesToRemove = subscriptions.find(s => s.externalId === selectedSeries.externalId);
-			const response = await deleteSubscription(seriesToRemove._id, true);
+			const response = await deleteSubscription(selectedSeries._id, true);
 
 			if (response.status === 200) {
+				setIsSubscribed(false);
 				dispatch({ type: "DELETE_SUBSCRIPTION", subscription: response.data });
 			}
 		}
-	}
-
-	function isSubscribed(selectedSeries) {
-		return subscriptions.map(s => s.externalId).includes(selectedSeries.externalId);
 	}
 
 	async function handleMarkAsWatched(e, selectedSeries) {
@@ -146,7 +114,11 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 		});
 
 		if (response.status === 200) {
-			dispatch({ type: "EDIT_SUBSCRIPTION", subscription: response.data });
+			selectedSeries.numToWatch = response.data.numToWatch;
+			selectedSeries.numTotal = response.data.numTotal;
+			selectedSeries.numWatched = response.data.numWatched;
+
+			dispatch({ type: "EDIT_SUBSCRIPTION", subscription: { ...selectedSeries, ...response.data } });
 		}
 	}
 
@@ -154,9 +126,7 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 		const response = await getProviders(contentType, selectedSeries.displayName);
 
 		if (response.status === 200) {
-			series.providers = response.data;
-
-			forceUpdate();
+			setProviders(response.data);
 		}
 	}
 
@@ -208,7 +178,7 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 							)}
 						</a>
 					)}
-					<Zoom in={series.providers && series.providers.length}>
+					<Zoom in={providers && providers.length}>
 						<Box
 							style={{
 								position: "absolute",
@@ -216,8 +186,8 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 								right: "1px",
 							}}
 						>
-							{series.providers && series.providers.length ? (
-								series.providers.map(provider => (
+							{providers && providers.length ? (
+								providers.map(provider => (
 									<a href={provider.url} target="_blank" rel="noreferrer" key={provider.url}>
 										<img src={provider.icon} height="35px" style={{ margin: "2px", borderRadius: "2px" }} />
 									</a>
@@ -227,7 +197,7 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 							)}
 						</Box>
 					</Zoom>
-					<Zoom in={series.numToWatch > 0} className={classes.bannerEpCount}>
+					<Zoom in={isSubscribed && series.numToWatch > 0} className={actions ? classes.bannerEpCount : null}>
 						<Chip
 							color="secondary"
 							size="small"
@@ -266,8 +236,8 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 									<MenuItem
 										key={option.displayName}
 										id={anchorEl && anchorEl.id}
-										onClick={e => {
-											option.onClick(e);
+										onClick={() => {
+											option.onClick(series);
 											handleClose();
 										}}
 									>
@@ -277,7 +247,7 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 							</Menu>
 						</>
 					) : null}
-					<Slide direction="right" timeout={750} in={series.numWatched > 0}>
+					<Slide direction="right" timeout={750} in={isSubscribed && series.numWatched > 0}>
 						<Tooltip title={`${series.numWatched} watched`} placement="top">
 							<LinearProgress
 								color="secondary"
@@ -311,12 +281,12 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 				{contentType === "tv" && (
 					<>
 						<Tooltip
-							title={isSubscribed(series) ? translate("removeFavorites") : translate("addFavorites")}
+							title={isSubscribed ? translate("removeFavorites") : translate("addFavorites")}
 							placement="top"
 						>
 							<Checkbox
 								color="secondary"
-								checked={isSubscribed(series)}
+								checked={isSubscribed}
 								icon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
 								checkedIcon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
 								onChange={e => handleSubscriptionChange(e, series)}
@@ -325,7 +295,7 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 						</Tooltip>
 						<Tooltip
 							title={
-								isSubscribed(series) && series.numWatched > 0 && series.numTotal === series.numWatched
+								isSubscribed && series.numWatched > 0 && series.numTotal === series.numWatched
 									? translate("removeWatched")
 									: translate("addWatched")
 							}
@@ -333,8 +303,8 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 						>
 							<Checkbox
 								color="secondary"
-								checked={isSubscribed(series) && series.numWatched > 0 && series.numTotal === series.numWatched}
-								disabled={!isSubscribed(series) || !series.numTotal}
+								checked={isSubscribed && series.numWatched > 0 && series.numTotal === series.numWatched}
+								disabled={!isSubscribed || !series.numTotal}
 								icon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
 								checkedIcon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
 								onChange={e => handleMarkAsWatched(e, series)}
@@ -349,7 +319,7 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 						<Typography variant="caption">{series.rating}</Typography>
 					</Box>
 				) : null}
-				{series.providers && series.providers.length ? null : (
+				{providers && providers.length ? null : (
 					<Tooltip title={"Providers"} placement="top">
 						<IconButton onClick={() => handleGetProviders(series)} classes={{ root: classes.checkboxSize }}>
 							<i className="icon-monitor" style={{ fontSize: "0.875rem" }} />
@@ -357,12 +327,6 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 					</Tooltip>
 				)}
 			</Box>
-			<DeleteConfirmation
-				open={openDeleteConfirmation}
-				onClose={handleCloseDeleteConfirmation}
-				onDelete={handleDeleteSubscription}
-				type={selectedSubscription && selectedSubscription.displayName}
-			/>
 		</Box>
 	);
 }

@@ -24,6 +24,7 @@ import Input from "./Input";
 import { UserContext } from "../../contexts/UserContext";
 import { SubscriptionContext } from "../../contexts/SubscriptionContext";
 import { YoutubeContext } from "../../contexts/YoutubeContext";
+import { TVContext } from "../../contexts/TVContext";
 
 import { editSubscription } from "../../api/subscriptions";
 
@@ -42,6 +43,7 @@ function SubscriptionDetail() {
 	} = useContext(SubscriptionContext);
 	const { state } = useContext(YoutubeContext);
 	const { playlists } = state;
+	const { dispatch: tvDispatch } = useContext(TVContext);
 	const [title, setTitle] = useState("");
 	const [group, setGroup] = useState({ name: "Ungrouped", pos: 0 });
 	const [notifications, setNotifications] = useState({
@@ -185,6 +187,10 @@ function SubscriptionDetail() {
 
 		if (response.status === 200) {
 			handleCloseModal();
+
+			if (response.data.platform === "tv") {
+				tvDispatch({ type: "EDIT_SUBSCRIPTION", subscription: { ...subscription, ...response.data } });
+			}
 		}
 
 		if (groups && !groups.map(g => g.name).includes(group.name)) groups.push(group);
