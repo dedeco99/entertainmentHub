@@ -162,7 +162,7 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 							href={
 								series.imdbId
 									? `https://www.imdb.com/title/${series.imdbId}`
-									: `https://www.themoviedb.org/tv/${series.externalId}`
+									: `https://www.themoviedb.org/${series.contentType}/${series.externalId}`
 							}
 							target="_blank"
 							rel="noreferrer"

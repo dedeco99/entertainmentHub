@@ -212,9 +212,11 @@ function Series({ seriesId, season }) {
 												</a>
 											))}
 										</Box>
-										<Typography variant="body1" style={{ padding: "0 0 8px 16px" }}>
-											{"Watch next"}
-										</Typography>
+										{assets && assets.contentType === "tv" ? (
+											<Typography variant="body1" style={{ padding: "0 0 8px 16px" }}>
+												{"Watch next"}
+											</Typography>
+										) : null}
 										<Box display="flex">
 											{assets &&
 												assets.latestEpisodes.map(episode => {
@@ -250,68 +252,70 @@ function Series({ seriesId, season }) {
 					</Box>
 				)}
 			</div>
-			<div style={{ padding: "0px 80px" }}>
-				<Box display="flex" flexDirection="row" alignItems="center" py={2}>
-					<Typography variant="h2" style={{ flex: "1 0 0" }}>
-						{"Seasons"}
-					</Typography>
-					<div style={{ overflowX: "hidden" }}>
-						<ChipTabs
-							value={Number(season)}
-							variant="scrollable"
-							scrollButtons="auto"
-							TabIndicatorProps={{
-								style: {
-									display: "none",
-								},
-							}}
-						>
-							{assets &&
-								assets.seasons.map(seriesSeason => (
-									<ChipTab
-										key={seriesSeason}
-										value={seriesSeason}
-										color="primary"
-										label={`Season ${seriesSeason}`}
-										onClick={() => handleSeasonClick(seriesSeason)}
-									/>
-								))}
-						</ChipTabs>
-					</div>
-					<Checkbox
-						color="secondary"
-						checked={!hasUnwatchedEpisodes}
-						icon={<i className="icon-eye" />}
-						checkedIcon={<i className="icon-eye" />}
-						onChange={markAsWatched}
-						style={{ marginRight: "10px" }}
-						disabled={!episodes.length || !episodes[0].series._id}
-					/>
-				</Box>
-				{loading ? (
-					<Grid container spacing={2}>
-						{episodes && episodes.length ? (
-							episodes.map(episode => {
-								episode.series.displayName = episode.series.displayName
-									? episode.series.displayName
-									: assets.displayName;
+			{assets && assets.contentType === "tv" ? (
+				<div style={{ padding: "0px 80px" }}>
+					<Box display="flex" flexDirection="row" alignItems="center" py={2}>
+						<Typography variant="h2" style={{ flex: "1 0 0" }}>
+							{"Seasons"}
+						</Typography>
+						<div style={{ overflowX: "hidden" }}>
+							<ChipTabs
+								value={Number(season)}
+								variant="scrollable"
+								scrollButtons="auto"
+								TabIndicatorProps={{
+									style: {
+										display: "none",
+									},
+								}}
+							>
+								{assets &&
+									assets.seasons.map(seriesSeason => (
+										<ChipTab
+											key={seriesSeason}
+											value={seriesSeason}
+											color="primary"
+											label={`Season ${seriesSeason}`}
+											onClick={() => handleSeasonClick(seriesSeason)}
+										/>
+									))}
+							</ChipTabs>
+						</div>
+						<Checkbox
+							color="secondary"
+							checked={!hasUnwatchedEpisodes}
+							icon={<i className="icon-eye" />}
+							checkedIcon={<i className="icon-eye" />}
+							onChange={markAsWatched}
+							style={{ marginRight: "10px" }}
+							disabled={!episodes.length || !episodes[0].series._id}
+						/>
+					</Box>
+					{loading ? (
+						<Grid container spacing={2}>
+							{episodes && episodes.length ? (
+								episodes.map(episode => {
+									episode.series.displayName = episode.series.displayName
+										? episode.series.displayName
+										: assets.displayName;
 
-								return (
-									<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={episode._id}>
-										<Episode episode={episode} />
-									</Grid>
-								);
-							})
-						) : (
-							<Grid item xs={12} key={1}>
-								<div className={classes.noEpisodes}>{translate("noEpisodes")}</div>
-							</Grid>
-						)}
-					</Grid>
-				) : (
-					<Loading />
-				)}
-			</div>
+									return (
+										<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={episode._id}>
+											<Episode episode={episode} />
+										</Grid>
+									);
+								})
+							) : (
+								<Grid item xs={12} key={1}>
+									<div className={classes.noEpisodes}>{translate("noEpisodes")}</div>
+								</Grid>
+							)}
+						</Grid>
+					) : (
+						<Loading />
+					)}
+				</div>
+			) : null}
 		</>
 	);
 }
