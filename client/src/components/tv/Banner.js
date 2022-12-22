@@ -92,6 +92,7 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 
 			if (response.status === 201) {
 				selectedSeries._id = response.data[0]._id;
+				selectedSeries.hasAsset = true;
 				selectedSeries.numToWatch = response.data[0].numToWatch;
 				selectedSeries.numTotal = response.data[0].numTotal;
 				selectedSeries.numWatched = response.data[0].numWatched;

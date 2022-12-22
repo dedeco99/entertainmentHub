@@ -129,11 +129,13 @@ async function getEpisodeNumbers(series, user) {
 				s.numTotal = seriesFound.total;
 				s.numWatched = seriesFound.watched;
 				s.numToWatch = seriesFound.toWatch;
+				s.hasAsset = true;
 			}
 		} else {
 			s.numTotal = 1;
 			s.numWatched = s.watched.length;
 			s.numToWatch = s.numTotal - s.numWatched;
+			s.hasAsset = true;
 		}
 	}
 
