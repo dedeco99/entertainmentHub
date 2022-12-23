@@ -130,7 +130,7 @@ function Series({ seriesId, season }) {
 						position="relative"
 						width="100%"
 						height="100%"
-						minHeight="450px"
+						minHeight="600px"
 						borderRadius="5px"
 						style={{
 							backgroundImage: `url("${assets.backdrops}")`,
@@ -147,7 +147,7 @@ function Series({ seriesId, season }) {
 							height="100%"
 							padding={3}
 							borderRadius="4px"
-							style={{ background: "linear-gradient(0deg, black 0%, transparent 50%, black 100%)" }}
+							style={{ background: "rgba(1, 1, 1, 0.5)" }}
 						>
 							<Grid container alignItems="stretch" style={{ height: "100%" }}>
 								<Grid item xs={12} md={6}>
@@ -282,17 +282,19 @@ function Series({ seriesId, season }) {
 					{loading ? (
 						<Grid container spacing={2}>
 							{episodes && episodes.length ? (
-								episodes.map(episode => {
-									episode.series.displayName = episode.series.displayName
-										? episode.series.displayName
-										: assets.displayName;
+								episodes
+									.map(episode => {
+										episode.series.displayName = episode.series.displayName
+											? episode.series.displayName
+											: assets.displayName;
 
-									return (
-										<Grid item xs={12} sm={6} md={4} lg={3} xl={2} key={episode._id}>
-											<Episode episode={episode} />
-										</Grid>
-									);
-								})
+										return (
+											<Grid item xs={12} sm={4} md={3} lg={3} xl={3} key={episode._id}>
+												<Episode episode={episode} />
+											</Grid>
+										);
+									})
+									.reverse()
 							) : (
 								<Grid item xs={12} key={1}>
 									<div className={classes.noEpisodes}>{translate("noEpisodes")}</div>

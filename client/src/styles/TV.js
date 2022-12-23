@@ -19,6 +19,9 @@ const episodes = {
 };
 
 const episode = {
+	root: {
+		aspectRatio: 16 / 9,
+	},
 	overlay: {
 		position: "absolute",
 		color: "white",
