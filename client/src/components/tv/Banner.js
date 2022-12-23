@@ -36,7 +36,8 @@ const useStyles = makeStyles(styles);
 function Banner({ series, contentType, bannerWidth, actions }) {
 	const classes = useStyles();
 	const { dispatch: subscriptionDispatch } = useContext(SubscriptionContext);
-	const { dispatch } = useContext(TVContext);
+	const { state, dispatch } = useContext(TVContext);
+	const { series: seriesInfo } = state;
 	const [originalSeriesVisible, setOriginalSeriesVisible] = useState(false);
 	const [, setSelectedSubscription] = useState(null);
 	const [isSubscribed, setIsSubscribed] = useState(!!series._id);
@@ -91,13 +92,9 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 			const response = await addSubscriptions("tv", [seriesToAdd]);
 
 			if (response.status === 201) {
-				selectedSeries._id = response.data[0]._id;
-				selectedSeries.hasAsset = true;
-				selectedSeries.numToWatch = response.data[0].numToWatch;
-				selectedSeries.numTotal = response.data[0].numTotal;
-				selectedSeries.numWatched = response.data[0].numWatched;
 				setIsSubscribed(true);
-				dispatch({ type: "ADD_SUBSCRIPTION", subscription: response.data });
+				dispatch({ type: "EDIT_SERIES", series: response.data[0] });
+				dispatch({ type: "EDIT_GROUP_TOTAL", subscription: response.data[0], increment: 1 });
 			}
 		} else {
 			const response = await deleteSubscription(selectedSeries._id, true);
@@ -105,6 +102,7 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 			if (response.status === 200) {
 				setIsSubscribed(false);
 				dispatch({ type: "DELETE_SUBSCRIPTION", subscription: response.data });
+				dispatch({ type: "EDIT_GROUP_TOTAL", subscription: response.data, increment: -1 });
 			}
 		}
 	}
@@ -117,11 +115,12 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 		});
 
 		if (response.status === 200) {
-			selectedSeries.numToWatch = response.data.numToWatch;
-			selectedSeries.numTotal = response.data.numTotal;
-			selectedSeries.numWatched = response.data.numWatched;
-
-			dispatch({ type: "EDIT_SUBSCRIPTION", subscription: { ...selectedSeries, ...response.data } });
+			dispatch({
+				type: "EDIT_WATCH_NUMBERS",
+				subscription: response.data,
+				numToWatch: isWatched ? selectedSeries.numTotal : 0,
+				numWatched: isWatched ? 0 : selectedSeries.numTotal,
+			});
 		}
 	}
 
@@ -141,13 +140,15 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 		}
 	}
 
+	const s = { ...seriesInfo[series.externalId], ...series };
+
 	function getLink() {
-		if (series.hasAsset) return `/tv/series/${series.externalId}`;
+		if (s.hasAsset) return `/tv/series/${s.externalId}`;
 
 		return {
-			pathname: series.imdbId
-				? `https://www.imdb.com/title/${series.imdbId}`
-				: `https://www.themoviedb.org/${series.contentType}/${series.externalId}`,
+			pathname: s.imdbId
+				? `https://www.imdb.com/title/${s.imdbId}`
+				: `https://www.themoviedb.org/${s.contentType}/${s.externalId}`,
 		};
 	}
 
@@ -157,15 +158,15 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 				<CardActionArea>
 					<Link
 						to={getLink()}
-						target={series.hasAsset ? "" : "_blank"}
+						target={s.hasAsset ? "" : "_blank"}
 						rel="noreferrer"
 						style={{ textDecoration: "none" }}
 					>
-						{series.image ? (
+						{s.image ? (
 							<CardMedia
 								component="img"
 								width="100%"
-								image={series.image}
+								image={s.image}
 								style={{ display: "block", width: "100%", minHeight: "270px" }}
 							/>
 						) : (
@@ -191,18 +192,18 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 							)}
 						</Box>
 					</Zoom>
-					<Zoom in={isSubscribed && series.numToWatch > 0} className={actions ? classes.bannerEpCount : null}>
+					<Zoom in={isSubscribed && s.numToWatch > 0} className={actions ? classes.bannerEpCount : null}>
 						<Chip
 							color="secondary"
 							size="small"
-							label={series.contentType === "tv" ? series.numToWatch : "•"}
+							label={s.contentType === "tv" ? s.numToWatch : "•"}
 							style={{ position: "absolute", top: "5px", right: "5px", borderRadius: "2px" }}
 						/>
 					</Zoom>
 					{actions ? (
 						<>
 							<div
-								id={series.externalId}
+								id={s.externalId}
 								className={classes.bannerOptions}
 								onClick={handleSetAnchorEl}
 								style={{
@@ -231,7 +232,7 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 										key={option.displayName}
 										id={anchorEl && anchorEl.id}
 										onClick={() => {
-											option.onClick(series);
+											option.onClick(s);
 											handleClose();
 										}}
 									>
@@ -241,12 +242,12 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 							</Menu>
 						</>
 					) : null}
-					<Slide direction="right" timeout={750} in={isSubscribed && series.numWatched > 0}>
-						<Tooltip title={`${series.numWatched} watched`} placement="top">
+					<Slide direction="right" timeout={750} in={isSubscribed && s.numWatched > 0}>
+						<Tooltip title={`${s.numWatched} watched`} placement="top">
 							<LinearProgress
 								color="secondary"
 								variant="determinate"
-								value={(series.numWatched / series.numTotal) * 100}
+								value={(s.numWatched / s.numTotal) * 100}
 								className={classes.watchedProgressBar}
 							/>
 						</Tooltip>
@@ -254,11 +255,11 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 				</CardActionArea>
 			</Card>
 			<Typography variant="body2" align="left" onClick={handleNameClick}>
-				{series.displayName}
+				{s.displayName}
 			</Typography>
-			{series.originalSeries && originalSeriesVisible && (
+			{s.originalSeries && originalSeriesVisible && (
 				<Typography variant="caption" align="left">
-					{`Because you watch ${series.originalSeries.displayName}`}
+					{`Because you watch ${s.originalSeries.displayName}`}
 				</Typography>
 			)}
 			<Box display="flex" alignItems="center">
@@ -270,7 +271,7 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 						color: "#aeaeae",
 					}}
 				>
-					{series.year || null}
+					{s.year || null}
 				</Typography>
 				<Tooltip title={isSubscribed ? translate("removeFavorites") : translate("addFavorites")} placement="top">
 					<Checkbox
@@ -278,13 +279,13 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 						checked={isSubscribed}
 						icon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
 						checkedIcon={<i className="icon-heart" style={{ fontSize: "0.875rem" }} />}
-						onChange={e => handleSubscriptionChange(e, series)}
+						onChange={e => handleSubscriptionChange(e, s)}
 						classes={{ root: classes.checkboxSize }}
 					/>
 				</Tooltip>
 				<Tooltip
 					title={
-						isSubscribed && series.numWatched > 0 && series.numTotal === series.numWatched
+						isSubscribed && s.numWatched > 0 && s.numTotal === s.numWatched
 							? translate("removeWatched")
 							: translate("addWatched")
 					}
@@ -292,23 +293,23 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 				>
 					<Checkbox
 						color="secondary"
-						checked={isSubscribed && series.numWatched > 0 && series.numTotal === series.numWatched}
-						disabled={!isSubscribed || !series.numTotal}
+						checked={isSubscribed && s.numWatched > 0 && s.numTotal === s.numWatched}
+						disabled={!isSubscribed || !s.numTotal}
 						icon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
 						checkedIcon={<i className="icon-eye" style={{ fontSize: "0.875rem" }} />}
-						onChange={e => handleMarkAsWatched(e, series)}
+						onChange={e => handleMarkAsWatched(e, s)}
 						classes={{ root: classes.checkboxSize }}
 					/>
 				</Tooltip>
-				{series.rating ? (
+				{s.rating ? (
 					<Box display="flex" alignItems="center" color="#fbc005" height="100%" style={{ paddingRight: "5px" }}>
 						<i className="icon-star" style={{ paddingLeft: "5px", paddingRight: "5px" }} />
-						<Typography variant="caption">{series.rating}</Typography>
+						<Typography variant="caption">{s.rating}</Typography>
 					</Box>
 				) : null}
 				{providers ? null : (
 					<Tooltip title={"Providers"} placement="top">
-						<IconButton onClick={() => handleGetProviders(series)} classes={{ root: classes.checkboxSize }}>
+						<IconButton onClick={() => handleGetProviders(s)} classes={{ root: classes.checkboxSize }}>
 							<i className="icon-monitor" style={{ fontSize: "0.875rem" }} />
 						</IconButton>
 					</Tooltip>

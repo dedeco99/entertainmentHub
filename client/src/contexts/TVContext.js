@@ -7,7 +7,7 @@ export const TVContext = createContext();
 
 const TVContextProvider = ({ children }) => {
 	const initState = {
-		follows: [],
+		series: {},
 		subscriptions: [],
 		groups: [],
 	};

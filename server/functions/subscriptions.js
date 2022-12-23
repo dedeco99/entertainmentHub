@@ -88,7 +88,14 @@ async function getSubscriptionGroups(event) {
 
 	const groups = await Subscription.aggregate([
 		{ $match: { active: true, user: user._id, platform } },
-		{ $group: { _id: "$group.name", total: { $sum: 1 }, pos: { $first: "$group.pos" } } },
+		{
+			$group: {
+				_id: "$group.name",
+				name: { $first: "$group.name" },
+				total: { $sum: 1 },
+				pos: { $first: "$group.pos" },
+			},
+		},
 		{ $sort: { pos: 1 } },
 	]);
 
@@ -158,7 +165,11 @@ async function addSubscriptions(event) {
 	let updatedSubscriptions = newSubscriptions.concat(subscriptionsToReAdd);
 
 	if (platform === "tv") {
-		updatedSubscriptions = await tv.getEpisodeNumbers(updatedSubscriptions, user);
+		// It's always just 1 series so it's not slow
+		updatedSubscriptions = await tv.getEpisodeNumbers(
+			updatedSubscriptions.map(s => ({ ...s, hasAsset: true })),
+			user,
+		);
 	}
 
 	return response(201, "ADD_SUBSCRIPTIONS", updatedSubscriptions);
@@ -251,11 +262,6 @@ async function patchSubscription(event) {
 	}
 
 	if (!subscription) return errors.notFound;
-
-	if (subscription.platform === "tv") {
-		subscription = await tv.getEpisodeNumbers([subscription], user);
-		subscription = subscription[0];
-	}
 
 	return response(200, "PATCH_SUBSCRIPTIONS", subscription);
 }

@@ -129,28 +129,23 @@ async function getEpisodeNumbers(series, user) {
 				s.numTotal = seriesFound.total;
 				s.numWatched = seriesFound.watched;
 				s.numToWatch = seriesFound.toWatch;
-				s.hasAsset = true;
 			}
 		} else {
 			s.numTotal = 1;
-			s.numWatched = s.watched.length;
+			s.numWatched = s.watched ? s.watched.length : 0;
 			s.numToWatch = s.numTotal - s.numWatched;
-			s.hasAsset = true;
 		}
 	}
 
 	return series;
 }
 
-async function sendSocketUpdate(type, subscriptions, user) {
+async function sendSocketUpdate(type, series, user) {
 	if (global.sockets[user._id]) {
-		const updatedSubscriptions = await getEpisodeNumbers(subscriptions, user);
+		const updatedSeries = await getEpisodeNumbers(series, user);
 
 		for (const socket of global.sockets[user._id]) {
-			socket.emit(
-				type === "edit" ? "editSubscription" : "setSubscriptions",
-				type === "edit" ? updatedSubscriptions[0] : updatedSubscriptions,
-			);
+			socket.emit("setSeries", updatedSeries);
 		}
 	}
 }
@@ -429,7 +424,7 @@ async function getSearch(event) {
 	]);
 
 	const assets = promises2[0];
-	const subscriptions = await getEpisodeNumbers(promises2[1], user);
+	const subscriptions = promises2[1];
 
 	series = series.map(s => {
 		const asset = assets.find(a => a.externalId === s.externalId);
@@ -438,7 +433,9 @@ async function getSearch(event) {
 		return asset ? { ...s, ...subscription, hasAsset: true, providers: asset.providers } : s;
 	});
 
-	return response(200, "GET_SERIES", series);
+	sendSocketUpdate("set", series, user);
+
+	return response(200, "GET_SEARCH", series);
 }
 
 function getTrend(trend) {
@@ -591,7 +588,7 @@ async function getPopular(event) {
 	]);
 
 	const assets = promises[0];
-	const subscriptions = await getEpisodeNumbers(promises[1], user);
+	const subscriptions = promises[1];
 
 	series = series.map(s => {
 		const asset = assets.find(a => a.externalId === s.externalId);
@@ -599,6 +596,8 @@ async function getPopular(event) {
 
 		return asset ? { ...s, ...subscription, hasAsset: true, providers: asset.providers } : s;
 	});
+
+	sendSocketUpdate("set", series, user);
 
 	return response(200, "GET_POPULAR", series);
 }

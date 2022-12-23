@@ -8,7 +8,6 @@ import { makeStyles, Card, CardMedia, CardActionArea } from "@material-ui/core";
 import Placeholder from "../.partials/Placeholder";
 
 import { UserContext } from "../../contexts/UserContext";
-import { TVContext } from "../../contexts/TVContext";
 
 import { patchSubscription } from "../../api/subscriptions";
 
@@ -23,7 +22,6 @@ function Episode({ clickableSeries, episode, height }) {
 	const classes = useStyles();
 	const history = useHistory();
 	const { user } = useContext(UserContext);
-	const { dispatch } = useContext(TVContext);
 
 	async function markAsWatched() {
 		if (!episode.date || diff(episode.date) < 0) return toast.error("Episode hasn't come out yet");
@@ -35,12 +33,6 @@ function Episode({ clickableSeries, episode, height }) {
 
 		if (response.status === 200) {
 			episode.watched = Boolean(response.data.watched.find(w => w.key === `S${episode.season}E${episode.number}`));
-
-			dispatch({
-				type: "EDIT_EPISODES_TO_WATCH",
-				subscription: response.data,
-				increment: episode.watched ? -1 : 1,
-			});
 		}
 
 		return null;

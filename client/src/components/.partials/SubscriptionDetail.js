@@ -189,7 +189,7 @@ function SubscriptionDetail() {
 			handleCloseModal();
 
 			if (response.data.platform === "tv") {
-				tvDispatch({ type: "EDIT_SUBSCRIPTION", subscription: { ...subscription, ...response.data } });
+				tvDispatch({ type: "EDIT_SUBSCRIPTION", subscription: response.data });
 			}
 		}
 

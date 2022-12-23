@@ -1,4 +1,4 @@
-import React, { useContext, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
@@ -7,8 +7,6 @@ import { makeStyles, withStyles, Grid, Box, Typography, Tabs, Tab, Checkbox } fr
 
 import Loading from "../.partials/Loading";
 import Episode from "./Episode";
-
-import { TVContext } from "../../contexts/TVContext";
 
 import { getAsset } from "../../api/assets";
 import { getEpisodes } from "../../api/tv";
@@ -49,7 +47,6 @@ const ChipTab = withStyles(() => ({
 function Series({ seriesId, season }) {
 	const classes = useStyles();
 	const history = useHistory();
-	const { dispatch } = useContext(TVContext);
 	const [episodes, setEpisodes] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [currentSeries, setCurrentSeries] = useState(null);
@@ -115,22 +112,13 @@ function Series({ seriesId, season }) {
 		});
 
 		if (response.status === 200) {
-			let increment = 0;
 			for (const episode of episodes) {
 				const newWatched = Boolean(
 					response.data.watched.find(w => w.key === `S${episode.season}E${episode.number}`),
 				);
 
-				if (newWatched && !episode.watched) {
-					increment--;
-				} else if (!newWatched && episode.watched) {
-					increment++;
-				}
-
 				episode.watched = newWatched;
 			}
-
-			dispatch({ type: "EDIT_EPISODES_TO_WATCH", subscription: response.data, increment });
 		}
 	}
 

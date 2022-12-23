@@ -33,9 +33,7 @@ function SocketClient() {
 			}
 		});
 
-		socket.on("setSubscriptions", subscriptions => {
-			tvDispatch({ type: "SET_SUBSCRIPTIONS", subscriptions });
-		});
+		socket.on("setSeries", series => tvDispatch({ type: "SET_SERIES", series }));
 	}, []);
 
 	return null;

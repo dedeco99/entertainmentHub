@@ -16,6 +16,8 @@ import {
 
 import Loading from "../.partials/Loading";
 
+import { SubscriptionContext } from "../../contexts/SubscriptionContext";
+
 import { getSubscriptionGroups, patchSubscription } from "../../api/subscriptions";
 
 import { chooseContext } from "../../utils/utils";
@@ -27,6 +29,7 @@ const useStyles = makeStyles(styles);
 
 function TVSidebar({ currentGroup, onGroupClick, onSearch }) {
 	const classes = useStyles();
+	const { dispatch: subscriptionDispatch } = useContext(SubscriptionContext);
 	const { state, dispatch } = useContext(chooseContext("tv"));
 	const { groups } = state;
 	const [sortMode, setSortMode] = useState(false);
@@ -43,6 +46,7 @@ function TVSidebar({ currentGroup, onGroupClick, onSearch }) {
 
 			if (response.status === 200 && isMounted) {
 				dispatch({ type: "SET_GROUPS", groups: response.data });
+				subscriptionDispatch({ type: "SET_GROUPS", groups: response.data });
 			}
 
 			setLoading(false);

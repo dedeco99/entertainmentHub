@@ -1,41 +1,55 @@
 export const tvReducer = (state, action) => {
-	let { follows, subscriptions } = state;
+	const { series, subscriptions, groups } = state;
 
 	switch (action.type) {
-		case "SET_FOLLOWS":
-			follows = action.follows;
+		case "SET_SERIES":
+			for (const s of action.series) {
+				series[s.externalId] = s;
+			}
 
-			return { ...state, follows };
-		case "SET_GROUPS":
-			return { ...state, groups: action.groups };
+			return { ...state, series };
+		case "EDIT_SERIES":
+			series[action.series.externalId] = action.series;
+
+			return { ...state, series };
 		case "SET_SUBSCRIPTIONS":
 			return { ...state, subscriptions: action.subscriptions };
-		case "ADD_SUBSCRIPTION":
-			subscriptions = [...subscriptions, ...action.subscription].sort((a, b) =>
-				a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1,
-			);
-
-			return { ...state, subscriptions };
 		case "EDIT_SUBSCRIPTION":
-			subscriptions = [...subscriptions.filter(s => s._id !== action.subscription._id), action.subscription].sort(
-				(a, b) => (a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1),
-			);
-
-			return { ...state, subscriptions };
-		case "EDIT_EPISODES_TO_WATCH":
 			const subscription = subscriptions.find(s => s._id === action.subscription._id);
 
-			subscription.numToWatch += action.increment;
+			const oldGroup = groups.find(g => g._id === subscription.group.name);
+			const currentGroup = groups.find(g => g._id === action.subscription.group.name);
 
-			subscriptions = [...subscriptions.filter(s => s._id !== action.subscription._id), subscription].sort(
-				(a, b) => (a.displayName.toLowerCase() <= b.displayName.toLowerCase() ? -1 : 1),
-			);
+			oldGroup.total--;
+			currentGroup.total++;
 
-			return { ...state, subscriptions };
+			const groupHasChanged = oldGroup.name !== currentGroup.name;
+
+			subscription.displayName = action.subscription.displayName;
+			subscription.group = action.subscription.group;
+			subscription.notifications = action.subscription.notifications;
+
+			return {
+				...state,
+				subscriptions: groupHasChanged
+					? subscriptions.filter(s => s._id !== action.subscription._id)
+					: subscriptions,
+			};
+		case "EDIT_WATCH_NUMBERS":
+			series[action.subscription.externalId].numToWatch = action.numToWatch;
+			series[action.subscription.externalId].numWatched = action.numWatched;
+
+			return { ...state, series };
 		case "DELETE_SUBSCRIPTION":
-			subscriptions = subscriptions.filter(s => s._id !== action.subscription._id);
+			return { ...state, subscriptions: subscriptions.filter(s => s._id !== action.subscription._id), groups };
+		case "SET_GROUPS":
+			return { ...state, groups: action.groups };
+		case "EDIT_GROUP_TOTAL":
+			const group = groups.find(g => g._id === action.subscription.group.name);
 
-			return { ...state, subscriptions };
+			group.total += action.increment;
+
+			return { ...state, groups };
 		default:
 			return state;
 	}
