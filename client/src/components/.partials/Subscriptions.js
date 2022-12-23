@@ -29,7 +29,7 @@ function Subscriptions({ platform, selected, idField, countField, action }) {
 			const response = await getSubscriptions(platform);
 
 			if (response.status === 200 && isMounted) {
-				dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
+				dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data.subscriptions });
 
 				setLoading(false);
 			}

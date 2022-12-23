@@ -1,9 +1,16 @@
 import { api } from "../utils/request";
 
-async function getSubscriptions(platform) {
+async function getSubscriptions(platform, page, perPage, sortBy, sortDesc, group) {
+	let query = "";
+	query += page >= 0 ? `?page=${page}` : "";
+	query += perPage ? `${query ? "&" : "?"}perPage=${perPage}` : "";
+	query += sortBy ? `${query ? "&" : "?"}sortBy=${sortBy}` : "";
+	query += sortDesc ? `${query ? "&" : "?"}sortDesc=${sortDesc}` : "";
+	query += group ? `${query ? "&" : "?"}group=${group}` : "";
+
 	const res = await api({
 		method: "get",
-		url: `/api/subscriptions/${platform}`,
+		url: `/api/subscriptions/${platform}${query}`,
 	});
 
 	return res;

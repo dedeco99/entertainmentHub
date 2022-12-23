@@ -195,7 +195,7 @@
 		"max-params": [
 			"error",
 			{
-				"max": 5
+				"max": 8
 			}
 		],
 		// "max-statements": "error",

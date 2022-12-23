@@ -1,61 +1,71 @@
-import React, { useContext, useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import PropTypes from "prop-types";
-
-import { TVContext } from "../../contexts/TVContext";
-
 import InfiniteScroll from "react-infinite-scroller";
-import Banner from "./Banner";
+
 import Loading from "../.partials/Loading";
+import Banner from "./Banner";
 
-const SERIES_PER_LOAD = 12;
-function Group({ groupId }) {
-	const { state } = useContext(TVContext);
-	const { subscriptions } = state;
-	const activeSubs = groupId === "all" ? subscriptions : subscriptions.filter(sub => sub.group.name === groupId);
+import { getSubscriptions } from "../../api/subscriptions";
 
-	const [data, setData] = useState({
-		itemsLoaded: 0,
-		hasMore: false,
-	});
+function Group({ group }) {
+	const defaultData = {
+		subscriptions: [],
+		page: 0,
+		perPage: 20,
+		sortBy: "displayName",
+		sortDesc: false,
+		hasMore: true,
+	};
+	const [data, setData] = useState(defaultData);
 	const loading = useRef(false);
 
-	function loadMore() {
+	async function handleGetSubscriptions() {
 		if (!loading.current) {
 			loading.current = true;
-			setTimeout(() => {
+
+			const response = await getSubscriptions(
+				"tv",
+				data.page,
+				data.perPage,
+				data.sortBy,
+				data.sortDesc,
+				group === "all" ? null : group,
+			);
+
+			if (response.status === 200) {
 				setData(prev => ({
-					itemsLoaded: prev.itemsLoaded + SERIES_PER_LOAD,
-					hasMore: prev.itemsLoaded + SERIES_PER_LOAD < activeSubs.length,
+					...defaultData,
+					subscriptions: prev.subscriptions.concat(response.data.subscriptions),
+					page: prev.page + 1,
+					hasMore: prev.subscriptions.length + response.data.subscriptions.length < response.data.total,
 				}));
-			}, 500);
+			}
+
 			loading.current = false;
 		}
 	}
 
 	useEffect(() => {
-		setData({
-			itemsLoaded: 0,
-			hasMore: true,
-		});
-	}, [groupId]);
-
-	if (!activeSubs.length) return <div />;
+		setData(defaultData);
+	}, [group]);
 
 	return (
-		<InfiniteScroll loadMore={loadMore} hasMore={data.hasMore} loader={<Loading key={0} />}>
-			<div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
-				{activeSubs.slice(0, data.itemsLoaded).map(series => (
-					<div key={series.externalId} style={{ padding: "8px" }}>
-						<Banner series={series} contentType="tv" bannerWidth={180} actions />
-					</div>
-				))}
-			</div>
+		<InfiniteScroll loadMore={handleGetSubscriptions} hasMore={data.hasMore} loader={<Loading key={0} />}>
+			{data.subscriptions.length ? (
+				<div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center" }}>
+					{data.subscriptions.slice(0, data.itemsLoaded).map(series => (
+						<div key={series.externalId} style={{ padding: "8px" }}>
+							<Banner series={series} contentType="tv" bannerWidth={180} actions />
+						</div>
+					))}
+				</div>
+			) : null}
 		</InfiniteScroll>
 	);
 }
 
 Group.propTypes = {
-	groupId: PropTypes.string,
+	group: PropTypes.string,
 };
 
 export default Group;

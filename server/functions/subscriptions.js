@@ -12,13 +12,33 @@ const Asset = require("../models/asset");
 const Episode = require("../models/episode");
 
 async function getSubscriptions(event) {
-	const { params, user } = event;
+	const { params, query, user } = event;
 	const { platform } = params;
+	const { sortBy, group } = query;
 
-	let subscriptions = await Subscription.find({ active: true, user: user._id, platform })
-		.collation({ locale: "en" })
-		.sort({ displayName: 1 })
-		.lean();
+	const page = Number(query.page) || 0;
+	const perPage = Number(query.perPage) || 20;
+	const sortDesc = query.sortDesc === "true";
+
+	let sortQuery = { displayName: 1 };
+	if (sortBy) sortQuery = { [sortBy]: sortDesc ? -1 : 1 };
+
+	const searchQuery = { active: true, user: user._id, platform };
+
+	if (group) searchQuery["group.name"] = group;
+
+	const promises = await Promise.all([
+		Subscription.aggregate([{ $match: searchQuery }, { $count: "total" }]),
+		Subscription.aggregate([
+			{ $match: searchQuery },
+			{ $sort: sortQuery },
+			{ $skip: page * perPage },
+			{ $limit: perPage },
+		]),
+	]);
+
+	const total = promises[0].length ? promises[0][0].total : 0;
+	let subscriptions = promises[1];
 
 	if (platform === "twitch") {
 		const streams = await twitch.getStreams({ user, query: { skipGame: true } });
@@ -59,7 +79,7 @@ async function getSubscriptions(event) {
 		tv.sendSocketUpdate("set", subscriptions, user);
 	}
 
-	return response(200, "GET_SUBSCRIPTIONS", subscriptions);
+	return response(200, "GET_SUBSCRIPTIONS", { subscriptions, total });
 }
 
 // eslint-disable-next-line max-lines-per-function

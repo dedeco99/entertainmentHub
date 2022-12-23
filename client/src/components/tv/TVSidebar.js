@@ -43,10 +43,11 @@ function TVSidebar({ currentGroup, onGroupClick, onSearch }) {
 		async function fetchData() {
 			setLoading(true);
 
+			// TODO: get subscription groups instead
 			const response = await getSubscriptions("tv");
 
 			if (response.status === 200 && isMounted) {
-				dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
+				dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data.subscriptions });
 
 				setLoading(false);
 			}
@@ -173,7 +174,6 @@ function TVSidebar({ currentGroup, onGroupClick, onSearch }) {
 							/>
 						</ListItemSecondaryAction>
 					</ListItem>
-
 					{groups.map(group => (
 						<ListItem
 							selected={group.name === currentGroup}

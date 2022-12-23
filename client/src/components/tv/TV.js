@@ -75,7 +75,7 @@ function TV() {
 			currentBlock = <Explore bannerWidth={180} useWindowScroll />;
 			break;
 		case "group":
-			currentBlock = <Group groupId={match.params.groupId} />;
+			currentBlock = <Group group={match.params.groupId} />;
 			break;
 		case "search":
 			currentBlock = <Search query={match.params.search} />;
