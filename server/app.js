@@ -141,6 +141,10 @@ app.get("/api/reddit/:subreddit/search/:search", token, (req, res) => middleware
 
 app.get("/api/subscriptions/:platform", token, (req, res) => middleware(req, res, subs.getSubscriptions));
 
+app.get("/api/subscriptions/:platform/groups", token, (req, res) =>
+	middleware(req, res, subs.getSubscriptionGroups),
+);
+
 app.post("/api/subscriptions/:platform", token, (req, res) => middleware(req, res, subs.addSubscriptions));
 
 app.put("/api/subscriptions/:id", token, (req, res) => middleware(req, res, subs.editSubscription));

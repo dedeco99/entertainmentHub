@@ -276,20 +276,6 @@ async function fetchEpisodes(series, user) {
 	if (episodesToUpdate.length) await Promise.all(episodesToUpdate);
 	if (notificationsToAdd.length) await addScheduledNotifications(notificationsToAdd);
 
-	if (user) {
-		sendSocketUpdate(
-			"edit",
-			[
-				await Subscription.findOne({
-					user: user._id,
-					platform: "tv",
-					externalId: series._id,
-				}).lean(),
-			],
-			user,
-		);
-	}
-
 	console.log(`${series.displayName} finished`);
 
 	return true;

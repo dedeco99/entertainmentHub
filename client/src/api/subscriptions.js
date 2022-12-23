@@ -16,6 +16,15 @@ async function getSubscriptions(platform, page, perPage, sortBy, sortDesc, group
 	return res;
 }
 
+async function getSubscriptionGroups(platform) {
+	const res = await api({
+		method: "get",
+		url: `/api/subscriptions/${platform}/groups`,
+	});
+
+	return res;
+}
+
 async function addSubscriptions(platform, subscriptions) {
 	const res = await api({
 		method: "post",
@@ -58,4 +67,11 @@ async function deleteSubscription(id, archive) {
 	return res;
 }
 
-export { getSubscriptions, addSubscriptions, editSubscription, patchSubscription, deleteSubscription };
+export {
+	getSubscriptions,
+	getSubscriptionGroups,
+	addSubscriptions,
+	editSubscription,
+	patchSubscription,
+	deleteSubscription,
+};

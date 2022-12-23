@@ -82,6 +82,19 @@ async function getSubscriptions(event) {
 	return response(200, "GET_SUBSCRIPTIONS", { subscriptions, total });
 }
 
+async function getSubscriptionGroups(event) {
+	const { params, user } = event;
+	const { platform } = params;
+
+	const groups = await Subscription.aggregate([
+		{ $match: { active: true, user: user._id, platform } },
+		{ $group: { _id: "$group.name", total: { $sum: 1 }, pos: { $first: "$group.pos" } } },
+		{ $sort: { pos: 1 } },
+	]);
+
+	return response(200, "GET_SUBSCRIPTION_GROUPS", groups);
+}
+
 // eslint-disable-next-line max-lines-per-function
 async function addSubscriptions(event) {
 	const { params, body, user } = event;
@@ -269,6 +282,7 @@ async function deleteSubscription(event) {
 
 module.exports = {
 	getSubscriptions,
+	getSubscriptionGroups,
 	addSubscriptions,
 	editSubscription,
 	patchSubscription,

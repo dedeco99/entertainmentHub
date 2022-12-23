@@ -16,10 +16,9 @@ import {
 
 import Loading from "../.partials/Loading";
 
-import { getSubscriptions, patchSubscription } from "../../api/subscriptions";
+import { getSubscriptionGroups, patchSubscription } from "../../api/subscriptions";
 
-import { groupOptionsArray, chooseContext } from "../../utils/utils";
-import { SubscriptionContext } from "../../contexts/SubscriptionContext";
+import { chooseContext } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
 import styles from "../../styles/General";
@@ -28,12 +27,9 @@ const useStyles = makeStyles(styles);
 
 function TVSidebar({ currentGroup, onGroupClick, onSearch }) {
 	const classes = useStyles();
-	const { dispatch: subscriptionDispatch } = useContext(SubscriptionContext);
 	const { state, dispatch } = useContext(chooseContext("tv"));
-	const { subscriptions } = state;
-	const [groups, setGroups] = useState([]);
+	const { groups } = state;
 	const [sortMode, setSortMode] = useState(false);
-	const [firstTime, setFirstTime] = useState(true);
 	const [loading, setLoading] = useState(false);
 	const searchRef = useRef(null);
 
@@ -43,14 +39,13 @@ function TVSidebar({ currentGroup, onGroupClick, onSearch }) {
 		async function fetchData() {
 			setLoading(true);
 
-			// TODO: get subscription groups instead
-			const response = await getSubscriptions("tv");
+			const response = await getSubscriptionGroups("tv");
 
 			if (response.status === 200 && isMounted) {
-				dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data.subscriptions });
-
-				setLoading(false);
+				dispatch({ type: "SET_GROUPS", groups: response.data });
 			}
+
+			setLoading(false);
 		}
 
 		fetchData();
@@ -58,36 +53,15 @@ function TVSidebar({ currentGroup, onGroupClick, onSearch }) {
 		return () => (isMounted = false);
 	}, []);
 
-	useEffect(() => {
-		const uniqueGroups = [];
-
-		for (const subscription of subscriptions) {
-			subscription.group = subscription.group ? subscription.group : { name: "Ungrouped", pos: 0 };
-
-			if (!uniqueGroups.find(group => group.name === subscription.group.name)) {
-				uniqueGroups.push(subscription.group);
-			}
-		}
-
-		subscriptionDispatch({ type: "SET_GROUPS", groups: uniqueGroups });
-
-		const updatedGroups = groupOptionsArray(subscriptions).sort((a, b) => (a.pos > b.pos ? 1 : -1));
-
-		setGroups(updatedGroups);
-
-		if (updatedGroups.length && firstTime) {
-			setFirstTime(false);
-		}
-	}, [subscriptions]);
-
 	function handleGroupSortMode() {
 		setSortMode(!sortMode);
 	}
 
+	// FIXME: kinda broken
 	async function handleOrderChange(layout, oldItem, newItem) {
 		const group = groups[oldItem.y];
 
-		const response = await patchSubscription(group.list[0]._id, { group: { name: group.name, pos: newItem.y } });
+		const response = await patchSubscription(group.list[0]._id, { group: { name: group._id, pos: newItem.y } });
 
 		if (response.status === 200) {
 			dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
@@ -96,12 +70,11 @@ function TVSidebar({ currentGroup, onGroupClick, onSearch }) {
 
 	function handleSearch(e) {
 		e.preventDefault();
+
 		onSearch(searchRef.current.value);
 	}
 
 	if (loading) return <Loading />;
-
-	if (!subscriptions || !subscriptions.length) return <div className={classes.center}>{"No groups"}</div>;
 
 	return (
 		<Box p={3} style={{ position: "sticky", top: "16px", backgroundColor: "#222" }}>
@@ -143,7 +116,7 @@ function TVSidebar({ currentGroup, onGroupClick, onSearch }) {
 						draggableHandle=".handleListItem"
 					>
 						{groups.map(group => (
-							<div key={group.name} data-grid={{ x: 0, y: group.pos, w: 1, h: 1 }}>
+							<div key={group._id} data-grid={{ x: 0, y: group.pos, w: 1, h: 1 }}>
 								<Box display="flex" height="100%" width="100%" position="relative" border="1px solid #222">
 									<Box
 										display="flex"
@@ -156,7 +129,7 @@ function TVSidebar({ currentGroup, onGroupClick, onSearch }) {
 									>
 										<i className="icon-drag-handle" />
 									</Box>
-									<ListItem>{group.name}</ListItem>
+									<ListItem>{group._id}</ListItem>
 								</Box>
 							</div>
 						))}
@@ -170,20 +143,20 @@ function TVSidebar({ currentGroup, onGroupClick, onSearch }) {
 							<Badge
 								color="secondary"
 								max={999}
-								badgeContent={groups.map(group => group.list.length).reduce((prev, next) => prev + next, 0)}
+								badgeContent={groups.map(group => group.total).reduce((prev, next) => prev + next, 0)}
 							/>
 						</ListItemSecondaryAction>
 					</ListItem>
 					{groups.map(group => (
 						<ListItem
-							selected={group.name === currentGroup}
+							selected={group._id === currentGroup}
 							button
-							onClick={() => onGroupClick(group.name)}
-							key={group.name}
+							onClick={() => onGroupClick(group._id)}
+							key={group._id}
 						>
-							{group.name}
+							{group._id}
 							<ListItemSecondaryAction>
-								<Badge color="secondary" max={999} badgeContent={group.list.length} />
+								<Badge color="secondary" max={999} badgeContent={group.total} />
 							</ListItemSecondaryAction>
 						</ListItem>
 					))}
