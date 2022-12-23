@@ -16,7 +16,7 @@ const general = {
 		backgroundColor: "#222",
 		padding: 0,
 		maxHeight: "80vh",
-		overflow: "auto",
+		overflow: "hidden",
 		position: "sticky",
 		top: "16px",
 	},

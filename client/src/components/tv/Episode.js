@@ -19,7 +19,7 @@ import { episode as styles } from "../../styles/TV";
 const useStyles = makeStyles(styles);
 
 // eslint-disable-next-line complexity
-function Episode({ clickableSeries, episode, height }) {
+function Episode({ clickableSeries, episode }) {
 	const classes = useStyles();
 	const history = useHistory();
 	const { user } = useContext(UserContext);
@@ -54,14 +54,18 @@ function Episode({ clickableSeries, episode, height }) {
 		<Card className={classes.root}>
 			<CardActionArea
 				onClick={markAsWatched}
-				style={episode.watched ? { border: "2px solid #ec6e4c" } : { border: "2px solid transparent" }}
+				style={
+					episode.watched
+						? { border: "2px solid #ec6e4c", height: "100%" }
+						: { border: "2px solid transparent", height: "100%" }
+				}
 				disabled={!episode.series._id}
 			>
 				{episode.image ? (
 					<CardMedia
 						component="img"
-						height={height ? height : "150"}
-						image={height ? episode.image.replace("w454_and_h254_bestv2", "original") : episode.image}
+						height={"100%"}
+						image={episode.image}
 						style={
 							user.settings.tv && user.settings.tv.hideEpisodesThumbnails && !episode.watched
 								? { filter: "blur(30px)" }
@@ -105,7 +109,6 @@ function Episode({ clickableSeries, episode, height }) {
 Episode.propTypes = {
 	clickableSeries: PropTypes.bool,
 	episode: PropTypes.object.isRequired,
-	height: PropTypes.string,
 };
 
 export default Episode;
