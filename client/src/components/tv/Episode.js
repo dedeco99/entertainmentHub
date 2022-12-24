@@ -1,4 +1,4 @@
-import React, { useContext } from "react";
+import React, { useContext, useState, useCallback } from "react";
 import PropTypes from "prop-types";
 import { toast } from "react-toastify";
 import { useHistory } from "react-router-dom";
@@ -22,6 +22,8 @@ function Episode({ clickableSeries, episode }) {
 	const classes = useStyles();
 	const history = useHistory();
 	const { user } = useContext(UserContext);
+	const [, updateState] = useState();
+	const forceUpdate = useCallback(() => updateState({}), []);
 
 	async function markAsWatched() {
 		if (!episode.date || diff(episode.date) < 0) return toast.error("Episode hasn't come out yet");
@@ -33,6 +35,8 @@ function Episode({ clickableSeries, episode }) {
 
 		if (response.status === 200) {
 			episode.watched = Boolean(response.data.watched.find(w => w.key === `S${episode.season}E${episode.number}`));
+
+			forceUpdate();
 		}
 
 		return null;

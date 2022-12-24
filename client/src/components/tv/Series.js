@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import PropTypes from "prop-types";
 import dayjs from "dayjs";
@@ -51,6 +51,8 @@ function Series({ seriesId, season }) {
 	const [loading, setLoading] = useState(true);
 	const [currentSeries, setCurrentSeries] = useState(null);
 	const [assets, setAssets] = useState(null);
+	const [, updateState] = useState();
+	const forceUpdate = useCallback(() => updateState({}), []);
 	let isMounted = true;
 	const hasUnwatchedEpisodes = !!episodes.filter(e => e.date && diff(e.date) > 0).find(e => !e.watched);
 
@@ -119,6 +121,8 @@ function Series({ seriesId, season }) {
 
 				episode.watched = newWatched;
 			}
+
+			forceUpdate();
 		}
 	}
 
