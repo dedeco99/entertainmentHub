@@ -6,6 +6,7 @@ const tv = require("../functions/tv");
 
 const Asset = require("../models/asset");
 const Episode = require("../models/episode");
+const Subscription = require("../models/subscription");
 
 async function getAsset(event) {
 	const { params, user } = event;
@@ -59,6 +60,34 @@ async function cronjob() {
 				resolve();
 			}, 3000);
 		});
+	}
+
+	const subscriptions = await Subscription.aggregate([
+		{ $match: { active: true, platform: "tv" } },
+		{
+			$group: {
+				_id: "$externalId",
+				displayName: { $first: "$displayName" },
+				contentType: { $addToSet: "$contentType" },
+			},
+		},
+		{ $sort: { displayName: 1 } },
+	]);
+
+	for (const series of subscriptions) {
+		for (const contentType of series.contentType) {
+			const assetExists = await Asset.findOne({ contentType, externalId: series._id });
+
+			if (!assetExists) {
+				await new Promise(resolve => {
+					setTimeout(async () => {
+						await tv.addAsset(contentType, series._id);
+
+						resolve();
+					}, 3000);
+				});
+			}
+		}
 	}
 }
 

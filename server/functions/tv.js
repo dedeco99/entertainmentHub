@@ -151,7 +151,7 @@ async function sendSocketUpdate(type, series, user) {
 }
 
 // eslint-disable-next-line complexity, max-lines-per-function
-async function fetchEpisodes(series, user) {
+async function fetchEpisodes(series) {
 	const episodesToAdd = [];
 	const episodesToUpdate = [];
 	const notificationsToAdd = [];
@@ -278,7 +278,7 @@ async function fetchEpisodes(series, user) {
 
 async function cronjob() {
 	const seriesList = await Subscription.aggregate([
-		{ $match: { active: true, platform: "tv" } },
+		{ $match: { active: true, platform: "tv", contentType: "tv" } },
 		{
 			$group: {
 				_id: "$externalId",
@@ -306,7 +306,7 @@ async function getEpisodes(event) {
 	const { id, season } = params;
 	const { page, filter } = query;
 
-	const userSeries = await Subscription.find({ active: true, user: user._id, platform: "tv" })
+	const userSeries = await Subscription.find({ active: true, user: user._id, platform: "tv", contentType: "tv" })
 		.sort({ displayName: 1 })
 		.lean();
 
@@ -578,7 +578,7 @@ async function getPopular(event) {
 	}
 
 	const promises = await Promise.all([
-		Asset.find({ externalId: { $in: series.map(i => i.externalId) } }, "externalId providers").lean(),
+		Asset.find({ externalId: { $in: series.map(i => i.externalId) } }, "externalId contentType providers").lean(),
 		Subscription.find({
 			active: true,
 			user: user._id,
@@ -591,8 +591,8 @@ async function getPopular(event) {
 	const subscriptions = promises[1];
 
 	series = series.map(s => {
-		const asset = assets.find(a => a.externalId === s.externalId);
-		const subscription = subscriptions.find(a => a.externalId === s.externalId);
+		const asset = assets.find(a => a.externalId === s.externalId && a.contentType === s.contentType);
+		const subscription = subscriptions.find(a => a.externalId === s.externalId && a.contentType === s.contentType);
 
 		return asset ? { ...s, ...subscription, hasAsset: true, providers: asset.providers } : s;
 	});
@@ -707,53 +707,10 @@ async function getProviders(event) {
 }
 
 async function addAsset(contentType, externalId) {
-	const res = await api({
-		method: "get",
-		url: `https://api.themoviedb.org/3/${contentType}/${externalId}?append_to_response=external_ids,images&api_key=${process.env.tmdbKey}`,
-	});
-
-	const tmdbRes = res.data;
-
-	const extrasRes = await Promise.all([
-		api({
-			method: "get",
-			url: `https://imdb-api.tprojects.workers.dev/title/${tmdbRes.external_ids.imdb_id}`,
-			headers: { "accept-language": "en-US" },
-		}),
-		getProviders({ query: { type: contentType, search: contentType === "tv" ? tmdbRes.name : tmdbRes.title } }),
-	]);
-
-	const imdbRes = extrasRes[0].data;
-	const providers = extrasRes[1].body.data;
-
-	const asset = new Asset({
-		platform: "tv",
-		contentType,
-		externalId,
-		displayName: contentType === "tv" ? tmdbRes.name : tmdbRes.title,
-		image: tmdbRes.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbRes.poster_path}` : "",
-		genres: tmdbRes.genres.map(g => ({ ...g, externalId: g.id })),
-		firstDate: contentType === "tv" ? tmdbRes.first_air_date : tmdbRes.release_date,
-		lastDate: contentType === "tv" ? tmdbRes.last_air_date : tmdbRes.release_date,
-		status: tmdbRes.status,
-		episodeRunTime: contentType === "tv" ? tmdbRes.episode_run_time[0] : tmdbRes.runtime,
-		tagline: tmdbRes.tagline,
-		overview: tmdbRes.overview,
-		rating: imdbRes.rating ? imdbRes.rating.star : null,
-		languages: tmdbRes.spoken_languages.map(l => l.iso_639_1),
-		backdrops: tmdbRes.images.backdrops.map(b => `https://image.tmdb.org/t/p/w1280_and_h720_bestv2${b.file_path}`),
-		providers,
-		imdbId: tmdbRes.external_ids.imdb_id,
-	});
-
-	await asset.save();
-}
-
-async function updateAsset(asset) {
 	try {
 		const res = await api({
 			method: "get",
-			url: `https://api.themoviedb.org/3/tv/${asset.externalId}?append_to_response=external_ids,images&api_key=${process.env.tmdbKey}`,
+			url: `https://api.themoviedb.org/3/${contentType}/${externalId}?append_to_response=external_ids,images&api_key=${process.env.tmdbKey}`,
 		});
 
 		const tmdbRes = res.data;
@@ -764,7 +721,58 @@ async function updateAsset(asset) {
 				url: `https://imdb-api.tprojects.workers.dev/title/${tmdbRes.external_ids.imdb_id}`,
 				headers: { "accept-language": "en-US" },
 			}),
-			getProviders({ query: { type: "tv", search: tmdbRes.name } }),
+			getProviders({ query: { type: contentType, search: contentType === "tv" ? tmdbRes.name : tmdbRes.title } }),
+		]);
+
+		const imdbRes = extrasRes[0].data;
+		const providers = extrasRes[1].body.data;
+
+		const asset = new Asset({
+			platform: "tv",
+			contentType,
+			externalId,
+			displayName: contentType === "tv" ? tmdbRes.name : tmdbRes.title,
+			image: tmdbRes.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbRes.poster_path}` : "",
+			genres: tmdbRes.genres.map(g => ({ ...g, externalId: g.id })),
+			firstDate: contentType === "tv" ? tmdbRes.first_air_date : tmdbRes.release_date,
+			lastDate: contentType === "tv" ? tmdbRes.last_air_date : tmdbRes.release_date,
+			status: tmdbRes.status,
+			episodeRunTime: contentType === "tv" ? tmdbRes.episode_run_time[0] : tmdbRes.runtime,
+			tagline: tmdbRes.tagline,
+			overview: tmdbRes.overview,
+			rating: imdbRes.rating ? imdbRes.rating.star : null,
+			languages: tmdbRes.spoken_languages.map(l => l.iso_639_1),
+			backdrops: tmdbRes.images.backdrops.map(
+				b => `https://image.tmdb.org/t/p/w1280_and_h720_bestv2${b.file_path}`,
+			),
+			providers,
+			imdbId: tmdbRes.external_ids.imdb_id,
+		});
+
+		await asset.save();
+	} catch (err) {
+		console.log(err);
+	}
+}
+
+async function updateAsset(asset) {
+	try {
+		const res = await api({
+			method: "get",
+			url: `https://api.themoviedb.org/3/${asset.contentType}/${asset.externalId}?append_to_response=external_ids,images&api_key=${process.env.tmdbKey}`,
+		});
+
+		const tmdbRes = res.data;
+
+		const extrasRes = await Promise.all([
+			api({
+				method: "get",
+				url: `https://imdb-api.tprojects.workers.dev/title/${tmdbRes.external_ids.imdb_id}`,
+				headers: { "accept-language": "en-US" },
+			}),
+			getProviders({
+				query: { type: asset.contentType, search: asset.contentType === "tv" ? tmdbRes.name : tmdbRes.title },
+			}),
 		]);
 
 		const imdbRes = extrasRes[0].data;
@@ -773,13 +781,13 @@ async function updateAsset(asset) {
 		await Asset.updateOne(
 			{ externalId: asset.externalId },
 			{
-				displayName: tmdbRes.name,
+				displayName: asset.contentType === "tv" ? tmdbRes.name : tmdbRes.title,
 				image: tmdbRes.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${tmdbRes.poster_path}` : "",
 				genres: tmdbRes.genres.map(g => ({ ...g, externalId: g.id })),
-				firstDate: tmdbRes.first_air_date,
-				lastDate: tmdbRes.last_air_date,
+				firstDate: asset.contentType === "tv" ? tmdbRes.first_air_date : tmdbRes.release_date,
+				lastDate: asset.contentType === "tv" ? tmdbRes.last_air_date : tmdbRes.release_date,
 				status: tmdbRes.status,
-				episodeRunTime: tmdbRes.episode_run_time[0],
+				episodeRunTime: asset.contentType === "tv" ? tmdbRes.episode_run_time[0] : tmdbRes.runtime,
 				tagline: tmdbRes.tagline,
 				overview: tmdbRes.overview,
 				rating: imdbRes.rating ? imdbRes.rating.star : null,
