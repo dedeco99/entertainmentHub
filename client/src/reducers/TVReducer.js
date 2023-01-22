@@ -17,17 +17,20 @@ export const tvReducer = (state, action) => {
 		case "EDIT_SUBSCRIPTION":
 			const subscription = subscriptions.find(s => s._id === action.subscription._id);
 
-			const oldGroup = groups.find(g => g._id === subscription.group.name);
-			const currentGroup = groups.find(g => g._id === action.subscription.group.name);
+			let groupHasChanged = false;
+			if (subscription) {
+				const oldGroup = groups.find(g => g._id === subscription.group.name);
+				const currentGroup = groups.find(g => g._id === action.subscription.group.name);
 
-			oldGroup.total--;
-			currentGroup.total++;
+				if (oldGroup) oldGroup.total--;
+				if (currentGroup) currentGroup.total++;
 
-			const groupHasChanged = oldGroup.name !== currentGroup.name;
+				groupHasChanged = oldGroup.name !== currentGroup.name;
 
-			subscription.displayName = action.subscription.displayName;
-			subscription.group = action.subscription.group;
-			subscription.notifications = action.subscription.notifications;
+				subscription.displayName = action.subscription.displayName;
+				subscription.group = action.subscription.group;
+				subscription.notifications = action.subscription.notifications;
+			}
 
 			return {
 				...state,
@@ -47,7 +50,7 @@ export const tvReducer = (state, action) => {
 		case "EDIT_GROUP_TOTAL":
 			const group = groups.find(g => g._id === action.subscription.group.name);
 
-			group.total += action.increment;
+			if (group) group.total += action.increment;
 
 			return { ...state, groups };
 		default:
