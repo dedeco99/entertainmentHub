@@ -26,7 +26,7 @@ function Subscriptions({ platform, selected, idField, countField, action }) {
 		async function fetchData() {
 			setLoading(true);
 
-			const response = await getSubscriptions(platform);
+			const response = await getSubscriptions(platform, 0, 1000);
 
 			if (response.status === 200 && isMounted) {
 				dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data.subscriptions });
