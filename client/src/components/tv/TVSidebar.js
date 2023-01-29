@@ -140,7 +140,7 @@ function TVSidebar({ currentGroup, onGroupClick, onSearch }) {
 					</GridLayout>
 				</List>
 			) : (
-				<List disablePadding className={classes.listMenu}>
+				<List disablePadding className={classes.listMenu} style={{ overflow: "hidden" }}>
 					<ListItem selected={currentGroup === "all"} button onClick={() => onGroupClick("all")}>
 						{translate("all")}
 						<ListItemSecondaryAction>
