@@ -61,9 +61,15 @@ function formatResponse(json) {
 			gallery = [];
 			for (const image of data.gallery_data.items) {
 				if (data.media_metadata[image.media_id].s.u) {
-					gallery.push(data.media_metadata[image.media_id].s.u.replace(/amp;/g, ""));
+					gallery.push({
+						caption: image.caption,
+						image: data.media_metadata[image.media_id].s.u.replace(/amp;/g, ""),
+					});
 				} else if (data.media_metadata[image.media_id].s.gif) {
-					gallery.push(data.media_metadata[image.media_id].s.gif.replace(/amp;/g, ""));
+					gallery.push({
+						caption: image.caption,
+						image: data.media_metadata[image.media_id].s.gif.replace(/amp;/g, ""),
+					});
 				}
 			}
 		}

@@ -160,7 +160,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 					<PrismaZoom className={classes.zoomImage} style={{ position: "absolute" }}>
 						<CardMedia
 							component="img"
-							src={post.gallery[galleryIndex]}
+							src={post.gallery[galleryIndex].image}
 							className={classes.media}
 							onClick={handleOpenExpandedView}
 						/>
@@ -186,6 +186,9 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 								<i className="icon-caret-right icon-1x" />
 							</IconButton>
 						</Box>
+					)}
+					{post.gallery[galleryIndex].caption && (
+						<Box className={classes.caption}>{post.gallery[galleryIndex].caption}</Box>
 					)}
 				</div>
 			);
