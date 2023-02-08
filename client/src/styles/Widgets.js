@@ -204,6 +204,16 @@ const reddit = {
 		overflow: "auto",
 		textAlign: "center",
 	},
+	galleryIndex: {
+		position: "absolute",
+		top: 5,
+		right: 10,
+		margin: "auto",
+		backgroundColor: "#212121dd",
+		padding: "3px",
+		borderRadius: "3px",
+		textAlign: "center",
+	},
 	header: {
 		borderLeft: "1px solid #212121",
 		borderRight: "1px solid #212121",

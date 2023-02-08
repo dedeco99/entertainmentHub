@@ -190,6 +190,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 					{post.gallery[galleryIndex].caption && (
 						<Box className={classes.caption}>{post.gallery[galleryIndex].caption}</Box>
 					)}
+					<Box className={classes.galleryIndex}>{`${galleryIndex + 1}/${post.gallery.length}`}</Box>
 				</div>
 			);
 			expandedContent = content;
