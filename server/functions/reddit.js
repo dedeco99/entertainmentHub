@@ -241,6 +241,7 @@ async function getComments(event) {
 		const formattedComment = {
 			id: data.id,
 			author: data.author,
+			isFromOP: data.is_submitter,
 			score: data.score,
 			gilded: data.gilded,
 			text: data.body,
@@ -268,6 +269,7 @@ async function getComments(event) {
 					return {
 						id: r.data.id,
 						author: r.data.author,
+						isFromOP: r.data.is_submitter,
 						score: r.data.score,
 						gilded: r.data.gilded,
 						text: r.data.body,

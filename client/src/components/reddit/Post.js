@@ -447,6 +447,14 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 						<Typography variant="caption" style={{ fontSize: "13px" }}>
 							{comment.author}
 						</Typography>
+						{comment.isFromOP && (
+							<Chip
+								size="small"
+								color="secondary"
+								label={"OP"}
+								style={{ marginLeft: 5, height: 15, fontSize: "0.75em" }}
+							/>
+						)}
 						<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
 							{` • ${formatDate(comment.created * 1000, null, true)}`}
 						</Typography>
@@ -478,6 +486,14 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 									<Typography variant="caption" style={{ fontSize: "13px" }}>
 										{reply.author}
 									</Typography>
+									{reply.isFromOP && (
+										<Chip
+											size="small"
+											color="secondary"
+											label={"OP"}
+											style={{ marginLeft: 5, height: 15, fontSize: "0.75em" }}
+										/>
+									)}
 									<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
 										{` • ${formatDate(reply.created * 1000, null, true)}`}
 									</Typography>
