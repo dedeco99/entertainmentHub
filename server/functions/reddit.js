@@ -33,6 +33,7 @@ async function getAccessToken(user) {
 	return json.access_token;
 }
 
+// eslint-disable-next-line complexity
 function formatResponse(json) {
 	const res = [];
 	for (let i = 0; i < json.data.children.length; i++) {
@@ -42,9 +43,10 @@ function formatResponse(json) {
 			data.media = data.crosspost_parent_list[0].media;
 		}
 
-		let redditVideo = null;
 		if (data.media && data.media.reddit_video) {
-			redditVideo = data.media.reddit_video.dash_url;
+			data.url = data.media.reddit_video.fallback_url;
+		} else if (data.preview && data.preview.reddit_video_preview) {
+			data.url = data.preview.reddit_video_preview.fallback_url;
 		}
 
 		let videoHeight = null;
@@ -74,6 +76,9 @@ function formatResponse(json) {
 			}
 		}
 
+		if (data.domain === "gfycat.com") console.log(data.url);
+		if (data.domain === "v.redd.it") console.log(data.url);
+
 		res.push({
 			id: data.id,
 			title: data.title,
@@ -91,7 +96,6 @@ function formatResponse(json) {
 			thumbnail: data.thumbnail,
 			text: sanitizeHtml(data.selftext_html),
 			gallery,
-			redditVideo,
 			videoHeight,
 			videoPreview,
 			created: data.created_utc,

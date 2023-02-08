@@ -1,7 +1,6 @@
 /* eslint-disable max-lines */
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import ReactPlayer from "react-player";
 import PrismaZoom from "react-prismazoom";
 
 import {
@@ -118,7 +117,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 		post.url = post.url.slice(-1) === "/" ? post.url.slice(0, -1) : post.url; // Remove last backslash
 		post.url = post.url.replace("&amp;t", ""); // Broken youtube link
 
-		const imgTypes = ["jpg", "jpeg", "png", "gif"];
+		const imgTypes = ["jpg", "jpeg", "png", "gif", "webp"];
 		let content = null;
 		let expandedContent = null;
 		let isMedia = true;
@@ -194,18 +193,6 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 				</div>
 			);
 			expandedContent = content;
-		} else if (post.domain === "gfycat.com") {
-			content = (
-				<CardMedia
-					component="iframe"
-					src={`https://gfycat.com/ifr/${post.url.substr(post.url.lastIndexOf("/") + 1)}?autoplay=0&hd=1`}
-					frameBorder={0}
-					allowFullScreen
-					className={classes.media}
-					scrolling="no"
-				/>
-			);
-			expandedContent = content;
 		} else if (post.domain === "thumbs.gfycat.com") {
 			content = (
 				<CardMedia
@@ -256,16 +243,8 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 				/>
 			);
 			expandedContent = content;
-		} else if (post.domain === "v.redd.it") {
-			content = (
-				<ReactPlayer
-					controls
-					url={`https://red-mode-fbb6.dedeco99.workers.dev/${post.redditVideo}`}
-					width="100%"
-					height="100%"
-					className={classes.media}
-				/>
-			);
+		} else if (["v.redd.it", "gfycat.com"].includes(post.domain)) {
+			content = <CardMedia component="video" src={post.url} className={classes.media} controls />;
 			expandedContent = content;
 		} else if (post.domain === "youtube.com" || post.domain === "youtu.be") {
 			const videoId = post.url.includes("?v=")
