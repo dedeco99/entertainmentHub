@@ -426,6 +426,26 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 		);
 	}
 
+	function getGif(comment) {
+		const commentComponents = [];
+
+		const commentLines = comment.text.split("\n");
+
+		for (const line of commentLines) {
+			const splitLine = line.split("![gif](");
+
+			const giphyId = splitLine[1] ? splitLine[1].trim().substring(0, splitLine[1].trim().length - 1) : null;
+
+			if (giphyId && splitLine[0]) commentComponents.push(splitLine[0]);
+
+			commentComponents.push(
+				giphyId && comment.media[giphyId] ? <CardMedia component="img" src={comment.media[giphyId]} /> : line,
+			);
+		}
+
+		return <Box>{commentComponents}</Box>;
+	}
+
 	function renderComments() {
 		return loading ? (
 			<Box style={{ marginTop: "50px" }}>
@@ -460,7 +480,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 						<Divider orientation="vertical" flexItem />
 						<Box fontWeight={500} fontFamily="Monospace" pt={1} style={{ marginLeft: "10px" }}>
 							<Typography variant="caption" style={{ fontSize: "12px" }}>
-								{comment.text}
+								{comment.media ? getGif(comment) : comment.text}
 							</Typography>
 							<Box fontWeight={500} fontFamily="Monospace" pt={1}>
 								<Typography variant="caption" style={{ fontSize: "13px" }}>
@@ -491,7 +511,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 									<Divider orientation="vertical" flexItem />
 									<Box fontWeight={500} fontFamily="Monospace" pt={1} style={{ marginLeft: "10px" }}>
 										<Typography variant="caption" style={{ fontSize: "12px" }}>
-											{reply.text}
+											{reply.media ? getGif(reply) : reply.text}
 										</Typography>
 										<Box fontWeight={500} fontFamily="Monospace" pt={1}>
 											<Typography variant="caption" style={{ fontSize: "13px" }}>

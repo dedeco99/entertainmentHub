@@ -222,12 +222,25 @@ async function getComments(event) {
 	for (const comment of json[1].data.children.filter(r => r.kind === "t1")) {
 		const data = comment.data;
 
+		let media = null;
+		if (data.media_metadata) {
+			media = {};
+
+			for (const id in data.media_metadata) {
+				media[id] =
+					data.media_metadata[id].t === "giphy"
+						? `https://i.giphy.com/media/${id.split("|")[1]}/giphy.webp`
+						: data.media_metadata[id].s.gif;
+			}
+		}
+
 		const formattedComment = {
 			id: data.id,
 			author: data.author,
 			score: data.score,
 			gilded: data.gilded,
 			text: data.body,
+			media,
 			edited: data.edited,
 			created: data.created_utc,
 		};
@@ -235,15 +248,30 @@ async function getComments(event) {
 		if (data.replies) {
 			formattedComment.replies = data.replies.data.children
 				.filter(r => r.kind === "t1")
-				.map(r => ({
-					id: r.data.id,
-					author: r.data.author,
-					score: r.data.score,
-					gilded: r.data.gilded,
-					text: r.data.body,
-					edited: r.data.edited,
-					created: r.data.created_utc,
-				}));
+				.map(r => {
+					let media = null;
+					if (r.data.media_metadata) {
+						media = {};
+
+						for (const id in r.data.media_metadata) {
+							media[id] =
+								r.data.media_metadata[id].t === "giphy"
+									? `https://i.giphy.com/media/${id.split("|")[1]}/giphy.webp`
+									: r.data.media_metadata[id].s.gif;
+						}
+					}
+
+					return {
+						id: r.data.id,
+						author: r.data.author,
+						score: r.data.score,
+						gilded: r.data.gilded,
+						text: r.data.body,
+						media,
+						edited: r.data.edited,
+						created: r.data.created_utc,
+					};
+				});
 		}
 
 		comments.push(formattedComment);
