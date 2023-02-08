@@ -59,11 +59,11 @@ function formatResponse(json) {
 			}
 		} else if (data.url.includes("https://www.reddit.com/gallery")) {
 			gallery = [];
-			for (const image in data.media_metadata) {
-				if (data.media_metadata[image].s.u) {
-					gallery.push(data.media_metadata[image].s.u.replace(/amp;/g, ""));
-				} else if (data.media_metadata[image].s.gif) {
-					gallery.push(data.media_metadata[image].s.gif.replace(/amp;/g, ""));
+			for (const image of data.gallery_data.items) {
+				if (data.media_metadata[image.media_id].s.u) {
+					gallery.push(data.media_metadata[image.media_id].s.u.replace(/amp;/g, ""));
+				} else if (data.media_metadata[image.media_id].s.gif) {
+					gallery.push(data.media_metadata[image.media_id].s.gif.replace(/amp;/g, ""));
 				}
 			}
 		}
