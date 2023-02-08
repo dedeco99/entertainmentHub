@@ -33,6 +33,7 @@ async function getAccessToken(user) {
 	return json.access_token;
 }
 
+// eslint-disable-next-line complexity
 function formatResponse(json) {
 	const res = [];
 	for (let i = 0; i < json.data.children.length; i++) {
@@ -42,9 +43,10 @@ function formatResponse(json) {
 			data.media = data.crosspost_parent_list[0].media;
 		}
 
-		let redditVideo = null;
 		if (data.media && data.media.reddit_video) {
-			redditVideo = data.media.reddit_video.dash_url;
+			data.url = data.media.reddit_video.fallback_url;
+		} else if (data.preview && data.preview.reddit_video_preview) {
+			data.url = data.preview.reddit_video_preview.fallback_url;
 		}
 
 		let videoHeight = null;
@@ -59,20 +61,29 @@ function formatResponse(json) {
 			}
 		} else if (data.url.includes("https://www.reddit.com/gallery")) {
 			gallery = [];
-			for (const image in data.media_metadata) {
-				if (data.media_metadata[image].s.u) {
-					gallery.push(data.media_metadata[image].s.u.replace(/amp;/g, ""));
-				} else if (data.media_metadata[image].s.gif) {
-					gallery.push(data.media_metadata[image].s.gif.replace(/amp;/g, ""));
+			for (const image of data.gallery_data.items) {
+				if (data.media_metadata[image.media_id].s.u) {
+					gallery.push({
+						caption: image.caption,
+						image: data.media_metadata[image.media_id].s.u.replace(/amp;/g, ""),
+					});
+				} else if (data.media_metadata[image.media_id].s.gif) {
+					gallery.push({
+						caption: image.caption,
+						image: data.media_metadata[image.media_id].s.gif.replace(/amp;/g, ""),
+					});
 				}
 			}
 		}
+
+		if (data.domain === "gfycat.com") console.log(data.url);
+		if (data.domain === "v.redd.it") console.log(data.url);
 
 		res.push({
 			id: data.id,
 			title: data.title,
 			subreddit: data.subreddit,
-			permalink: `https://reddit.com/${data.permalink}`,
+			permalink: `https://reddit.com${data.permalink}`,
 			gilded: data.gilded,
 			score: data.score,
 			comments: data.num_comments,
@@ -85,7 +96,6 @@ function formatResponse(json) {
 			thumbnail: data.thumbnail,
 			text: sanitizeHtml(data.selftext_html),
 			gallery,
-			redditVideo,
 			videoHeight,
 			videoPreview,
 			created: data.created_utc,
@@ -216,12 +226,26 @@ async function getComments(event) {
 	for (const comment of json[1].data.children.filter(r => r.kind === "t1")) {
 		const data = comment.data;
 
+		let media = null;
+		if (data.media_metadata) {
+			media = {};
+
+			for (const id in data.media_metadata) {
+				media[id] =
+					data.media_metadata[id].t === "giphy"
+						? `https://i.giphy.com/media/${id.split("|")[1]}/giphy.webp`
+						: data.media_metadata[id].s.gif;
+			}
+		}
+
 		const formattedComment = {
 			id: data.id,
 			author: data.author,
+			isFromOP: data.is_submitter,
 			score: data.score,
 			gilded: data.gilded,
 			text: data.body,
+			media,
 			edited: data.edited,
 			created: data.created_utc,
 		};
@@ -229,15 +253,31 @@ async function getComments(event) {
 		if (data.replies) {
 			formattedComment.replies = data.replies.data.children
 				.filter(r => r.kind === "t1")
-				.map(r => ({
-					id: r.data.id,
-					author: r.data.author,
-					score: r.data.score,
-					gilded: r.data.gilded,
-					text: r.data.body,
-					edited: r.data.edited,
-					created: r.data.created_utc,
-				}));
+				.map(r => {
+					let media = null;
+					if (r.data.media_metadata) {
+						media = {};
+
+						for (const id in r.data.media_metadata) {
+							media[id] =
+								r.data.media_metadata[id].t === "giphy"
+									? `https://i.giphy.com/media/${id.split("|")[1]}/giphy.webp`
+									: r.data.media_metadata[id].s.gif;
+						}
+					}
+
+					return {
+						id: r.data.id,
+						author: r.data.author,
+						isFromOP: r.data.is_submitter,
+						score: r.data.score,
+						gilded: r.data.gilded,
+						text: r.data.body,
+						media,
+						edited: r.data.edited,
+						created: r.data.created_utc,
+					};
+				});
 		}
 
 		comments.push(formattedComment);

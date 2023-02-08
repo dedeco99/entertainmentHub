@@ -1,7 +1,6 @@
 /* eslint-disable max-lines */
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import ReactPlayer from "react-player";
 import PrismaZoom from "react-prismazoom";
 
 import {
@@ -118,7 +117,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 		post.url = post.url.slice(-1) === "/" ? post.url.slice(0, -1) : post.url; // Remove last backslash
 		post.url = post.url.replace("&amp;t", ""); // Broken youtube link
 
-		const imgTypes = ["jpg", "jpeg", "png", "gif"];
+		const imgTypes = ["jpg", "jpeg", "png", "gif", "webp"];
 		let content = null;
 		let expandedContent = null;
 		let isMedia = true;
@@ -160,7 +159,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 					<PrismaZoom className={classes.zoomImage} style={{ position: "absolute" }}>
 						<CardMedia
 							component="img"
-							src={post.gallery[galleryIndex]}
+							src={post.gallery[galleryIndex].image}
 							className={classes.media}
 							onClick={handleOpenExpandedView}
 						/>
@@ -187,19 +186,11 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 							</IconButton>
 						</Box>
 					)}
+					{post.gallery[galleryIndex].caption && (
+						<Box className={classes.caption}>{post.gallery[galleryIndex].caption}</Box>
+					)}
+					<Box className={classes.galleryIndex}>{`${galleryIndex + 1}/${post.gallery.length}`}</Box>
 				</div>
-			);
-			expandedContent = content;
-		} else if (post.domain === "gfycat.com") {
-			content = (
-				<CardMedia
-					component="iframe"
-					src={`https://gfycat.com/ifr/${post.url.substr(post.url.lastIndexOf("/") + 1)}?autoplay=0&hd=1`}
-					frameBorder={0}
-					allowFullScreen
-					className={classes.media}
-					scrolling="no"
-				/>
 			);
 			expandedContent = content;
 		} else if (post.domain === "thumbs.gfycat.com") {
@@ -239,21 +230,21 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 			}
 
 			expandedContent = content;
-		} else if (post.domain === "i.imgur.com" && post.url.substr(post.url.lastIndexOf(".") + 1) === "gifv") {
+		} else if (
+			post.domain === "i.imgur.com" &&
+			["gifv", "mp4"].includes(post.url.substr(post.url.lastIndexOf(".") + 1))
+		) {
 			content = (
-				<CardMedia component="video" src={`${post.url.slice(0, -5)}.mp4`} className={classes.media} controls />
-			);
-			expandedContent = content;
-		} else if (post.domain === "v.redd.it") {
-			content = (
-				<ReactPlayer
-					controls
-					url={`https://red-mode-fbb6.dedeco99.workers.dev/${post.redditVideo}`}
-					width="100%"
-					height="100%"
+				<CardMedia
+					component="video"
+					src={`${post.url.substr(0, post.url.lastIndexOf("."))}.mp4`}
 					className={classes.media}
+					controls
 				/>
 			);
+			expandedContent = content;
+		} else if (["v.redd.it", "gfycat.com"].includes(post.domain)) {
+			content = <CardMedia component="video" src={post.url} className={classes.media} controls />;
 			expandedContent = content;
 		} else if (post.domain === "youtube.com" || post.domain === "youtu.be") {
 			const videoId = post.url.includes("?v=")
@@ -296,9 +287,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 			<div style={{ zIndex: 1 }}>
 				<div className={`${classes.overlay} ${classes.title}`} title={post.title}>
 					<Typography>
-						<Link href={post.permalink} target="_blank" rel="noreferrer" color="inherit">
-							{htmlEscape(post.title)}
-						</Link>
+						<Link onClick={handleOpenExpandedView}>{htmlEscape(post.title)}</Link>
 					</Typography>
 				</div>
 				{multipleSubs && (
@@ -328,9 +317,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 				<Divider />
 				<Box p={1}>
 					<Typography>
-						<Link href={post.permalink} target="_blank" rel="noreferrer" color="inherit">
-							{htmlEscape(post.title)}
-						</Link>
+						<Link onClick={handleOpenExpandedView}>{htmlEscape(post.title)}</Link>
 					</Typography>
 					{multipleSubs && (
 						<Typography variant="caption" title={post.subreddit}>
@@ -399,9 +386,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 						</Typography>
 					)}
 					<Typography variant="h6">
-						<Link href={post.permalink} target="_blank" rel="noreferrer" color="inherit">
-							{htmlEscape(post.title)}
-						</Link>
+						<Link onClick={handleOpenExpandedView}>{htmlEscape(post.title)}</Link>
 					</Typography>
 				</Box>
 				<Box display="flex">
@@ -418,6 +403,26 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 				</Box>
 			</Box>
 		);
+	}
+
+	function getGif(comment) {
+		const commentComponents = [];
+
+		const commentLines = comment.text.split("\n");
+
+		for (const line of commentLines) {
+			const splitLine = line.split("![gif](");
+
+			const giphyId = splitLine[1] ? splitLine[1].trim().substring(0, splitLine[1].trim().length - 1) : null;
+
+			if (giphyId && splitLine[0]) commentComponents.push(splitLine[0]);
+
+			commentComponents.push(
+				giphyId && comment.media[giphyId] ? <CardMedia component="img" src={comment.media[giphyId]} /> : line,
+			);
+		}
+
+		return <Box>{commentComponents}</Box>;
 	}
 
 	function renderComments() {
@@ -442,6 +447,14 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 						<Typography variant="caption" style={{ fontSize: "13px" }}>
 							{comment.author}
 						</Typography>
+						{comment.isFromOP && (
+							<Chip
+								size="small"
+								color="secondary"
+								label={"OP"}
+								style={{ marginLeft: 5, height: 15, fontSize: "0.75em" }}
+							/>
+						)}
 						<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
 							{` • ${formatDate(comment.created * 1000, null, true)}`}
 						</Typography>
@@ -454,7 +467,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 						<Divider orientation="vertical" flexItem />
 						<Box fontWeight={500} fontFamily="Monospace" pt={1} style={{ marginLeft: "10px" }}>
 							<Typography variant="caption" style={{ fontSize: "12px" }}>
-								{comment.text}
+								{comment.media ? getGif(comment) : comment.text}
 							</Typography>
 							<Box fontWeight={500} fontFamily="Monospace" pt={1}>
 								<Typography variant="caption" style={{ fontSize: "13px" }}>
@@ -473,6 +486,14 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 									<Typography variant="caption" style={{ fontSize: "13px" }}>
 										{reply.author}
 									</Typography>
+									{reply.isFromOP && (
+										<Chip
+											size="small"
+											color="secondary"
+											label={"OP"}
+											style={{ marginLeft: 5, height: 15, fontSize: "0.75em" }}
+										/>
+									)}
 									<Typography variant="caption" style={{ fontSize: "11px", color: "rgb(236, 110, 76)" }}>
 										{` • ${formatDate(reply.created * 1000, null, true)}`}
 									</Typography>
@@ -485,7 +506,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 									<Divider orientation="vertical" flexItem />
 									<Box fontWeight={500} fontFamily="Monospace" pt={1} style={{ marginLeft: "10px" }}>
 										<Typography variant="caption" style={{ fontSize: "12px" }}>
-											{reply.text}
+											{reply.media ? getGif(reply) : reply.text}
 										</Typography>
 										<Box fontWeight={500} fontFamily="Monospace" pt={1}>
 											<Typography variant="caption" style={{ fontSize: "13px" }}>
