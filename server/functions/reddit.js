@@ -78,7 +78,7 @@ function formatResponse(json) {
 			id: data.id,
 			title: data.title,
 			subreddit: data.subreddit,
-			permalink: `https://reddit.com/${data.permalink}`,
+			permalink: `https://reddit.com${data.permalink}`,
 			gilded: data.gilded,
 			score: data.score,
 			comments: data.num_comments,

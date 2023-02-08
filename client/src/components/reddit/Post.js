@@ -243,9 +243,17 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 			}
 
 			expandedContent = content;
-		} else if (post.domain === "i.imgur.com" && post.url.substr(post.url.lastIndexOf(".") + 1) === "gifv") {
+		} else if (
+			post.domain === "i.imgur.com" &&
+			["gifv", "mp4"].includes(post.url.substr(post.url.lastIndexOf(".") + 1))
+		) {
 			content = (
-				<CardMedia component="video" src={`${post.url.slice(0, -5)}.mp4`} className={classes.media} controls />
+				<CardMedia
+					component="video"
+					src={`${post.url.substr(0, post.url.lastIndexOf("."))}.mp4`}
+					className={classes.media}
+					controls
+				/>
 			);
 			expandedContent = content;
 		} else if (post.domain === "v.redd.it") {
@@ -300,9 +308,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 			<div style={{ zIndex: 1 }}>
 				<div className={`${classes.overlay} ${classes.title}`} title={post.title}>
 					<Typography>
-						<Link href={post.permalink} target="_blank" rel="noreferrer" color="inherit">
-							{htmlEscape(post.title)}
-						</Link>
+						<Link onClick={handleOpenExpandedView}>{htmlEscape(post.title)}</Link>
 					</Typography>
 				</div>
 				{multipleSubs && (
@@ -332,9 +338,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 				<Divider />
 				<Box p={1}>
 					<Typography>
-						<Link href={post.permalink} target="_blank" rel="noreferrer" color="inherit">
-							{htmlEscape(post.title)}
-						</Link>
+						<Link onClick={handleOpenExpandedView}>{htmlEscape(post.title)}</Link>
 					</Typography>
 					{multipleSubs && (
 						<Typography variant="caption" title={post.subreddit}>
@@ -403,9 +407,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 						</Typography>
 					)}
 					<Typography variant="h6">
-						<Link href={post.permalink} target="_blank" rel="noreferrer" color="inherit">
-							{htmlEscape(post.title)}
-						</Link>
+						<Link onClick={handleOpenExpandedView}>{htmlEscape(post.title)}</Link>
 					</Typography>
 				</Box>
 				<Box display="flex">
