@@ -23,7 +23,7 @@ import {
 
 import Loading from "./Loading";
 
-import { patchSubscription } from "../../api/subscriptions";
+import { orderSubscriptionGroups } from "../../api/subscriptions";
 
 import { formatNumber, groupOptionsArray, chooseContext } from "../../utils/utils";
 
@@ -78,13 +78,22 @@ function Sidebar({ options, platform, selected, idField, countField, action, men
 		setSortMode(!sortMode);
 	}
 
-	async function handleOrderChange(layout, oldItem, newItem) {
-		const group = groups[oldItem.y];
+	async function handleOrderChange(layout) {
+		layout.sort((a, b) => a.y - b.y);
 
-		const response = await patchSubscription(group.list[0]._id, { group: { name: group.name, pos: newItem.y } });
+		const orderedGroups = layout.map(g => g.i);
+
+		const response = await orderSubscriptionGroups(platform, orderedGroups);
 
 		if (response.status === 200) {
-			dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
+			const populatedGroups = [];
+
+			for (const group of response.data) {
+				const populatedGroup = groups.find(g => g.name === group.name);
+				populatedGroups.push({ ...populatedGroup, pos: group.pos });
+			}
+
+			setGroups(populatedGroups);
 		}
 	}
 

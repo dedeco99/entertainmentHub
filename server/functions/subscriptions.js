@@ -102,6 +102,26 @@ async function getSubscriptionGroups(event) {
 	return response(200, "GET_SUBSCRIPTION_GROUPS", groups);
 }
 
+async function orderSubscriptionGroups(event) {
+	const { params, body, user } = event;
+
+	const { platform } = params;
+
+	for (let i = 0; i < body.length; i++) {
+		const group = body[i];
+
+		await Subscription.updateMany(
+			{ user: user._id, platform, "group.name": group },
+			{ "group.pos": i },
+			{ new: true },
+		);
+	}
+
+	const groups = await getSubscriptionGroups({ params: { platform }, user });
+
+	return response(200, "ORDER_SUBSCRIPTION_GROUPS", groups.body.data);
+}
+
 // eslint-disable-next-line max-lines-per-function
 async function addSubscriptions(event) {
 	const { params, body, user } = event;
@@ -199,7 +219,7 @@ async function editSubscription(event) {
 async function patchSubscription(event) {
 	const { params, body, user } = event;
 	const { id } = params;
-	const { markAsWatched, group } = body;
+	const { markAsWatched } = body;
 	let { watched } = body;
 
 	let subscription = await Subscription.findOne(
@@ -229,36 +249,6 @@ async function patchSubscription(event) {
 		} catch (err) {
 			return errors.notFound;
 		}
-	} else if (group) {
-		await Promise.all([
-			Subscription.updateMany(
-				{
-					user: user._id,
-					platform: subscription.platform,
-					"group.name": { $ne: group.name },
-					"group.pos": { $gte: subscription.group.pos, $lte: group.pos },
-				},
-				{ $inc: { "group.pos": -1 } },
-			),
-			Subscription.updateMany(
-				{
-					user: user._id,
-					platform: subscription.platform,
-					"group.name": { $ne: group.name },
-					"group.pos": { $gte: group.pos, $lte: subscription.group.pos },
-				},
-				{ $inc: { "group.pos": 1 } },
-			),
-			Subscription.updateMany(
-				{ user: user._id, platform: subscription.platform, "group.name": group.name },
-				{ "group.pos": group.pos },
-				{ new: true },
-			),
-		]);
-
-		const subscriptions = await getSubscriptions({ user, params: { platform: "tv" } });
-
-		subscription = subscriptions.body.data;
 	}
 
 	if (!subscription) return errors.notFound;
@@ -289,6 +279,7 @@ async function deleteSubscription(event) {
 module.exports = {
 	getSubscriptions,
 	getSubscriptionGroups,
+	orderSubscriptionGroups,
 	addSubscriptions,
 	editSubscription,
 	patchSubscription,

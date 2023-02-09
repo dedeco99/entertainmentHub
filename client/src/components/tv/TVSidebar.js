@@ -18,7 +18,7 @@ import Loading from "../.partials/Loading";
 
 import { SubscriptionContext } from "../../contexts/SubscriptionContext";
 
-import { getSubscriptionGroups, patchSubscription } from "../../api/subscriptions";
+import { getSubscriptionGroups, orderSubscriptionGroups } from "../../api/subscriptions";
 
 import { chooseContext } from "../../utils/utils";
 import { translate } from "../../utils/translations";
@@ -61,14 +61,16 @@ function TVSidebar({ currentGroup, onGroupClick, onSearch }) {
 		setSortMode(!sortMode);
 	}
 
-	// FIXME: kinda broken
-	async function handleOrderChange(layout, oldItem, newItem) {
-		const group = groups[oldItem.y];
+	async function handleOrderChange(layout) {
+		layout.sort((a, b) => a.y - b.y);
 
-		const response = await patchSubscription(group.list[0]._id, { group: { name: group._id, pos: newItem.y } });
+		const orderedGroups = layout.map(g => g.i);
+
+		const response = await orderSubscriptionGroups("tv", orderedGroups);
 
 		if (response.status === 200) {
-			dispatch({ type: "SET_SUBSCRIPTIONS", subscriptions: response.data });
+			dispatch({ type: "SET_GROUPS", groups: response.data });
+			subscriptionDispatch({ type: "SET_GROUPS", groups: response.data });
 		}
 	}
 
