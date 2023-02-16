@@ -43,8 +43,9 @@ function formatResponse(json) {
 			data.media = data.crosspost_parent_list[0].media;
 		}
 
+		let redditVideo = null;
 		if (data.media && data.media.reddit_video) {
-			data.url = data.media.reddit_video.fallback_url;
+			redditVideo = data.media.reddit_video.dash_url;
 		} else if (data.preview && data.preview.reddit_video_preview) {
 			data.url = data.preview.reddit_video_preview.fallback_url;
 		}
@@ -76,9 +77,6 @@ function formatResponse(json) {
 			}
 		}
 
-		if (data.domain === "gfycat.com") console.log(data.url);
-		if (data.domain === "v.redd.it") console.log(data.url);
-
 		res.push({
 			id: data.id,
 			title: data.title,
@@ -96,6 +94,7 @@ function formatResponse(json) {
 			thumbnail: data.thumbnail,
 			text: sanitizeHtml(data.selftext_html),
 			gallery,
+			redditVideo,
 			videoHeight,
 			videoPreview,
 			created: data.created_utc,

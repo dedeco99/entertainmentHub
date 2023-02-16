@@ -32,7 +32,7 @@
 		"rss-converter": "^1.1.6",
 		"sanitize-html": "^2.6.1",
 		"socket.io": "^4.4.1",
-		"yahoo-finance2": "^2.1.0"
+		"yahoo-finance2": "^2.3.10"
 	},
 	"devDependencies": {
 		"concurrently": "^7.0.0",
