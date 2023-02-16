@@ -1,6 +1,7 @@
 /* eslint-disable max-lines */
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import ReactPlayer from "react-player";
 import PrismaZoom from "react-prismazoom";
 
 import {
@@ -243,7 +244,18 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 				/>
 			);
 			expandedContent = content;
-		} else if (["v.redd.it", "gfycat.com"].includes(post.domain)) {
+		} else if (post.domain === "v.redd.it") {
+			content = (
+				<ReactPlayer
+					controls
+					url={`https://red-mode-fbb6.dedeco99.workers.dev/${post.redditVideo}`}
+					width="100%"
+					height="100%"
+					className={classes.media}
+				/>
+			);
+			expandedContent = content;
+		} else if (post.domain === "gfycat.com") {
 			content = <CardMedia component="video" src={post.url} className={classes.media} controls />;
 			expandedContent = content;
 		} else if (post.domain === "youtube.com" || post.domain === "youtu.be") {

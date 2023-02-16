@@ -44,7 +44,10 @@ function Finance({ coins, stocks, widgetDimensions }) {
 
 			const cryptoResponse = coins ? await getCryptoPrices(coins) : { data: [] };
 			const stockResponse = stocks ? await getStockPrices(stocks) : { data: [] };
-			const response = cryptoResponse.data.concat(stockResponse.data);
+			let response = [];
+
+			if (cryptoResponse.data) response = response.concat(cryptoResponse.data);
+			if (stockResponse.data) response = response.concat(stockResponse.data);
 
 			if (isMounted) {
 				setCrypto(response.sort((a, b) => (a.name.toLowerCase() < b.name.toLowerCase() ? -1 : 1)));

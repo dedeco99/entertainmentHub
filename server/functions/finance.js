@@ -150,44 +150,48 @@ async function getStockPrices(event) {
 	const exchangeRates = (await getExchangeRates(event)).body.data;
 
 	const stocksInfo = [];
-	for (const stock of quoteRes) {
-		const historicalRes = await yahooFinance.historical(stock.symbol, {
-			period1: dayjs().subtract(1, "month").format("YYYY-MM-DD"),
-		});
+	try {
+		for (const stock of quoteRes) {
+			const historicalRes = await yahooFinance.historical(stock.symbol, {
+				period1: dayjs().subtract(1, "month").format("YYYY-MM-DD"),
+			});
 
-		const price =
-			stock.currency === user.settings.currency
-				? stock.regularMarketPrice
-				: stock.regularMarketPrice / exchangeRates[stock.currency];
+			const price =
+				stock.currency === user.settings.currency
+					? stock.regularMarketPrice
+					: stock.regularMarketPrice / exchangeRates[stock.currency];
 
-		const openPrice =
-			stock.currency === user.settings.currency
-				? stock.regularMarketOpen
-				: stock.regularMarketOpen / exchangeRates[stock.currency];
+			const openPrice =
+				stock.currency === user.settings.currency
+					? stock.regularMarketOpen
+					: stock.regularMarketOpen / exchangeRates[stock.currency];
 
-		const weekPrice =
-			stock.currency === user.settings.currency
-				? historicalRes[historicalRes.length - 7].close
-				: historicalRes[historicalRes.length - 7].close / exchangeRates[stock.currency];
+			const weekPrice =
+				stock.currency === user.settings.currency
+					? historicalRes[historicalRes.length - 7].close
+					: historicalRes[historicalRes.length - 7].close / exchangeRates[stock.currency];
 
-		const monthPrice =
-			stock.currency === user.settings.currency
-				? historicalRes[0].close
-				: historicalRes[0].close / exchangeRates[stock.currency];
+			const monthPrice =
+				stock.currency === user.settings.currency
+					? historicalRes[0].close
+					: historicalRes[0].close / exchangeRates[stock.currency];
 
-		stocksInfo.push({
-			id: stock.symbol,
-			name: stock.shortName,
-			symbol: stock.symbol,
-			image: `https://companiesmarketcap.com/img/company-logos/80/${stock.symbol}.png`,
-			price,
-			marketCap: stock.marketCap,
-			volume: stock.regularMarketVolume,
-			change1h: ((price - openPrice) / openPrice) * 100,
-			change24h: stock.regularMarketChangePercent,
-			change7d: ((price - weekPrice) / weekPrice) * 100,
-			change30d: ((price - monthPrice) / monthPrice) * 100,
-		});
+			stocksInfo.push({
+				id: stock.symbol,
+				name: stock.shortName,
+				symbol: stock.symbol,
+				image: `https://companiesmarketcap.com/img/company-logos/80/${stock.symbol}.png`,
+				price,
+				marketCap: stock.marketCap,
+				volume: stock.regularMarketVolume,
+				change1h: ((price - openPrice) / openPrice) * 100,
+				change24h: stock.regularMarketChangePercent,
+				change7d: ((price - weekPrice) / weekPrice) * 100,
+				change30d: ((price - monthPrice) / monthPrice) * 100,
+			});
+		}
+	} catch (err) {
+		console.log(err);
 	}
 
 	return response(200, "GET_STOCK_PRICES", stocksInfo);
