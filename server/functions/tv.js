@@ -317,6 +317,9 @@ async function getEpisodes(event) {
 	const sortQuery = { date: -1, seriesId: -1, number: -1 };
 	if (filter === "passed") {
 		episodeQuery.date = { $lte: new Date() };
+	} else if (filter === "finale") {
+		episodeQuery.date = { $lte: new Date() };
+		afterQuery.finale = true;
 	} else if (filter === "future") {
 		episodeQuery.date = { $gt: new Date() };
 		sortQuery.date = 1;

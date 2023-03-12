@@ -56,6 +56,9 @@ function Feed() {
 				<ToggleButton value="passed" className={classes.episodeBtn} color="primary" variant="outlined">
 					{translate("releasedEpisodes")}
 				</ToggleButton>
+				<ToggleButton value="finale" className={classes.episodeBtn} color="primary" variant="outlined">
+					{translate("finaleEpisodes")}
+				</ToggleButton>
 				<ToggleButton value="future" className={classes.episodeBtn} color="primary" variant="outlined">
 					{translate("upcomingEpisodes")}
 				</ToggleButton>

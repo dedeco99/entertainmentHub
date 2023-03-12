@@ -156,6 +156,10 @@ const translations = {
 		en: "Released",
 		pt: "Lançados",
 	},
+	finaleEpisodes: {
+		en: "Finale",
+		pt: "Finale",
+	},
 	upcomingEpisodes: {
 		en: "Upcoming",
 		pt: "Próximos",
