@@ -76,9 +76,6 @@ function formatResponse(json) {
 			}
 		}
 
-		if (data.domain === "gfycat.com") console.log(data.url);
-		if (data.domain === "v.redd.it") console.log(data.url);
-
 		res.push({
 			id: data.id,
 			title: data.title,
@@ -234,6 +231,8 @@ async function getComments(event) {
 				media[id] =
 					data.media_metadata[id].t === "giphy"
 						? `https://i.giphy.com/media/${id.split("|")[1]}/giphy.webp`
+						: data.media_metadata[id].e === "Image"
+						? data.media_metadata[id].s.u.replaceAll("&amp;", "&")
 						: data.media_metadata[id].s.gif;
 			}
 		}
