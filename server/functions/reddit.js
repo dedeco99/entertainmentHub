@@ -1,4 +1,5 @@
 const sanitizeHtml = require("sanitize-html");
+const { extract } = require("@extractus/article-extractor");
 
 const { response, api } = require("../utils/request");
 const errors = require("../utils/errors");
@@ -91,7 +92,7 @@ function formatResponse(json) {
 			domain: data.domain,
 			url: data.url,
 			thumbnail: data.thumbnail,
-			text: sanitizeHtml(data.selftext_html),
+			text: data.selftext_html ? sanitizeHtml(data.selftext_html) : null,
 			gallery,
 			videoHeight,
 			videoPreview,
@@ -313,10 +314,20 @@ async function getSearch(event) {
 	return response(200, "GET_REDDIT_SEARCH", posts);
 }
 
+async function getHtmlFromUrl(event) {
+	const { body } = event;
+	const { url } = body;
+
+	const res = await extract(url);
+
+	return response(200, "GET_HTML_FROM_URL", { html: res ? res.content : null });
+}
+
 module.exports = {
 	isSubreddit,
 	getSubreddits,
 	getPosts,
 	getComments,
 	getSearch,
+	getHtmlFromUrl,
 };
