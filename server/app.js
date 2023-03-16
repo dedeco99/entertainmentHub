@@ -139,6 +139,8 @@ app.get("/api/reddit/:subreddit/comments/:post", token, (req, res) => middleware
 
 app.get("/api/reddit/:subreddit/search/:search", token, (req, res) => middleware(req, res, reddit.getSearch));
 
+app.post("/api/html", token, (req, res) => middleware(req, res, reddit.getHtmlFromUrl));
+
 app.get("/api/subscriptions/:platform", token, (req, res) => middleware(req, res, subs.getSubscriptions));
 
 app.get("/api/subscriptions/:platform/groups", token, (req, res) =>

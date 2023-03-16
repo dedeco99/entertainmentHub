@@ -23,7 +23,7 @@ import {
 
 import Loading from "../.partials/Loading";
 
-import { getComments } from "../../api/reddit";
+import { getComments, getHtmlFromUrl } from "../../api/reddit";
 
 import { formatDate, formatNumber, htmlEscape } from "../../utils/utils";
 
@@ -37,8 +37,10 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 	const [sideMenuView, setSideMenuView] = useState(true);
 	const [comments, setComments] = useState([]);
 	const [loading, setLoading] = useState(false);
+	const [htmlLoading, setHtmlLoading] = useState(false);
 	const [galleryIndex, setGalleryIndex] = useState(0);
 	const [isHovered, setIsHovered] = useState(false);
+	const [isMedia, setIsMedia] = useState(true);
 
 	async function handleGetComments() {
 		setLoading(true);
@@ -52,12 +54,24 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 		setLoading(false);
 	}
 
+	async function handleGetHtmlFromUrl() {
+		setHtmlLoading(true);
+
+		const res = await getHtmlFromUrl(post.url);
+
+		if (res.data.html) post.text = res.data.html;
+
+		setHtmlLoading(false);
+	}
+
 	useEffect(() => {
 		if (expandedView) handleGetComments();
 	}, [post.id, expandedView]);
 
 	useEffect(() => {
 		setGalleryIndex(0);
+
+		if (!isMedia) handleGetHtmlFromUrl();
 	}, [post]);
 
 	function handleCloseExpandedView() {
@@ -88,22 +102,30 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 	}, []);
 
 	function formatTextPost(expanded) {
-		const text =
-			post.text === "null" ? (
-				<Typography>
-					<Link href={post.url} target="_blank" rel="noreferrer" color="inherit">
-						{post.url}
-					</Link>
-				</Typography>
-			) : (
-				// eslint-disable-next-line react/no-danger
-				<Box className={classes.textContent} dangerouslySetInnerHTML={{ __html: htmlEscape(`${post.text}`) }} />
-			);
+		const text = post.text ? (
+			// eslint-disable-next-line react/no-danger
+			<Box className={classes.textContent} dangerouslySetInnerHTML={{ __html: htmlEscape(`${post.text}`) }} />
+		) : (
+			<Typography>
+				<Link href={post.url} target="_blank" rel="noreferrer" color="inherit">
+					{post.url}
+				</Link>
+			</Typography>
+		);
 
-		return (
+		return htmlLoading ? (
+			<Box style={{ marginTop: "50px" }}>
+				<Loading />
+			</Box>
+		) : (
 			<Box display="flex" alignItems="center" height="100%">
 				{expanded ? (
-					<Box p={2} maxWidth={1450} style={{ backgroundColor: "#212121", overflow: "auto" }} maxHeight="1000px">
+					<Box
+						p={2}
+						maxWidth={1450}
+						maxHeight={window.innerHeight - 100}
+						style={{ backgroundColor: "#212121", overflow: "auto" }}
+					>
 						{text}
 					</Box>
 				) : (
@@ -121,7 +143,6 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 		const imgTypes = ["jpg", "jpeg", "png", "gif", "webp"];
 		let content = null;
 		let expandedContent = null;
-		let isMedia = true;
 
 		const imgType = post.url.substr(post.url.lastIndexOf(".") + 1);
 
@@ -286,12 +307,12 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 			);
 			expandedContent = content;
 		} else {
-			isMedia = false;
+			if (isMedia) setIsMedia(false);
 			content = formatTextPost();
 			expandedContent = formatTextPost(true);
 		}
 
-		return { isMedia, content, expandedContent };
+		return { content, expandedContent };
 	}
 
 	function renderInfoOverlay() {
@@ -417,21 +438,72 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 		);
 	}
 
-	function getGif(comment) {
+	function checkForMarkdown(line) {
+		if (!line) return line;
+
+		if (line.includes("&gt;")) {
+			if (line.replaceAll("&gt;", "") === "") return null;
+
+			return (
+				<blockquote
+					style={{ display: "inline", margin: "10px", borderLeft: "3px solid #444", paddingLeft: "5px" }}
+				>
+					{line.replaceAll("&gt;", "")}
+				</blockquote>
+			);
+		} else if (line.includes("---")) {
+			return <Divider style={{ margin: "10px 0px" }} />;
+		}
+
+		return line;
+	}
+
+	function formatComment(comment) {
 		const commentComponents = [];
 
 		const commentLines = comment.text.split("\n");
 
 		for (const line of commentLines) {
-			const splitLine = line.split("![gif](");
+			let content = line;
 
-			const giphyId = splitLine[1] ? splitLine[1].trim().substring(0, splitLine[1].trim().length - 1) : null;
+			const isCovertLink = line.match(/(?<before>.+)?\[(?<text>.+)\]\((?<link>.+)\)(?<after>.+)?/);
+			const hasLink = line.match(/(?<before>.+)?(?<text>.+)(?<link>(https|http):\/\/.+)(?<after>.+)?/);
+			const isLink = line.match(/(?<before>.+)?(?<link>(https|http):\/\/.+)(?<after>.+)?/);
+			const match = isCovertLink || hasLink || isLink;
+			if (match) {
+				const isImage = line.match(/(https|http):\/\/(?<id>.+)\.(jpg|jpeg|png|gif)/);
 
-			if (giphyId && splitLine[0]) commentComponents.push(splitLine[0]);
+				if (["img", "gif"].includes(match.groups.text) && comment.media[match.groups.link]) {
+					content = <CardMedia component="img" src={comment.media[match.groups.link]} />;
+				} else if (isImage) {
+					content = (
+						<div>
+							{match.groups.text}
+							{match.groups.text ? <br /> : null}
+							<CardMedia component="img" src={match.groups.link.replaceAll("&amp;", "&")} />
+						</div>
+					);
+				} else {
+					content = (
+						<div>
+							{checkForMarkdown(match.groups.before)}
+							<Link
+								href={match.groups.link}
+								target="_blank"
+								rel="noreferrer"
+								style={{ color: "#ec6e4c", textDecoration: "underline" }}
+							>
+								{match.groups.text || match.groups.link}
+							</Link>
+							{checkForMarkdown(match.groups.after)}
+						</div>
+					);
+				}
+			} else {
+				content = <div>{checkForMarkdown(line)}</div>;
+			}
 
-			commentComponents.push(
-				giphyId && comment.media[giphyId] ? <CardMedia component="img" src={comment.media[giphyId]} /> : line,
-			);
+			commentComponents.push(content);
 		}
 
 		return <Box>{commentComponents}</Box>;
@@ -479,7 +551,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 						<Divider orientation="vertical" flexItem />
 						<Box fontWeight={500} fontFamily="Monospace" pt={1} style={{ marginLeft: "10px" }}>
 							<Typography variant="caption" style={{ fontSize: "12px" }}>
-								{comment.media ? getGif(comment) : comment.text}
+								{formatComment(comment)}
 							</Typography>
 							<Box fontWeight={500} fontFamily="Monospace" pt={1}>
 								<Typography variant="caption" style={{ fontSize: "13px" }}>
@@ -518,7 +590,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 									<Divider orientation="vertical" flexItem />
 									<Box fontWeight={500} fontFamily="Monospace" pt={1} style={{ marginLeft: "10px" }}>
 										<Typography variant="caption" style={{ fontSize: "12px" }}>
-											{reply.media ? getGif(reply) : reply.text}
+											{formatComment(reply)}
 										</Typography>
 										<Box fontWeight={500} fontFamily="Monospace" pt={1}>
 											<Typography variant="caption" style={{ fontSize: "13px" }}>
@@ -540,7 +612,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 		);
 	}
 
-	const { isMedia, content, expandedContent } = formatContent();
+	const { content, expandedContent } = formatContent();
 	const widgetInfo = isMedia ? renderInfoMedia() : renderInfo();
 
 	return (
@@ -597,7 +669,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 										</Box>
 									) : null}
 								</Box>
-								<Box position="relative" height="100%" flexGrow={1} style={{ overflow: "hidden" }}>
+								<Box position="relative" height="100%" flexGrow={1} style={{ overflow: "auto" }}>
 									{expandedContent}
 								</Box>
 								<Box>
