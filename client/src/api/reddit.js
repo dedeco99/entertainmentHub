@@ -40,4 +40,14 @@ async function getSearch(subreddit, search, after) {
 	return res;
 }
 
-export { getSubreddits, getPosts, getComments, getSearch };
+async function getHtmlFromUrl(url) {
+	const res = await api({
+		method: "post",
+		url: "/api/html",
+		data: { url },
+	});
+
+	return res;
+}
+
+export { getSubreddits, getPosts, getComments, getSearch, getHtmlFromUrl };
