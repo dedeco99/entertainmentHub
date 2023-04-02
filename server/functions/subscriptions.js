@@ -70,7 +70,7 @@ async function getSubscriptions(event) {
 			return {
 				...s,
 				hasAsset: true,
-				year: dayjs(asset.firstDate).get("year"),
+				releaseDate: asset.firstDate,
 				rating: asset.rating,
 				providers: asset.providers,
 			};

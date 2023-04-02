@@ -87,7 +87,7 @@ function Series({ seriesId, season }) {
 				}
 			}
 
-			const response = await getEpisodes(seriesId, season);
+			const response = await getEpisodes("tv", seriesId, season);
 
 			if (response.status === 200 && isMounted) {
 				setEpisodes(response.data);

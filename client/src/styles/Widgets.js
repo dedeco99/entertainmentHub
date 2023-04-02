@@ -135,6 +135,7 @@ const reddit = {
 		borderBottom: "1px solid #424242",
 	},
 	textContent: {
+		margin: "10px",
 		boxSizing: "border-box",
 		"& p": {
 			fontSize: "1rem",

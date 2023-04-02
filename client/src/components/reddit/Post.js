@@ -104,7 +104,11 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 	function formatTextPost(expanded) {
 		const text = post.text ? (
 			// eslint-disable-next-line react/no-danger
-			<Box className={classes.textContent} dangerouslySetInnerHTML={{ __html: htmlEscape(`${post.text}`) }} />
+			<Box
+				width="95%"
+				className={classes.textContent}
+				dangerouslySetInnerHTML={{ __html: htmlEscape(`${post.text}`) }}
+			/>
 		) : (
 			<Typography>
 				<Link href={post.url} target="_blank" rel="noreferrer" color="inherit">
@@ -143,6 +147,7 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 		const imgTypes = ["jpg", "jpeg", "png", "gif", "webp"];
 		let content = null;
 		let expandedContent = null;
+		let newIsMedia = true;
 
 		const imgType = post.url.substr(post.url.lastIndexOf(".") + 1);
 
@@ -307,10 +312,12 @@ function Post({ post, num, multipleSubs, onShowPreviousPost, onShowNextPost, inL
 			);
 			expandedContent = content;
 		} else {
-			if (isMedia) setIsMedia(false);
+			newIsMedia = false;
 			content = formatTextPost();
 			expandedContent = formatTextPost(true);
 		}
+
+		if (newIsMedia !== isMedia) setIsMedia(newIsMedia);
 
 		return { content, expandedContent };
 	}

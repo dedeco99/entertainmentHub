@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import PropTypes from "prop-types";
+import dayjs from "dayjs";
 
 import {
 	makeStyles,
@@ -28,6 +29,7 @@ import { addSubscriptions, patchSubscription, deleteSubscription } from "../../a
 import { getProviders } from "../../api/tv";
 
 import { banners as styles } from "../../styles/TV";
+import { formatDate } from "../../utils/utils";
 import { translate } from "../../utils/translations";
 
 const useStyles = makeStyles(styles);
@@ -263,15 +265,12 @@ function Banner({ series, contentType, bannerWidth, actions }) {
 				</Typography>
 			)}
 			<Box display="flex" alignItems="center">
-				<Typography
-					variant="caption"
-					style={{
-						display: "flex",
-						flexGrow: 1,
-						color: "#aeaeae",
-					}}
-				>
-					{s.year || null}
+				<Typography variant="caption" style={{ display: "flex", flexGrow: 1, color: "#aeaeae" }}>
+					{s.releaseDate
+						? dayjs(s.releaseDate).get("year") === dayjs().get("year")
+							? formatDate(s.releaseDate, "DD MMM")
+							: dayjs(s.releaseDate).get("year")
+						: s.year || null}
 				</Typography>
 				<Tooltip title={isSubscribed ? translate("removeFavorites") : translate("addFavorites")} placement="top">
 					<Checkbox

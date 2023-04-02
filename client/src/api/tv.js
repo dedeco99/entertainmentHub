@@ -1,9 +1,10 @@
 import { api } from "../utils/request";
 
-async function getEpisodes(series, season, page, filter) {
+async function getEpisodes(contentType, series, season, page, filter) {
 	let query = "";
 	query += page >= 0 ? `?page=${page}` : "";
 	query += filter ? `${query ? "&" : "?"}filter=${filter}` : "";
+	query += contentType ? `${query ? "&" : "?"}contentType=${contentType}` : "";
 
 	const res = await api({
 		method: "get",

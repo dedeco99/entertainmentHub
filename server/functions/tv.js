@@ -300,83 +300,124 @@ async function cronjob() {
 	return true;
 }
 
-// eslint-disable-next-line max-lines-per-function
+// eslint-disable-next-line max-lines-per-function, complexity
 async function getEpisodes(event) {
 	const { params, query, user } = event;
 	const { id, season } = params;
-	const { page, filter } = query;
+	const { contentType, page, filter } = query;
 
-	const userSeries = await Subscription.find({ active: true, user: user._id, platform: "tv", contentType: "tv" })
-		.sort({ displayName: 1 })
-		.lean();
+	let episodes = null;
+	if (contentType === "movie") {
+		const userSeries = await Subscription.find({
+			active: true,
+			user: user._id,
+			platform: "tv",
+			contentType,
+		}).lean();
 
-	const seriesIds = userSeries.map(s => s.externalId);
+		const assets = await Asset.find(
+			{ externalId: { $in: userSeries.map(s => s.externalId) } },
+			"externalId contentType firstDate rating providers",
+		).lean();
 
-	const episodeQuery = { seriesId: { $in: seriesIds } };
-	const afterQuery = { watched: { $ne: null } };
-	const sortQuery = { date: -1, seriesId: -1, number: -1 };
-	if (filter === "passed") {
-		episodeQuery.date = { $lte: new Date() };
-	} else if (filter === "finale") {
-		episodeQuery.date = { $lte: new Date() };
-		afterQuery.finale = true;
-	} else if (filter === "future") {
-		episodeQuery.date = { $gt: new Date() };
-		sortQuery.date = 1;
-	} else if (filter === "watched") {
-		afterQuery.watched = true;
-	} else if (filter === "toWatch" || filter === "queue") {
-		episodeQuery.date = { $lte: new Date() };
-		afterQuery.watched = false;
-	}
+		episodes = userSeries.map(s => {
+			const asset = assets.find(a => a && a.externalId === s.externalId && a.contentType === s.contentType);
 
-	let episodes = [];
-	if (id === "all") {
-		if (filter === "queue") {
-			episodes = await Episode.aggregate([
-				{ $match: episodeQuery },
-				...watchedQuery(user),
-				{ $match: afterQuery },
-				{ $sort: { season: 1, number: 1 } },
-				{ $group: { _id: "$seriesId", episodes: { $first: "$$ROOT" } } },
-				{ $replaceRoot: { newRoot: { $mergeObjects: ["$episodes", "$$ROOT"] } } },
-				{ $sort: { "series.watched.date": -1 } },
-				{
-					$project: {
-						_id: "$episodes._id",
-						title: 1,
-						image: 1,
-						season: 1,
-						number: 1,
-						date: 1,
-						series: 1,
-						lastWatched: { $last: "$series.watched" },
+			if (!asset) return s;
+
+			return {
+				...s,
+				hasAsset: true,
+				releaseDate: asset.firstDate,
+				rating: asset.rating,
+				providers: asset.providers,
+			};
+		});
+
+		if (filter === "passed") {
+			episodes = episodes.filter(s => diff(s.releaseDate, "days") >= 0);
+
+			episodes.sort((a, b) => (a.releaseDate < b.releaseDate ? 1 : -1));
+		} else if (filter === "future") {
+			episodes = episodes.filter(s => diff(s.releaseDate, "days") < 0);
+
+			episodes.sort((a, b) => (a.releaseDate > b.releaseDate ? 1 : -1));
+		}
+
+		episodes = episodes.slice(page ? page * 25 : 0, (page ? page * 25 : 0) + 25);
+
+		sendSocketUpdate("set", episodes, user);
+	} else {
+		const userSeries = await Subscription.find({ active: true, user: user._id, platform: "tv", contentType });
+
+		const seriesIds = userSeries.map(s => s.externalId);
+
+		const episodeQuery = { seriesId: { $in: seriesIds } };
+		const afterQuery = { watched: { $ne: null } };
+		const sortQuery = { date: -1, seriesId: -1, number: -1 };
+
+		if (filter === "passed") {
+			episodeQuery.date = { $lte: new Date() };
+		} else if (filter === "finale") {
+			episodeQuery.date = { $lte: new Date() };
+			afterQuery.finale = true;
+		} else if (filter === "future") {
+			episodeQuery.date = { $gt: new Date() };
+			sortQuery.date = 1;
+		} else if (filter === "watched") {
+			afterQuery.watched = true;
+		} else if (filter === "toWatch" || filter === "queue") {
+			episodeQuery.date = { $lte: new Date() };
+			afterQuery.watched = false;
+		}
+
+		if (id === "all") {
+			if (filter === "queue") {
+				episodes = await Episode.aggregate([
+					{ $match: episodeQuery },
+					...watchedQuery(user),
+					{ $match: afterQuery },
+					{ $sort: { season: 1, number: 1 } },
+					{ $group: { _id: "$seriesId", episodes: { $first: "$$ROOT" } } },
+					{ $replaceRoot: { newRoot: { $mergeObjects: ["$episodes", "$$ROOT"] } } },
+					{ $sort: { "series.watched.date": -1 } },
+					{
+						$project: {
+							_id: "$episodes._id",
+							title: 1,
+							image: 1,
+							season: 1,
+							number: 1,
+							date: 1,
+							series: 1,
+							lastWatched: { $last: "$series.watched" },
+						},
 					},
-				},
-				{ $project: { "series.watched": 0 } },
-			]);
+					{ $project: { "series.watched": 0 } },
+				]);
+			} else {
+				episodes = await Episode.aggregate([
+					{ $match: episodeQuery },
+					{ $sort: sortQuery },
+					...watchedQuery(user),
+					...finaleQuery,
+					{ $match: afterQuery },
+					{ $skip: page ? page * 50 : 0 },
+					{ $limit: 50 },
+				]);
+			}
 		} else {
+			const searchQuery = { seriesId: id };
+
+			if (season) searchQuery.season = Number(season);
+
 			episodes = await Episode.aggregate([
-				{ $match: episodeQuery },
-				{ $sort: sortQuery },
+				{ $match: searchQuery },
+				{ $sort: { number: -1 } },
 				...watchedQuery(user),
 				...finaleQuery,
-				{ $match: afterQuery },
-				{ $skip: page ? page * 50 : 0 },
-				{ $limit: 50 },
 			]);
 		}
-	} else {
-		const searchQuery = { seriesId: id };
-
-		if (season) searchQuery.season = Number(season);
-
-		episodes = await Episode.aggregate([
-			{ $match: searchQuery },
-			{ $sort: { number: -1 } },
-			...watchedQuery(user),
-			...finaleQuery,
-		]);
 	}
 
 	return response(200, "GET_EPISODES", episodes);
@@ -411,7 +452,7 @@ async function getSearch(event) {
 		displayName: contentType === "tv" ? s.name : s.title,
 		image: s.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}` : "",
 		imdbId: tmdbSeries[i].data.imdb_id,
-		year: dayjs(contentType === "tv" ? s.first_air_date : s.release_date).get("year"),
+		releaseDate: dayjs(contentType === "tv" ? s.first_air_date : s.release_date),
 		rating: s.vote_average.toFixed(1),
 	}));
 
@@ -637,7 +678,7 @@ async function getRecommendations(event) {
 					contentType,
 					displayName: contentType === "tv" ? rec.name : rec.title,
 					image: rec.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${rec.poster_path}` : "",
-					year: dayjs(contentType === "tv" ? rec.first_air_date : rec.release_date).get("year"),
+					year: dayjs(contentType === "tv" ? rec.first_air_date : rec.release_date),
 					rating: rec.vote_average.toFixed(1),
 					originalSeries: userSeries[i],
 				});
