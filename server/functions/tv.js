@@ -163,6 +163,8 @@ async function fetchEpisodes(series) {
 
 	console.log(`${series.displayName} - ${res.status} started`);
 
+	if (res.status !== 200) return false;
+
 	let seasons = [];
 	if (json.seasons) {
 		seasons = json.seasons.map(season => season.season_number).filter(season => season);
@@ -288,12 +290,15 @@ async function cronjob() {
 		{ $sort: { _id: 1 } },
 	]);
 
-	const seriesPromises = [];
 	for (const series of seriesList) {
-		seriesPromises.push(fetchEpisodes(series));
-	}
+		await new Promise(resolve => {
+			setTimeout(async () => {
+				await fetchEpisodes(series);
 
-	await Promise.all(seriesPromises);
+				resolve();
+			}, 500);
+		});
+	}
 
 	console.log("Cronjob finished");
 
@@ -347,7 +352,7 @@ async function getEpisodes(event) {
 		episodes = episodes.slice(page ? page * 25 : 0, (page ? page * 25 : 0) + 25);
 
 		sendSocketUpdate("set", episodes, user);
-	} else {
+	} else if (id === "all") {
 		const userSeries = await Subscription.find({ active: true, user: user._id, platform: "tv", contentType });
 
 		const seriesIds = userSeries.map(s => s.externalId);
@@ -371,53 +376,52 @@ async function getEpisodes(event) {
 			afterQuery.watched = false;
 		}
 
-		if (id === "all") {
-			if (filter === "queue") {
-				episodes = await Episode.aggregate([
-					{ $match: episodeQuery },
-					...watchedQuery(user),
-					{ $match: afterQuery },
-					{ $sort: { season: 1, number: 1 } },
-					{ $group: { _id: "$seriesId", episodes: { $first: "$$ROOT" } } },
-					{ $replaceRoot: { newRoot: { $mergeObjects: ["$episodes", "$$ROOT"] } } },
-					{ $sort: { "series.watched.date": -1 } },
-					{
-						$project: {
-							_id: "$episodes._id",
-							title: 1,
-							image: 1,
-							season: 1,
-							number: 1,
-							date: 1,
-							series: 1,
-							lastWatched: { $last: "$series.watched" },
-						},
-					},
-					{ $project: { "series.watched": 0 } },
-				]);
-			} else {
-				episodes = await Episode.aggregate([
-					{ $match: episodeQuery },
-					{ $sort: sortQuery },
-					...watchedQuery(user),
-					...finaleQuery,
-					{ $match: afterQuery },
-					{ $skip: page ? page * 50 : 0 },
-					{ $limit: 50 },
-				]);
-			}
-		} else {
-			const searchQuery = { seriesId: id };
-
-			if (season) searchQuery.season = Number(season);
-
+		if (filter === "queue") {
 			episodes = await Episode.aggregate([
-				{ $match: searchQuery },
-				{ $sort: { number: -1 } },
+				{ $match: episodeQuery },
+				...watchedQuery(user),
+				{ $match: afterQuery },
+				{ $sort: { season: 1, number: 1 } },
+				{ $group: { _id: "$seriesId", episodes: { $first: "$$ROOT" } } },
+				{ $replaceRoot: { newRoot: { $mergeObjects: ["$episodes", "$$ROOT"] } } },
+				{ $sort: { "series.watched.date": -1 } },
+				{
+					$project: {
+						_id: "$episodes._id",
+						title: 1,
+						image: 1,
+						season: 1,
+						number: 1,
+						date: 1,
+						series: 1,
+						lastWatched: { $last: "$series.watched" },
+					},
+				},
+				{ $project: { "series.watched": 0 } },
+			]);
+		} else {
+			episodes = await Episode.aggregate([
+				{ $match: episodeQuery },
+				{ $sort: sortQuery },
 				...watchedQuery(user),
 				...finaleQuery,
+				{ $match: afterQuery },
+				{ $skip: page ? page * 50 : 0 },
+				{ $limit: 50 },
 			]);
 		}
+	} else {
+		console.log(season, id);
+		const searchQuery = { seriesId: id };
+
+		if (season) searchQuery.season = Number(season);
+
+		episodes = await Episode.aggregate([
+			{ $match: searchQuery },
+			{ $sort: { number: -1 } },
+			...watchedQuery(user),
+			...finaleQuery,
+		]);
 	}
 
 	return response(200, "GET_EPISODES", episodes);
