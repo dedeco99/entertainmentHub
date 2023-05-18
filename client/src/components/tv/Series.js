@@ -17,6 +17,8 @@ import { translate } from "../../utils/translations";
 
 import { episodes as styles } from "../../styles/TV";
 
+import imdb from "../../img/imdb.svg";
+
 const useStyles = makeStyles(styles);
 
 const ChipTabs = withStyles({
@@ -191,18 +193,29 @@ function Series({ seriesId, season }) {
 								</Grid>
 								<Box component={Grid} item md={6} display={{ sm: "none", md: "block" }}>
 									<Box display="flex" flexDirection="column" height="100%">
-										<Box display="flex" flexGrow="1" justifyContent="flex-end">
+										<Box display="flex" justifyContent="flex-end" style={{ marginBottom: "10px" }}>
 											{assets.providers.map(provider => (
 												<a
 													href={provider.url}
 													target="_blank"
 													rel="noopener noreferrer"
 													key={provider._id}
-													style={{ width: "50px", height: "50px" }}
+													style={{ width: "50px", height: "50px", margin: "0px 3px" }}
 												>
 													<img src={provider.icon} width="50px" height="50px" />
 												</a>
 											))}
+										</Box>
+										<Box display="flex" flexGrow="1" justifyContent="flex-end">
+											<a
+												href={`https://www.imdb.com/title/${assets.imdbId}`}
+												target="_blank"
+												rel="noopener noreferrer"
+												key={assets.imdbId}
+												style={{ width: "50px", height: "50px", margin: "0px 3px" }}
+											>
+												<img src={imdb} width="50px" height="50px" />
+											</a>
 										</Box>
 										{assets && assets.contentType === "tv" ? (
 											<Typography variant="body1" style={{ padding: "0 0 8px 16px" }}>
