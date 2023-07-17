@@ -411,7 +411,6 @@ async function getEpisodes(event) {
 			]);
 		}
 	} else {
-		console.log(season, id);
 		const searchQuery = { seriesId: id };
 
 		if (season) searchQuery.season = Number(season);
@@ -486,14 +485,6 @@ async function getSearch(event) {
 	return response(200, "GET_SEARCH", series);
 }
 
-function getTrend(trend) {
-	const isUp = trend.find(".global-sprite.titlemeter.up").length;
-
-	const formattedTrend = `${isUp ? "+" : "-"}${trend.text().replace(/\n/g, "").replace("(", "").replace(")", "")}`;
-
-	return isNaN(formattedTrend) ? 0 : formattedTrend;
-}
-
 // eslint-disable-next-line max-lines-per-function,complexity
 async function getPopular(event) {
 	const { query, user } = event;
@@ -512,28 +503,32 @@ async function getPopular(event) {
 		if (!useCache) {
 			const url = `https://www.imdb.com/chart/${type === "movie" ? "moviemeter" : "tvmeter"}`;
 
-			const res = await api({ method: "get", url, headers: { "accept-language": "en-US" } });
+			const res = await api({
+				method: "get",
+				url,
+				headers: {
+					"accept-language": "en-US",
+					"User-Agent":
+						"Mozilla/5.0 (iPad; CPU OS 12_2 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148",
+				},
+			});
 			const $ = cheerio.load(res.data);
 
-			const infos = $(".titleColumn")
+			const infos = $(".ipc-metadata-list-summary-item__tc")
 				.toArray()
 				.map(elem => {
-					const year = $(elem)
-						.find(".secondaryInfo")
-						.text()
-						.match(/\((.*)\)/);
+					const rankInfo = $(elem).find(".meter-const-ranking").text().split(" ");
+					const trendIsDown = $(elem).find(".meter-const-ranking").find(".rank-down").length;
+
 					return {
 						id: $(elem).find("a").attr("href").split("/")[2],
-						name: $(elem).find("a").text(),
-						year: Number(year ? year[1] : null),
-						rank: Number($(elem).find(".velocity").text().split("\n")[0]),
-						// trend: getTrend($(elem).find(".velocity").find(".secondaryInfo")),
+						name: $(elem).find(".ipc-title__text").text(),
+						year: Number($(elem).find(".cli-title-metadata-item").first().text().split("–")[0]),
+						rank: Number(rankInfo[0]),
+						trend: Number(`${trendIsDown ? "-" : ""}${rankInfo[1].replace("(", "").replace(")", "")}`),
+						rating: $(elem).find(".ipc-rating-star").first().text(),
 					};
 				});
-
-			const ratings = $(".ratingColumn.imdbRating")
-				.toArray()
-				.map(elem => $(elem).find("strong").text());
 
 			const assets = await Asset.find({ imdbId: { $in: infos.map(i => i.id) } }).lean();
 
@@ -601,7 +596,7 @@ async function getPopular(event) {
 					year: infos[i].year,
 					rank: infos[i].rank,
 					trend: infos[i].trend,
-					rating: ratings[i],
+					rating: infos[i].rating,
 				});
 			}
 
@@ -610,7 +605,7 @@ async function getPopular(event) {
 
 		series = global.cache[type].popular.slice(Number(page) * 20, Number(page) * 20 + 20);
 	} else {
-		const url = `https://api.themoviedb.org/3/tv/popular?${`page=${Number(page) + 1}`}&api_key=${
+		const url = `https://api.themoviedb.org/3/${type}/popular?page=${Number(page) + 1}&api_key=${
 			process.env.tmdbKey
 		}`;
 
@@ -619,9 +614,11 @@ async function getPopular(event) {
 
 		series = json.results.map(s => ({
 			externalId: s.id.toString(),
-			contentType: "tv",
-			displayName: s.name,
+			contentType: type,
+			displayName: type === "tv" ? s.name : s.title,
 			image: s.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${s.poster_path}` : "",
+			releaseDate: dayjs(type === "tv" ? s.first_air_date : s.release_date),
+			rating: s.vote_average.toFixed(1),
 		}));
 	}
 
