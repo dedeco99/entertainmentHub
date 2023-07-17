@@ -682,7 +682,7 @@ async function getRecommendations(event) {
 					contentType,
 					displayName: contentType === "tv" ? rec.name : rec.title,
 					image: rec.poster_path ? `https://image.tmdb.org/t/p/w300_and_h450_bestv2${rec.poster_path}` : "",
-					year: dayjs(contentType === "tv" ? rec.first_air_date : rec.release_date),
+					releaseDate: dayjs(contentType === "tv" ? rec.first_air_date : rec.release_date),
 					rating: rec.vote_average.toFixed(1),
 					originalSeries: userSeries[i],
 				});
