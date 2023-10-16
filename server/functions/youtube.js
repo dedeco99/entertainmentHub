@@ -181,7 +181,7 @@ async function getPlaylists(event) {
 async function getPlaylistVideos(event) {
 	const { params, query, user } = event;
 	const { id } = params;
-	const { after } = query;
+	const { after, clearPlaylist } = query;
 
 	const accessToken = await getAccessToken(user);
 
@@ -208,6 +208,14 @@ async function getPlaylistVideos(event) {
 		url: `https://www.youtube.com/watch?v=${video.snippet.resourceId.videoId}`,
 		after: json.nextPageToken,
 	}));
+
+	if (clearPlaylist) {
+		for (const item of json.items) {
+			url = `https://www.googleapis.com/youtube/v3/playlistItems?id=${item.id}`;
+
+			await api({ method: "delete", url, headers });
+		}
+	}
 
 	return response(200, "GET_PLAYLIST_VIDEOS", videos);
 }
